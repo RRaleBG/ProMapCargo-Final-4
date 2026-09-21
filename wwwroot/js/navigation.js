@@ -787,7 +787,6 @@ window.ProMap = window.ProMap || {};
                     mapElement,
                 style,
                 center: [20.4573, 44.8178],
-
                 zoom: 8,
                 attributionControl: true,
                 interactive: false,

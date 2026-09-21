@@ -30,7 +30,9 @@
     <None Remove="Importer/**" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include=".github\" />
     <Folder Include="Pages\Fleet\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".github\copilot-instructions.md" />
   </ItemGroup>
 </Project>

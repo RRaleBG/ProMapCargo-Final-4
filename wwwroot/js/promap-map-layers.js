@@ -4,185 +4,286 @@
     window.ProMap = window.ProMap || {};
 
     const manager =
-        window.ProMap.MapLayers = {};
+        window.ProMap.MapLayers = window.ProMap.MapLayers || {};
 
     const maps =
         new WeakMap();
 
-    const tile =
-        layer =>
-            `/api/map/tiles/${layer}/{z}/{x}/{y}.png`;
+    const LOCAL_MAPLIBRE_JS = "/lib/maplibre-gl/dist/maplibre-gl.js";
+    const LOCAL_MAPLIBRE_CSS = "/lib/maplibre-gl/dist/maplibre-gl.css";
+    const LOCAL_PMTILES_JS = "/lib/pmtiles/dist/pmtiles.js";
+    const LOCAL_MAP_STYLE = "/styles/promap-dark.json";
+    const DEFAULT_ARCHIVE_URL = "/maps/serbia.pmtiles";
+    const LOCAL_MAPLIBRE_CSS_ID = "promap-shared-maplibre-css";
 
-    async function getConfig() {
-        const response =
-            await fetch(
-                "/api/map/config",
-                {
-                    credentials: "same-origin",
-                    headers: {
-                        Accept:
-                            "application/json"
-                    }
-                });
+    function loadCssOnce(href, id) {
+        return new Promise((resolve, reject) => {
+            if (id && document.getElementById(id)) {
+                resolve();
+                return;
+            }
+
+            const existing = document.querySelector(`link[href="${href}"]`);
+
+            if (existing) {
+                resolve();
+                return;
+            }
+
+            const link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = href;
+
+            if (id) {
+                link.id = id;
+            }
+
+            link.onload = () => resolve();
+            link.onerror = () => reject(new Error(`Lokalni CSS nije moguće učitati: ${href}`));
+            document.head.appendChild(link);
+        });
+    }
+
+    function loadScriptOnce(src, globalName) {
+        return new Promise((resolve, reject) => {
+            if (globalName && window[globalName]) {
+                resolve(window[globalName]);
+                return;
+            }
+
+            const existing = document.querySelector(`script[src="${src}"]`);
+
+            if (existing) {
+                existing.addEventListener("load", () => resolve(globalName ? window[globalName] : undefined), { once: true });
+                existing.addEventListener("error", () => reject(new Error(`Lokalni JavaScript nije moguće učitati: ${src}`)), { once: true });
+                return;
+            }
+
+            const script = document.createElement("script");
+            script.src = src;
+            script.async = false;
+            script.onload = () => resolve(globalName ? window[globalName] : undefined);
+            script.onerror = () => reject(new Error(`Lokalni JavaScript nije moguće učitati: ${src}`));
+            document.head.appendChild(script);
+        });
+    }
+
+    async function ensureLibraries() {
+        await loadCssOnce(LOCAL_MAPLIBRE_CSS, LOCAL_MAPLIBRE_CSS_ID);
+
+        const maplibregl = await loadScriptOnce(LOCAL_MAPLIBRE_JS, "maplibregl");
+        const pmtiles = await loadScriptOnce(LOCAL_PMTILES_JS, "pmtiles");
+
+        if (!maplibregl || typeof maplibregl.Map !== "function" || typeof maplibregl.addProtocol !== "function") {
+            throw new Error("Lokalni MapLibre paket nije validan.");
+        }
+
+        if (!pmtiles || typeof pmtiles.Protocol !== "function") {
+            throw new Error("Lokalni PMTiles paket nije validan.");
+        }
+
+        if (!window.__promapPmtilesProtocolRegistered) {
+            const protocol = new pmtiles.Protocol();
+            maplibregl.addProtocol("pmtiles", protocol.tile);
+            window.__promapPmtilesProtocol = protocol;
+            window.__promapPmtilesProtocolRegistered = true;
+        }
+
+        return maplibregl;
+    }
+
+    async function buildStyle(archiveUrl) {
+        const response = await fetch(LOCAL_MAP_STYLE, {
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: {
+                Accept: "application/json"
+            }
+        });
 
         if (!response.ok) {
-            throw new Error(
-                "Map configuration nije dostupna."
-            );
+            throw new Error(`promap-dark.json HTTP ${response.status}`);
         }
 
-        return response.json();
+        const rawStyle = await response.json();
+
+        return JSON.parse(
+            JSON.stringify(rawStyle).replaceAll(
+                "__PROMAP_PM_TILES_URL__",
+                archiveUrl
+            )
+        );
     }
 
-    function createBaseLayers(
-        config,
-        map) {
-        const enabled =
-            new Set(
-                (config.layers || [])
-                    .filter(layer => layer.enabled)
-                    .map(layer => layer.id)
-            );
+    function ensureHost(map) {
+        const container = map.getContainer();
+        container.style.position = container.style.position || "relative";
+        container.style.overflow = "hidden";
+        container.style.background = "#031712";
 
-        const baseLayers = {};
+        let host = container.querySelector(":scope > .promap-local-basemap-host");
 
-        if (enabled.has("dark")) {
-            baseLayers["TomTom Dark"] =
-                L.tileLayer(
-                    tile("dark"),
-                    {
-                        maxZoom: 20,
-                        attribution:
-                            "© TomTom"
-                    }
-                );
+        if (host) {
+            return host;
         }
 
-        baseLayers["OSM Light"] =
-            L.tileLayer(
-                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                {
-                    maxZoom: 19,
-                    attribution:
-                        "© OpenStreetMap contributors"
-                }
-            );
+        host = document.createElement("div");
+        host.className = "promap-local-basemap-host";
+        Object.assign(host.style, {
+            position: "absolute",
+            inset: "0",
+            width: "100%",
+            height: "100%",
+            zIndex: "300",
+            pointerEvents: "none",
+            visibility: "hidden",
+            overflow: "hidden",
+            background: "#031712"
+        });
 
-        baseLayers["Satellite"] =
-            L.tileLayer(
-                tile("satellite"),
-                {
-                    maxZoom: 20,
-                    attribution:
-                        "Tiles © Esri"
-                }
-            );
-
-        const overlays = {};
-
-        if (enabled.has("flow")) {
-            overlays["Traffic Flow"] =
-                L.tileLayer(
-                    tile("flow"),
-                    {
-                        maxZoom: 20,
-                        opacity: 0.75,
-                        attribution:
-                            "© TomTom"
-                    }
-                );
-        }
-
-        if (enabled.has("incidents")) {
-            overlays["Traffic Incidents"] =
-                L.tileLayer(
-                    tile("incidents"),
-                    {
-                        maxZoom: 20,
-                        opacity: 0.9,
-                        attribution:
-                            "© TomTom"
-                    }
-                );
-        }
-
-        let defaultLayer =
-            config.defaultBase === "dark"
-                ? baseLayers["TomTom Dark"]
-                : baseLayers["OSM Light"];
-
-        if (!defaultLayer) {
-            defaultLayer =
-                baseLayers["OSM Light"];
-        }
-
-        if (defaultLayer) {
-            defaultLayer.addTo(map);
-        }
-
-        const control =
-            L.control.layers(
-                baseLayers,
-                overlays,
-                {
-                    collapsed: true,
-                    position: "topright"
-                }
-            );
-
-        control.addTo(map);
-
-        return {
-            baseLayers,
-            overlays,
-            control
-        };
+        container.appendChild(host);
+        return host;
     }
 
-    async function attach(map) {
+    function sync(record) {
+        if (!record?.maplibreMap || !record?.leafletMap) {
+            return;
+        }
+
+        const center = record.leafletMap.getCenter();
+
+        try {
+            record.maplibreMap.jumpTo({
+                center: [center.lng, center.lat],
+                zoom: record.leafletMap.getZoom(),
+                bearing: 0,
+                pitch: 0
+            });
+            record.maplibreMap.resize();
+        } catch {
+        }
+    }
+
+    async function createMaplibreMap(host, archiveUrl, center, zoom) {
+        const maplibregl = await ensureLibraries();
+        const style = await buildStyle(archiveUrl);
+
+        const map = new maplibregl.Map({
+            container: host,
+            style,
+            center: [center.lng, center.lat],
+            zoom,
+            attributionControl: true,
+            interactive: false,
+            dragPan: false,
+            scrollZoom: false,
+            boxZoom: false,
+            doubleClickZoom: false,
+            dragRotate: false,
+            keyboard: false,
+            touchZoomRotate: false
+        });
+
+        await new Promise((resolve, reject) => {
+            let settled = false;
+            const timer = window.setTimeout(() => {
+                if (settled) {
+                    return;
+                }
+
+                settled = true;
+                reject(new Error("Lokalna PMTiles mapa nije učitana u roku od 20 sekundi."));
+            }, 20000);
+
+            map.once("load", () => {
+                if (settled) {
+                    return;
+                }
+
+                settled = true;
+                window.clearTimeout(timer);
+                resolve();
+            });
+
+            map.once("error", event => {
+                if (settled) {
+                    return;
+                }
+
+                settled = true;
+                window.clearTimeout(timer);
+                reject(event?.error || new Error("MapLibre resource error."));
+            });
+        });
+
+        return map;
+    }
+
+    async function attach(map, options) {
         if (!map) {
             return null;
         }
 
-        if (maps.has(map)) {
-            return maps.get(map);
+        const archiveUrl = options?.archiveUrl || DEFAULT_ARCHIVE_URL;
+        let record = maps.get(map);
+
+        if (record?.archiveUrl === archiveUrl && record.maplibreMap) {
+            sync(record);
+            return record;
         }
 
-        const config =
-            await getConfig();
+        const host = record?.host || ensureHost(map);
+        const center = map.getCenter();
+        const zoom = map.getZoom();
 
-        const result =
-            createBaseLayers(
-                config,
-                map);
+        if (!record) {
+            record = {
+                leafletMap: map,
+                host,
+                archiveUrl,
+                maplibreMap: null,
+                bound: false
+            };
+        }
 
-        maps.set(
-            map,
-            result);
+        if (record.maplibreMap) {
+            record.maplibreMap.remove();
+            record.maplibreMap = null;
+        }
 
-        return result;
+        host.replaceChildren();
+        const maplibreMap = await createMaplibreMap(host, archiveUrl, center, zoom);
+        host.style.visibility = "visible";
+        map.getContainer().style.background = "transparent";
+
+        record.host = host;
+        record.archiveUrl = archiveUrl;
+        record.maplibreMap = maplibreMap;
+
+        if (!record.bound) {
+            const syncView = () => sync(record);
+            map.on("move", syncView);
+            map.on("zoom", syncView);
+            map.on("resize", () => record.maplibreMap?.resize());
+            record.bound = true;
+        }
+
+        maps.set(map, record);
+        sync(record);
+        return record;
+    }
+
+    async function setArchive(map, archiveUrl) {
+        return attach(map, {
+            archiveUrl: archiveUrl || DEFAULT_ARCHIVE_URL
+        });
+    }
+
+    function getArchive(map) {
+        return maps.get(map)?.archiveUrl || null;
     }
 
     manager.attach = attach;
-
-    window.addEventListener(
-        "load",
-        () => {
-            document
-                .querySelectorAll(
-                    ".pm-map[data-map-proxy], .pm-map[data-map-config]"
-                )
-                .forEach(element => {
-                    if (element._leaflet_id) {
-                        return;
-                    }
-
-                    const map =
-                        L.map(element);
-
-                    attach(map)
-                        .catch(console.error);
-                });
-        });
-
+    manager.setArchive = setArchive;
+    manager.getArchive = getArchive;
 })();

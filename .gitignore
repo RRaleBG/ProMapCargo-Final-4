@@ -147,6 +147,16 @@ appsettings.*.Local.json
 *.pmtiles.part
 
 ###############################################################################
+# Local map tool caches / downloaded sources / helper binaries
+###############################################################################
+
+.planetiler/
+.planetiler/*
+
+/pmtiles.exe
+/pmtiles-tool/*.exe
+
+###############################################################################
 # Other map data
 ###############################################################################
 
@@ -179,6 +189,7 @@ appsettings.*.Local.json
 *.pbf
 *.pbf.tmp
 *.pbf.part
+!/wwwroot/fonts/**/*.pbf
 
 *.geojson.tmp
 *.geojson.part

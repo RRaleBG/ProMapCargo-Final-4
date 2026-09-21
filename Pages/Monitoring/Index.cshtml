@@ -1145,9 +1145,7 @@
 
                 <div id="monitoringMap"
                      class="pm-map"
-                     data-map-proxy="/api/map"
-                     data-map-config="/api/map/config"
-                     data-map-default-base="dark"
+                     data-map-archive="/maps/serbia.pmtiles"
                      data-map-max-zoom="18">
                 </div>
 
@@ -1162,7 +1160,7 @@
                     </button>
 
                     <button id="toggleDarkMap" class="monitoring-map-control" type="button">
-                        Dark Map
+                        Srbija mapa
                     </button>
 
                 </div>
@@ -1318,9 +1316,7 @@
 
     const state = {
         map: null,
-        lightLayer: null,
-        darkLayer: null,
-        currentLayer: null,
+        currentBasemapArchive: "/maps/serbia.pmtiles",
         markers: new Map(),
         vehicles: [],
         selectedVehicleId: null,
@@ -1999,37 +1995,24 @@
                 "monitoringMap",
                 {
                     zoomControl: true,
-                    preferCanvas: true
+                    preferCanvas: true,
+                    maxZoom: 22,
+                    attributionControl: true
                 }
             ).setView(
                 DEFAULT_CENTER,
                 7
             );
 
-        state.lightLayer =
-            L.tileLayer(
-                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        void window.ProMap.MapLayers
+            .attach(
+                state.map,
                 {
-                    maxZoom: 19,
-                    attribution:
-                        '&copy; OpenStreetMap contributors'
+                    archiveUrl:
+                        state.currentBasemapArchive
                 }
-            );
-
-        state.darkLayer =
-            L.tileLayer(
-                "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-                {
-                    maxZoom: 20,
-                    attribution:
-                        '&copy; OpenStreetMap &copy; CARTO'
-                }
-            );
-
-        state.currentLayer =
-            state.darkLayer.addTo(
-                state.map
-            );
+            )
+            .catch(console.error);
 
         setTimeout(
             () => {
@@ -2039,51 +2022,37 @@
         );
     }
 
-    function toggleMapLayer() {
+    async function toggleMapLayer() {
 
         if (!state.map) {
             return;
         }
 
-        if (
-            state.currentLayer ===
-            state.darkLayer
-        ) {
+        state.currentBasemapArchive =
+            state.currentBasemapArchive === "/maps/serbia.pmtiles"
+                ? "/maps/europe.pmtiles"
+                : "/maps/serbia.pmtiles";
 
-            state.map.removeLayer(
-                state.darkLayer
-            );
-
-            state.currentLayer =
-                state.lightLayer;
-
-            state.lightLayer.addTo(
-                state.map
+        try {
+            await window.ProMap.MapLayers.setArchive(
+                state.map,
+                state.currentBasemapArchive
             );
 
             setText(
                 "toggleDarkMap",
-                "Light Map"
+                state.currentBasemapArchive === "/maps/serbia.pmtiles"
+                    ? "Srbija mapa"
+                    : "Evropa mapa"
             );
+        } catch (error) {
+            state.currentBasemapArchive =
+                state.currentBasemapArchive === "/maps/serbia.pmtiles"
+                    ? "/maps/europe.pmtiles"
+                    : "/maps/serbia.pmtiles";
 
-            return;
+            console.error(error);
         }
-
-        state.map.removeLayer(
-            state.lightLayer
-        );
-
-        state.currentLayer =
-            state.darkLayer;
-
-        state.darkLayer.addTo(
-            state.map
-        );
-
-        setText(
-            "toggleDarkMap",
-            "Dark Map"
-        );
     }
 
     function haversineDistance(

@@ -2233,37 +2233,17 @@ select:focus-visible {
 
             <div class="navigation-map-shell">
 
-                <div id="navMap"
-                     class="pm-map"
-                     data-map-proxy="/api/map/tiles/{layer}/{z}/{x}/{y}.png"
-                     data-map-config="/api/map/config"
-                     data-map-default-base="dark"
-                     data-map-max-zoom="19">
+                <div id="navMap" class="pm-map" data-map-archive="/maps/serbia.pmtiles" data-map-max-zoom="19">
 
 
-                    <!-- =====================================
-                         MAP TOP BAR
-                         ===================================== -->
-
+                    <!-- ===================================== MAP TOP BAR  ===================================== -->
                     <div class="nav-map-topbar">
-
                         <div class="nav-map-mode-tabs">
+                            <button type="button" class="nav-map-tab active" id="mapRouteTab">   Ruta  </button>
 
-                            <button type="button"
-                                    class="nav-map-tab active"
-                                    id="mapRouteTab">
-                                Ruta
-                            </button>
+                            <button type="button" class="nav-map-tab" id="mapRestrictionsTab">  Ograničenja </button>
 
-                            <button type="button"
-                                    class="nav-map-tab"
-                                    id="mapRestrictionsTab">
-                                Ograničenja
-                            </button>
-
-                            <button type="button"
-                                    class="nav-map-tab"
-                                    id="mapGpsTab">
+                            <button type="button" class="nav-map-tab"   id="mapGpsTab">
                                 GPS
                             </button>
 

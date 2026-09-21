@@ -1290,9 +1290,7 @@
 
                     <div id="dispatchMap"
                          class="pm-map"
-                         data-map-proxy="/api/map/tiles/{layer}/{z}/{x}/{y}.png"
-                         data-map-config="/api/map/config"
-                         data-map-default-base="dark"
+                         data-map-archive="/maps/serbia.pmtiles"
                          data-map-max-zoom="19">
                     </div>
 
@@ -2030,41 +2028,16 @@
 
                 state.map = L.map(element, {
                     zoomControl: true,
-                    preferCanvas: true
+                    preferCanvas: true,
+                    maxZoom: 22,
+                    attributionControl: true
                 }).setView([44.9, 20.5], 7);
 
-                const lightMap = L.tileLayer(
-                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    {
-                        maxZoom: 19,
-                        attribution:
-                            "© OpenStreetMap contributors"
-                    }
-                );
-
-                const darkMap = L.tileLayer(
-                    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-                    {
-                        maxZoom: 20,
-                        subdomains: "abcd",
-                        attribution:
-                            "© OpenStreetMap contributors © CARTO"
-                    }
-                );
-
-                darkMap.addTo(state.map);
-
-                L.control.layers(
-                    {
-                        "Dark Map": darkMap,
-                        "OSM Light": lightMap
-                    },
-                    null,
-                    {
-                        collapsed: true,
-                        position: "topright"
-                    }
-                ).addTo(state.map);
+                void window.ProMap.MapLayers
+                    .attach(state.map, {
+                        archiveUrl: "/maps/serbia.pmtiles"
+                    })
+                    .catch(console.error);
 
                 fleet.forEach(addFleetMarker);
 
