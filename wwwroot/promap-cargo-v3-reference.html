@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="sr" class="h-full w-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProMap Cargo - Kamionska Navigacija v2</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        body
+        {
+            font-family: Inter, sans-serif;
+        }
+
+        .no-scrollbar::-webkit-scrollbar
+        {
+            display: none;
+        }
+
+        .no-scrollbar
+        {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .leaflet-container
+        {
+            width: 100%;
+            height: 100%;
+            background: #0f172a !important;
+            font-family: Inter,sans-serif;
+        }
+
+        .marker-pulse::before
+        {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: inherit;
+            animation: pulse-ring 1.8s cubic-bezier(.215,.61,.355,1) infinite;
+        }
+
+        @keyframes pulse-ring
+        {
+            0%
+            {
+                transform: scale(.8);
+                opacity: .8
+            }
+
+            100%
+            {
+                transform: scale(2.4);
+                opacity: 0
+            }
+        }
+
+        @keyframes truck-glow
+        {
+            0%,100%
+            {
+                box-shadow: 0 0 15px rgba(245,158,11,.35)
+            }
+
+            50%
+            {
+                box-shadow: 0 0 25px rgba(245,158,11,.75)
+            }
+        }
+
+        .truck-glow-effect
+        {
+            animation: truck-glow 2s infinite;
+        }
+
+        .traffic-sign-speed
+        {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #fff;
+            border: 5px solid #ef4444;
+            color: #0f172a;
+            font-weight: 900;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,.5);
+        }
+    </style>
+</head>
+
+<body class="h-full w-full bg-slate-950 text-slate-100 overflow-hidden select-none">
+    <div class="relative w-full h-full">
+
+        <div id="map" class="absolute inset-0 z-10"></div>
+
+        <div id="top-nav-hud" class="hidden absolute top-3 left-3 right-3 md:left-1/2 md:-translate-x-1/2 md:max-w-3xl z-40 bg-slate-900/95 backdrop-blur-xl border border-amber-500/50 rounded-2xl shadow-2xl p-3 sm:p-4 truck-glow-effect">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3 flex-1 min-w-0">
+                    <div id="hud-profile-badge-box" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-500 text-slate-950 flex flex-col items-center justify-center font-black shrink-0">
+                        <i id="hud-turn-icon" class="fa-solid fa-arrow-up text-2xl"></i>
+                        <span id="hud-dist-next" class="text-[10px] sm:text-xs uppercase font-extrabold mt-0.5">--</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span id="hud-mode-tag" class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                <i class="fa-solid fa-truck"></i> Kamion
+                            </span>
+                            <span id="hud-gps-status" class="text-[9px] font-bold text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full ml-auto">GPS čeka</span>
+                        </div>
+                        <p id="hud-instruction" class="text-xs sm:text-sm font-extrabold text-white truncate">Priprema navigacije...</p>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                            <div id="hud-progress-bar" class="bg-gradient-to-r from-amber-500 via-emerald-400 to-teal-300 h-full w-0 transition-all"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between sm:justify-end gap-2 shrink-0 border-t sm:border-t-0 border-slate-800 pt-2 sm:pt-0">
+                    <div class="flex items-center gap-2 bg-slate-950/80 p-1.5 px-2 border border-slate-800 rounded-xl">
+                        <div class="flex flex-col items-center">
+                            <div id="hud-speed-limit-sign" class="traffic-sign-speed">50</div>
+                            <span class="text-[8px] text-slate-400 font-bold uppercase mt-0.5">Limit*</span>
+                        </div>
+                        <div class="text-center px-1 min-w-[55px]">
+                            <span id="hud-speed" class="text-xl sm:text-2xl font-black text-amber-400 block leading-none">0</span>
+                            <span class="text-[8px] text-slate-400 font-bold uppercase">km/h</span>
+                        </div>
+                    </div>
+                    <button id="btn-toggle-voice" onclick="toggleVoice()" class="w-10 h-10 rounded-xl bg-amber-500/25 border border-amber-500/50 text-amber-400 flex items-center justify-center" title="Glasovna navigacija">
+                        <i id="voice-icon" class="fa-solid fa-volume-high"></i>
+                    </button>
+                    <button onclick="stopNavigation()" class="w-10 h-10 rounded-xl bg-rose-500/25 border border-rose-500/50 text-rose-300 flex items-center justify-center" title="Zaustavi">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <header id="main-header" class="absolute top-4 left-4 right-4 md:left-auto md:right-4 z-20 flex items-center justify-between gap-3 bg-slate-900/90 backdrop-blur-md border border-slate-700/60 p-3 rounded-2xl shadow-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-sky-600 flex items-center justify-center text-white shadow-lg">
+                    <i class="fa-solid fa-truck-fast text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm font-bold tracking-wide">ProMap Cargo <span class="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/40 px-2 py-0.5 rounded-full">v2</span></h1>
+                    <p class="text-xs text-slate-400">Rute + lokalni engine ograničenja</p>
+                </div>
+            </div>
+            <button onclick="toggleSidebar()" class="md:hidden w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </header>
+
+        <aside id="sidebar" class="absolute left-0 bottom-0 md:top-4 md:left-4 md:bottom-auto z-20 w-full md:w-[410px] max-h-[88vh] md:max-h-[calc(100vh-2rem)] bg-slate-900/95 backdrop-blur-xl border border-slate-800 md:rounded-3xl shadow-2xl flex flex-col">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center bg-slate-950 p-1 rounded-2xl border border-slate-800">
+                    <button id="tab-btn-route" onclick="switchTab('route')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-600 text-white">Planer</button>
+                    <button id="tab-btn-search" onclick="switchTab('search')" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-400">Pretraga</button>
+                </div>
+                <button onclick="resetRoute()" class="text-xs text-slate-400 hover:text-rose-400"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+            </div>
+
+            <div id="tab-route-content" class="p-4 space-y-4 overflow-y-auto no-scrollbar flex-1">
+                <div class="grid grid-cols-4 gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+                    <button id="mode-truck" onclick="setProfile('truck')" class="py-2 rounded-lg bg-amber-500 text-slate-950 font-bold flex flex-col sm:flex-row items-center justify-center gap-1"><i class="fa-solid fa-truck"></i> Kamion</button>
+                    <button id="mode-driving" onclick="setProfile('driving')" class="py-2 rounded-lg text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-1"><i class="fa-solid fa-car"></i> Auto</button>
+                    <button id="mode-cycling" onclick="setProfile('cycling')" class="py-2 rounded-lg text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-1"><i class="fa-solid fa-bicycle"></i> Bicikl</button>
+                    <button id="mode-walking" onclick="setProfile('walking')" class="py-2 rounded-lg text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-1"><i class="fa-solid fa-person-walking"></i> Pešice</button>
+                </div>
+
+                <div id="truck-info-badge" class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 space-y-2">
+                    <div class="flex items-center gap-2 text-xs text-amber-300">
+                        <i class="fa-solid fa-shield-halved text-amber-400"></i>
+                        <div><b class="block text-amber-200">Parametri teretnog vozila</b><span class="text-[10px]">Restrikcije se proveravaju kao max dozvoljene vrednosti.</span></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 pt-1 border-t border-amber-500/20">
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-0.5">Masa vozila</label>
+                            <select id="truck-weight-select" onchange="updateProfileRestrictions()" class="w-full bg-slate-900 border border-slate-700 text-amber-300 text-xs rounded-lg p-1.5">
+                                <option value="40">40t</option>
+                                <option value="12">12t</option>
+                                <option value="7.5">7.5t</option>
+                                <option value="3.5">3.5t</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-0.5">Visina</label>
+                            <select id="truck-height-select" onchange="updateProfileRestrictions()" class="w-full bg-slate-900 border border-slate-700 text-amber-300 text-xs rounded-lg p-1.5">
+                                <option value="4.0">4.0m</option>
+                                <option value="3.8">3.8m</option>
+                                <option value="3.2">3.2m</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-0.5">Širina</label>
+                            <select id="truck-width-select" onchange="updateProfileRestrictions()" class="w-full bg-slate-900 border border-slate-700 text-amber-300 text-xs rounded-lg p-1.5">
+                                <option value="2.55">2.55m</option>
+                                <option value="2.50">2.50m</option>
+                                <option value="2.30">2.30m</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-0.5">Dužina</label>
+                            <select id="truck-length-select" onchange="updateProfileRestrictions()" class="w-full bg-slate-900 border border-slate-700 text-amber-300 text-xs rounded-lg p-1.5">
+                                <option value="16.5">16.5m</option>
+                                <option value="12">12m</option>
+                                <option value="7.5">7.5m</option>
+                            </select>
+                        </div>
+                    </div>
+                    <label class="flex items-center gap-2 text-[11px] text-slate-300">
+                        <input type="checkbox" id="chk-avoid-restricted" checked onchange="calculateRoute()" class="accent-amber-500">
+                        Automatski izaberi alternativu bez aktivnih zona
+                    </label>
+                    <button onclick="toggleRestrictedZonesVisibility()" id="btn-toggle-zones" class="text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-1 rounded-lg w-fit">
+                        <i class="fa-solid fa-ban"></i> Zone
+                    </button>
+                </div>
+
+                <div id="profile-info-banner" class="hidden bg-sky-500/10 border border-sky-500/30 rounded-xl p-3 text-xs text-sky-300 flex items-center gap-2">
+                    <i id="profile-banner-icon" class="fa-solid fa-car"></i>
+                    <div><b id="profile-banner-title" class="block text-sky-200">Profil</b><span id="profile-banner-desc" class="text-[10px]">Standardni profil.</span></div>
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-bold text-slate-300"><i class="fa-solid fa-triangle-exclamation text-amber-400"></i> Aktivne restrikcije</span>
+                        <span id="active-restrictions-count" class="text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-full font-bold">0</span>
+                    </div>
+                    <p id="restriction-summary-text" class="text-[11px] text-slate-400 leading-relaxed mt-2">Učitajte parametre vozila.</p>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center gap-2 bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                        <div class="w-3 h-3 rounded-full bg-emerald-400 ring-4 ring-emerald-400/20 shrink-0 ml-1"></div>
+                        <input id="input-start" type="text" placeholder="Početna lokacija..." class="bg-transparent w-full text-xs text-slate-200 focus:outline-none placeholder-slate-500" onkeydown="if(event.key==='Enter') searchAndSetPoint('start',this.value)">
+                        <button onclick="searchAndSetPoint('start',document.getElementById('input-start').value)" class="p-1 text-slate-400"><i class="fa-solid fa-check"></i></button>
+                        <button onclick="useCurrentLocation()" class="p-1 text-slate-400"><i class="fa-solid fa-crosshairs"></i></button>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                        <div class="w-3 h-3 rounded-full bg-rose-500 ring-4 ring-rose-500/20 shrink-0 ml-1"></div>
+                        <input id="input-end" type="text" placeholder="Destinacija..." class="bg-transparent w-full text-xs text-slate-200 focus:outline-none placeholder-slate-500" onkeydown="if(event.key==='Enter') searchAndSetPoint('end',this.value)">
+                        <button onclick="searchAndSetPoint('end',document.getElementById('input-end').value)" class="p-1 text-slate-400"><i class="fa-solid fa-check"></i></button>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-2">Brze rute</span>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="loadPresetRoute('bg-ns')" class="text-xs bg-slate-800 border border-slate-700 p-2 rounded-xl">BG → NS</button>
+                        <button onclick="loadPresetRoute('nis-kg')" class="text-xs bg-slate-800 border border-slate-700 p-2 rounded-xl">NIŠ → KG</button>
+                        <button onclick="loadPresetRoute('sub-bg')" class="text-xs bg-slate-800 border border-slate-700 p-2 rounded-xl">SUB → BG</button>
+                    </div>
+                </div>
+
+                <button onclick="calculateRoute()" class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs">
+                    <i class="fa-solid fa-calculator"></i> Izračunaj i proveri zabrane
+                </button>
+
+                <div id="route-panel" class="space-y-4 pt-2 border-t border-slate-800">
+                    <div id="truck-warning-banner" class="hidden bg-rose-500/10 border border-rose-500/40 rounded-xl p-2.5 flex items-center gap-2 text-xs text-rose-300">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+                        <div><b id="warning-banner-title" class="block text-rose-200">Ograničenje</b><span id="warning-banner-desc" class="text-[10px]">Ruta ima problem.</span></div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-amber-950/50 to-slate-900 border border-amber-500/40 rounded-2xl p-4 flex items-center justify-between">
+                        <div>
+                            <span id="route-duration-label" class="text-xs font-medium text-amber-300 block"><i class="fa-solid fa-route"></i> Ruta</span>
+                            <div id="route-time" class="text-2xl font-black">-- min</div>
+                            <span id="route-distance" class="text-xs text-slate-400">-- km</span>
+                        </div>
+                        <div id="route-score-badge" class="text-right text-[10px] font-bold text-slate-400">--</div>
+                    </div>
+
+                    <button id="btn-start-nav" onclick="startNavigation()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-black text-sm uppercase">
+                        <i class="fa-solid fa-location-arrow"></i> Započni GPS navigaciju
+                    </button>
+
+                    <div class="text-[10px] text-slate-500 leading-relaxed">
+                        * Brzinski znak u ovom demo izdanju je UI indikator; stvarna zakonska ograničenja brzine i kamionska ograničenja treba vezati za proverene map/API podatke.
+                    </div>
+
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider"><i class="fa-solid fa-list-ol text-amber-400"></i> Uputstva</h3>
+                    <div id="steps-container" class="space-y-2 text-xs max-h-56 overflow-y-auto no-scrollbar pr-1"></div>
+                </div>
+            </div>
+
+            <div id="tab-search-content" class="hidden p-4 space-y-4 overflow-y-auto no-scrollbar flex-1">
+                <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+                    <input id="search-input" placeholder="Grad, ulica ili objekat..." class="bg-transparent w-full text-xs focus:outline-none" onkeydown="if(event.key==='Enter') executeSearch()">
+                    <button onclick="executeSearch()" class="bg-sky-600 text-white px-3 py-1 rounded-lg text-xs">Traži</button>
+                </div>
+                <div id="search-results" class="space-y-2 text-xs"></div>
+            </div>
+        </aside>
+
+        <div class="absolute bottom-6 right-6 z-20 flex flex-col gap-2">
+            <button onclick="map.zoomIn()" class="w-11 h-11 bg-slate-900/90 border border-slate-700 rounded-2xl"><i class="fa-solid fa-plus"></i></button>
+            <button onclick="map.zoomOut()" class="w-11 h-11 bg-slate-900/90 border border-slate-700 rounded-2xl"><i class="fa-solid fa-minus"></i></button>
+            <button onclick="useCurrentLocation()" class="w-11 h-11 bg-slate-900/90 border border-slate-700 rounded-2xl mt-2"><i class="fa-solid fa-location-crosshairs text-emerald-400"></i></button>
+        </div>
+
+        <div id="voice-subtitle-toast" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 border border-amber-500/60 text-amber-300 px-5 py-2.5 rounded-full shadow-2xl text-xs font-extrabold max-w-sm text-center">
+            <i class="fa-solid fa-volume-high mr-2"></i><span id="voice-subtitle-text"></span>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.PROMAP_API_BASE || "http://localhost:5000/api";
+        let map, startMarker = null, endMarker = null, searchMarker = null, movingTruckMarker = null, routeLayer = null;
+        let routeCandidatesLayer = null, zonesLayerGroup = null;
+        let startCoords = [20.457273, 44.817813], endCoords = [19.833549, 45.255133];
+        let currentProfile = 'truck', showZonesOnMap = true;
+        let currentRouteData = null, isNavigating = false, watchId = null;
+        let isVoiceEnabled = true, lastAnnouncedStep = -1, audioCtx = null;
+
+        // Demo/local restriction dataset. In production this should come from backend/OSM-derived data.
+        const RESTRICTED_TRUCK_ZONES = [
+            {
+                id: 'bg-stari-grad', name: 'Stari Grad Beograd', center: [44.8178, 20.4572], maxWeight: 7.5, maxHeight: null, maxWidth: null, maxLength: null,
+                coords: [[44.8250, 20.4480], [44.8220, 20.4680], [44.8100, 20.4700], [44.8080, 20.4500], [44.8250, 20.4480]]
+            },
+            {
+                id: 'ns-centar', name: 'Novi Sad Centar', center: [45.2551, 19.8435], maxWeight: 3.5, maxHeight: 4.0, maxWidth: null, maxLength: null,
+                coords: [[45.2590, 19.8350], [45.2580, 19.8520], [45.2500, 19.8500], [45.2490, 19.8380], [45.2590, 19.8350]]
+            },
+            {
+                id: 'pancevo-most', name: 'Pančevački koridor - visina', center: [44.8320, 20.4850], maxWeight: null, maxHeight: 3.8, maxWidth: null, maxLength: null,
+                coords: [[44.8400, 20.4750], [44.8380, 20.4950], [44.8250, 20.4900], [44.8280, 20.4700], [44.8400, 20.4750]]
+            }
+        ];
+
+        window.addEventListener('load', () => {
+            initMap(); initSpeech(); updateProfileRestrictions();
+        });
+
+        function initMap() {
+            map = L.map('map', {
+                zoomControl: false
+            }).setView([44.817813, 20.457273], 11);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            zonesLayerGroup = L.layerGroup().addTo(map);
+
+            routeCandidatesLayer = L.layerGroup().addTo(map);
+            drawRestrictedZones();
+
+            map.on('click', e => {
+                if (!isNavigating)
+                    handleMapClick([e.latlng.lng, e.latlng.lat]);
+            });
+
+            document.getElementById('input-start').value = 'Beograd (Centar)';
+            document.getElementById('input-end').value = 'Novi Sad (Centar)';
+
+            createCustomMarker(startCoords, 'start'); createCustomMarker(endCoords, 'end');
+            calculateRoute();
+        }
+
+        function initSpeech() {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+
+        function speakText(text) {
+            if (!isVoiceEnabled || !text)
+                return;
+            const toast = document.getElementById('voice-subtitle-toast'), el = document.getElementById('voice-subtitle-text');
+            el.textContent = text; toast.classList.remove('hidden');
+
+            clearTimeout(window.voiceToastTimer); window.voiceToastTimer = setTimeout(() => toast.classList.add('hidden'), 4000);
+            if (!('speechSynthesis' in window))
+                return;
+
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text); u.rate = .95; u.lang = 'sr-RS';
+            const v = window.speechSynthesis.getVoices().find(x => /^(sr|hr|bs)/i.test(x.lang));
+
+            if (v) u.voice = v;
+            window.speechSynthesis.speak(u);
+        }
+
+        function toggleVoice() {
+            isVoiceEnabled = !isVoiceEnabled;
+            document.getElementById('voice-icon').className = isVoiceEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
+            if (!isVoiceEnabled && 'speechSynthesis' in window)
+                speechSynthesis.cancel();
+
+            else speakText('Glasovno obaveštenje je uključeno.');
+        }
+
+        function getTruckParams() {
+            return {
+                weight: +document.getElementById('truck-weight-select').value,
+                height: +document.getElementById('truck-height-select').value,
+                width: +document.getElementById('truck-width-select').value,
+                length: +document.getElementById('truck-length-select').value
+            };
+        }
+
+        // IMPORTANT: max restrictions are violated only when the vehicle is GREATER than the limit.
+        function zoneAppliesToVehicle(zone, p) {
+            return (zone.maxWeight != null && p.weight > zone.maxWeight) ||
+                (zone.maxHeight != null && p.height > zone.maxHeight) ||
+                (zone.maxWidth != null && p.width > zone.maxWidth) ||
+                (zone.maxLength != null && p.length > zone.maxLength);
+        }
+
+        function pointInPolygon(lat, lng, poly) {
+            let inside = false;
+            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+                const xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
+                const hit = ((yi > lng) != (yj > lng)) && (lat < (xj - xi) * (lng - yi) / (yj - yi) + xi);
+                if (hit) inside = !inside;
+            }
+            return inside;
+        }
+
+        // coords are [lng,lat]. Check route against polygon and a small safety buffer.
+        function routeHitsZone(coords, zone) {
+            const buffer = 120;
+            for (const c of coords) {
+                if (pointInPolygon(c[1], c[0], zone.coords)) return true;
+                if (getDistanceInMeters(c[1], c[0], zone.center[0], zone.center[1]) < buffer) return true;
+            }
+            return false;
+        }
+
+        function analyzeRoute(route) {
+            if (currentProfile !== 'truck') return { restricted: false, zones: [], score: 0 };
+            const p = getTruckParams();
+            const zones = RESTRICTED_TRUCK_ZONES.filter(z => zoneAppliesToVehicle(z, p) && routeHitsZone(route.geometry.coordinates, z));
+            return { restricted: zones.length > 0, zones, score: zones.length };
+        }
+
+        function drawRestrictedZones() {
+            if (!zonesLayerGroup) return;
+            zonesLayerGroup.clearLayers();
+            if (!showZonesOnMap || currentProfile !== 'truck') return;
+            const p = getTruckParams();
+            RESTRICTED_TRUCK_ZONES.forEach(zone => {
+                const active = zoneAppliesToVehicle(zone, p);
+                const polygon = L.polygon(zone.coords, {
+                    color: active ? '#ef4444' : '#f59e0b', weight: active ? 3 : 2, dashArray: '5,5',
+                    fillColor: active ? '#ef4444' : '#f59e0b', fillOpacity: .20
+                });
+                const limits = [
+                    zone.maxWeight != null ? `Masa ≤ ${zone.maxWeight}t` : null,
+                    zone.maxHeight != null ? `Visina ≤ ${zone.maxHeight}m` : null,
+                    zone.maxWidth != null ? `Širina ≤ ${zone.maxWidth}m` : null,
+                    zone.maxLength != null ? `Dužina ≤ ${zone.maxLength}m` : null
+                ].filter(Boolean).join(' · ');
+                polygon.bindPopup(`<b>${zone.name}</b><br>${limits}<br><span style="color:${active ? '#dc2626' : '#047857'}">${active ? 'Aktivna za izabrano vozilo' : 'Nije aktivna za izabrano vozilo'}</span>`);
+                zonesLayerGroup.addLayer(polygon);
+            });
+        }
+
+        function updateProfileRestrictions() {
+            if (currentProfile !== 'truck') {
+                document.getElementById('active-restrictions-count').textContent = '0';
+                document.getElementById('restriction-summary-text').textContent = 'Kamionske restrikcije nisu aktivne za ovaj profil.';
+                drawRestrictedZones(); return;
+            }
+            const p = getTruckParams();
+            const active = RESTRICTED_TRUCK_ZONES.filter(z => zoneAppliesToVehicle(z, p));
+            document.getElementById('active-restrictions-count').textContent = `${active.length} aktivne`;
+            document.getElementById('restriction-summary-text').textContent =
+                `Vozilo ${p.weight}t / ${p.height}m / ${p.width}m / ${p.length}m. Aktivno je ${active.length} lokalnih zona.`;
+            drawRestrictedZones();
+            if (startCoords && endCoords) calculateRoute();
+        }
+
+        function setProfile(mode) {
+            currentProfile = mode;
+            const cfg = {
+                truck: ['Kamion', 'fa-truck', 'bg-amber-500'],
+                driving: ['Auto', 'fa-car', 'bg-sky-500'],
+                cycling: ['Bicikl', 'fa-bicycle', 'bg-emerald-500'],
+                walking: ['Pešice', 'fa-person-walking', 'bg-violet-500']
+            };
+            ['truck', 'driving', 'cycling', 'walking'].forEach(p => {
+                const b = document.getElementById(`mode-${p}`);
+                b.className = p === mode
+                    ? `py-2 rounded-lg ${cfg[p][2]} text-slate-950 font-bold flex flex-col sm:flex-row items-center justify-center gap-1`
+                    : "py-2 rounded-lg text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-1";
+            });
+            const truck = document.getElementById('truck-info-badge'), banner = document.getElementById('profile-info-banner');
+            if (mode === 'truck') { truck.classList.remove('hidden'); banner.classList.add('hidden'); }
+            else {
+                truck.classList.add('hidden'); banner.classList.remove('hidden');
+                document.getElementById('profile-banner-icon').className = `fa-solid ${cfg[mode][1]}`;
+                document.getElementById('profile-banner-title').textContent = cfg[mode][0];
+                document.getElementById('profile-banner-desc').textContent =
+                    mode === 'driving' ? 'Standardna ruta za automobil.' :
+                        mode === 'cycling' ? 'Ruta za bicikl; javni OSRM profil određuje prohodnost.' :
+                            'Pešačka ruta; javni OSRM profil određuje prohodnost.';
+            }
+            drawRestrictedZones(); if (startCoords && endCoords) calculateRoute();
+        }
+
+        async function calculateRoute() {
+            if (!startCoords || !endCoords) { showNotification('Izaberite početak i odredište.'); return; }
+            showNotification('Računam rutu...');
+            try {
+                const truck = getTruckParams();
+                const payload = {
+                    start: { lat: startCoords[1], lon: startCoords[0] },
+                    end: { lat: endCoords[1], lon: endCoords[0] },
+                    profile: currentProfile,
+                    avoidRestricted: document.getElementById('chk-avoid-restricted').checked && currentProfile === 'truck',
+                    truck: currentProfile === 'truck'
+                        ? { grossWeightTons: truck.weight, heightMeters: truck.height, widthMeters: truck.width, lengthMeters: truck.length, isHgv: true }
+                        : null
+                };
+
+                const res = await fetch(`${API_BASE}/route`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                if (data.code !== 'Ok' || !data.routes?.length) throw new Error('No routes');
+
+                routeCandidatesLayer.clearLayers();
+                const analyzed = data.routes.map((r, i) => ({
+                    ...r,
+                    _analysis: {
+                        restricted: !!r.analysis?.restricted,
+                        zones: r.analysis?.violations || [],
+                        score: r.analysis?.score || 0
+                    },
+                    _index: i
+                }));
+
+                const selected = Math.min(
+                    Math.max(Number.isInteger(data.selectedRouteIndex) ? data.selectedRouteIndex : 0, 0),
+                    analyzed.length - 1
+                );
+                currentRouteData = analyzed[selected];
+                displayRouteOnMap(currentRouteData, analyzed);
+            } catch (e) {
+                console.error(e); showNotification('Greška u izračunavanju rute. Proverite da li ASP.NET Core API radi.');
+            }
+        }
+
+        function displayRouteOnMap(route, allRoutes) {
+            if (routeLayer) map.removeLayer(routeLayer);
+            routeCandidatesLayer.clearLayers();
+
+            // Draw alternatives faintly so the user can see that selection occurred.
+            allRoutes.slice(0, 3).forEach((r, i) => {
+                if (r === route) return;
+                L.polyline(r.geometry.coordinates.map(c => [c[1], c[0]]), { color: '#94a3b8', weight: 4, opacity: .25, dashArray: '8,8' }).addTo(routeCandidatesLayer);
+            });
+
+            const colors = { truck: '#f59e0b', driving: '#38bdf8', cycling: '#10b981', walking: '#8b5cf6' };
+            routeLayer = L.polyline(route.geometry.coordinates.map(c => [c[1], c[0]]), { color: colors[currentProfile], weight: 7, opacity: .95, lineCap: 'round', lineJoin: 'round' }).addTo(map);
+            map.fitBounds(routeLayer.getBounds(), { padding: [60, 60] });
+
+            const a = route._analysis || analyzeRoute(route);
+            const warn = document.getElementById('truck-warning-banner');
+            if (currentProfile === 'truck' && a.restricted) {
+                warn.classList.remove('hidden');
+                document.getElementById('warning-banner-title').textContent = 'Ruta i dalje prolazi kroz aktivnu zabranu';
+                document.getElementById('warning-banner-desc').textContent = `Problem: ${a.zones.map(z => z.name).join(', ')}. Nema pronađene potpuno čiste alternative u vraćenim OSRM rutama.`;
+            } else {
+                warn.classList.add('hidden');
+            }
+
+            document.getElementById('route-distance').textContent = `${(route.distance / 1000).toFixed(1)} km`;
+            document.getElementById('route-time').textContent = `${Math.round(route.duration / 60)} min`;
+            document.getElementById('route-score-badge').textContent =
+                currentProfile === 'truck'
+                    ? (a.restricted ? '⚠ restrikcija' : '✓ bez lokalne restrikcije')
+                    : `profil: ${currentProfile}`;
+            document.getElementById('route-duration-label').innerHTML = `<i class="fa-solid ${currentProfile === 'truck' ? 'fa-truck' : currentProfile === 'driving' ? 'fa-car' : currentProfile === 'cycling' ? 'fa-bicycle' : 'fa-person-walking'}"></i> Procena rute`;
+            renderTurnSteps(route.legs?.[0]?.steps || []);
+        }
+
+        function renderTurnSteps(steps) {
+            const c = document.getElementById('steps-container'); c.innerHTML = '';
+            steps.forEach((s, i) => {
+                const d = document.createElement('div');
+                d.className = 'p-2.5 rounded-xl bg-slate-950/90 border border-slate-800 flex items-center gap-3';
+                const m = s.maneuver || {}, mod = m.modifier || '';
+                let icon = 'fa-arrow-up';
+                if (mod.includes('right')) icon = 'fa-arrow-right';
+                else if (mod.includes('left')) icon = 'fa-arrow-left';
+                else if (m.type === 'uturn') icon = 'fa-arrow-rotate-left';
+                const name = s.name || m.type || 'Nastavite';
+                d.innerHTML = `<div class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center"><i class="fa-solid ${icon} text-amber-400"></i></div><div class="flex-1 min-w-0"><p class="font-semibold text-slate-200 truncate">${escapeHtml(name)}</p><span class="text-[10px] text-slate-400">${Math.round(s.distance)} m</span></div>`;
+                c.appendChild(d);
+            });
+        }
+
+        function startNavigation() {
+            if (!currentRouteData) { showNotification('Prvo izračunajte rutu.'); return; }
+            if (!navigator.geolocation) { showNotification('Ovaj uređaj ne podržava GPS geolokaciju.'); return; }
+            isNavigating = true; lastAnnouncedStep = -1;
+            document.getElementById('main-header').classList.add('hidden');
+            document.getElementById('top-nav-hud').classList.remove('hidden');
+            if (innerWidth < 768) document.getElementById('sidebar').classList.add('translate-y-full');
+
+            const tag = document.getElementById('hud-mode-tag');
+            tag.innerHTML = `<i class="fa-solid ${currentProfile === 'truck' ? 'fa-truck' : currentProfile === 'driving' ? 'fa-car' : currentProfile === 'cycling' ? 'fa-bicycle' : 'fa-person-walking'}"></i> ${currentProfile === 'truck' ? 'Kamion ' + getTruckParams().weight + 't' : currentProfile}`;
+            speakText('GPS navigacija je pokrenuta. Čekam preciznu lokaciju.');
+
+            watchId = navigator.geolocation.watchPosition(onGpsPosition, onGpsError, {
+                enableHighAccuracy: true, maximumAge: 1500, timeout: 10000
+            });
+        }
+
+        function onGpsPosition(pos) {
+            if (!isNavigating) return;
+            const lat = pos.coords.latitude, lon = pos.coords.longitude;
+            const speed = pos.coords.speed == null ? 0 : Math.max(0, pos.coords.speed * 3.6);
+            const route = currentRouteData.geometry.coordinates;
+            const nearest = findNearestRoutePoint([lon, lat], route);
+            const progress = nearest.index / Math.max(1, route.length - 1) * 100;
+
+            document.getElementById('hud-gps-status').textContent = pos.coords.accuracy <= 30 ? 'GPS precizan' : 'GPS slab';
+            document.getElementById('hud-speed').textContent = currentProfile === 'walking' ? speed.toFixed(1) : Math.round(speed);
+            document.getElementById('hud-progress-bar').style.width = `${Math.min(100, Math.round(progress))}%`;
+
+            updateHudInstruction(nearest.index, [lon, lat]);
+            updateMovingMarker(lat, lon, pos.coords.heading);
+            map.panTo([lat, lon], { animate: true, duration: .3 });
+
+            if (getDistanceInMeters(lat, lon, endCoords[1], endCoords[0]) < 40) {
+                speakText('Stigli ste na odredište.'); stopNavigation();
+            }
+        }
+
+        function onGpsError(err) {
+            document.getElementById('hud-gps-status').textContent = 'GPS greška';
+            if (err.code === 1) showNotification('Dozvolite pristup lokaciji za GPS navigaciju.');
+        }
+
+        function findNearestRoutePoint(pos, coords) {
+            let best = { index: 0, distance: Infinity };
+            coords.forEach((c, i) => {
+                const d = getDistanceInMeters(pos[1], pos[0], c[1], c[0]);
+                if (d < best.distance) best = { index: i, distance: d };
+            });
+            return best;
+        }
+
+        function updateHudInstruction(routeIndex, pos) {
+            const steps = currentRouteData.legs?.[0]?.steps || [];
+            let best = -1, bestDist = Infinity;
+            steps.forEach((s, i) => {
+                if (!s.maneuver?.location) return;
+                const d = getDistanceInMeters(pos[1], pos[0], s.maneuver.location[1], s.maneuver.location[0]);
+                if (d < bestDist && d > 8) { best = i; bestDist = d; }
+            });
+            const step = best >= 0 ? steps[best] : null;
+            const icon = document.getElementById('hud-turn-icon');
+            if (step) {
+                const mod = step.maneuver.modifier || '';
+                icon.className = `fa-solid ${mod.includes('right') ? 'fa-arrow-right' : mod.includes('left') ? 'fa-arrow-left' : step.maneuver.type === 'uturn' ? 'fa-arrow-rotate-left' : 'fa-arrow-up'} text-2xl`;
+                document.getElementById('hud-dist-next').textContent = formatDistance(bestDist);
+                document.getElementById('hud-instruction').textContent = step.name ? `Za ${formatDistance(bestDist)} skrenite: ${step.name}` : `Za ${formatDistance(bestDist)} ${humanManeuver(step.maneuver)}`;
+
+                const threshold = bestDist < 80 ? 0 : bestDist < 220 ? 1 : bestDist < 500 ? 2 : 3;
+                if (best !== lastAnnouncedStep && threshold <= 1) {
+                    lastAnnouncedStep = best;
+                    speakText(step.name ? `${humanManeuver(step.maneuver)} za ${formatDistance(bestDist)}, ${step.name}.` : `${humanManeuver(step.maneuver)} za ${formatDistance(bestDist)}.`);
+                }
+            } else {
+                document.getElementById('hud-dist-next').textContent = '--';
+                document.getElementById('hud-instruction').textContent = 'Pratite označenu rutu.';
+            }
+        }
+
+        function humanManeuver(m) {
+            if (!m) return 'Nastavite';
+            const mod = m.modifier || '';
+            if (m.type === 'arrive') return 'Stignite na odredište';
+            if (m.type === 'uturn') return 'Napravite polukružno okretanje';
+            if (mod.includes('sharp right')) return 'Oštro desno';
+            if (mod.includes('sharp left')) return 'Oštro levo';
+            if (mod.includes('slight right')) return 'Blago desno';
+            if (mod.includes('slight left')) return 'Blago levo';
+            if (mod.includes('right')) return 'Skrenite desno';
+            if (mod.includes('left')) return 'Skrenite levo';
+            return 'Nastavite pravo';
+        }
+
+        function updateMovingMarker(lat, lon, heading) {
+            const bearing = Number.isFinite(heading) ? heading : 0;
+            const cls = currentProfile === 'truck' ? 'fa-truck-fast' : currentProfile === 'driving' ? 'fa-car' : currentProfile === 'cycling' ? 'fa-bicycle' : 'fa-person-walking';
+            const html = `<div class="relative flex items-center justify-center w-12 h-12"><div class="marker-pulse absolute w-12 h-12 rounded-full bg-amber-500/40"></div><div class="w-10 h-10 bg-slate-950 border-2 border-amber-400 rounded-full flex items-center justify-center text-amber-400 text-lg" style="transform:rotate(${bearing}deg)"><i class="fa-solid ${cls}"></i></div></div>`;
+            const icon = L.divIcon({ className: 'vehicle-div-icon', html, iconSize: [48, 48], iconAnchor: [24, 24] });
+            if (!movingTruckMarker) movingTruckMarker = L.marker([lat, lon], { icon }).addTo(map); else { movingTruckMarker.setLatLng([lat, lon]); movingTruckMarker.setIcon(icon); }
+        }
+
+        function stopNavigation() {
+            isNavigating = false;
+            if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+            if (movingTruckMarker) { map.removeLayer(movingTruckMarker); movingTruckMarker = null; }
+            document.getElementById('top-nav-hud').classList.add('hidden');
+            document.getElementById('main-header').classList.remove('hidden');
+            if ('speechSynthesis' in window) speechSynthesis.cancel();
+            if (routeLayer) map.fitBounds(routeLayer.getBounds(), { padding: [60, 60] });
+        }
+
+        async function searchAndSetPoint(type, query) {
+            if (!query?.trim()) { showNotification('Unesite lokaciju.'); return; }
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+                const res = await fetch(url, { headers: { Accept: 'application/json' } });
+                const data = await res.json();
+                if (!data.length) { showNotification('Lokacija nije pronađena.'); return; }
+                setPoint(type, +data[0].lon, +data[0].lat);
+                showNotification(type === 'start' ? 'Start postavljen.' : 'Odredište postavljeno.');
+                if (startCoords && endCoords) calculateRoute();
+            } catch (e) { showNotification('Greška u pretrazi lokacije.'); }
+        }
+
+        function setPoint(type, lng, lat) {
+            if (type === 'start') { startCoords = [lng, lat]; createCustomMarker(startCoords, 'start'); document.getElementById('input-start').value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`; }
+            else { endCoords = [lng, lat]; createCustomMarker(endCoords, 'end'); document.getElementById('input-end').value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`; }
+        }
+
+        function createCustomMarker(coords, type) {
+            const start = type === 'start';
+            const html = `<div class="relative flex items-center justify-center w-8 h-8"><div class="marker-pulse absolute w-8 h-8 rounded-full ${start ? 'bg-emerald-500' : 'bg-rose-500'}"></div><div class="w-6 h-6 ${start ? 'bg-emerald-500' : 'bg-rose-500'} border-2 border-white rounded-full flex items-center justify-center text-white text-xs font-black">${start ? 'A' : 'B'}</div></div>`;
+            const icon = L.divIcon({ className: 'custom-div-icon', html, iconSize: [32, 32], iconAnchor: [16, 16] });
+            if (start) { if (startMarker) map.removeLayer(startMarker); startMarker = L.marker([coords[1], coords[0]], { icon }).addTo(map); }
+            else { if (endMarker) map.removeLayer(endMarker); endMarker = L.marker([coords[1], coords[0]], { icon }).addTo(map); }
+        }
+
+        function handleMapClick(c) {
+            if (!startCoords) setPoint('start', c[0], c[1]); else { setPoint('end', c[0], c[1]); calculateRoute(); }
+        }
+
+        function useCurrentLocation() {
+            if (!navigator.geolocation) { showNotification('Geolokacija nije podržana.'); return; }
+            navigator.geolocation.getCurrentPosition(p => {
+                setPoint('start', p.coords.longitude, p.coords.latitude);
+                map.setView([p.coords.latitude, p.coords.longitude], 14);
+                showNotification('Trenutna lokacija postavljena kao start.');
+            }, () => showNotification('Nije moguće dobiti trenutnu lokaciju.'), { enableHighAccuracy: true, timeout: 10000 });
+        }
+
+        function loadPresetRoute(type) {
+            const presets = {
+                'bg-ns': [[20.457273, 44.817813], [19.833549, 45.255133], 'Beograd (Centar)', 'Novi Sad (Centar)'],
+                'nis-kg': [[21.8958, 43.3209], [20.9114, 44.0128], 'Niš (Centar)', 'Kragujevac (Centar)'],
+                'sub-bg': [[19.6644, 46.0983], [20.4572, 44.8178], 'Subotica (Centar)', 'Beograd (Centar)']
+            };
+            const p = presets[type]; startCoords = p[0]; endCoords = p[1];
+            document.getElementById('input-start').value = p[2]; document.getElementById('input-end').value = p[3];
+            createCustomMarker(startCoords, 'start'); createCustomMarker(endCoords, 'end'); calculateRoute();
+        }
+
+        async function executeSearch() {
+            const q = document.getElementById('search-input').value;
+            if (q.trim().length < 2) return;
+            const c = document.getElementById('search-results'); c.innerHTML = '<p class="text-slate-400 text-center py-4">Pretražujem...</p>';
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5`, { headers: { Accept: 'application/json' } });
+                const data = await res.json(); c.innerHTML = '';
+                data.forEach(place => {
+                    const lat = +place.lat, lon = +place.lon, item = document.createElement('div');
+                    item.className = 'p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-sky-500 cursor-pointer';
+                    item.innerHTML = `<b class="text-slate-200">${escapeHtml(place.displayName.split(',')[0])}</b><p class="text-[10px] text-slate-400 mt-1">${escapeHtml(place.displayName)}</p>`;
+                    item.onclick = () => { setPoint('start', lon, lat); map.setView([lat, lon], 15); switchTab('route'); };
+                    c.appendChild(item);
+                });
+                if (!data.length) c.innerHTML = '<p class="text-slate-500 text-center py-4">Nema rezultata.</p>';
+            } catch (e) { c.innerHTML = '<p class="text-rose-400 text-center py-4">Greška u pretrazi.</p>'; }
+        }
+
+        function switchTab(tab) {
+            const r = document.getElementById('tab-route-content'), s = document.getElementById('tab-search-content');
+            const rb = document.getElementById('tab-btn-route'), sb = document.getElementById('tab-btn-search');
+            const active = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-600 text-white', inactive = 'px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-400';
+            if (tab === 'route') { r.classList.remove('hidden'); s.classList.add('hidden'); rb.className = active; sb.className = inactive; }
+            else { s.classList.remove('hidden'); r.classList.add('hidden'); sb.className = active; rb.className = inactive; }
+        }
+
+        function toggleRestrictedZonesVisibility() {
+            showZonesOnMap = !showZonesOnMap; drawRestrictedZones();
+            const b = document.getElementById('btn-toggle-zones');
+            b.className = showZonesOnMap ? 'text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-1 rounded-lg w-fit' : 'text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-2 py-1 rounded-lg w-fit';
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('translate-y-full'); }
+
+        function resetRoute() {
+            stopNavigation(); startCoords = null; endCoords = null; currentRouteData = null;
+            if (startMarker) map.removeLayer(startMarker); if (endMarker) map.removeLayer(endMarker); if (routeLayer) map.removeLayer(routeLayer);
+            routeCandidatesLayer.clearLayers();
+            document.getElementById('input-start').value = ''; document.getElementById('input-end').value = '';
+            document.getElementById('steps-container').innerHTML = '';
+            document.getElementById('route-time').textContent = '-- min'; document.getElementById('route-distance').textContent = '-- km';
+        }
+
+        function formatDistance(m) { return m >= 1000 ? `${(m / 1000).toFixed(1)} km` : `${Math.round(m)} m`; }
+
+        function getDistanceInMeters(lat1, lon1, lat2, lon2) {
+            const R = 6371000, p1 = lat1 * Math.PI / 180, p2 = lat2 * Math.PI / 180, dp = (lat2 - lat1) * Math.PI / 180, dl = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dp / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+
+        function escapeHtml(v) {
+            return String(v ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+        }
+
+        function showNotification(text) {
+            const t = document.createElement('div');
+            t.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-slate-900 border border-slate-700 text-slate-100 px-4 py-2.5 rounded-2xl shadow-2xl text-xs font-semibold';
+            t.textContent = text; document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

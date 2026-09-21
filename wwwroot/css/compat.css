@@ -1,0 +1,38 @@
+/* Transitional compatibility layer for existing page-specific ProMap Cargo UI. */
+
+:is(.pm-dashboard-card,.pm-dispatch-card,.pm-finance-card,.pm-compliance-card,.pm-alert-card,.pm-monitoring-card,.pm-audit-card,.pm-report-card,.pm-settings-card,.pm-profile-card,.pm-vehicle-card,.pm-driver-card,.pm-order-card,.pm-trip-card,.nav-control-card,.nav-status-card,.navigation-control-panel,.navigation-map-section) {
+    border-color: var(--pm-border);
+}
+
+:is(.pm-dashboard-kpi,.pm-dispatch-kpi) {
+    min-height: 118px;
+}
+
+/* Prevent 8–10px metadata from dominating the UI. */
+:is(.pm-page,.pm-content-inner) small,
+:is(.pm-page,.pm-content-inner) [class*="subtitle"],
+:is(.pm-page,.pm-content-inner) [class*="meta"],
+:is(.pm-page,.pm-content-inner) [class*="label"],
+:is(.pm-page,.pm-content-inner) [class*="hint"],
+:is(.pm-page,.pm-content-inner) [class*="caption"] {
+    font-size: max(11px, .6875rem);
+}
+
+:is(.pm-page,.pm-content-inner) input,
+:is(.pm-page,.pm-content-inner) select,
+:is(.pm-page,.pm-content-inner) textarea,
+:is(.pm-page,.pm-content-inner) button {
+    font-size: max(12px, .75rem);
+}
+
+/* Existing page buttons inherit the same interaction quality without requiring immediate markup changes. */
+:is(.pm-dashboard-btn,.pm-dispatch-btn,.pm-finance-btn,.pm-compliance-btn,.pm-alert-btn,.pm-monitoring-btn,.pm-profile-btn,.pm-vehicle-btn,.pm-driver-btn,.pm-order-btn,.pm-trip-btn,.nav-action-btn) {
+    min-height: 36px;
+    border-radius: var(--pm-radius-sm);
+    font-weight: 750;
+}
+
+/* Existing cards and rows get predictable keyboard focus when script makes them focusable. */
+:is(.pm-dashboard-card,.pm-dispatch-card,.pm-finance-card,.pm-compliance-card,.pm-alert-card,.pm-monitoring-card,.pm-profile-card,.pm-vehicle-card,.pm-driver-card,.pm-order-card,.pm-trip-card):focus-visible {
+    box-shadow: var(--pm-focus-ring), var(--pm-shadow-md);
+}

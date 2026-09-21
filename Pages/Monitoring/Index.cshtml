@@ -1,0 +1,3663 @@
+@page "/monitoring"
+@{
+    ViewData["Title"] = "Monitoring · ProMap Cargo";
+}
+
+<div class="pm-page pm-monitoring-page" data-module="monitoring">
+
+    <style>
+        .pm-monitoring-page {
+            --monitor-green: #10b981;
+            --monitor-teal: #2dd4bf;
+            --monitor-cyan: #22d3ee;
+            --monitor-warning: #fbbf24;
+            --monitor-danger: #fb7185;
+            --monitor-info: #38bdf8;
+            --monitor-surface: rgba(4, 31, 26, 0.82);
+            --monitor-surface-strong: rgba(5, 39, 32, 0.94);
+            --monitor-border: rgba(79, 209, 169, 0.16);
+            --monitor-border-strong: rgba(45, 212, 191, 0.34);
+            --monitor-muted: #8eb8aa;
+            --monitor-dim: #638b80;
+            width: 100%;
+        }
+
+        .monitoring-shell {
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 28px 30px 38px;
+        }
+
+        .monitoring-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .monitoring-kicker {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--monitor-teal);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .monitoring-kicker::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--monitor-green);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, .45);
+            animation: monitoringPulse 2s infinite;
+        }
+
+        .monitoring-title {
+            margin: 0;
+            color: var(--pm-text);
+            font-size: clamp(28px, 3vw, 42px);
+            line-height: 1.05;
+            font-weight: 800;
+            letter-spacing: -.035em;
+        }
+
+        .monitoring-subtitle {
+            margin: 10px 0 0;
+            color: var(--monitor-muted);
+            max-width: 780px;
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        .monitoring-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .monitoring-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            min-height: 42px;
+            padding: 0 15px;
+            border: 1px solid var(--monitor-border);
+            border-radius: 12px;
+            background: rgba(3, 28, 24, .7);
+            color: var(--pm-text-soft);
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .monitoring-live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--monitor-green);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, .55);
+            animation: monitoringPulse 1.8s infinite;
+        }
+
+        .monitoring-live.offline .monitoring-live-dot {
+            background: var(--monitor-warning);
+            animation: none;
+        }
+
+        .monitoring-btn {
+            min-height: 42px;
+            padding: 0 16px;
+            border: 1px solid var(--monitor-border);
+            border-radius: 12px;
+            background: rgba(5, 39, 32, .82);
+            color: var(--pm-text);
+            font: inherit;
+            font-size: 12px;
+            font-weight: 750;
+            cursor: pointer;
+            transition:
+                transform .18s ease,
+                border-color .18s ease,
+                background .18s ease,
+                box-shadow .18s ease;
+        }
+
+        .monitoring-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--monitor-border-strong);
+            background: rgba(7, 52, 43, .95);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .18);
+        }
+
+        .monitoring-btn.primary {
+            background: linear-gradient(135deg, #059669, #10b981);
+            border-color: rgba(110, 231, 183, .3);
+            color: #ecfdf5;
+        }
+
+        .monitoring-kpis {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .monitoring-kpi {
+            position: relative;
+            overflow: hidden;
+            min-height: 126px;
+            padding: 18px;
+            border: 1px solid var(--monitor-border);
+            border-radius: 17px;
+            background:
+                radial-gradient(circle at 90% 10%, rgba(45, 212, 191, .08), transparent 35%),
+                var(--monitor-surface);
+            box-shadow: 0 16px 45px rgba(0, 0, 0, .14);
+            animation: monitoringCardIn .55s both;
+        }
+
+        .monitoring-kpi:nth-child(2) {
+            animation-delay: .06s;
+        }
+
+        .monitoring-kpi:nth-child(3) {
+            animation-delay: .12s;
+        }
+
+        .monitoring-kpi:nth-child(4) {
+            animation-delay: .18s;
+        }
+
+        .monitoring-kpi:nth-child(5) {
+            animation-delay: .24s;
+        }
+
+        .monitoring-kpi::after {
+            content: "";
+            position: absolute;
+            left: -35%;
+            right: -35%;
+            bottom: -80px;
+            height: 120px;
+            background: rgba(16, 185, 129, .055);
+            filter: blur(25px);
+            pointer-events: none;
+        }
+
+        .monitoring-kpi-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: var(--monitor-muted);
+            font-size: 11px;
+            font-weight: 750;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .monitoring-kpi-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            border: 1px solid var(--monitor-border);
+            background: rgba(16, 185, 129, .08);
+            color: var(--monitor-teal);
+            font-size: 18px;
+        }
+
+        .monitoring-kpi-value {
+            margin-top: 13px;
+            color: var(--pm-text);
+            font-size: 30px;
+            line-height: 1;
+            font-weight: 800;
+            letter-spacing: -.035em;
+        }
+
+        .monitoring-kpi-meta {
+            margin-top: 8px;
+            color: var(--monitor-dim);
+            font-size: 11px;
+        }
+
+        .monitoring-main {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 360px;
+            gap: 18px;
+            min-height: 650px;
+        }
+
+        .monitoring-map-card,
+        .monitoring-side-card {
+            border: 1px solid var(--monitor-border);
+            border-radius: 18px;
+            background: var(--monitor-surface);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, .18);
+            overflow: hidden;
+        }
+
+        .monitoring-map-card {
+            position: relative;
+            min-height: 650px;
+        }
+
+        .monitoring-card-header {
+            position: absolute;
+            z-index: 900;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            pointer-events: none;
+        }
+
+        .monitoring-map-title {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 13px;
+            border: 1px solid rgba(255, 255, 255, .09);
+            border-radius: 12px;
+            background: rgba(2, 21, 18, .88);
+            backdrop-filter: blur(16px);
+            color: var(--pm-text);
+            font-size: 12px;
+            font-weight: 800;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .22);
+        }
+
+        .monitoring-map-title span {
+            color: var(--monitor-muted);
+            font-weight: 600;
+        }
+
+        .monitoring-map-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            border: 1px solid rgba(16, 185, 129, .2);
+            border-radius: 12px;
+            background: rgba(2, 21, 18, .88);
+            backdrop-filter: blur(16px);
+            color: var(--monitor-green);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .monitoring-map-status::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: monitoringPulse 1.5s infinite;
+        }
+
+        #monitoringMap {
+            width: 100%;
+            min-height: 650px;
+            background: #061a16;
+        }
+
+        .monitoring-map-controls {
+            position: absolute;
+            z-index: 900;
+            left: 16px;
+            bottom: 16px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .monitoring-map-control {
+            min-height: 38px;
+            padding: 0 12px;
+            border: 1px solid rgba(255, 255, 255, .09);
+            border-radius: 10px;
+            background: rgba(2, 21, 18, .9);
+            backdrop-filter: blur(14px);
+            color: var(--pm-text-soft);
+            cursor: pointer;
+            font: inherit;
+            font-size: 11px;
+            font-weight: 750;
+            transition: all .18s ease;
+        }
+
+        .monitoring-map-control:hover {
+            border-color: var(--monitor-border-strong);
+            transform: translateY(-1px);
+        }
+
+        .monitoring-map-legend {
+            position: absolute;
+            z-index: 900;
+            right: 16px;
+            bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 12px;
+            border: 1px solid rgba(255, 255, 255, .09);
+            border-radius: 10px;
+            background: rgba(2, 21, 18, .9);
+            backdrop-filter: blur(14px);
+            color: var(--monitor-muted);
+            font-size: 10px;
+        }
+
+        .monitoring-legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .monitoring-legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .monitoring-legend-dot.online {
+            background: var(--monitor-green);
+            box-shadow: 0 0 10px rgba(16, 185, 129, .65);
+        }
+
+        .monitoring-legend-dot.idle {
+            background: var(--monitor-warning);
+        }
+
+        .monitoring-legend-dot.offline {
+            background: var(--monitor-danger);
+        }
+
+        .monitoring-side {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            min-width: 0;
+        }
+
+        .monitoring-side-card {
+            padding: 18px;
+        }
+
+        .monitoring-side-card:first-child {
+            flex: 1;
+        }
+
+        .monitoring-section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .monitoring-section-title {
+            margin: 0;
+            color: var(--pm-text);
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .monitoring-section-meta {
+            color: var(--monitor-dim);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .monitoring-filters {
+            display: flex;
+            gap: 7px;
+            margin-bottom: 14px;
+        }
+
+        .monitoring-filter {
+            flex: 1;
+            min-height: 34px;
+            padding: 0 8px;
+            border: 1px solid var(--monitor-border);
+            border-radius: 9px;
+            background: rgba(2, 21, 18, .65);
+            color: var(--monitor-muted);
+            font: inherit;
+            font-size: 10px;
+            font-weight: 750;
+            cursor: pointer;
+        }
+
+        .monitoring-filter.active {
+            border-color: rgba(45, 212, 191, .35);
+            background: rgba(45, 212, 191, .08);
+            color: var(--monitor-teal);
+        }
+
+        .monitoring-vehicle-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 465px;
+            overflow-y: auto;
+            padding-right: 3px;
+        }
+
+        .monitoring-vehicle-list::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .monitoring-vehicle-list::-webkit-scrollbar-thumb {
+            background: rgba(45, 212, 191, .2);
+            border-radius: 999px;
+        }
+
+        .monitoring-vehicle {
+            position: relative;
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr) auto;
+            gap: 11px;
+            align-items: center;
+            padding: 11px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            background: rgba(3, 28, 24, .54);
+            cursor: pointer;
+            transition:
+                background .2s ease,
+                border-color .2s ease,
+                transform .2s ease;
+            animation: monitoringRowIn .35s both;
+        }
+
+        .monitoring-vehicle:hover {
+            transform: translateX(2px);
+            border-color: var(--monitor-border);
+            background: rgba(7, 52, 43, .72);
+        }
+
+        .monitoring-vehicle.selected {
+            border-color: rgba(45, 212, 191, .36);
+            background: rgba(7, 70, 57, .62);
+            box-shadow: inset 3px 0 0 var(--monitor-teal);
+        }
+
+        .monitoring-vehicle-icon {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            border: 1px solid var(--monitor-border);
+            background: rgba(16, 185, 129, .08);
+            color: var(--monitor-teal);
+            font-size: 19px;
+        }
+
+        .monitoring-vehicle-icon::after {
+            content: "";
+            position: absolute;
+            right: -2px;
+            bottom: -2px;
+            width: 9px;
+            height: 9px;
+            border: 2px solid #031c18;
+            border-radius: 50%;
+            background: var(--monitor-green);
+        }
+
+        .monitoring-vehicle.idle .monitoring-vehicle-icon::after {
+            background: var(--monitor-warning);
+        }
+
+        .monitoring-vehicle.offline .monitoring-vehicle-icon::after {
+            background: var(--monitor-danger);
+        }
+
+        .monitoring-vehicle-main {
+            min-width: 0;
+        }
+
+        .monitoring-vehicle-name {
+            overflow: hidden;
+            color: var(--pm-text);
+            font-size: 12px;
+            font-weight: 800;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .monitoring-vehicle-driver {
+            margin-top: 4px;
+            overflow: hidden;
+            color: var(--monitor-dim);
+            font-size: 10px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .monitoring-vehicle-right {
+            text-align: right;
+        }
+
+        .monitoring-speed {
+            color: var(--pm-text);
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .monitoring-speed small {
+            color: var(--monitor-dim);
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        .monitoring-status-text {
+            margin-top: 3px;
+            color: var(--monitor-green);
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .monitoring-vehicle.idle .monitoring-status-text {
+            color: var(--monitor-warning);
+        }
+
+        .monitoring-vehicle.offline .monitoring-status-text {
+            color: var(--monitor-danger);
+        }
+
+        .monitoring-detail-card {
+            min-height: 245px;
+        }
+
+        .monitoring-detail-empty {
+            display: grid;
+            min-height: 190px;
+            place-items: center;
+            text-align: center;
+            color: var(--monitor-dim);
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .monitoring-detail-empty-icon {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 10px;
+            border: 1px solid var(--monitor-border);
+            border-radius: 14px;
+            color: var(--monitor-teal);
+            background: rgba(16, 185, 129, .07);
+            font-size: 20px;
+        }
+
+        .monitoring-detail-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 17px;
+        }
+
+        .monitoring-detail-icon {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border: 1px solid var(--monitor-border);
+            border-radius: 13px;
+            background: rgba(16, 185, 129, .08);
+            color: var(--monitor-teal);
+            font-size: 21px;
+        }
+
+        .monitoring-detail-name {
+            color: var(--pm-text);
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .monitoring-detail-status {
+            margin-top: 4px;
+            color: var(--monitor-green);
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .monitoring-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+        }
+
+        .monitoring-detail-stat {
+            padding: 10px;
+            border: 1px solid var(--monitor-border);
+            border-radius: 10px;
+            background: rgba(2, 21, 18, .5);
+        }
+
+        .monitoring-detail-label {
+            color: var(--monitor-dim);
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .monitoring-detail-value {
+            margin-top: 5px;
+            overflow: hidden;
+            color: var(--pm-text-soft);
+            font-size: 12px;
+            font-weight: 800;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .monitoring-alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .monitoring-alert {
+            display: grid;
+            grid-template-columns: 30px minmax(0, 1fr);
+            gap: 9px;
+            padding: 10px;
+            border: 1px solid rgba(251, 191, 36, .14);
+            border-radius: 10px;
+            background: rgba(245, 158, 11, .055);
+            animation: monitoringAlertIn .4s both;
+        }
+
+        .monitoring-alert-icon {
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            background: rgba(245, 158, 11, .1);
+            color: var(--monitor-warning);
+        }
+
+        .monitoring-alert-title {
+            color: var(--pm-text-soft);
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .monitoring-alert-meta {
+            margin-top: 3px;
+            color: var(--monitor-dim);
+            font-size: 9px;
+        }
+
+        .monitoring-empty {
+            padding: 28px 14px;
+            text-align: center;
+            color: var(--monitor-dim);
+            font-size: 11px;
+        }
+
+        .monitoring-loading {
+            position: absolute;
+            z-index: 1000;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(1, 13, 11, .42);
+            backdrop-filter: blur(2px);
+            transition: opacity .25s ease;
+        }
+
+        .monitoring-loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .monitoring-loader {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 12px 15px;
+            border: 1px solid var(--monitor-border);
+            border-radius: 12px;
+            background: rgba(2, 21, 18, .9);
+            color: var(--monitor-text-soft);
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .monitoring-loader-ring {
+            width: 17px;
+            height: 17px;
+            border: 2px solid rgba(45, 212, 191, .2);
+            border-top-color: var(--monitor-teal);
+            border-radius: 50%;
+            animation: monitoringSpin .8s linear infinite;
+        }
+
+        .monitoring-toast {
+            position: fixed;
+            z-index: 3000;
+            right: 24px;
+            bottom: 24px;
+            max-width: 360px;
+            padding: 13px 16px;
+            border: 1px solid var(--monitor-border);
+            border-radius: 12px;
+            background: rgba(2, 21, 18, .94);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, .3);
+            color: var(--pm-text-soft);
+            font-size: 11px;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+            transition: all .25s ease;
+        }
+
+        .monitoring-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .monitoring-map-card .leaflet-control-zoom {
+            margin-top: 80px;
+        }
+
+        .monitoring-map-card .leaflet-control-zoom a {
+            background: rgba(2, 21, 18, .9);
+            color: var(--pm-text-soft);
+            border-color: rgba(255, 255, 255, .08);
+        }
+
+        .monitoring-map-card .leaflet-control-attribution {
+            background: rgba(2, 21, 18, .72);
+            color: rgba(209, 250, 229, .55);
+        }
+
+        .monitoring-map-card .leaflet-control-attribution a {
+            color: var(--monitor-teal);
+        }
+
+        .pm-monitor-vehicle-marker {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+        }
+
+        .pm-monitor-vehicle-marker::before {
+            content: "";
+            position: absolute;
+            inset: 3px;
+            border: 1px solid rgba(45, 212, 191, .25);
+            border-radius: 50%;
+            animation: monitoringMarkerPulse 2.2s infinite;
+        }
+
+        .pm-monitor-vehicle-marker-core {
+            position: relative;
+            z-index: 2;
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border: 2px solid #d1fae5;
+            border-radius: 50%;
+            background: #059669;
+            color: #ecfdf5;
+            box-shadow:
+                0 5px 18px rgba(0, 0, 0, .4),
+                0 0 18px rgba(16, 185, 129, .3);
+            font-size: 13px;
+        }
+
+        .pm-monitor-vehicle-marker.idle .pm-monitor-vehicle-marker-core {
+            background: #d97706;
+        }
+
+        .pm-monitor-vehicle-marker.offline .pm-monitor-vehicle-marker-core {
+            background: #e11d48;
+        }
+
+        .pm-monitor-vehicle-marker-label {
+            position: absolute;
+            z-index: 3;
+            left: 42px;
+            top: 4px;
+            padding: 4px 7px;
+            border: 1px solid rgba(255, 255, 255, .09);
+            border-radius: 7px;
+            background: rgba(2, 21, 18, .9);
+            color: var(--pm-text);
+            font-size: 9px;
+            font-weight: 800;
+            white-space: nowrap;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, .2);
+        }
+
+        .monitoring-route-pulse {
+            stroke-dasharray: 12 10;
+            animation: monitoringRouteDash 3s linear infinite;
+        }
+
+        @@keyframes monitoringPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, .45);
+            }
+            70% {
+                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        @@keyframes monitoringMarkerPulse {
+            0%,
+            100% {
+                transform: scale(.9);
+                opacity: .2;
+            }
+            50% {
+                transform: scale(1.35);
+                opacity: .8;
+            }
+        }
+
+        @@keyframes monitoringCardIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes monitoringRowIn {
+            from {
+                opacity: 0;
+                transform: translateX(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @@keyframes monitoringAlertIn {
+            from {
+                opacity: 0;
+                transform: translateX(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @@keyframes monitoringSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @@keyframes monitoringRouteDash {
+            to {
+                stroke-dashoffset: -44;
+            }
+        }
+
+        @@media (max-width: 1250px) {
+            .monitoring-kpis {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .monitoring-main {
+                grid-template-columns: minmax(0, 1fr) 320px;
+            }
+        }
+
+       @@media (max-width: 1050px) {
+            .monitoring-main {
+                grid-template-columns: 1fr;
+            }
+
+            .monitoring-side {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .monitoring-side-card:first-child {
+                min-height: 400px;
+            }
+        }
+
+        @@media (max-width: 760px) {
+            .monitoring-shell {
+                padding: 20px 15px 28px;
+            }
+
+            .monitoring-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .monitoring-header-actions {
+                width: 100%;
+            }
+
+            .monitoring-header-actions > * {
+                flex: 1;
+            }
+
+            .monitoring-kpis {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .monitoring-side {
+                display: flex;
+            }
+
+            .monitoring-map-card,
+            #monitoringMap {
+                min-height: 500px;
+            }
+
+            .monitoring-map-card .leaflet-control-zoom {
+                margin-top: 65px;
+            }
+
+            .monitoring-map-legend {
+                display: none;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .monitoring-kpis {
+                grid-template-columns: 1fr;
+            }
+
+            .monitoring-title {
+                font-size: 28px;
+            }
+
+            .monitoring-map-controls {
+                right: 16px;
+            }
+
+            .monitoring-map-control {
+                flex: 1;
+            }
+
+            .monitoring-detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (prefers-reduced-motion: reduce) {
+            .monitoring-kpi,
+            .monitoring-vehicle,
+            .monitoring-alert,
+            .monitoring-marker,
+            .monitoring-live-dot,
+            .monitoring-kicker::before,
+            .monitoring-map-status::before,
+            .monitoring-loader-ring,
+            .monitoring-route-pulse {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+
+    <div class="monitoring-shell">
+
+        <header class="monitoring-header">
+
+            <div>
+                <div class="monitoring-kicker">
+                    LIVE FLEET MONITORING
+                </div>
+
+                <h1 class="monitoring-title">
+                    Monitoring vozila
+                </h1>
+
+                <p class="monitoring-subtitle">
+                    Centralni pregled aktivne flote, GPS telemetrije, kretanja vozila
+                    i operativnih upozorenja u realnom vremenu.
+                </p>
+            </div>
+
+            <div class="monitoring-header-actions">
+
+                <div id="monitoringLiveBadge" class="monitoring-live">
+                    <span class="monitoring-live-dot"></span>
+                    <span id="monitoringLiveText">LIVE CONNECTING</span>
+                </div>
+
+                <button id="refreshMonitoring" class="monitoring-btn" type="button">
+                    ↻ Osveži
+                </button>
+
+                <button id="fitMonitoringMap" class="monitoring-btn primary" type="button">
+                    ⌖ Cela flota
+                </button>
+
+            </div>
+
+        </header>
+
+        <section class="monitoring-kpis">
+
+            <article class="monitoring-kpi">
+                <div class="monitoring-kpi-head">
+                    <span>Ukupno vozila</span>
+                    <span class="monitoring-kpi-icon">🚚</span>
+                </div>
+                <div id="kpiTotal" class="monitoring-kpi-value">0</div>
+                <div class="monitoring-kpi-meta">Registrovana flota</div>
+            </article>
+
+            <article class="monitoring-kpi">
+                <div class="monitoring-kpi-head">
+                    <span>Online</span>
+                    <span class="monitoring-kpi-icon">●</span>
+                </div>
+                <div id="kpiOnline" class="monitoring-kpi-value">0</div>
+                <div class="monitoring-kpi-meta">Aktivan GPS signal</div>
+            </article>
+
+            <article class="monitoring-kpi">
+                <div class="monitoring-kpi-head">
+                    <span>U vožnji</span>
+                    <span class="monitoring-kpi-icon">➜</span>
+                </div>
+                <div id="kpiMoving" class="monitoring-kpi-value">0</div>
+                <div class="monitoring-kpi-meta">Brzina iznad 5 km/h</div>
+            </article>
+
+            <article class="monitoring-kpi">
+                <div class="monitoring-kpi-head">
+                    <span>Zaustavljena</span>
+                    <span class="monitoring-kpi-icon">Ⅱ</span>
+                </div>
+                <div id="kpiIdle" class="monitoring-kpi-value">0</div>
+                <div class="monitoring-kpi-meta">Online bez kretanja</div>
+            </article>
+
+            <article class="monitoring-kpi">
+                <div class="monitoring-kpi-head">
+                    <span>Alerts</span>
+                    <span class="monitoring-kpi-icon">!</span>
+                </div>
+                <div id="kpiAlerts" class="monitoring-kpi-value">0</div>
+                <div class="monitoring-kpi-meta">Operativna upozorenja</div>
+            </article>
+
+        </section>
+
+        <main class="monitoring-main">
+
+            <section class="monitoring-map-card">
+
+                <div class="monitoring-card-header">
+
+                    <div class="monitoring-map-title">
+                        <strong>Fleet Map</strong>
+                        <span id="mapVehicleCount">0 vozila</span>
+                    </div>
+
+                    <div id="mapStatus" class="monitoring-map-status">
+                        LIVE TELEMETRY
+                    </div>
+
+                </div>
+
+                <div id="monitoringMap"
+                     class="pm-map"
+                     data-map-proxy="/api/map"
+                     data-map-config="/api/map/config"
+                     data-map-default-base="dark"
+                     data-map-max-zoom="18">
+                </div>
+
+                <div class="monitoring-map-controls">
+
+                    <button id="centerSerbia" class="monitoring-map-control" type="button">
+                        Srbija
+                    </button>
+
+                    <button id="fitFleet" class="monitoring-map-control" type="button">
+                        Cela flota
+                    </button>
+
+                    <button id="toggleDarkMap" class="monitoring-map-control" type="button">
+                        Dark Map
+                    </button>
+
+                </div>
+
+                <div class="monitoring-map-legend">
+
+                    <span class="monitoring-legend-item">
+                        <span class="monitoring-legend-dot online"></span>
+                        Online
+                    </span>
+
+                    <span class="monitoring-legend-item">
+                        <span class="monitoring-legend-dot idle"></span>
+                        Idle
+                    </span>
+
+                    <span class="monitoring-legend-item">
+                        <span class="monitoring-legend-dot offline"></span>
+                        Offline
+                    </span>
+
+                </div>
+
+                <div id="monitoringLoading" class="monitoring-loading">
+                    <div class="monitoring-loader">
+                        <span class="monitoring-loader-ring"></span>
+                        Učitavanje fleet telemetry...
+                    </div>
+                </div>
+
+            </section>
+
+            <aside class="monitoring-side">
+
+                <section class="monitoring-side-card">
+
+                    <div class="monitoring-section-head">
+                        <h2 class="monitoring-section-title">
+                            Live Fleet
+                        </h2>
+
+                        <span id="fleetUpdatedAt" class="monitoring-section-meta">
+                            — 
+                        </span>
+                    </div>
+
+                    <div class="monitoring-filters">
+
+                        <button
+                            type="button"
+                            class="monitoring-filter active"
+                            data-filter="all">
+                            Sva
+                        </button>
+
+                        <button
+                            type="button"
+                            class="monitoring-filter"
+                            data-filter="moving">
+                            Vožnja
+                        </button>
+
+                        <button
+                            type="button"
+                            class="monitoring-filter"
+                            data-filter="idle">
+                            Idle
+                        </button>
+
+                        <button
+                            type="button"
+                            class="monitoring-filter"
+                            data-filter="offline">
+                            Offline
+                        </button>
+
+                    </div>
+
+                    <div id="monitoringVehicleList" class="monitoring-vehicle-list"></div>
+
+                </section>
+
+                <section class="monitoring-side-card monitoring-detail-card">
+
+                    <div class="monitoring-section-head">
+                        <h2 class="monitoring-section-title">
+                            Vehicle telemetry
+                        </h2>
+
+                        <span id="detailUpdatedAt" class="monitoring-section-meta">
+                            —
+                        </span>
+                    </div>
+
+                    <div id="vehicleDetail">
+
+                        <div class="monitoring-detail-empty">
+                            <div>
+                                <div class="monitoring-detail-empty-icon">
+                                    ⌖
+                                </div>
+                                Izaberi vozilo na mapi ili iz fleet liste
+                                da prikažeš detaljnu telemetriju.
+                            </div>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="monitoring-side-card">
+
+                    <div class="monitoring-section-head">
+                        <h2 class="monitoring-section-title">
+                            Operativni alerts
+                        </h2>
+
+                        <span id="alertCount" class="monitoring-section-meta">
+                            0
+                        </span>
+                    </div>
+
+                    <div id="monitoringAlerts" class="monitoring-alert-list"></div>
+
+                </section>
+
+            </aside>
+
+        </main>
+
+    </div>
+
+    <div id="monitoringToast" class="monitoring-toast"></div>
+
+</div>
+
+@section Scripts {
+
+<script>
+"use strict";
+
+(() => {
+
+    const page = document.querySelector(
+        '[data-module="monitoring"]'
+    );
+
+    if (!page) {
+        return;
+    }
+
+    const $ = (id) => document.getElementById(id);
+
+    const state = {
+        map: null,
+        lightLayer: null,
+        darkLayer: null,
+        currentLayer: null,
+        markers: new Map(),
+        vehicles: [],
+        selectedVehicleId: null,
+        filter: "all",
+        signalRConnection: null,
+        signalRStarted: false,
+        demoMode: false,
+        demoTimer: null,
+        lastUpdated: null
+    };
+
+    const DEFAULT_CENTER = [44.8125, 20.4612];
+
+    const DEMO_VEHICLES = [
+        {
+            id: "demo-001",
+            registration: "BG 123-AA",
+            name: "Mercedes Actros 01",
+            driver: "Marko Petrović",
+            status: "moving",
+            latitude: 44.8125,
+            longitude: 20.4612,
+            speed: 64,
+            heading: 35,
+            accuracy: 7,
+            trip: "TR-2026-0041",
+            destination: "Novi Sad",
+            lastGpsAt: new Date().toISOString()
+        },
+        {
+            id: "demo-002",
+            registration: "NS 742-BB",
+            name: "Volvo FH 02",
+            driver: "Nikola Jovanović",
+            status: "moving",
+            latitude: 45.2671,
+            longitude: 19.8335,
+            speed: 52,
+            heading: 190,
+            accuracy: 8,
+            trip: "TR-2026-0042",
+            destination: "Beograd",
+            lastGpsAt: new Date().toISOString()
+        },
+        {
+            id: "demo-003",
+            registration: "NI 551-CC",
+            name: "Scania R 03",
+            driver: "Milan Stojanović",
+            status: "idle",
+            latitude: 43.3209,
+            longitude: 21.8958,
+            speed: 0,
+            heading: 0,
+            accuracy: 12,
+            trip: "TR-2026-0038",
+            destination: "Niš",
+            lastGpsAt: new Date().toISOString()
+        },
+        {
+            id: "demo-004",
+            registration: "SU 913-DD",
+            name: "DAF XF 04",
+            driver: "Petar Ilić",
+            status: "moving",
+            latitude: 46.1005,
+            longitude: 19.6676,
+            speed: 71,
+            heading: 210,
+            accuracy: 9,
+            trip: "TR-2026-0044",
+            destination: "Subotica",
+            lastGpsAt: new Date().toISOString()
+        },
+        {
+            id: "demo-005",
+            registration: "KG 284-EE",
+            name: "MAN TGX 05",
+            driver: "Stefan Nikolić",
+            status: "offline",
+            latitude: 43.999,
+            longitude: 20.9114,
+            speed: 0,
+            heading: 0,
+            accuracy: null,
+            trip: "—",
+            destination: "—",
+            lastGpsAt: new Date(Date.now() - 1000 * 60 * 45).toISOString()
+        }
+    ];
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function numberOrNull(value) {
+        const n = Number(value);
+
+        return Number.isFinite(n)
+            ? n
+            : null;
+    }
+
+    function firstValue(object, keys) {
+
+        for (const key of keys) {
+
+            if (
+                object &&
+                object[key] !== undefined &&
+                object[key] !== null &&
+                object[key] !== ""
+            ) {
+                return object[key];
+            }
+        }
+
+        return null;
+    }
+
+    function normalizeCoordinate(item) {
+
+        if (!item) {
+            return null;
+        }
+
+        const latitude = numberOrNull(
+            firstValue(
+                item,
+                [
+                    "latitude",
+                    "Latitude",
+                    "lat",
+                    "Lat",
+                    "currentLatitude",
+                    "CurrentLatitude"
+                ]
+            )
+        );
+
+        const longitude = numberOrNull(
+            firstValue(
+                item,
+                [
+                    "longitude",
+                    "Longitude",
+                    "lon",
+                    "Lon",
+                    "lng",
+                    "currentLongitude",
+                    "CurrentLongitude"
+                ]
+            )
+        );
+
+        if (
+            latitude === null ||
+            longitude === null ||
+            latitude < -90 ||
+            latitude > 90 ||
+            longitude < -180 ||
+            longitude > 180
+        ) {
+            return null;
+        }
+
+        return {
+            latitude,
+            longitude
+        };
+    }
+
+    function normalizeVehicle(item, index) {
+
+        const point = normalizeCoordinate(item);
+
+        if (!point) {
+            return null;
+        }
+
+        const speed = numberOrNull(
+            firstValue(
+                item,
+                [
+                    "speed",
+                    "Speed",
+                    "speedKmh",
+                    "SpeedKmh",
+                    "currentSpeedKmh",
+                    "CurrentSpeedKmh"
+                ]
+            )
+        ) ?? 0;
+
+        let status = String(
+            firstValue(
+                item,
+                [
+                    "status",
+                    "Status",
+                    "vehicleStatus",
+                    "VehicleStatus"
+                ]
+            ) || ""
+        ).toLowerCase();
+
+        if (
+            status.includes("offline") ||
+            status.includes("disconnected")
+        ) {
+            status = "offline";
+        }
+        else if (
+            status.includes("idle") ||
+            status.includes("stopped") ||
+            status.includes("stationary")
+        ) {
+            status = "idle";
+        }
+        else if (
+            speed > 5 ||
+            status.includes("moving") ||
+            status.includes("driving") ||
+            status.includes("active")
+        ) {
+            status = "moving";
+        }
+        else {
+            status = "idle";
+        }
+
+        return {
+            id: String(
+                firstValue(
+                    item,
+                    [
+                        "id",
+                        "Id",
+                        "vehicleId",
+                        "VehicleId"
+                    ]
+                ) ?? `vehicle-${index}`
+            ),
+
+            registration: String(
+                firstValue(
+                    item,
+                    [
+                        "registration",
+                        "Registration",
+                        "registrationNumber",
+                        "RegistrationNumber",
+                        "plate",
+                        "Plate"
+                    ]
+                ) || `VEH-${index + 1}`
+            ),
+
+            name: String(
+                firstValue(
+                    item,
+                    [
+                        "name",
+                        "Name",
+                        "vehicleName",
+                        "VehicleName",
+                        "model",
+                        "Model"
+                    ]
+                ) || "Teretno vozilo"
+            ),
+
+            driver: String(
+                firstValue(
+                    item,
+                    [
+                        "driverName",
+                        "DriverName",
+                        "driver",
+                        "Driver",
+                        "currentDriver",
+                        "CurrentDriver"
+                    ]
+                ) || "Vozač nije dodeljen"
+            ),
+
+            status,
+
+            latitude: point.latitude,
+            longitude: point.longitude,
+
+            speed,
+
+            heading:
+                numberOrNull(
+                    firstValue(
+                        item,
+                        [
+                            "heading",
+                            "Heading",
+                            "bearing",
+                            "Bearing",
+                            "currentBearing",
+                            "CurrentBearing"
+                        ]
+                    )
+                ) ?? 0,
+
+            accuracy:
+                numberOrNull(
+                    firstValue(
+                        item,
+                        [
+                            "accuracy",
+                            "Accuracy",
+                            "gpsAccuracy",
+                            "GpsAccuracy"
+                        ]
+                    )
+                ),
+
+            trip: String(
+                firstValue(
+                    item,
+                    [
+                        "tripNumber",
+                        "TripNumber",
+                        "tripCode",
+                        "TripCode",
+                        "tripId",
+                        "TripId",
+                        "currentTrip",
+                        "CurrentTrip"
+                    ]
+                ) || "—"
+            ),
+
+            destination: String(
+                firstValue(
+                    item,
+                    [
+                        "destination",
+                        "Destination",
+                        "destinationName",
+                        "DestinationName"
+                    ]
+                ) || "—"
+            ),
+
+            lastGpsAt:
+                firstValue(
+                    item,
+                    [
+                        "lastGpsAt",
+                        "LastGpsAt",
+                        "lastPositionAt",
+                        "LastPositionAt",
+                        "timestamp",
+                        "Timestamp"
+                    ]
+                ) || null,
+
+            raw: item
+        };
+    }
+
+    function formatSpeed(value) {
+
+        const speed = numberOrNull(value) ?? 0;
+
+        return Math.round(speed);
+    }
+
+    function formatAccuracy(value) {
+
+        const accuracy = numberOrNull(value);
+
+        if (accuracy === null) {
+            return "—";
+        }
+
+        return `${Math.round(accuracy)} m`;
+    }
+
+    function formatTime(value) {
+
+        if (!value) {
+            return "—";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "—";
+        }
+
+        return date.toLocaleTimeString(
+            "sr-RS",
+            {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            }
+        );
+    }
+
+    function timeAgo(value) {
+
+        if (!value) {
+            return "Nema GPS podatka";
+        }
+
+        const timestamp = new Date(value).getTime();
+
+        if (!Number.isFinite(timestamp)) {
+            return "Nema GPS podatka";
+        }
+
+        const seconds = Math.max(
+            0,
+            Math.round(
+                (Date.now() - timestamp) / 1000
+            )
+        );
+
+        if (seconds < 10) {
+            return "upravo sada";
+        }
+
+        if (seconds < 60) {
+            return `pre ${seconds}s`;
+        }
+
+        const minutes = Math.round(seconds / 60);
+
+        if (minutes < 60) {
+            return `pre ${minutes} min`;
+        }
+
+        const hours = Math.round(minutes / 60);
+
+        return `pre ${hours} h`;
+    }
+
+    function statusLabel(status) {
+
+        switch (status) {
+
+            case "moving":
+                return "U vožnji";
+
+            case "idle":
+                return "Zaustavljeno";
+
+            case "offline":
+                return "Offline";
+
+            default:
+                return "Nepoznato";
+        }
+    }
+
+    function statusClass(status) {
+
+        if (
+            status === "idle" ||
+            status === "offline"
+        ) {
+            return status;
+        }
+
+        return "";
+    }
+
+    function setText(id, value) {
+
+        const element = $(id);
+
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    function showToast(message) {
+
+        const toast = $("monitoringToast");
+
+        if (!toast) {
+            return;
+        }
+
+        toast.textContent = message;
+
+        toast.classList.add("show");
+
+        clearTimeout(
+            showToast.timer
+        );
+
+        showToast.timer = setTimeout(
+            () => {
+                toast.classList.remove("show");
+            },
+            2800
+        );
+    }
+
+    function animateCounter(
+        element,
+        target
+    ) {
+
+        if (!element) {
+            return;
+        }
+
+        const finalValue = Number(target) || 0;
+        const start = Number(element.dataset.value || 0);
+        const duration = 450;
+        const startTime = performance.now();
+
+        function tick(now) {
+
+            const progress = Math.min(
+                1,
+                (now - startTime) / duration
+            );
+
+            const eased =
+                1 -
+                Math.pow(
+                    1 - progress,
+                    3
+                );
+
+            const value = Math.round(
+                start +
+                (finalValue - start) *
+                eased
+            );
+
+            element.textContent = value;
+
+            if (progress < 1) {
+                requestAnimationFrame(tick);
+            }
+            else {
+                element.dataset.value = String(
+                    finalValue
+                );
+            }
+        }
+
+        requestAnimationFrame(tick);
+    }
+
+    function updateKpis() {
+
+        const total =
+            state.vehicles.length;
+
+        const online =
+            state.vehicles.filter(
+                vehicle =>
+                    vehicle.status !== "offline"
+            ).length;
+
+        const moving =
+            state.vehicles.filter(
+                vehicle =>
+                    vehicle.status === "moving"
+            ).length;
+
+        const idle =
+            state.vehicles.filter(
+                vehicle =>
+                    vehicle.status === "idle"
+            ).length;
+
+        const alerts =
+            state.vehicles.filter(
+                vehicle =>
+                    vehicle.status === "offline"
+            ).length;
+
+        animateCounter(
+            $("kpiTotal"),
+            total
+        );
+
+        animateCounter(
+            $("kpiOnline"),
+            online
+        );
+
+        animateCounter(
+            $("kpiMoving"),
+            moving
+        );
+
+        animateCounter(
+            $("kpiIdle"),
+            idle
+        );
+
+        animateCounter(
+            $("kpiAlerts"),
+            alerts
+        );
+
+        setText(
+            "mapVehicleCount",
+            `${total} vozila`
+        );
+
+        setText(
+            "alertCount",
+            String(alerts)
+        );
+    }
+
+    function createVehicleIcon(vehicle) {
+
+        const status =
+            statusClass(
+                vehicle.status
+            );
+
+        const direction =
+            Number.isFinite(
+                vehicle.heading
+            )
+                ? vehicle.heading
+                : 0;
+
+        return L.divIcon({
+            className: "",
+            html: `
+                <div
+                    class="pm-monitor-vehicle-marker ${escapeHtml(status)}"
+                    style="transform: rotate(${direction}deg);">
+                    <div class="pm-monitor-vehicle-marker-core">
+                        🚚
+                    </div>
+                    <div
+                        class="pm-monitor-vehicle-marker-label"
+                        style="transform: rotate(${-direction}deg);">
+                        ${escapeHtml(vehicle.registration)}
+                    </div>
+                </div>
+            `,
+            iconSize: [38, 38],
+            iconAnchor: [19, 19]
+        });
+    }
+
+    function initializeMap() {
+
+        if (
+            typeof L === "undefined"
+        ) {
+            showToast(
+                "Leaflet nije učitan."
+            );
+
+            return;
+        }
+
+        state.map =
+            L.map(
+                "monitoringMap",
+                {
+                    zoomControl: true,
+                    preferCanvas: true
+                }
+            ).setView(
+                DEFAULT_CENTER,
+                7
+            );
+
+        state.lightLayer =
+            L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+                    maxZoom: 19,
+                    attribution:
+                        '&copy; OpenStreetMap contributors'
+                }
+            );
+
+        state.darkLayer =
+            L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+                {
+                    maxZoom: 20,
+                    attribution:
+                        '&copy; OpenStreetMap &copy; CARTO'
+                }
+            );
+
+        state.currentLayer =
+            state.darkLayer.addTo(
+                state.map
+            );
+
+        setTimeout(
+            () => {
+                state.map.invalidateSize();
+            },
+            200
+        );
+    }
+
+    function toggleMapLayer() {
+
+        if (!state.map) {
+            return;
+        }
+
+        if (
+            state.currentLayer ===
+            state.darkLayer
+        ) {
+
+            state.map.removeLayer(
+                state.darkLayer
+            );
+
+            state.currentLayer =
+                state.lightLayer;
+
+            state.lightLayer.addTo(
+                state.map
+            );
+
+            setText(
+                "toggleDarkMap",
+                "Light Map"
+            );
+
+            return;
+        }
+
+        state.map.removeLayer(
+            state.lightLayer
+        );
+
+        state.currentLayer =
+            state.darkLayer;
+
+        state.darkLayer.addTo(
+            state.map
+        );
+
+        setText(
+            "toggleDarkMap",
+            "Dark Map"
+        );
+    }
+
+    function haversineDistance(
+        lat1,
+        lon1,
+        lat2,
+        lon2
+    ) {
+
+        const earthRadius = 6371000;
+
+        const toRad =
+            value =>
+                value *
+                Math.PI /
+                180;
+
+        const dLat =
+            toRad(
+                lat2 - lat1
+            );
+
+        const dLon =
+            toRad(
+                lon2 - lon1
+            );
+
+        const a =
+            Math.sin(dLat / 2) *
+            Math.sin(dLat / 2) +
+            Math.cos(
+                toRad(lat1)
+            ) *
+            Math.cos(
+                toRad(lat2)
+            ) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+
+        return (
+            earthRadius *
+            2 *
+            Math.atan2(
+                Math.sqrt(a),
+                Math.sqrt(1 - a)
+            )
+        );
+    }
+
+    function animateMarkerTo(
+        marker,
+        targetLatLng,
+        duration = 900
+    ) {
+
+        if (!marker) {
+            return;
+        }
+
+        const start =
+            marker.getLatLng();
+
+        const end =
+            L.latLng(
+                targetLatLng[0],
+                targetLatLng[1]
+            );
+
+        const started =
+            performance.now();
+
+        function animate(now) {
+
+            const progress =
+                Math.min(
+                    1,
+                    (now - started) /
+                    duration
+                );
+
+            const eased =
+                1 -
+                Math.pow(
+                    1 - progress,
+                    3
+                );
+
+            const latitude =
+                start.lat +
+                (end.lat - start.lat) *
+                eased;
+
+            const longitude =
+                start.lng +
+                (end.lng - start.lng) *
+                eased;
+
+            marker.setLatLng(
+                [
+                    latitude,
+                    longitude
+                ]
+            );
+
+            if (
+                progress < 1
+            ) {
+                requestAnimationFrame(
+                    animate
+                );
+            }
+        }
+
+        requestAnimationFrame(
+            animate
+        );
+    }
+
+    function updateMarkers() {
+
+        if (!state.map) {
+            return;
+        }
+
+        const visibleIds =
+            new Set(
+                state.vehicles.map(
+                    vehicle =>
+                        vehicle.id
+                )
+            );
+
+        for (
+            const [
+                id,
+                marker
+            ]
+            of state.markers
+        ) {
+
+            if (
+                !visibleIds.has(id)
+            ) {
+                marker.remove();
+
+                state.markers.delete(
+                    id
+                );
+            }
+        }
+
+        for (
+            const vehicle
+            of state.vehicles
+        ) {
+
+            const latLng = [
+                vehicle.latitude,
+                vehicle.longitude
+            ];
+
+            let marker =
+                state.markers.get(
+                    vehicle.id
+                );
+
+            if (!marker) {
+
+                marker =
+                    L.marker(
+                        latLng,
+                        {
+                            icon:
+                                createVehicleIcon(
+                                    vehicle
+                                ),
+                            zIndexOffset:
+                                vehicle.id ===
+                                state.selectedVehicleId
+                                    ? 1000
+                                    : 100
+                        }
+                    );
+
+                marker.addTo(
+                    state.map
+                );
+
+                marker.on(
+                    "click",
+                    () => {
+                        selectVehicle(
+                            vehicle.id,
+                            true
+                        );
+                    }
+                );
+
+                state.markers.set(
+                    vehicle.id,
+                    marker
+                );
+            }
+            else {
+
+                animateMarkerTo(
+                    marker,
+                    latLng
+                );
+
+                marker.setIcon(
+                    createVehicleIcon(
+                        vehicle
+                    )
+                );
+
+                marker.setZIndexOffset(
+                    vehicle.id ===
+                    state.selectedVehicleId
+                        ? 1000
+                        : 100
+                );
+            }
+
+            marker.bindTooltip(
+                `
+                    <strong>
+                        ${escapeHtml(vehicle.registration)}
+                    </strong><br>
+                    ${escapeHtml(vehicle.name)}<br>
+                    ${formatSpeed(vehicle.speed)} km/h
+                `,
+                {
+                    direction: "top",
+                    offset: [0, -14]
+                }
+            );
+        }
+    }
+
+    function getFilteredVehicles() {
+
+        if (
+            state.filter === "all"
+        ) {
+            return [
+                ...state.vehicles
+            ];
+        }
+
+        return state.vehicles.filter(
+            vehicle => {
+
+                if (
+                    state.filter ===
+                    "moving"
+                ) {
+                    return vehicle.status ===
+                        "moving";
+                }
+
+                if (
+                    state.filter ===
+                    "idle"
+                ) {
+                    return vehicle.status ===
+                        "idle";
+                }
+
+                if (
+                    state.filter ===
+                    "offline"
+                ) {
+                    return vehicle.status ===
+                        "offline";
+                }
+
+                return true;
+            }
+        );
+    }
+
+    function renderVehicleList() {
+
+        const list =
+            $("monitoringVehicleList");
+
+        if (!list) {
+            return;
+        }
+
+        const vehicles =
+            getFilteredVehicles();
+
+        list.innerHTML = "";
+
+        if (
+            vehicles.length === 0
+        ) {
+
+            list.innerHTML = `
+                <div class="monitoring-empty">
+                    Nema vozila za izabrani filter.
+                </div>
+            `;
+
+            return;
+        }
+
+        vehicles.forEach(
+            (
+                vehicle,
+                index
+            ) => {
+
+                const row =
+                    document.createElement(
+                        "div"
+                    );
+
+                row.className =
+                    `monitoring-vehicle ${statusClass(vehicle.status)} ${
+                        vehicle.id ===
+                        state.selectedVehicleId
+                            ? "selected"
+                            : ""
+                    }`;
+
+                row.style.animationDelay =
+                    `${index * 35}ms`;
+
+                row.innerHTML = `
+                    <div class="monitoring-vehicle-icon">
+                        🚚
+                    </div>
+
+                    <div class="monitoring-vehicle-main">
+                        <div class="monitoring-vehicle-name">
+                            ${escapeHtml(vehicle.registration)}
+                        </div>
+
+                        <div class="monitoring-vehicle-driver">
+                            ${escapeHtml(vehicle.driver)}
+                        </div>
+                    </div>
+
+                    <div class="monitoring-vehicle-right">
+                        <div class="monitoring-speed">
+                            ${formatSpeed(vehicle.speed)}
+                            <small>km/h</small>
+                        </div>
+
+                        <div class="monitoring-status-text">
+                            ${statusLabel(vehicle.status)}
+                        </div>
+                    </div>
+                `;
+
+                row.addEventListener(
+                    "click",
+                    () => {
+                        selectVehicle(
+                            vehicle.id,
+                            true
+                        );
+                    }
+                );
+
+                list.appendChild(
+                    row
+                );
+            }
+        );
+    }
+
+    function renderVehicleDetail(
+        vehicle
+    ) {
+
+        const box =
+            $("vehicleDetail");
+
+        if (!box) {
+            return;
+        }
+
+        if (!vehicle) {
+
+            box.innerHTML = `
+                <div class="monitoring-detail-empty">
+                    <div>
+                        <div class="monitoring-detail-empty-icon">
+                            ⌖
+                        </div>
+                        Izaberi vozilo na mapi ili iz fleet liste
+                        da prikažeš detaljnu telemetriju.
+                    </div>
+                </div>
+            `;
+
+            return;
+        }
+
+        box.innerHTML = `
+
+            <div class="monitoring-detail-top">
+
+                <div class="monitoring-detail-icon">
+                    🚚
+                </div>
+
+                <div>
+                    <div class="monitoring-detail-name">
+                        ${escapeHtml(vehicle.registration)}
+                    </div>
+
+                    <div class="monitoring-detail-status">
+                        ${statusLabel(vehicle.status)}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="monitoring-detail-grid">
+
+                <div class="monitoring-detail-stat">
+                    <div class="monitoring-detail-label">
+                        Vozilo
+                    </div>
+                    <div class="monitoring-detail-value">
+                        ${escapeHtml(vehicle.name)}
+                    </div>
+                </div>
+
+                <div class="monitoring-detail-stat">
+                    <div class="monitoring-detail-label">
+                        Vozač
+                    </div>
+                    <div class="monitoring-detail-value">
+                        ${escapeHtml(vehicle.driver)}
+                    </div>
+                </div>
+
+                <div class="monitoring-detail-stat">
+                    <div class="monitoring-detail-label">
+                        Brzina
+                    </div>
+                    <div class="monitoring-detail-value">
+                        ${formatSpeed(vehicle.speed)} km/h
+                    </div>
+                </div>
+
+                <div class="monitoring-detail-stat">
+                    <div class="monitoring-detail-label">
+                        GPS accuracy
+                    </div>
+                    <div class="monitoring-detail-value">
+                        ${formatAccuracy(vehicle.accuracy)}
+                    </div>
+                </div>
+
+                <div class="monitoring-detail-stat">
+                    <div class="monitoring-detail-label">
+                        Tura
+                    </div>
+                    <div class="monitoring-detail-value">
+                        ${escapeHtml(vehicle.trip)}
+                    </div>
+                </div>
+
+                <div class="monitoring-detail-stat">
+                    <div class="monitoring-detail-label">
+                        Poslednji GPS
+                    </div>
+                    <div class="monitoring-detail-value">
+                        ${timeAgo(vehicle.lastGpsAt)}
+                    </div>
+                </div>
+
+            </div>
+        `;
+
+        setText(
+            "detailUpdatedAt",
+            formatTime(
+                vehicle.lastGpsAt
+            )
+        );
+    }
+
+    function renderAlerts() {
+
+        const box =
+            $("monitoringAlerts");
+
+        if (!box) {
+            return;
+        }
+
+        const offline =
+            state.vehicles.filter(
+                vehicle =>
+                    vehicle.status ===
+                    "offline"
+            );
+
+        box.innerHTML = "";
+
+        if (
+            offline.length === 0
+        ) {
+
+            box.innerHTML = `
+                <div class="monitoring-empty">
+                    Nema aktivnih operativnih upozorenja.
+                </div>
+            `;
+
+            return;
+        }
+
+        offline.forEach(
+            (
+                vehicle,
+                index
+            ) => {
+
+                const alert =
+                    document.createElement(
+                        "div"
+                    );
+
+                alert.className =
+                    "monitoring-alert";
+
+                alert.style.animationDelay =
+                    `${index * 70}ms`;
+
+                alert.innerHTML = `
+                    <div class="monitoring-alert-icon">
+                        !
+                    </div>
+
+                    <div>
+                        <div class="monitoring-alert-title">
+                            GPS signal nije aktivan ·
+                            ${escapeHtml(vehicle.registration)}
+                        </div>
+
+                        <div class="monitoring-alert-meta">
+                            Poslednji signal:
+                            ${timeAgo(vehicle.lastGpsAt)}
+                        </div>
+                    </div>
+                `;
+
+                alert.addEventListener(
+                    "click",
+                    () => {
+                        selectVehicle(
+                            vehicle.id,
+                            true
+                        );
+                    }
+                );
+
+                box.appendChild(
+                    alert
+                );
+            }
+        );
+    }
+
+    function selectVehicle(
+        vehicleId,
+        flyTo
+    ) {
+
+        const vehicle =
+            state.vehicles.find(
+                item =>
+                    item.id ===
+                    vehicleId
+            );
+
+        if (!vehicle) {
+            return;
+        }
+
+        state.selectedVehicleId =
+            vehicle.id;
+
+        renderVehicleList();
+
+        renderVehicleDetail(
+            vehicle
+        );
+
+        updateMarkers();
+
+        if (
+            flyTo &&
+            state.map
+        ) {
+
+            state.map.flyTo(
+                [
+                    vehicle.latitude,
+                    vehicle.longitude
+                ],
+                Math.max(
+                    state.map.getZoom(),
+                    14
+                ),
+                {
+                    duration: .8
+                }
+            );
+
+            const marker =
+                state.markers.get(
+                    vehicle.id
+                );
+
+            if (marker) {
+                setTimeout(
+                    () => {
+                        marker.openTooltip();
+                    },
+                    500
+                );
+            }
+        }
+    }
+
+    function fitFleet() {
+
+        if (
+            !state.map ||
+            state.vehicles.length === 0
+        ) {
+            return;
+        }
+
+        const points =
+            state.vehicles
+                .filter(
+                    vehicle =>
+                        Number.isFinite(
+                            vehicle.latitude
+                        ) &&
+                        Number.isFinite(
+                            vehicle.longitude
+                        )
+                )
+                .map(
+                    vehicle => [
+                        vehicle.latitude,
+                        vehicle.longitude
+                    ]
+                );
+
+        if (
+            points.length === 0
+        ) {
+            return;
+        }
+
+        if (
+            points.length === 1
+        ) {
+
+            state.map.flyTo(
+                points[0],
+                14,
+                {
+                    duration: .7
+                }
+            );
+
+            return;
+        }
+
+        state.map.fitBounds(
+            L.latLngBounds(
+                points
+            ),
+            {
+                padding: [
+                    60,
+                    60
+                ],
+                maxZoom: 13,
+                animate: true,
+                duration: .8
+            }
+        );
+    }
+
+    function centerSerbia() {
+
+        if (!state.map) {
+            return;
+        }
+
+        state.map.flyTo(
+            DEFAULT_CENTER,
+            7,
+            {
+                duration: .8
+            }
+        );
+    }
+
+    function setVehicles(
+        vehicles,
+        source = "api"
+    ) {
+
+        const normalized =
+            vehicles
+                .map(
+                    (
+                        item,
+                        index
+                    ) =>
+                        normalizeVehicle(
+                            item,
+                            index
+                        )
+                )
+                .filter(
+                    Boolean
+                );
+
+        if (
+            normalized.length === 0
+        ) {
+            return false;
+        }
+
+        state.vehicles =
+            normalized;
+
+        state.lastUpdated =
+            new Date();
+
+        state.demoMode =
+            source === "demo";
+
+        updateKpis();
+
+        renderVehicleList();
+
+        renderAlerts();
+
+        updateMarkers();
+
+        setText(
+            "fleetUpdatedAt",
+            formatTime(
+                state.lastUpdated
+            )
+        );
+
+        return true;
+    }
+
+    async function fetchJson(
+        url
+    ) {
+
+        const response =
+            await fetch(
+                url,
+                {
+                    headers: {
+                        Accept:
+                            "application/json"
+                    },
+                    cache:
+                        "no-store"
+                }
+            );
+
+        if (
+            !response.ok
+        ) {
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+        }
+
+        return await response.json();
+    }
+
+    function extractArray(
+        payload
+    ) {
+
+        if (
+            Array.isArray(payload)
+        ) {
+            return payload;
+        }
+
+        if (
+            Array.isArray(
+                payload?.vehicles
+            )
+        ) {
+            return payload.vehicles;
+        }
+
+        if (
+            Array.isArray(
+                payload?.items
+            )
+        ) {
+            return payload.items;
+        }
+
+        if (
+            Array.isArray(
+                payload?.data
+            )
+        ) {
+            return payload.data;
+        }
+
+        if (
+            Array.isArray(
+                payload?.result
+            )
+        ) {
+            return payload.result;
+        }
+
+        return [];
+    }
+
+    async function loadFleetFromApi() {
+
+        const urls = [
+            "/api/business/vehicles",
+            "/api/vehicles"
+        ];
+
+        let lastError =
+            null;
+
+        for (
+            const url
+            of urls
+        ) {
+
+            try {
+
+                const payload =
+                    await fetchJson(
+                        url
+                    );
+
+                const array =
+                    extractArray(
+                        payload
+                    );
+
+                if (
+                    setVehicles(
+                        array,
+                        "api"
+                    )
+                ) {
+                    return true;
+                }
+
+            }
+            catch (error) {
+
+                lastError =
+                    error;
+            }
+        }
+
+        if (lastError) {
+            console.warn(
+                "Monitoring fleet API nije dostupan:",
+                lastError
+            );
+        }
+
+        return false;
+    }
+
+    function startDemoMode() {
+
+        if (
+            state.demoTimer
+        ) {
+            clearInterval(
+                state.demoTimer
+            );
+        }
+
+        setVehicles(
+            DEMO_VEHICLES,
+            "demo"
+        );
+
+        showToast(
+            "Monitoring API trenutno nije dostupan — prikazan je lokalni telemetry preview."
+        );
+
+        state.demoTimer =
+            setInterval(
+                () => {
+
+                    const now =
+                        Date.now();
+
+                    state.vehicles =
+                        state.vehicles.map(
+                            vehicle => {
+
+                                if (
+                                    vehicle.status !==
+                                    "moving"
+                                ) {
+                                    return {
+                                        ...vehicle,
+                                        lastGpsAt:
+                                            vehicle.status ===
+                                            "idle"
+                                                ? new Date(now).toISOString()
+                                                : vehicle.lastGpsAt
+                                    };
+                                }
+
+                                const headingRad =
+                                    (
+                                        vehicle.heading ||
+                                        0
+                                    ) *
+                                    Math.PI /
+                                    180;
+
+                                const latitudeDelta =
+                                    Math.cos(
+                                        headingRad
+                                    ) *
+                                    .00055;
+
+                                const longitudeDelta =
+                                    Math.sin(
+                                        headingRad
+                                    ) *
+                                    .00055 /
+                                    Math.max(
+                                        Math.cos(
+                                            vehicle.latitude *
+                                            Math.PI /
+                                            180
+                                        ),
+                                        .25
+                                    );
+
+                                let latitude =
+                                    vehicle.latitude +
+                                    latitudeDelta;
+
+                                let longitude =
+                                    vehicle.longitude +
+                                    longitudeDelta;
+
+                                if (
+                                    latitude < 42 ||
+                                    latitude > 47
+                                ) {
+                                    latitude =
+                                        vehicle.latitude -
+                                        latitudeDelta;
+
+                                    vehicle.heading =
+                                        (
+                                            vehicle.heading +
+                                            180
+                                        ) %
+                                        360;
+                                }
+
+                                if (
+                                    longitude < 18 ||
+                                    longitude > 23
+                                ) {
+                                    longitude =
+                                        vehicle.longitude -
+                                        longitudeDelta;
+
+                                    vehicle.heading =
+                                        (
+                                            vehicle.heading +
+                                            180
+                                        ) %
+                                        360;
+                                }
+
+                                return {
+                                    ...vehicle,
+                                    latitude,
+                                    longitude,
+                                    speed:
+                                        Math.max(
+                                            35,
+                                            Math.min(
+                                                85,
+                                                vehicle.speed +
+                                                (
+                                                    Math.random() -
+                                                    .5
+                                                ) *
+                                                6
+                                            )
+                                        ),
+                                    lastGpsAt:
+                                        new Date(
+                                            now
+                                        ).toISOString()
+                                };
+                            }
+                        );
+
+                    state.lastUpdated =
+                        new Date();
+
+                    updateKpis();
+
+                    renderVehicleList();
+
+                    renderAlerts();
+
+                    updateMarkers();
+
+                    setText(
+                        "fleetUpdatedAt",
+                        formatTime(
+                            state.lastUpdated
+                        )
+                    );
+
+                    if (
+                        state.selectedVehicleId
+                    ) {
+
+                        const selected =
+                            state.vehicles.find(
+                                vehicle =>
+                                    vehicle.id ===
+                                    state.selectedVehicleId
+                            );
+
+                        if (selected) {
+                            renderVehicleDetail(
+                                selected
+                            );
+                        }
+                    }
+
+                },
+                2500
+            );
+    }
+
+    function setLoading(
+        value
+    ) {
+
+        const loading =
+            $("monitoringLoading");
+
+        if (!loading) {
+            return;
+        }
+
+        loading.classList.toggle(
+            "hidden",
+            !value
+        );
+    }
+
+    async function refreshMonitoring() {
+
+        setLoading(true);
+
+        const success =
+            await loadFleetFromApi();
+
+        if (!success) {
+
+            if (
+                state.vehicles.length === 0
+            ) {
+                startDemoMode();
+            }
+        }
+
+        setLoading(false);
+
+        if (success) {
+            showToast(
+                "Fleet monitoring je osvežen."
+            );
+        }
+    }
+
+    function normalizeSignalRPosition(
+        payload
+    ) {
+
+        if (!payload) {
+            return null;
+        }
+
+        const vehicleId =
+            firstValue(
+                payload,
+                [
+                    "vehicleId",
+                    "VehicleId",
+                    "id",
+                    "Id"
+                ]
+            );
+
+        const point =
+            normalizeCoordinate(
+                payload
+            );
+
+        if (
+            vehicleId === null ||
+            !point
+        ) {
+            return null;
+        }
+
+        return {
+            vehicleId: String(
+                vehicleId
+            ),
+            latitude:
+                point.latitude,
+            longitude:
+                point.longitude,
+
+            speed:
+                numberOrNull(
+                    firstValue(
+                        payload,
+                        [
+                            "speed",
+                            "Speed",
+                            "speedKmh",
+                            "SpeedKmh",
+                            "currentSpeedKmh",
+                            "CurrentSpeedKmh"
+                        ]
+                    )
+                ),
+
+            heading:
+                numberOrNull(
+                    firstValue(
+                        payload,
+                        [
+                            "heading",
+                            "Heading",
+                            "bearing",
+                            "Bearing",
+                            "currentBearing",
+                            "CurrentBearing"
+                        ]
+                    )
+                ),
+
+            accuracy:
+                numberOrNull(
+                    firstValue(
+                        payload,
+                        [
+                            "accuracy",
+                            "Accuracy",
+                            "gpsAccuracy",
+                            "GpsAccuracy"
+                        ]
+                    )
+                ),
+
+            timestamp:
+                firstValue(
+                    payload,
+                    [
+                        "timestamp",
+                        "Timestamp",
+                        "recordedAt",
+                        "RecordedAt",
+                        "lastGpsAt",
+                        "LastGpsAt"
+                    ]
+                ) ||
+                new Date().toISOString()
+        };
+    }
+
+    function applyLivePosition(
+        payload
+    ) {
+
+        const position =
+            normalizeSignalRPosition(
+                payload
+            );
+
+        if (!position) {
+            return;
+        }
+
+        const index =
+            state.vehicles.findIndex(
+                vehicle =>
+                    vehicle.id ===
+                    position.vehicleId
+            );
+
+        if (
+            index < 0
+        ) {
+            return;
+        }
+
+        const current =
+            state.vehicles[index];
+
+        const speed =
+            position.speed ??
+            current.speed ??
+            0;
+
+        const status =
+            speed > 5
+                ? "moving"
+                : "idle";
+
+        state.vehicles[index] = {
+            ...current,
+            latitude:
+                position.latitude,
+            longitude:
+                position.longitude,
+            speed,
+            heading:
+                position.heading ??
+                current.heading,
+            accuracy:
+                position.accuracy ??
+                current.accuracy,
+            status,
+            lastGpsAt:
+                position.timestamp
+        };
+
+        state.lastUpdated =
+            new Date();
+
+        updateKpis();
+
+        renderVehicleList();
+
+        renderAlerts();
+
+        updateMarkers();
+
+        setText(
+            "fleetUpdatedAt",
+            formatTime(
+                state.lastUpdated
+            )
+        );
+
+        if (
+            state.selectedVehicleId ===
+            position.vehicleId
+        ) {
+
+            const vehicle =
+                state.vehicles[index];
+
+            renderVehicleDetail(
+                vehicle
+            );
+        }
+    }
+
+    async function startSignalR() {
+
+        if (
+            typeof signalR === "undefined"
+        ) {
+            console.warn(
+                "SignalR client nije učitan."
+            );
+
+            setMonitoringLive(
+                false,
+                "LIVE REST"
+            );
+
+            return;
+        }
+
+        if (
+            state.signalRStarted
+        ) {
+            return;
+        }
+
+        try {
+
+            const connection =
+                new signalR.HubConnectionBuilder()
+                    .withUrl(
+                        "/hubs/navigation"
+                    )
+                    .withAutomaticReconnect()
+                    .configureLogging(
+                        signalR.LogLevel.Warning
+                    )
+                    .build();
+
+            connection.on(
+                "vehiclePositionUpdated",
+                applyLivePosition
+            );
+
+            connection.on(
+                "VehiclePositionUpdated",
+                applyLivePosition
+            );
+
+            connection.onreconnecting(
+                () => {
+                    setMonitoringLive(
+                        false,
+                        "RECONNECTING"
+                    );
+                }
+            );
+
+            connection.onreconnected(
+                async () => {
+
+                    setMonitoringLive(
+                        true,
+                        "LIVE SIGNALR"
+                    );
+
+                    try {
+                        await connection.invoke(
+                            "JoinCompany"
+                        );
+                    }
+                    catch (error) {
+                        console.warn(
+                            "JoinCompany failed:",
+                            error
+                        );
+                    }
+                }
+            );
+
+            connection.onclose(
+                () => {
+
+                    state.signalRStarted =
+                        false;
+
+                    setMonitoringLive(
+                        false,
+                        "LIVE OFFLINE"
+                    );
+                }
+            );
+
+            await connection.start();
+
+            state.signalRConnection =
+                connection;
+
+            state.signalRStarted =
+                true;
+
+            try {
+                await connection.invoke(
+                    "JoinCompany"
+                );
+            }
+            catch (error) {
+                console.warn(
+                    "JoinCompany nije dostupan:",
+                    error
+                );
+            }
+
+            setMonitoringLive(
+                true,
+                "LIVE SIGNALR"
+            );
+
+        }
+        catch (error) {
+
+            console.warn(
+                "SignalR monitoring nije dostupan:",
+                error
+            );
+
+            setMonitoringLive(
+                false,
+                "LIVE REST"
+            );
+        }
+    }
+
+    function setMonitoringLive(
+        live,
+        text
+    ) {
+
+        const badge =
+            $("monitoringLiveBadge");
+
+        const mapStatus =
+            $("mapStatus");
+
+        if (badge) {
+
+            badge.classList.toggle(
+                "offline",
+                !live
+            );
+        }
+
+        setText(
+            "monitoringLiveText",
+            text
+        );
+
+        if (mapStatus) {
+
+            mapStatus.textContent =
+                live
+                    ? "LIVE TELEMETRY"
+                    : "REST TELEMETRY";
+        }
+    }
+
+    function bindEvents() {
+
+        $("refreshMonitoring")
+            ?.addEventListener(
+                "click",
+                refreshMonitoring
+            );
+
+        $("fitMonitoringMap")
+            ?.addEventListener(
+                "click",
+                fitFleet
+            );
+
+        $("fitFleet")
+            ?.addEventListener(
+                "click",
+                fitFleet
+            );
+
+        $("centerSerbia")
+            ?.addEventListener(
+                "click",
+                centerSerbia
+            );
+
+        $("toggleDarkMap")
+            ?.addEventListener(
+                "click",
+                toggleMapLayer
+            );
+
+        document
+            .querySelectorAll(
+                ".monitoring-filter"
+            )
+            .forEach(
+                button => {
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            document
+                                .querySelectorAll(
+                                    ".monitoring-filter"
+                                )
+                                .forEach(
+                                    item =>
+                                        item.classList.remove(
+                                            "active"
+                                        )
+                                );
+
+                            button.classList.add(
+                                "active"
+                            );
+
+                            state.filter =
+                                button.dataset.filter ||
+                                "all";
+
+                            renderVehicleList();
+                        }
+                    );
+                }
+            );
+    }
+
+    async function initialize() {
+
+        bindEvents();
+
+        initializeMap();
+
+        setLoading(true);
+
+        const loaded =
+            await loadFleetFromApi();
+
+        if (!loaded) {
+            startDemoMode();
+        }
+
+        setLoading(false);
+
+        await startSignalR();
+
+        if (
+            state.vehicles.length > 0
+        ) {
+            setTimeout(
+                fitFleet,
+                300
+            );
+        }
+
+        setTimeout(
+            () => {
+                state.map?.invalidateSize();
+            },
+            500
+        );
+    }
+
+    initialize();
+
+})();
+</script>
+
+}

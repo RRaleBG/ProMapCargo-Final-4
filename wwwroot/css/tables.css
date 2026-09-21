@@ -1,0 +1,7 @@
+.pm-table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--pm-border); border-radius: var(--pm-radius-lg); }
+.pm-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+.pm-table th, .pm-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--pm-border-soft); vertical-align: middle; }
+.pm-table th { color: var(--pm-text-muted); font-size: var(--pm-font-xs); font-weight: 800; letter-spacing: .07em; text-transform: uppercase; background: rgba(255,255,255,.02); }
+.pm-table td { color: var(--pm-text-soft); font-size: var(--pm-font-sm); }
+.pm-table tbody tr:hover { background: rgba(16,185,129,.045); }
+.pm-table tbody tr:last-child td { border-bottom: 0; }

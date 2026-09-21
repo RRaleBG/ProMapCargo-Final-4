@@ -1,0 +1,3696 @@
+@page "/profile"
+@{
+    ViewData["Title"] = "Profil · ProMap Cargo";
+}
+
+<div class="pm-profile-page" data-module="profile">
+
+    <header class="pm-profile-header">
+
+        <div class="pm-profile-heading">
+
+            <div class="pm-profile-kicker">
+                ACCOUNT · IDENTITY
+            </div>
+
+            <h1>Profil</h1>
+
+            <p>
+                Lični podaci, bezbednost naloga, Identity podešavanja i operativni kontekst korisnika.
+            </p>
+
+        </div>
+
+        <div class="pm-profile-header-actions">
+
+            <div class="pm-profile-status">
+                <span class="pm-profile-status-dot"></span>
+                <span>Nalog aktivan</span>
+            </div>
+
+            <button type="button"
+                    class="pm-profile-btn pm-profile-btn-secondary"
+                    data-action="discard">
+                Poništi izmene
+            </button>
+
+            <button type="button"
+                    class="pm-profile-btn pm-profile-btn-primary"
+                    data-action="save">
+                Sačuvaj profil
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <div class="pm-profile-grid">
+
+
+        <!-- =====================================================
+             LEFT COLUMN
+             ===================================================== -->
+
+        <section class="pm-profile-main">
+
+
+            <!-- PROFILE HERO -->
+
+            <article class="pm-profile-card pm-profile-hero-card">
+
+                <div class="pm-profile-hero-glow"></div>
+
+                <div class="pm-profile-avatar-wrap">
+
+                    <div class="pm-profile-avatar" id="profileAvatar">
+
+                        <span class="pm-profile-avatar-initials"
+                              id="avatarInitials">
+                            MP
+                        </span>
+
+                        <img id="avatarImage"
+                             alt="Profilna fotografija"
+                             hidden />
+
+                    </div>
+
+                    <label class="pm-profile-avatar-edit"
+                           for="avatarUpload"
+                           title="Promeni profilnu fotografiju">
+                        +
+                    </label>
+
+                    <input id="avatarUpload"
+                           type="file"
+                           accept="image/png,image/jpeg,image/webp"
+                           hidden />
+
+                </div>
+
+
+                <div class="pm-profile-identity">
+
+                    <div class="pm-profile-identity-top">
+
+                        <div>
+
+                            <div class="pm-profile-name"
+                                 id="profileNamePreview">
+                                Marko Petrović
+                            </div>
+
+                            <div class="pm-profile-username">
+                                @@marko.petrovic
+                            </div>
+
+                        </div>
+
+                        <span class="pm-profile-role-badge">
+                            Dispatcher
+                        </span>
+
+                    </div>
+
+                    <div class="pm-profile-company">
+                        ProMap Cargo Demo · Fleet Operations
+                    </div>
+
+                    <div class="pm-profile-meta">
+
+                        <span>
+                            ●
+                            Active
+                        </span>
+
+                        <span>
+                            Identity verified
+                        </span>
+
+                        <span>
+                            Tenant: PROMAP-DEMO
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pm-profile-profile-score">
+
+                    <div class="pm-profile-score-ring">
+
+                        <svg viewBox="0 0 42 42">
+
+                            <circle class="pm-score-track"
+                                    cx="21"
+                                    cy="21"
+                                    r="16"></circle>
+
+                            <circle class="pm-score-progress"
+                                    cx="21"
+                                    cy="21"
+                                    r="16"></circle>
+
+                        </svg>
+
+                        <strong>92%</strong>
+
+                    </div>
+
+                    <div>
+
+                        <strong>Profil kompletan</strong>
+
+                        <span>
+                            Dodajte recovery telefon za 100%.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- PERSONAL INFORMATION -->
+
+            <article class="pm-profile-card">
+
+                <div class="pm-profile-card-header">
+
+                    <div>
+
+                        <div class="pm-profile-eyebrow">
+                            PERSONAL INFORMATION
+                        </div>
+
+                        <h2>Osnovni podaci</h2>
+
+                        <p>
+                            Podaci koji pripadaju Identity korisničkom nalogu.
+                        </p>
+
+                    </div>
+
+                    <span class="pm-profile-section-icon">
+                        ◯
+                    </span>
+
+                </div>
+
+
+                <div class="pm-profile-form-grid">
+
+
+                    <div class="pm-profile-field">
+
+                        <label for="displayName">
+                            Ime i prezime
+                        </label>
+
+                        <input id="displayName"
+                               name="DisplayName"
+                               type="text"
+                               value="Marko Petrović"
+                               autocomplete="name" />
+
+                    </div>
+
+
+                    <div class="pm-profile-field">
+
+                        <label for="username">
+                            Username
+                        </label>
+
+                        <input id="username"
+                               name="UserName"
+                               type="text"
+                               value="marko.petrovic"
+                               autocomplete="username" />
+
+                        <small>
+                            Username se koristi za prijavu na sistem.
+                        </small>
+
+                    </div>
+
+
+                    <div class="pm-profile-field">
+
+                        <label for="email">
+                            Email adresa
+                        </label>
+
+                        <div class="pm-profile-input-status">
+
+                            <input id="email"
+                                   name="Email"
+                                   type="email"
+                                   value="marko.petrovic@promapcargo.local"
+                                   autocomplete="email" />
+
+                            <span class="pm-profile-verified">
+                                ✓ Verified
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pm-profile-field">
+
+                        <label for="phone">
+                            Telefon
+                        </label>
+
+                        <div class="pm-profile-input-status">
+
+                            <input id="phone"
+                                   name="PhoneNumber"
+                                   type="tel"
+                                   value="+381 64 123 4567"
+                                   autocomplete="tel" />
+
+                            <span class="pm-profile-unverified">
+                                Verify
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pm-profile-field">
+
+                        <label for="language">
+                            Jezik
+                        </label>
+
+                        <select id="language"
+                                name="Language">
+
+                            <option value="sr" selected>
+                                Srpski
+                            </option>
+
+                            <option value="en">
+                                English
+                            </option>
+
+                            <option value="de">
+                                Deutsch
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="pm-profile-field">
+
+                        <label for="timezone">
+                            Vremenska zona
+                        </label>
+
+                        <select id="timezone"
+                                name="Timezone">
+
+                            <option value="Europe/Belgrade"
+                                    selected>
+                                Europe/Belgrade
+                            </option>
+
+                            <option value="Europe/Berlin">
+                                Europe/Berlin
+                            </option>
+
+                            <option value="UTC">
+                                UTC
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="pm-profile-field pm-profile-field-wide">
+
+                        <label for="bio">
+                            Kratak opis
+                        </label>
+
+                        <textarea id="bio"
+                                  name="Bio"
+                                  rows="4"
+                                  placeholder="Kratak opis korisnika...">Fleet Operations · Dispatch</textarea>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- IDENTITY / TENANT -->
+
+            <article class="pm-profile-card">
+
+                <div class="pm-profile-card-header">
+
+                    <div>
+
+                        <div class="pm-profile-eyebrow">
+                            ASP.NET CORE IDENTITY
+                        </div>
+
+                        <h2>Identity nalog</h2>
+
+                        <p>
+                            Sistem identiteta, tenant scope i korisničke privilegije.
+                        </p>
+
+                    </div>
+
+                    <span class="pm-profile-live-badge">
+                        IDENTITY READY
+                    </span>
+
+                </div>
+
+
+                <div class="pm-profile-identity-grid">
+
+
+                    <div class="pm-profile-identity-item">
+
+                        <span>User ID</span>
+
+                        <strong>
+                            9c4e1b7a-••••-••••-••••-a812
+                        </strong>
+
+                        <button type="button"
+                                class="pm-profile-copy"
+                                data-copy="9c4e1b7a-demo-user">
+                            Copy
+                        </button>
+
+                    </div>
+
+
+                    <div class="pm-profile-identity-item">
+
+                        <span>Authentication</span>
+
+                        <strong>
+                            ASP.NET Core Identity
+                        </strong>
+
+                        <em class="pm-profile-state-success">
+                            ACTIVE
+                        </em>
+
+                    </div>
+
+
+                    <div class="pm-profile-identity-item">
+
+                        <span>Company / Tenant</span>
+
+                        <strong>
+                            ProMap Cargo Demo
+                        </strong>
+
+                        <em>
+                            PROMAP-DEMO
+                        </em>
+
+                    </div>
+
+
+                    <div class="pm-profile-identity-item">
+
+                        <span>Role</span>
+
+                        <strong>
+                            Dispatcher
+                        </strong>
+
+                        <em>
+                            Fleet Operations
+                        </em>
+
+                    </div>
+
+
+                    <div class="pm-profile-identity-item">
+
+                        <span>Email confirmation</span>
+
+                        <strong>
+                            Confirmed
+                        </strong>
+
+                        <em class="pm-profile-state-success">
+                            VERIFIED
+                        </em>
+
+                    </div>
+
+
+                    <div class="pm-profile-identity-item">
+
+                        <span>Account created</span>
+
+                        <strong>
+                            12.09.2026
+                        </strong>
+
+                        <em>
+                            7 days ago
+                        </em>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- OPERATIONAL CONTEXT -->
+
+            <article class="pm-profile-card">
+
+                <div class="pm-profile-card-header">
+
+                    <div>
+
+                        <div class="pm-profile-eyebrow">
+                            OPERATIONS
+                        </div>
+
+                        <h2>Operativni kontekst</h2>
+
+                        <p>
+                            Veza korisničkog naloga sa ProMap Cargo operacijama.
+                        </p>
+
+                    </div>
+
+                    <span class="pm-profile-section-icon">
+                        ◈
+                    </span>
+
+                </div>
+
+
+                <div class="pm-profile-operation-grid">
+
+
+                    <div class="pm-profile-operation-card">
+
+                        <div class="pm-profile-operation-icon">
+                            ◈
+                        </div>
+
+                        <div>
+
+                            <span>Trenutna uloga</span>
+
+                            <strong>
+                                Dispatcher
+                            </strong>
+
+                            <small>
+                                Dispatch & Fleet Operations
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pm-profile-operation-card">
+
+                        <div class="pm-profile-operation-icon">
+                            ↗
+                        </div>
+
+                        <div>
+
+                            <span>Aktivna tura</span>
+
+                            <strong>
+                                TR-2026-00887
+                            </strong>
+
+                            <small>
+                                Novi Sad → Beograd
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pm-profile-operation-card">
+
+                        <div class="pm-profile-operation-icon">
+                            ▣
+                        </div>
+
+                        <div>
+
+                            <span>Vozilo</span>
+
+                            <strong>
+                                BG-123-AB
+                            </strong>
+
+                            <small>
+                                Mercedes-Benz Actros
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pm-profile-operation-card">
+
+                        <div class="pm-profile-operation-icon">
+                            $
+                        </div>
+
+                        <div>
+
+                            <span>Finansijski pristup</span>
+
+                            <strong>
+                                Dispatch Finance
+                            </strong>
+
+                            <small>
+                                Read / Submit expenses
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- PREFERENCES -->
+
+            <article class="pm-profile-card">
+
+                <div class="pm-profile-card-header">
+
+                    <div>
+
+                        <div class="pm-profile-eyebrow">
+                            PREFERENCES
+                        </div>
+
+                        <h2>Obaveštenja i preferencije</h2>
+
+                        <p>
+                            Kontrola načina na koji ProMap Cargo komunicira sa korisnikom.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pm-profile-preferences">
+
+
+                    <label class="pm-profile-toggle-row">
+
+                        <span>
+
+                            <strong>
+                                Dispatch obaveštenja
+                            </strong>
+
+                            <small>
+                                Promene statusa tura i transportnih naloga.
+                            </small>
+
+                        </span>
+
+                        <input type="checkbox"
+                               checked
+                               data-preference="dispatch" />
+
+                        <i></i>
+
+                    </label>
+
+
+                    <label class="pm-profile-toggle-row">
+
+                        <span>
+
+                            <strong>
+                                GPS / Navigation alerts
+                            </strong>
+
+                            <small>
+                                Off-route, GPS i routing upozorenja.
+                            </small>
+
+                        </span>
+
+                        <input type="checkbox"
+                               checked
+                               data-preference="gps" />
+
+                        <i></i>
+
+                    </label>
+
+
+                    <label class="pm-profile-toggle-row">
+
+                        <span>
+
+                            <strong>
+                                Finansijska obaveštenja
+                            </strong>
+
+                            <small>
+                                Putni troškovi, gorivo, kartice i odobrenja.
+                            </small>
+
+                        </span>
+
+                        <input type="checkbox"
+                               checked
+                               data-preference="finance" />
+
+                        <i></i>
+
+                    </label>
+
+
+                    <label class="pm-profile-toggle-row">
+
+                        <span>
+
+                            <strong>
+                                Email notifications
+                            </strong>
+
+                            <small>
+                                Slanje važnih sistemskih događaja na email.
+                            </small>
+
+                        </span>
+
+                        <input type="checkbox"
+                               checked
+                               data-preference="email" />
+
+                        <i></i>
+
+                    </label>
+
+
+                    <label class="pm-profile-toggle-row">
+
+                        <span>
+
+                            <strong>
+                                Mobile / Push
+                            </strong>
+
+                            <small>
+                                Push obaveštenja za mobilni uređaj.
+                            </small>
+
+                        </span>
+
+                        <input type="checkbox"
+                               data-preference="push" />
+
+                        <i></i>
+
+                    </label>
+
+                </div>
+
+            </article>
+
+
+        </section>
+
+
+        <!-- =====================================================
+             RIGHT COLUMN
+             ===================================================== -->
+
+        <aside class="pm-profile-side">
+
+
+            <!-- SECURITY -->
+
+            <article class="pm-profile-card pm-profile-security-card">
+
+                <div class="pm-profile-card-header">
+
+                    <div>
+
+                        <div class="pm-profile-eyebrow">
+                            SECURITY
+                        </div>
+
+                        <h2>Bezbednost</h2>
+
+                        <p>
+                            Zaštitite Identity nalog.
+                        </p>
+
+                    </div>
+
+                    <span class="pm-profile-security-shield">
+                        ◇
+                    </span>
+
+                </div>
+
+
+                <div class="pm-profile-security-list">
+
+
+                    <div class="pm-profile-security-item">
+
+                        <div class="pm-profile-security-icon success">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Lozinka
+                            </strong>
+
+                            <span>
+                                Promenjena pre 21 dan
+                            </span>
+
+                        </div>
+
+                        <button type="button"
+                                class="pm-profile-link-btn"
+                                data-action="password">
+                            Promeni
+                        </button>
+
+                    </div>
+
+
+                    <div class="pm-profile-security-item">
+
+                        <div class="pm-profile-security-icon success">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Two-factor authentication
+                            </strong>
+
+                            <span>
+                                Authenticator aktivan
+                            </span>
+
+                        </div>
+
+                        <button type="button"
+                                class="pm-profile-link-btn"
+                                data-action="twofa">
+                            Manage
+                        </button>
+
+                    </div>
+
+
+                    <div class="pm-profile-security-item">
+
+                        <div class="pm-profile-security-icon warning">
+                            !
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Recovery codes
+                            </strong>
+
+                            <span>
+                                7 kodova dostupno
+                            </span>
+
+                        </div>
+
+                        <button type="button"
+                                class="pm-profile-link-btn"
+                                data-action="recovery">
+                            Prikaži
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pm-profile-security-footer">
+
+                    <span>
+                        Security score
+                    </span>
+
+                    <strong>
+                        88 / 100
+                    </strong>
+
+                </div>
+
+                <div class="pm-profile-progress">
+                    <span style="width:88%"></span>
+                </div>
+
+            </article>
+
+
+            <!-- SESSIONS -->
+
+            <article class="pm-profile-card">
+
+                <div class="pm-profile-card-header compact">
+
+                    <div>
+
+                        <div class="pm-profile-eyebrow">
+                            SESSIONS
+                        </div>
+
+                        <h2>Aktivne sesije</h2>
+
+                    </div>
+
+                    <span class="pm-profile-count">
+                        3
+                    </span>
+
+                </div>
+
+
+                <div class="pm-profile-sessions">
+
+
+                    <div class="pm-profile-session active">
+
+                        <div class="pm-profile-session-icon">
+                            ◉
+                        </div>
+
+                        <div class="pm-profile-session-main">
+
+                            <strong>
+                                Chrome · Windows
+                            </strong>
+
+                            <span>
+                                Beograd · Current session
+                            </span>
+
+                            <small>
+                                Aktivna sada
+                            </small>
+
+                        </div>
+
+                        <i class="pm-profile-session-live"></i>
+
+                    </div>
+
+
+                    <div class="pm-profile-session">
+
+                        <div class="pm-profile-session-icon">
+                            ◇
+                        </div>
+
+                        <div class="pm-profile-session-main">
+
+                            <strong>
+                                ProMap Mobile
+                            </strong>
+
+                            <span>
+                                Android · Beograd
+                            </span>
+
+                            <small>
+                                pre 24 min
+                            </small>
+
+                        </div>
+
+                        <button type="button"
+                                class="pm-profile-session-close">
+                            ×
+                        </button>
+
+                    </div>
+
+
+                    <div class="pm-profile-session">
+
+                        <div class="pm-profile-session-icon">
+                            ◇
+                        </div>
+
+                        <div class="pm-profile-session-main">
+
+                            <strong>
+                                Edge · Windows
+                            </strong>
+
+                            <span>
+                                Novi Beograd
+                            </span>
+
+                            <small>
+                                pre 2h
+                            </small>
+
+                        </div>
+
+                        <button type="button"
+                                class="pm-profile-session-close">
+                            ×
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <button type="button"
+                        class="pm-profile-wide-btn"
+                        data-action="logout-other-sessions">
+                    Odjavi ostale sesije
+                </button>
+
+            </article>
+
+
+            <!-- ACCOUNT ACCESS -->
+
+            <article class="pm-profile-card">
+
+                <div class="pm-profile-card-header compact">
+
+                    <div>
+
+                        <div class="pm-profile-eyebrow">
+                            ACCESS
+                        </div>
+
+                        <h2>Pristup sistemu</h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pm-profile-access-list">
+
+
+                    <div>
+
+                        <span>
+                            Dashboard
+                        </span>
+
+                        <b class="allowed">
+                            ALLOWED
+                        </b>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Dispatch
+                        </span>
+
+                        <b class="allowed">
+                            ALLOWED
+                        </b>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Finansije
+                        </span>
+
+                        <b class="allowed">
+                            ALLOWED
+                        </b>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Administracija
+                        </span>
+
+                        <b class="restricted">
+                            RESTRICTED
+                        </b>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Identity management
+                        </span>
+
+                        <b class="restricted">
+                            RESTRICTED
+                        </b>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- ACTIVITY -->
+
+            <article class="pm-profile-card">
+
+                <div class="pm-profile-card-header compact">
+
+                    <div>
+
+                        <div class="pm-profile-eyebrow">
+                            ACCOUNT ACTIVITY
+                        </div>
+
+                        <h2>Aktivnost</h2>
+
+                    </div>
+
+                    <button type="button"
+                            class="pm-profile-link-btn">
+                        Audit
+                    </button>
+
+                </div>
+
+
+                <div class="pm-profile-activity">
+
+
+                    <div class="pm-profile-activity-item">
+
+                        <span class="pm-profile-activity-dot success"></span>
+
+                        <div>
+
+                            <strong>
+                                Uspešna prijava
+                            </strong>
+
+                            <small>
+                                Danas · 20:41 · Chrome / Windows
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pm-profile-activity-item">
+
+                        <span class="pm-profile-activity-dot"></span>
+
+                        <div>
+
+                            <strong>
+                                Profil ažuriran
+                            </strong>
+
+                            <small>
+                                Juče · 14:12
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pm-profile-activity-item">
+
+                        <span class="pm-profile-activity-dot warning"></span>
+
+                        <div>
+
+                            <strong>
+                                2FA proverena
+                            </strong>
+
+                            <small>
+                                11.09.2026 · 09:42
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pm-profile-activity-item">
+
+                        <span class="pm-profile-activity-dot"></span>
+
+                        <div>
+
+                            <strong>
+                                Nova sesija
+                            </strong>
+
+                            <small>
+                                10.09.2026 · Android
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- DANGER ZONE -->
+
+            <article class="pm-profile-card pm-profile-danger-card">
+
+                <div class="pm-profile-card-header compact">
+
+                    <div>
+
+                        <div class="pm-profile-eyebrow danger">
+                            ACCOUNT CONTROL
+                        </div>
+
+                        <h2>Nalog</h2>
+
+                    </div>
+
+                </div>
+
+
+                <p>
+                    Deaktivacija naloga mora biti potvrđena od strane administratora kompanije.
+                </p>
+
+                <button type="button"
+                        class="pm-profile-danger-btn"
+                        data-action="deactivate">
+                    Zatraži deaktivaciju naloga
+                </button>
+
+            </article>
+
+
+        </aside>
+
+    </div>
+
+
+    <!-- =========================================================
+         PASSWORD MODAL
+         ========================================================= -->
+
+    <div class="pm-profile-modal"
+         id="passwordModal"
+         hidden>
+
+        <div class="pm-profile-modal-backdrop"
+             data-close-modal></div>
+
+        <div class="pm-profile-modal-panel">
+
+            <button type="button"
+                    class="pm-profile-modal-close"
+                    data-close-modal>
+                ×
+            </button>
+
+            <div class="pm-profile-eyebrow">
+                SECURITY
+            </div>
+
+            <h2>Promena lozinke</h2>
+
+            <p>
+                Nova lozinka mora zadovoljiti Identity password policy.
+            </p>
+
+
+            <div class="pm-profile-modal-form">
+
+                <label>
+                    Trenutna lozinka
+                    <input type="password"
+                           autocomplete="current-password" />
+                </label>
+
+                <label>
+                    Nova lozinka
+                    <input type="password"
+                           autocomplete="new-password" />
+                </label>
+
+                <label>
+                    Potvrdi novu lozinku
+                    <input type="password"
+                           autocomplete="new-password" />
+                </label>
+
+            </div>
+
+
+            <div class="pm-profile-modal-actions">
+
+                <button type="button"
+                        class="pm-profile-btn pm-profile-btn-secondary"
+                        data-close-modal>
+                    Otkaži
+                </button>
+
+                <button type="button"
+                        class="pm-profile-btn pm-profile-btn-primary"
+                        data-action="change-password">
+                    Promeni lozinku
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- TOAST -->
+
+    <div class="pm-profile-toast"
+         id="profileToast"
+         role="status"
+         aria-live="polite">
+
+        <span class="pm-profile-toast-icon">
+            ✓
+        </span>
+
+        <span id="profileToastText">
+            Sačuvano
+        </span>
+
+    </div>
+
+</div>
+
+
+<style>
+
+.pm-profile-page
+{
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    color: var(--pm-text);
+}
+
+.pm-profile-header
+{
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 22px;
+    padding: 4px 2px 0;
+}
+
+.pm-profile-heading
+{
+    min-width: 0;
+}
+
+.pm-profile-kicker
+{
+    margin-bottom: 6px;
+    color: var(--pm-teal);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+}
+
+.pm-profile-heading h1
+{
+    margin: 0;
+    color: var(--pm-text);
+    font-size: 30px;
+    line-height: 1.08;
+    font-weight: 800;
+    letter-spacing: -.035em;
+}
+
+.pm-profile-heading p
+{
+    margin: 7px 0 0;
+    color: var(--pm-text-muted);
+    font-size: 13px;
+}
+
+.pm-profile-header-actions
+{
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.pm-profile-status
+{
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 12px;
+    border: 1px solid rgba(52,211,153,.12);
+    border-radius: 10px;
+    background: rgba(16,185,129,.055);
+    color: var(--pm-text-muted);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.pm-profile-status-dot
+{
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--pm-emerald-400);
+    box-shadow:
+        0 0 0 4px rgba(52,211,153,.08),
+        0 0 14px rgba(52,211,153,.55);
+    animation: profilePulse 2.4s ease-in-out infinite;
+}
+
+.pm-profile-btn
+{
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 14px;
+    border: 1px solid var(--pm-border);
+    border-radius: 10px;
+    color: var(--pm-text-soft);
+    background: var(--pm-surface);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        transform .18s ease,
+        background .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
+}
+
+.pm-profile-btn:hover
+{
+    transform: translateY(-1px);
+    border-color: var(--pm-border-strong);
+    background: var(--pm-surface-hover);
+}
+
+.pm-profile-btn-primary
+{
+    border-color: rgba(52,211,153,.35);
+    color: #021512;
+    background: linear-gradient(
+        135deg,
+        var(--pm-emerald-400),
+        var(--pm-emerald-500)
+    );
+    box-shadow: 0 8px 22px rgba(16,185,129,.16);
+}
+
+.pm-profile-btn-primary:hover
+{
+    color: #021512;
+    box-shadow: 0 12px 30px rgba(16,185,129,.24);
+}
+
+.pm-profile-btn-secondary
+{
+    background: rgba(4,31,26,.66);
+}
+
+
+/* =========================================================
+   GRID
+   ========================================================= */
+
+.pm-profile-grid
+{
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(330px, .85fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.pm-profile-main,
+.pm-profile-side
+{
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.pm-profile-card
+{
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius-lg);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(5,39,32,.82),
+            rgba(2,22,18,.84)
+        );
+    box-shadow: var(--pm-shadow-sm);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    animation: profileCardIn .48s ease both;
+}
+
+.pm-profile-card:nth-child(2)
+{
+    animation-delay: .04s;
+}
+
+.pm-profile-card:nth-child(3)
+{
+    animation-delay: .08s;
+}
+
+.pm-profile-card:nth-child(4)
+{
+    animation-delay: .12s;
+}
+
+.pm-profile-card:nth-child(5)
+{
+    animation-delay: .16s;
+}
+
+.pm-profile-card::after
+{
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+        linear-gradient(
+            115deg,
+            rgba(255,255,255,.025),
+            transparent 28%
+        );
+}
+
+.pm-profile-card-header
+{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px 15px;
+    border-bottom: 1px solid var(--pm-border-soft);
+}
+
+.pm-profile-card-header.compact
+{
+    padding-bottom: 13px;
+}
+
+.pm-profile-card-header h2
+{
+    margin: 3px 0 0;
+    color: var(--pm-text);
+    font-size: 16px;
+    font-weight: 750;
+    letter-spacing: -.015em;
+}
+
+.pm-profile-card-header p
+{
+    margin: 5px 0 0;
+    color: var(--pm-text-muted);
+    font-size: 11px;
+}
+
+.pm-profile-eyebrow
+{
+    color: var(--pm-teal);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .17em;
+}
+
+.pm-profile-eyebrow.danger
+{
+    color: var(--pm-danger);
+}
+
+.pm-profile-section-icon,
+.pm-profile-security-shield
+{
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(45,212,191,.15);
+    border-radius: 10px;
+    background: rgba(45,212,191,.055);
+    color: var(--pm-teal);
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   PROFILE HERO
+   ========================================================= */
+
+.pm-profile-hero-card
+{
+    min-height: 170px;
+    display: grid;
+    grid-template-columns: auto minmax(0,1fr) auto;
+    align-items: center;
+    gap: 20px;
+    padding: 23px;
+}
+
+.pm-profile-hero-glow
+{
+    position: absolute;
+    width: 280px;
+    height: 180px;
+    left: 8%;
+    top: -80px;
+    pointer-events: none;
+    background: radial-gradient(
+        circle,
+        rgba(16,185,129,.14),
+        transparent 68%
+    );
+    filter: blur(10px);
+}
+
+.pm-profile-avatar-wrap
+{
+    position: relative;
+    z-index: 2;
+}
+
+.pm-profile-avatar
+{
+    position: relative;
+    width: 92px;
+    height: 92px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(45,212,191,.35);
+    border-radius: 50%;
+    background:
+        radial-gradient(
+            circle at 35% 25%,
+            rgba(45,212,191,.28),
+            rgba(16,185,129,.08) 48%,
+            rgba(2,21,18,.9)
+        );
+    box-shadow:
+        0 0 0 7px rgba(16,185,129,.045),
+        0 0 35px rgba(16,185,129,.13);
+}
+
+.pm-profile-avatar img
+{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pm-profile-avatar-initials
+{
+    color: var(--pm-emerald-100);
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -.05em;
+}
+
+.pm-profile-avatar-edit
+{
+    position: absolute;
+    right: -2px;
+    bottom: 2px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #021512;
+    border-radius: 50%;
+    background: var(--pm-emerald-500);
+    color: #021512;
+    font-size: 19px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(16,185,129,.28);
+    transition: transform .18s ease;
+}
+
+.pm-profile-avatar-edit:hover
+{
+    transform: scale(1.1) rotate(8deg);
+}
+
+.pm-profile-identity
+{
+    position: relative;
+    z-index: 2;
+    min-width: 0;
+}
+
+.pm-profile-identity-top
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.pm-profile-name
+{
+    color: var(--pm-text);
+    font-size: 23px;
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -.035em;
+}
+
+.pm-profile-username
+{
+    margin-top: 4px;
+    color: var(--pm-text-muted);
+    font-size: 11px;
+}
+
+.pm-profile-role-badge
+{
+    flex: 0 0 auto;
+    padding: 5px 9px;
+    border: 1px solid rgba(45,212,191,.15);
+    border-radius: 999px;
+    background: rgba(45,212,191,.07);
+    color: var(--pm-teal);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.pm-profile-company
+{
+    margin-top: 11px;
+    color: var(--pm-text-soft);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.pm-profile-meta
+{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px 14px;
+    margin-top: 8px;
+    color: var(--pm-text-dim);
+    font-size: 9px;
+}
+
+.pm-profile-meta span:first-child
+{
+    color: var(--pm-emerald-400);
+}
+
+.pm-profile-profile-score
+{
+    position: relative;
+    z-index: 2;
+    min-width: 160px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px;
+    border: 1px solid var(--pm-border-soft);
+    border-radius: 12px;
+    background: rgba(1,13,11,.32);
+}
+
+.pm-profile-score-ring
+{
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+}
+
+.pm-profile-score-ring svg
+{
+    width: 48px;
+    height: 48px;
+    transform: rotate(-90deg);
+}
+
+.pm-score-track,
+.pm-score-progress
+{
+    fill: none;
+    stroke-width: 4;
+}
+
+.pm-score-track
+{
+    stroke: rgba(255,255,255,.06);
+}
+
+.pm-score-progress
+{
+    stroke: var(--pm-emerald-400);
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 8;
+}
+
+.pm-profile-score-ring strong
+{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pm-emerald-300);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.pm-profile-profile-score > div:last-child
+{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pm-profile-profile-score strong
+{
+    color: var(--pm-text-soft);
+    font-size: 9px;
+}
+
+.pm-profile-profile-score span
+{
+    color: var(--pm-text-dim);
+    font-size: 8px;
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.pm-profile-form-grid
+{
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 15px;
+    padding: 20px;
+}
+
+.pm-profile-field
+{
+    min-width: 0;
+}
+
+.pm-profile-field-wide
+{
+    grid-column: 1 / -1;
+}
+
+.pm-profile-field label,
+.pm-profile-modal-form label
+{
+    display: block;
+    margin-bottom: 6px;
+    color: var(--pm-text-soft);
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.pm-profile-field input,
+.pm-profile-field select,
+.pm-profile-field textarea,
+.pm-profile-modal-form input
+{
+    width: 100%;
+    border: 1px solid var(--pm-border);
+    outline: none;
+    border-radius: 10px;
+    padding: 11px 12px;
+    background: rgba(1,18,15,.66);
+    color: var(--pm-text);
+    font-size: 11px;
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease,
+        background .18s ease;
+}
+
+.pm-profile-field input,
+.pm-profile-field select
+{
+    height: 42px;
+}
+
+.pm-profile-field textarea
+{
+    min-height: 92px;
+    resize: vertical;
+}
+
+.pm-profile-field input:hover,
+.pm-profile-field select:hover,
+.pm-profile-field textarea:hover
+{
+    border-color: rgba(45,212,191,.22);
+}
+
+.pm-profile-field input:focus,
+.pm-profile-field select:focus,
+.pm-profile-field textarea:focus
+{
+    border-color: rgba(45,212,191,.5);
+    background: rgba(3,28,24,.88);
+    box-shadow: 0 0 0 3px rgba(45,212,191,.06);
+}
+
+.pm-profile-field small
+{
+    display: block;
+    margin-top: 5px;
+    color: var(--pm-text-dim);
+    font-size: 8px;
+}
+
+.pm-profile-input-status
+{
+    position: relative;
+}
+
+.pm-profile-input-status input
+{
+    padding-right: 76px;
+}
+
+.pm-profile-verified,
+.pm-profile-unverified
+{
+    position: absolute;
+    top: 50%;
+    right: 9px;
+    transform: translateY(-50%);
+    padding: 4px 6px;
+    border-radius: 5px;
+    font-size: 7px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.pm-profile-verified
+{
+    background: rgba(16,185,129,.1);
+    color: var(--pm-emerald-400);
+}
+
+.pm-profile-unverified
+{
+    background: rgba(251,191,36,.1);
+    color: var(--pm-warning);
+}
+
+
+/* =========================================================
+   IDENTITY
+   ========================================================= */
+
+.pm-profile-live-badge
+{
+    padding: 5px 8px;
+    border: 1px solid rgba(16,185,129,.16);
+    border-radius: 6px;
+    background: rgba(16,185,129,.07);
+    color: var(--pm-emerald-400);
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.pm-profile-identity-grid
+{
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+}
+
+.pm-profile-identity-item
+{
+    position: relative;
+    min-width: 0;
+    min-height: 82px;
+    padding: 15px 18px;
+    border-bottom: 1px solid var(--pm-border-soft);
+}
+
+.pm-profile-identity-item:nth-child(odd)
+{
+    border-right: 1px solid var(--pm-border-soft);
+}
+
+.pm-profile-identity-item span
+{
+    display: block;
+    margin-bottom: 5px;
+    color: var(--pm-text-dim);
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.pm-profile-identity-item strong
+{
+    display: block;
+    overflow: hidden;
+    color: var(--pm-text-soft);
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.pm-profile-identity-item em
+{
+    display: block;
+    margin-top: 4px;
+    color: var(--pm-text-dim);
+    font-size: 8px;
+    font-style: normal;
+}
+
+.pm-profile-state-success
+{
+    color: var(--pm-emerald-400) !important;
+}
+
+.pm-profile-copy
+{
+    position: absolute;
+    right: 15px;
+    top: 34px;
+    border: 0;
+    background: transparent;
+    color: var(--pm-teal);
+    font-size: 8px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   OPERATIONS
+   ========================================================= */
+
+.pm-profile-operation-grid
+{
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 9px;
+    padding: 16px;
+}
+
+.pm-profile-operation-card
+{
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 13px;
+    border: 1px solid var(--pm-border-soft);
+    border-radius: 11px;
+    background: rgba(2,22,18,.44);
+    transition:
+        transform .18s ease,
+        border-color .18s ease,
+        background .18s ease;
+}
+
+.pm-profile-operation-card:hover
+{
+    transform: translateY(-2px);
+    border-color: rgba(45,212,191,.18);
+    background: rgba(7,52,43,.42);
+}
+
+.pm-profile-operation-icon
+{
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: rgba(16,185,129,.08);
+    color: var(--pm-teal);
+    font-size: 14px;
+}
+
+.pm-profile-operation-card span,
+.pm-profile-operation-card small
+{
+    display: block;
+}
+
+.pm-profile-operation-card span
+{
+    color: var(--pm-text-dim);
+    font-size: 8px;
+}
+
+.pm-profile-operation-card strong
+{
+    display: block;
+    margin-top: 3px;
+    color: var(--pm-text-soft);
+    font-size: 11px;
+}
+
+.pm-profile-operation-card small
+{
+    margin-top: 2px;
+    color: var(--pm-text-muted);
+    font-size: 8px;
+}
+
+
+/* =========================================================
+   PREFERENCES
+   ========================================================= */
+
+.pm-profile-preferences
+{
+    position: relative;
+    z-index: 1;
+}
+
+.pm-profile-toggle-row
+{
+    min-height: 64px;
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 44px;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--pm-border-soft);
+    cursor: pointer;
+}
+
+.pm-profile-toggle-row:last-child
+{
+    border-bottom: 0;
+}
+
+.pm-profile-toggle-row > span
+{
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.pm-profile-toggle-row strong
+{
+    color: var(--pm-text-soft);
+    font-size: 10px;
+}
+
+.pm-profile-toggle-row small
+{
+    color: var(--pm-text-dim);
+    font-size: 8px;
+}
+
+.pm-profile-toggle-row input
+{
+    display: none;
+}
+
+.pm-profile-toggle-row i
+{
+    position: relative;
+    width: 39px;
+    height: 22px;
+    display: block;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 999px;
+    background: rgba(255,255,255,.06);
+    transition: background .2s ease, border-color .2s ease;
+}
+
+.pm-profile-toggle-row i::after
+{
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #769087;
+    transition:
+        transform .2s ease,
+        background .2s ease;
+}
+
+.pm-profile-toggle-row input:checked + i
+{
+    border-color: rgba(16,185,129,.22);
+    background: rgba(16,185,129,.18);
+}
+
+.pm-profile-toggle-row input:checked + i::after
+{
+    transform: translateX(17px);
+    background: var(--pm-emerald-400);
+    box-shadow: 0 0 10px rgba(52,211,153,.4);
+}
+
+
+/* =========================================================
+   SECURITY
+   ========================================================= */
+
+.pm-profile-security-list
+{
+    position: relative;
+    z-index: 1;
+    padding: 4px 18px;
+}
+
+.pm-profile-security-item
+{
+    display: grid;
+    grid-template-columns: 30px minmax(0,1fr) auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 67px;
+    border-bottom: 1px solid var(--pm-border-soft);
+}
+
+.pm-profile-security-item:last-child
+{
+    border-bottom: 0;
+}
+
+.pm-profile-security-icon
+{
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.pm-profile-security-icon.success
+{
+    background: rgba(16,185,129,.09);
+    color: var(--pm-emerald-400);
+}
+
+.pm-profile-security-icon.warning
+{
+    background: rgba(251,191,36,.09);
+    color: var(--pm-warning);
+}
+
+.pm-profile-security-item strong,
+.pm-profile-security-item span
+{
+    display: block;
+}
+
+.pm-profile-security-item strong
+{
+    color: var(--pm-text-soft);
+    font-size: 10px;
+}
+
+.pm-profile-security-item span
+{
+    margin-top: 3px;
+    color: var(--pm-text-dim);
+    font-size: 8px;
+}
+
+.pm-profile-link-btn
+{
+    border: 0;
+    background: transparent;
+    color: var(--pm-teal);
+    font-size: 8px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.pm-profile-security-footer
+{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    margin: 11px 18px 6px;
+    color: var(--pm-text-dim);
+    font-size: 8px;
+}
+
+.pm-profile-security-footer strong
+{
+    color: var(--pm-emerald-400);
+}
+
+.pm-profile-progress
+{
+    height: 4px;
+    margin: 0 18px 17px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255,255,255,.055);
+}
+
+.pm-profile-progress span
+{
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(
+        90deg,
+        var(--pm-emerald-600),
+        var(--pm-teal)
+    );
+}
+
+
+/* =========================================================
+   SESSIONS
+   ========================================================= */
+
+.pm-profile-count
+{
+    min-width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    background: rgba(16,185,129,.08);
+    color: var(--pm-emerald-400);
+    font-size: 8px;
+    font-weight: 800;
+}
+
+.pm-profile-sessions
+{
+    position: relative;
+    z-index: 1;
+    padding: 5px 16px;
+}
+
+.pm-profile-session
+{
+    position: relative;
+    display: grid;
+    grid-template-columns: 31px minmax(0,1fr) auto;
+    align-items: center;
+    gap: 9px;
+    min-height: 62px;
+    border-bottom: 1px solid var(--pm-border-soft);
+}
+
+.pm-profile-session:last-child
+{
+    border-bottom: 0;
+}
+
+.pm-profile-session-icon
+{
+    width: 29px;
+    height: 29px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(45,212,191,.06);
+    color: var(--pm-teal);
+    font-size: 11px;
+}
+
+.pm-profile-session-main strong,
+.pm-profile-session-main span,
+.pm-profile-session-main small
+{
+    display: block;
+}
+
+.pm-profile-session-main strong
+{
+    color: var(--pm-text-soft);
+    font-size: 9px;
+}
+
+.pm-profile-session-main span
+{
+    margin-top: 2px;
+    color: var(--pm-text-dim);
+    font-size: 8px;
+}
+
+.pm-profile-session-main small
+{
+    margin-top: 2px;
+    color: var(--pm-text-muted);
+    font-size: 7px;
+}
+
+.pm-profile-session-live
+{
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--pm-emerald-400);
+    box-shadow: 0 0 8px rgba(52,211,153,.65);
+}
+
+.pm-profile-session-close
+{
+    width: 23px;
+    height: 23px;
+    border-radius: 6px;
+    background: rgba(251,113,133,.055);
+    color: var(--pm-danger);
+    cursor: pointer;
+}
+
+.pm-profile-wide-btn
+{
+    width: calc(100% - 32px);
+    height: 35px;
+    margin: 10px 16px 16px;
+    border: 1px solid var(--pm-border);
+    border-radius: 8px;
+    background: rgba(4,31,26,.62);
+    color: var(--pm-text-soft);
+    font-size: 9px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease;
+}
+
+.pm-profile-wide-btn:hover
+{
+    border-color: var(--pm-border-strong);
+    background: var(--pm-surface-hover);
+}
+
+
+/* =========================================================
+   ACCESS
+   ========================================================= */
+
+.pm-profile-access-list
+{
+    position: relative;
+    z-index: 1;
+    padding: 5px 18px 13px;
+}
+
+.pm-profile-access-list > div
+{
+    min-height: 39px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid var(--pm-border-soft);
+}
+
+.pm-profile-access-list > div:last-child
+{
+    border-bottom: 0;
+}
+
+.pm-profile-access-list span
+{
+    color: var(--pm-text-soft);
+    font-size: 9px;
+}
+
+.pm-profile-access-list b
+{
+    padding: 4px 6px;
+    border-radius: 5px;
+    font-size: 6px;
+    letter-spacing: .08em;
+}
+
+.pm-profile-access-list .allowed
+{
+    background: rgba(16,185,129,.08);
+    color: var(--pm-emerald-400);
+}
+
+.pm-profile-access-list .restricted
+{
+    background: rgba(251,113,133,.07);
+    color: var(--pm-danger);
+}
+
+
+/* =========================================================
+   ACTIVITY
+   ========================================================= */
+
+.pm-profile-activity
+{
+    position: relative;
+    z-index: 1;
+    padding: 6px 18px 14px;
+}
+
+.pm-profile-activity-item
+{
+    position: relative;
+    display: grid;
+    grid-template-columns: 10px minmax(0,1fr);
+    gap: 10px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--pm-border-soft);
+}
+
+.pm-profile-activity-item:last-child
+{
+    border-bottom: 0;
+}
+
+.pm-profile-activity-dot
+{
+    width: 7px;
+    height: 7px;
+    margin-top: 4px;
+    border-radius: 50%;
+    background: var(--pm-teal);
+    box-shadow: 0 0 8px rgba(45,212,191,.25);
+}
+
+.pm-profile-activity-dot.success
+{
+    background: var(--pm-emerald-400);
+}
+
+.pm-profile-activity-dot.warning
+{
+    background: var(--pm-warning);
+}
+
+.pm-profile-activity-item strong,
+.pm-profile-activity-item small
+{
+    display: block;
+}
+
+.pm-profile-activity-item strong
+{
+    color: var(--pm-text-soft);
+    font-size: 9px;
+}
+
+.pm-profile-activity-item small
+{
+    margin-top: 3px;
+    color: var(--pm-text-dim);
+    font-size: 7px;
+}
+
+
+/* =========================================================
+   DANGER
+   ========================================================= */
+
+.pm-profile-danger-card
+{
+    border-color: rgba(251,113,133,.12);
+}
+
+.pm-profile-danger-card p
+{
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    padding: 0 18px 12px;
+    color: var(--pm-text-dim);
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+.pm-profile-danger-btn
+{
+    position: relative;
+    z-index: 1;
+    margin: 0 18px 18px;
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid rgba(251,113,133,.15);
+    border-radius: 8px;
+    background: rgba(244,63,94,.06);
+    color: var(--pm-danger);
+    font-size: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.pm-profile-modal
+{
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.pm-profile-modal[hidden]
+{
+    display: none;
+}
+
+.pm-profile-modal-backdrop
+{
+    position: absolute;
+    inset: 0;
+    background: rgba(0,7,5,.76);
+    backdrop-filter: blur(8px);
+}
+
+.pm-profile-modal-panel
+{
+    position: relative;
+    z-index: 1;
+    width: min(470px,100%);
+    padding: 23px;
+    border: 1px solid var(--pm-border-strong);
+    border-radius: 18px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(5,39,32,.98),
+            rgba(1,18,15,.98)
+        );
+    box-shadow:
+        0 30px 90px rgba(0,0,0,.48),
+        0 0 45px rgba(16,185,129,.08);
+    animation: profileModalIn .22s ease both;
+}
+
+.pm-profile-modal-close
+{
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255,255,255,.045);
+    color: var(--pm-text-muted);
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.pm-profile-modal-panel h2
+{
+    margin: 4px 0 4px;
+    color: var(--pm-text);
+    font-size: 19px;
+}
+
+.pm-profile-modal-panel > p
+{
+    margin: 0 0 18px;
+    color: var(--pm-text-muted);
+    font-size: 10px;
+}
+
+.pm-profile-modal-form
+{
+    display: grid;
+    gap: 13px;
+}
+
+.pm-profile-modal-form label
+{
+    margin: 0;
+}
+
+.pm-profile-modal-actions
+{
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+.pm-profile-toast
+{
+    position: fixed;
+    right: 26px;
+    bottom: 25px;
+    z-index: 2500;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 190px;
+    padding: 11px 13px;
+    border: 1px solid rgba(52,211,153,.2);
+    border-radius: 11px;
+    background: rgba(2,21,18,.94);
+    color: var(--pm-text-soft);
+    box-shadow: 0 18px 50px rgba(0,0,0,.35);
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+    transition:
+        opacity .2s ease,
+        transform .2s ease;
+}
+
+.pm-profile-toast.show
+{
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.pm-profile-toast-icon
+{
+    width: 23px;
+    height: 23px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    background: rgba(16,185,129,.1);
+    color: var(--pm-emerald-400);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.pm-profile-toast span:last-child
+{
+    font-size: 9px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@@keyframes profileCardIn
+{
+    from
+    {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to
+    {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@@keyframes profileModalIn
+{
+    from
+    {
+        opacity: 0;
+        transform: translateY(8px) scale(.985);
+    }
+
+    to
+    {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@@keyframes profilePulse
+{
+    0%,
+    100%
+    {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50%
+    {
+        opacity: .55;
+        transform: scale(.82);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@@media (max-width: 1250px)
+{
+    .pm-profile-grid
+    {
+        grid-template-columns: minmax(0,1.35fr) minmax(300px,.85fr);
+    }
+
+    .pm-profile-hero-card
+    {
+        grid-template-columns: auto minmax(0,1fr);
+    }
+
+    .pm-profile-profile-score
+    {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+}
+
+@@media (max-width: 1050px)
+{
+    .pm-profile-grid
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .pm-profile-side
+    {
+        display: grid;
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        align-items: start;
+    }
+
+    .pm-profile-side .pm-profile-danger-card
+    {
+        grid-column: 1 / -1;
+    }
+}
+
+@@media (max-width: 760px)
+{
+    .pm-profile-header
+    {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .pm-profile-header-actions
+    {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .pm-profile-grid
+    {
+        gap: 12px;
+    }
+
+    .pm-profile-main,
+    .pm-profile-side
+    {
+        gap: 12px;
+    }
+
+    .pm-profile-side
+    {
+        display: flex;
+    }
+
+    .pm-profile-hero-card
+    {
+        grid-template-columns: auto minmax(0,1fr);
+        gap: 14px;
+        padding: 18px;
+    }
+
+    .pm-profile-avatar
+    {
+        width: 74px;
+        height: 74px;
+    }
+
+    .pm-profile-avatar-initials
+    {
+        font-size: 22px;
+    }
+
+    .pm-profile-name
+    {
+        font-size: 19px;
+    }
+
+    .pm-profile-form-grid,
+    .pm-profile-operation-grid,
+    .pm-profile-identity-grid
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .pm-profile-field-wide
+    {
+        grid-column: auto;
+    }
+
+    .pm-profile-identity-item:nth-child(odd)
+    {
+        border-right: 0;
+    }
+
+    .pm-profile-profile-score
+    {
+        grid-column: 1 / -1;
+    }
+}
+
+@@media (max-width: 520px)
+{
+    .pm-profile-heading h1
+    {
+        font-size: 25px;
+    }
+
+    .pm-profile-heading p
+    {
+        font-size: 11px;
+    }
+
+    .pm-profile-header-actions
+    {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .pm-profile-status
+    {
+        grid-column: 1 / -1;
+        justify-content: center;
+    }
+
+    .pm-profile-btn
+    {
+        width: 100%;
+    }
+
+    .pm-profile-hero-card
+    {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .pm-profile-avatar-wrap
+    {
+        margin: 0 auto;
+    }
+
+    .pm-profile-identity-top
+    {
+        flex-direction: column;
+    }
+
+    .pm-profile-meta
+    {
+        justify-content: center;
+    }
+
+    .pm-profile-profile-score
+    {
+        text-align: left;
+    }
+
+    .pm-profile-form-grid
+    {
+        padding: 15px;
+    }
+
+    .pm-profile-card-header
+    {
+        padding: 15px;
+    }
+
+    .pm-profile-toggle-row
+    {
+        padding: 10px 15px;
+    }
+
+    .pm-profile-toast
+    {
+        right: 12px;
+        bottom: 12px;
+        left: 12px;
+    }
+}
+
+@@media (prefers-reduced-motion: reduce)
+{
+    .pm-profile-page *,
+    .pm-profile-page *::before,
+    .pm-profile-page *::after
+    {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+</style>
+
+
+<script>
+
+(() =>
+{
+    "use strict";
+
+    const root =
+        document.querySelector(".pm-profile-page");
+
+    if (!root)
+    {
+        return;
+    }
+
+
+    const toast =
+        root.querySelector("#profileToast");
+
+    const toastText =
+        root.querySelector("#profileToastText");
+
+    let toastTimer = null;
+
+
+    function showToast(message)
+    {
+        if (!toast || !toastText)
+        {
+            return;
+        }
+
+        toastText.textContent = message;
+
+        toast.classList.add("show");
+
+        window.clearTimeout(toastTimer);
+
+        toastTimer =
+            window.setTimeout(
+                () =>
+                {
+                    toast.classList.remove("show");
+                },
+                2400
+            );
+    }
+
+
+    /* =====================================================
+       AVATAR
+       ===================================================== */
+
+    const avatarUpload =
+        root.querySelector("#avatarUpload");
+
+    const avatarImage =
+        root.querySelector("#avatarImage");
+
+    const avatarInitials =
+        root.querySelector("#avatarInitials");
+
+
+    if (avatarUpload)
+    {
+        avatarUpload.addEventListener(
+            "change",
+            event =>
+            {
+                const file =
+                    event.target.files?.[0];
+
+                if (!file)
+                {
+                    return;
+                }
+
+                if (!file.type.startsWith("image/"))
+                {
+                    showToast(
+                        "Izabrani fajl nije validna slika."
+                    );
+
+                    return;
+                }
+
+                const reader =
+                    new FileReader();
+
+                reader.onload =
+                    loadEvent =>
+                    {
+                        avatarImage.src =
+                            loadEvent.target.result;
+
+                        avatarImage.hidden =
+                            false;
+
+                        avatarInitials.hidden =
+                            true;
+
+                        showToast(
+                            "Nova fotografija je spremna za čuvanje."
+                        );
+                    };
+
+                reader.readAsDataURL(file);
+            }
+        );
+    }
+
+
+    /* =====================================================
+       PROFILE NAME PREVIEW
+       ===================================================== */
+
+    const displayName =
+        root.querySelector("#displayName");
+
+    const profileNamePreview =
+        root.querySelector("#profileNamePreview");
+
+    const username =
+        root.querySelector("#username");
+
+    const usernameElement =
+        root.querySelector(".pm-profile-username");
+
+
+    if (displayName && profileNamePreview)
+    {
+        displayName.addEventListener(
+            "input",
+            () =>
+            {
+                profileNamePreview.textContent =
+                    displayName.value.trim() ||
+                    "Novi korisnik";
+
+                updateInitials(
+                    displayName.value
+                );
+            }
+        );
+    }
+
+
+    if (username && usernameElement)
+    {
+        username.addEventListener(
+            "input",
+            () =>
+            {
+                const value =
+                    username.value
+                        .trim()
+                        .replace(/^@@+/, "");
+
+                usernameElement.textContent =
+                    value
+                        ? `${value}`
+                        : `${username}`;
+            }
+        );
+    }
+
+
+    function updateInitials(name)
+    {
+        if (!avatarInitials)
+        {
+            return;
+        }
+
+        const parts =
+            name
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean);
+
+        if (!parts.length)
+        {
+            avatarInitials.textContent =
+                "PM";
+
+            return;
+        }
+
+        const initials =
+            parts
+                .slice(0, 2)
+                .map(part => part[0])
+                .join("")
+                .toUpperCase();
+
+        avatarInitials.textContent =
+            initials;
+    }
+
+
+    /* =====================================================
+       SAVE
+       ===================================================== */
+
+    const saveButton =
+        root.querySelector(
+            '[data-action="save"]'
+        );
+
+
+    if (saveButton)
+    {
+        saveButton.addEventListener(
+            "click",
+            () =>
+            {
+                saveButton.disabled =
+                    true;
+
+                const originalText =
+                    saveButton.textContent;
+
+                saveButton.textContent =
+                    "Čuvanje...";
+
+
+                window.setTimeout(
+                    () =>
+                    {
+                        saveButton.disabled =
+                            false;
+
+                        saveButton.textContent =
+                            originalText;
+
+                        showToast(
+                            "Profil je spreman za Identity čuvanje."
+                        );
+                    },
+                    650
+                );
+            }
+        );
+    }
+
+
+    /* =====================================================
+       DISCARD
+       ===================================================== */
+
+    const discardButton =
+        root.querySelector(
+            '[data-action="discard"]'
+        );
+
+
+    if (discardButton)
+    {
+        discardButton.addEventListener(
+            "click",
+            () =>
+            {
+                const name =
+                    root.querySelector("#displayName");
+
+                const email =
+                    root.querySelector("#email");
+
+                const phone =
+                    root.querySelector("#phone");
+
+                if (name)
+                {
+                    name.value =
+                        "Marko Petrović";
+
+                    name.dispatchEvent(
+                        new Event(
+                            "input",
+                            {
+                                bubbles: true
+                            }
+                        )
+                    );
+                }
+
+                if (email)
+                {
+                    email.value =
+                        "marko.petrovic@promapcargo.local";
+                }
+
+                if (phone)
+                {
+                    phone.value =
+                        "+381 64 123 4567";
+                }
+
+                showToast(
+                    "Izmene su poništene."
+                );
+            }
+        );
+    }
+
+
+    /* =====================================================
+       COPY ID
+       ===================================================== */
+
+    root.querySelectorAll(
+        "[data-copy]"
+    ).forEach(
+        button =>
+        {
+            button.addEventListener(
+                "click",
+                async () =>
+                {
+                    const value =
+                        button.dataset.copy;
+
+                    try
+                    {
+                        await navigator.clipboard.writeText(
+                            value
+                        );
+
+                        showToast(
+                            "User ID je kopiran."
+                        );
+                    }
+                    catch
+                    {
+                        showToast(
+                            "Kopiranje nije dostupno."
+                        );
+                    }
+                }
+            );
+        }
+    );
+
+
+    /* =====================================================
+       MODAL
+       ===================================================== */
+
+    const passwordModal =
+        root.querySelector(
+            "#passwordModal"
+        );
+
+
+    function openPasswordModal()
+    {
+        if (!passwordModal)
+        {
+            return;
+        }
+
+        passwordModal.hidden =
+            false;
+
+        document.body.classList.add(
+            "pm-profile-modal-open"
+        );
+    }
+
+
+    function closePasswordModal()
+    {
+        if (!passwordModal)
+        {
+            return;
+        }
+
+        passwordModal.hidden =
+            true;
+
+        document.body.classList.remove(
+            "pm-profile-modal-open"
+        );
+    }
+
+
+    root.querySelectorAll(
+        '[data-action="password"]'
+    ).forEach(
+        button =>
+        {
+            button.addEventListener(
+                "click",
+                openPasswordModal
+            );
+        }
+    );
+
+
+    root.querySelectorAll(
+        "[data-close-modal]"
+    ).forEach(
+        element =>
+        {
+            element.addEventListener(
+                "click",
+                closePasswordModal
+            );
+        }
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        event =>
+        {
+            if (
+                event.key === "Escape" &&
+                passwordModal &&
+                !passwordModal.hidden
+            )
+            {
+                closePasswordModal();
+            }
+        }
+    );
+
+
+    /* =====================================================
+       IDENTITY SECURITY ACTIONS
+       ===================================================== */
+
+    root.querySelectorAll(
+        '[data-action="twofa"]'
+    ).forEach(
+        button =>
+        {
+            button.addEventListener(
+                "click",
+                () =>
+                {
+                    showToast(
+                        "2FA management UI je spreman za Identity integraciju."
+                    );
+                }
+            );
+        }
+    );
+
+
+    root.querySelectorAll(
+        '[data-action="recovery"]'
+    ).forEach(
+        button =>
+        {
+            button.addEventListener(
+                "click",
+                () =>
+                {
+                    showToast(
+                        "Recovery codes UI je spreman za Identity integraciju."
+                    );
+                }
+            );
+        }
+    );
+
+
+    root.querySelectorAll(
+        '[data-action="change-password"]'
+    ).forEach(
+        button =>
+        {
+            button.addEventListener(
+                "click",
+                () =>
+                {
+                    closePasswordModal();
+
+                    showToast(
+                        "Password change UI je spreman za Identity."
+                    );
+                }
+            );
+        }
+    );
+
+
+    /* =====================================================
+       OTHER SESSIONS
+       ===================================================== */
+
+    root.querySelectorAll(
+        ".pm-profile-session-close"
+    ).forEach(
+        button =>
+        {
+            button.addEventListener(
+                "click",
+                () =>
+                {
+                    const session =
+                        button.closest(
+                            ".pm-profile-session"
+                        );
+
+                    if (!session)
+                    {
+                        return;
+                    }
+
+                    session.style.opacity =
+                        "0";
+
+                    session.style.transform =
+                        "translateX(8px)";
+
+                    session.style.transition =
+                        "opacity .2s ease, transform .2s ease";
+
+                    window.setTimeout(
+                        () =>
+                        {
+                            session.remove();
+
+                            showToast(
+                                "Sesija je označena za odjavu."
+                            );
+                        },
+                        220
+                    );
+                }
+            );
+        }
+    );
+
+
+    root.querySelectorAll(
+        '[data-action="logout-other-sessions"]'
+    ).forEach(
+        button =>
+        {
+            button.addEventListener(
+                "click",
+                () =>
+                {
+                    showToast(
+                        "Ostale sesije su spremne za Identity logout."
+                    );
+                }
+            );
+        }
+    );
+
+
+    /* =====================================================
+       ACCOUNT CONTROL
+       ===================================================== */
+
+    root.querySelectorAll(
+        '[data-action="deactivate"]'
+    ).forEach(
+        button =>
+        {
+            button.addEventListener(
+                "click",
+                () =>
+                {
+                    showToast(
+                        "Zahtev za deaktivaciju je spreman za administratorski workflow."
+                    );
+                }
+            );
+        }
+    );
+
+
+    /* =====================================================
+       PREFERENCES
+       ===================================================== */
+
+    root.querySelectorAll(
+        "[data-preference]"
+    ).forEach(
+        checkbox =>
+        {
+            checkbox.addEventListener(
+                "change",
+                () =>
+                {
+                    const label =
+                        checkbox
+                            .closest(
+                                ".pm-profile-toggle-row"
+                            );
+
+                    const title =
+                        label?.querySelector(
+                            "strong"
+                        )?.textContent?.trim();
+
+                    showToast(
+                        `${title || "Preferencija"} ${checkbox.checked ? "uključena" : "isključena"}.`
+                    );
+                }
+            );
+        }
+    );
+
+
+    /* =====================================================
+       INITIAL STATE
+       ===================================================== */
+
+    updateInitials(
+        displayName?.value ||
+        "Marko Petrović"
+    );
+
+})();
+
+</script>

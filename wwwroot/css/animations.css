@@ -1,0 +1,43 @@
+.pm-content-inner { animation: pmPageEnter var(--pm-motion-page) var(--pm-motion-ease) both; }
+
+.pm-card, .pm-kpi, .pm-btn, .pm-list-row, .pm-badge, .pm-status,
+.pm-dashboard-card, .pm-dashboard-kpi, .pm-dispatch-card, .pm-dispatch-kpi,
+.nav-control-card, .nav-status-card, .navigation-control-panel, .navigation-map-section,
+.pm-finance-card, .pm-compliance-card, .pm-alert-card, .pm-monitoring-card,
+.pm-audit-card, .pm-report-card, .pm-settings-card, .pm-profile-card,
+.pm-vehicle-card, .pm-driver-card, .pm-order-card, .pm-trip-card {
+    transition: transform var(--pm-motion-normal) var(--pm-motion-ease), border-color var(--pm-motion-normal) var(--pm-motion-ease-soft), background var(--pm-motion-normal) var(--pm-motion-ease-soft), box-shadow var(--pm-motion-normal) var(--pm-motion-ease), opacity var(--pm-motion-normal) var(--pm-motion-ease-soft);
+}
+
+.pm-card--interactive:hover, .pm-card:hover,
+.pm-dashboard-card:hover, .pm-dispatch-card:hover, .nav-control-card:hover, .nav-status-card:hover,
+.pm-finance-card:hover, .pm-compliance-card:hover, .pm-alert-card:hover, .pm-monitoring-card:hover,
+.pm-audit-card:hover, .pm-report-card:hover, .pm-settings-card:hover, .pm-profile-card:hover,
+.pm-vehicle-card:hover, .pm-driver-card:hover, .pm-order-card:hover, .pm-trip-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--pm-border-strong);
+    box-shadow: var(--pm-shadow-md), inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+.pm-kpi:hover, .pm-dashboard-kpi:hover, .pm-dispatch-kpi:hover { transform: translateY(-3px); border-color: var(--pm-border-strong); box-shadow: var(--pm-shadow-md); }
+.pm-kpi-icon, .pm-dashboard-kpi-icon, .pm-dispatch-kpi-icon { transition: transform var(--pm-motion-normal) var(--pm-motion-ease), box-shadow var(--pm-motion-normal) var(--pm-motion-ease); }
+.pm-kpi:hover .pm-kpi-icon, .pm-dashboard-kpi:hover .pm-dashboard-kpi-icon, .pm-dispatch-kpi:hover .pm-dispatch-kpi-icon { transform: scale(1.045) translateY(-1px); }
+
+.pm-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.pm-btn:active:not(:disabled) { transform: translateY(1px) scale(.985); }
+.pm-list-row:hover { transform: translateX(4px); border-color: rgba(45,212,191,.22); background: rgba(16,185,129,.045); }
+.pm-progress > span { animation: pmProgressIn 650ms var(--pm-motion-ease) both; transform-origin: left; }
+.pm-status--success::before, .pm-nav-live, [data-live="true"] { animation: pmPulse 1.8s ease-in-out infinite; }
+
+.pm-reveal { opacity: 0; transform: translateY(10px); }
+.pm-reveal.is-visible { animation: pmReveal 420ms var(--pm-motion-ease) forwards; }
+
+@keyframes pmPageEnter { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+@keyframes pmReveal { to { opacity: 1; transform: none; } }
+@keyframes pmProgressIn { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes pmPulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    .pm-content-inner, .pm-reveal { opacity: 1 !important; transform: none !important; }
+}

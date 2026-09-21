@@ -1,0 +1,2348 @@
+@page "/dispatch"
+@{
+    ViewData["Title"] = "Command Center · ProMap Cargo";
+}
+
+<div class="pm-dispatch-page" data-module="dispatch">
+
+    <style>
+            .pm-dispatch-page
+            {
+                --dispatch-card: rgba(5, 31, 25, .88);
+                --dispatch-card-2: rgba(7, 39, 31, .96);
+                --dispatch-border: rgba(45, 212, 191, .14);
+                --dispatch-border-strong: rgba(45, 212, 191, .28);
+                --dispatch-text: #ecfdf5;
+                --dispatch-muted: #7da99f;
+                --dispatch-dim: #5f877d;
+                --dispatch-green: #10b981;
+                --dispatch-green-soft: rgba(16, 185, 129, .12);
+                --dispatch-teal: #2dd4bf;
+                --dispatch-yellow: #f59e0b;
+                --dispatch-yellow-soft: rgba(245, 158, 11, .12);
+                --dispatch-red: #ef4444;
+                --dispatch-red-soft: rgba(239, 68, 68, .12);
+                --dispatch-blue: #38bdf8;
+                --dispatch-blue-soft: rgba(56, 189, 248, .12);
+                width: 100%;
+                min-width: 0;
+            }
+
+            .pm-dispatch-content
+            {
+                width: 100%;
+                min-width: 0;
+                padding: 30px 32px 38px;
+            }
+
+            .pm-dispatch-header
+            {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 28px;
+                margin-bottom: 26px;
+            }
+
+            .pm-dispatch-heading
+            {
+                min-width: 0;
+            }
+
+            .pm-dispatch-kicker
+            {
+                margin-bottom: 8px;
+                color: var(--dispatch-teal);
+                font-size: 11px;
+                font-weight: 800;
+                letter-spacing: .15em;
+                text-transform: uppercase;
+            }
+
+            .pm-dispatch-title
+            {
+                margin: 0;
+                color: var(--dispatch-text);
+                font-size: 32px;
+                line-height: 1.1;
+                font-weight: 800;
+                letter-spacing: -.03em;
+            }
+
+            .pm-dispatch-subtitle
+            {
+                margin-top: 9px;
+                color: var(--dispatch-muted);
+                font-size: 13px;
+                line-height: 1.55;
+            }
+
+            .pm-dispatch-header-actions
+            {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-shrink: 0;
+            }
+
+            .pm-dispatch-btn
+            {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                min-height: 40px;
+                padding: 0 15px;
+                border: 1px solid var(--dispatch-border);
+                border-radius: 10px;
+                background: rgba(4, 31, 26, .76);
+                color: var(--dispatch-text);
+                text-decoration: none;
+                font-size: 12px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: background .18s ease, border-color .18s ease, transform .18s ease;
+            }
+
+                .pm-dispatch-btn:hover
+                {
+                    background: rgba(7, 52, 43, .9);
+                    border-color: var(--dispatch-border-strong);
+                    color: #fff;
+                }
+
+                .pm-dispatch-btn:active
+                {
+                    transform: translateY(1px);
+                }
+
+                .pm-dispatch-btn.primary
+                {
+                    background: var(--dispatch-green);
+                    border-color: var(--dispatch-green);
+                    color: #021512;
+                }
+
+                    .pm-dispatch-btn.primary:hover
+                    {
+                        background: #34d399;
+                        border-color: #34d399;
+                        color: #021512;
+                    }
+
+            .pm-dispatch-live-status
+            {
+                display: inline-flex;
+                align-items: center;
+                gap: 9px;
+                min-height: 40px;
+                padding: 0 13px;
+                border: 1px solid rgba(16, 185, 129, .2);
+                border-radius: 10px;
+                background: rgba(16, 185, 129, .07);
+                color: var(--dispatch-muted);
+                font-size: 11px;
+                font-weight: 700;
+            }
+
+                .pm-dispatch-live-status span
+                {
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background: var(--dispatch-green);
+                    box-shadow: 0 0 12px rgba(16, 185, 129, .8);
+                }
+
+            .pm-dispatch-kpis
+            {
+                display: grid;
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+                gap: 16px;
+                margin-bottom: 18px;
+            }
+
+            .pm-dispatch-kpi
+            {
+                min-width: 0;
+                min-height: 136px;
+                padding: 18px 19px 17px;
+                border: 1px solid var(--dispatch-border);
+                border-radius: 16px;
+                background: linear-gradient( 145deg, rgba(7, 45, 36, .88), rgba(4, 27, 23, .92) );
+                box-shadow: 0 10px 28px rgba(0, 0, 0, .14);
+                transition: transform .18s ease, border-color .18s ease, background .18s ease;
+            }
+
+                .pm-dispatch-kpi:hover
+                {
+                    transform: translateY(-2px);
+                    border-color: var(--dispatch-border-strong);
+                    background: linear-gradient( 145deg, rgba(8, 51, 41, .94), rgba(4, 28, 24, .96) );
+                }
+
+            .pm-dispatch-kpi-head
+            {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 14px;
+            }
+
+            .pm-dispatch-kpi-label
+            {
+                color: var(--dispatch-muted);
+                font-size: 11px;
+                line-height: 1.3;
+                font-weight: 700;
+            }
+
+            .pm-dispatch-kpi-icon
+            {
+                width: 42px;
+                height: 42px;
+                flex: 0 0 42px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(45, 212, 191, .14);
+                border-radius: 12px;
+                background: linear-gradient( 145deg, rgba(45, 212, 191, .14), rgba(16, 185, 129, .07) );
+                color: var(--dispatch-teal);
+                font-size: 18px;
+                line-height: 1;
+                font-weight: 900;
+                box-shadow: inset 0 0 18px rgba(45, 212, 191, .035), 0 5px 18px rgba(0, 0, 0, .12);
+            }
+
+            .pm-dispatch-kpi-value
+            {
+                margin-top: 17px;
+                color: var(--dispatch-text);
+                font-size: 30px;
+                line-height: 1;
+                font-weight: 800;
+                letter-spacing: -.03em;
+            }
+
+            .pm-dispatch-kpi-bottom
+            {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                margin-top: 12px;
+            }
+
+            .pm-dispatch-kpi-meta
+            {
+                color: var(--dispatch-dim);
+                font-size: 10px;
+                line-height: 1.3;
+                font-weight: 600;
+            }
+
+            .pm-dispatch-kpi-state
+            {
+                font-size: 10px;
+                line-height: 1.3;
+                font-weight: 800;
+            }
+
+                .pm-dispatch-kpi-state.green
+                {
+                    color: var(--dispatch-green);
+                }
+
+                .pm-dispatch-kpi-state.yellow
+                {
+                    color: var(--dispatch-yellow);
+                }
+
+                .pm-dispatch-kpi-state.red
+                {
+                    color: #ef4444;
+                }
+
+                .pm-dispatch-kpi-state.blue
+                {
+                    color: var(--dispatch-blue);
+                }
+
+            .pm-dispatch-main-grid
+            {
+                display: grid;
+                grid-template-columns: minmax(0, 1.55fr) minmax(360px, .85fr);
+                gap: 18px;
+                margin-bottom: 18px;
+            }
+
+            .pm-dispatch-card
+            {
+                min-width: 0;
+                overflow: hidden;
+                border: 1px solid var(--dispatch-border);
+                border-radius: 18px;
+                background: linear-gradient( 145deg, rgba(5, 31, 25, .93), rgba(3, 22, 19, .96) );
+                box-shadow: 0 14px 38px rgba(0, 0, 0, .16);
+            }
+
+            .pm-dispatch-card-head
+            {
+                min-height: 72px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 18px;
+                padding: 16px 19px;
+                border-bottom: 1px solid var(--dispatch-border);
+            }
+
+            .pm-dispatch-card-heading
+            {
+                min-width: 0;
+            }
+
+            .pm-dispatch-card-title
+            {
+                color: var(--dispatch-text);
+                font-size: 14px;
+                line-height: 1.25;
+                font-weight: 800;
+            }
+
+            .pm-dispatch-card-subtitle
+            {
+                margin-top: 5px;
+                color: var(--dispatch-muted);
+                font-size: 11px;
+                line-height: 1.4;
+            }
+
+            .pm-dispatch-card-actions
+            {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-shrink: 0;
+            }
+
+            .pm-dispatch-small-btn
+            {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 32px;
+                padding: 0 11px;
+                border: 1px solid var(--dispatch-border);
+                border-radius: 8px;
+                background: rgba(4, 31, 26, .74);
+                color: var(--dispatch-muted);
+                font-size: 10px;
+                line-height: 1;
+                font-weight: 800;
+                text-decoration: none;
+                cursor: pointer;
+                transition: background .18s ease, border-color .18s ease, color .18s ease;
+            }
+
+                .pm-dispatch-small-btn:hover,
+                .pm-dispatch-small-btn.active
+                {
+                    color: var(--dispatch-text);
+                    border-color: var(--dispatch-border-strong);
+                    background: rgba(12, 70, 57, .5);
+                }
+
+            .pm-dispatch-map-wrap
+            {
+                position: relative;
+                min-height: 540px;
+                background: #031713;
+            }
+
+            #dispatchMap
+            {
+                width: 100%;
+                height: 540px;
+                min-height: 540px;
+                background: #031713;
+            }
+
+            .pm-dispatch-map-overlay
+            {
+                position: absolute;
+                z-index: 500;
+                left: 16px;
+                top: 16px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                pointer-events: none;
+            }
+
+            .pm-dispatch-map-chip
+            {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                width: fit-content;
+                min-height: 32px;
+                padding: 0 11px;
+                border: 1px solid rgba(45, 212, 191, .16);
+                border-radius: 9px;
+                background: rgba(2, 21, 18, .88);
+                backdrop-filter: blur(10px);
+                color: var(--dispatch-muted);
+                font-size: 10px;
+                font-weight: 700;
+                box-shadow: 0 7px 20px rgba(0, 0, 0, .2);
+            }
+
+                .pm-dispatch-map-chip strong
+                {
+                    color: var(--dispatch-text);
+                }
+
+                .pm-dispatch-map-chip i
+                {
+                    width: 8px;
+                    height: 8px;
+                    flex: 0 0 8px;
+                    border-radius: 50%;
+                    background: var(--dispatch-green);
+                    box-shadow: 0 0 9px rgba(16, 185, 129, .8);
+                }
+
+            .pm-dispatch-map-controls
+            {
+                position: absolute;
+                z-index: 500;
+                right: 16px;
+                bottom: 16px;
+                display: flex;
+                gap: 9px;
+            }
+
+            .pm-dispatch-map-control
+            {
+                width: 42px;
+                height: 42px;
+                flex: 0 0 42px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(45, 212, 191, .18);
+                border-radius: 10px;
+                background: rgba(2, 21, 18, .92);
+                color: var(--dispatch-text);
+                font-size: 17px;
+                line-height: 1;
+                font-weight: 800;
+                cursor: pointer;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 7px 20px rgba(0, 0, 0, .2);
+                transition: background .18s ease, border-color .18s ease, transform .18s ease;
+            }
+
+                .pm-dispatch-map-control:hover
+                {
+                    border-color: var(--dispatch-border-strong);
+                    background: rgba(7, 52, 43, .95);
+                }
+
+                .pm-dispatch-map-control:active
+                {
+                    transform: translateY(1px);
+                }
+
+            .pm-dispatch-trip-list
+            {
+                padding: 7px 19px 12px;
+            }
+
+            .pm-dispatch-trip
+            {
+                position: relative;
+                padding: 17px 0;
+                border-bottom: 1px solid rgba(45, 212, 191, .08);
+                cursor: pointer;
+                transition: padding-left .16s ease;
+            }
+
+                .pm-dispatch-trip:last-child
+                {
+                    border-bottom: 0;
+                }
+
+                .pm-dispatch-trip:hover
+                {
+                    padding-left: 5px;
+                }
+
+            .pm-dispatch-trip-top
+            {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 14px;
+            }
+
+            .pm-dispatch-trip-route
+            {
+                color: var(--dispatch-text);
+                font-size: 12px;
+                line-height: 1.45;
+                font-weight: 800;
+            }
+
+            .pm-dispatch-trip-id
+            {
+                margin-top: 4px;
+                color: var(--dispatch-dim);
+                font-size: 10px;
+                line-height: 1.3;
+                font-weight: 600;
+            }
+
+            .pm-dispatch-trip-status
+            {
+                flex-shrink: 0;
+                padding: 6px 8px;
+                border-radius: 7px;
+                font-size: 8px;
+                line-height: 1;
+                font-weight: 900;
+                letter-spacing: .05em;
+            }
+
+                .pm-dispatch-trip-status.green
+                {
+                    background: var(--dispatch-green-soft);
+                    color: var(--dispatch-green);
+                }
+
+                .pm-dispatch-trip-status.yellow
+                {
+                    background: var(--dispatch-yellow-soft);
+                    color: var(--dispatch-yellow);
+                }
+
+                .pm-dispatch-trip-status.red
+                {
+                    background: var(--dispatch-red-soft);
+                    color: #fb7185;
+                }
+
+                .pm-dispatch-trip-status.blue
+                {
+                    background: var(--dispatch-blue-soft);
+                    color: var(--dispatch-blue);
+                }
+
+            .pm-dispatch-trip-meta
+            {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 14px;
+                margin-top: 14px;
+            }
+
+            .pm-dispatch-trip-stat
+            {
+                min-width: 0;
+            }
+
+            .pm-dispatch-trip-stat-label
+            {
+                color: var(--dispatch-dim);
+                font-size: 9px;
+                line-height: 1.3;
+                font-weight: 700;
+            }
+
+            .pm-dispatch-trip-stat-value
+            {
+                margin-top: 4px;
+                overflow: hidden;
+                color: var(--dispatch-muted);
+                font-size: 10px;
+                line-height: 1.3;
+                font-weight: 700;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .pm-dispatch-progress
+            {
+                width: 100%;
+                height: 5px;
+                margin-top: 12px;
+                overflow: hidden;
+                border-radius: 99px;
+                background: rgba(255, 255, 255, .06);
+            }
+
+                .pm-dispatch-progress span
+                {
+                    display: block;
+                    height: 100%;
+                    border-radius: inherit;
+                    background: linear-gradient( 90deg, var(--dispatch-green), var(--dispatch-teal) );
+                }
+
+            .pm-dispatch-bottom-grid
+            {
+                display: grid;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(320px, .85fr);
+                gap: 18px;
+            }
+
+            .pm-dispatch-list
+            {
+                padding: 5px 19px 12px;
+            }
+
+            .pm-dispatch-event
+            {
+                display: grid;
+                grid-template-columns: 40px minmax(0, 1fr) auto;
+                align-items: center;
+                gap: 13px;
+                padding: 14px 0;
+                border-bottom: 1px solid rgba(45, 212, 191, .08);
+            }
+
+                .pm-dispatch-event:last-child
+                {
+                    border-bottom: 0;
+                }
+
+            .pm-dispatch-event-icon
+            {
+                width: 40px;
+                height: 40px;
+                flex: 0 0 40px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(45, 212, 191, .1);
+                border-radius: 10px;
+                background: rgba(45, 212, 191, .07);
+                color: var(--dispatch-teal);
+                font-size: 13px;
+                line-height: 1;
+                font-weight: 900;
+            }
+
+                .pm-dispatch-event-icon.warning
+                {
+                    background: var(--dispatch-yellow-soft);
+                    color: var(--dispatch-yellow);
+                }
+
+                .pm-dispatch-event-icon.danger
+                {
+                    background: var(--dispatch-red-soft);
+                    color: #fb7185;
+                }
+
+                .pm-dispatch-event-icon.info
+                {
+                    background: var(--dispatch-blue-soft);
+                    color: var(--dispatch-blue);
+                }
+
+            .pm-dispatch-event-title
+            {
+                color: var(--dispatch-text);
+                font-size: 11px;
+                line-height: 1.35;
+                font-weight: 800;
+            }
+
+            .pm-dispatch-event-text
+            {
+                margin-top: 4px;
+                color: var(--dispatch-muted);
+                font-size: 10px;
+                line-height: 1.45;
+            }
+
+            .pm-dispatch-event-time
+            {
+                color: var(--dispatch-dim);
+                font-size: 9px;
+                line-height: 1.3;
+                white-space: nowrap;
+            }
+
+            .pm-dispatch-fleet
+            {
+                padding: 12px 19px 16px;
+            }
+
+            .pm-dispatch-fleet-row
+            {
+                display: grid;
+                grid-template-columns: 90px minmax(0, 1fr) 42px;
+                align-items: center;
+                gap: 12px;
+                padding: 11px 0;
+                border-bottom: 1px solid rgba(45, 212, 191, .07);
+            }
+
+                .pm-dispatch-fleet-row:last-child
+                {
+                    border-bottom: 0;
+                }
+
+            .pm-dispatch-fleet-label
+            {
+                color: var(--dispatch-muted);
+                font-size: 10px;
+                line-height: 1.3;
+                font-weight: 700;
+            }
+
+            .pm-dispatch-fleet-track
+            {
+                width: 100%;
+                height: 7px;
+                overflow: hidden;
+                border-radius: 99px;
+                background: rgba(255, 255, 255, .055);
+            }
+
+            .pm-dispatch-fleet-fill
+            {
+                height: 100%;
+                border-radius: inherit;
+                background: linear-gradient( 90deg, var(--dispatch-green), var(--dispatch-teal) );
+            }
+
+            .pm-dispatch-fleet-value
+            {
+                color: var(--dispatch-text);
+                font-size: 10px;
+                line-height: 1.3;
+                font-weight: 800;
+                text-align: right;
+            }
+
+            .pm-dispatch-border-list
+            {
+                padding: 7px 19px 12px;
+            }
+
+            .pm-dispatch-border-item
+            {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 13px 0;
+                border-bottom: 1px solid rgba(45, 212, 191, .08);
+            }
+
+                .pm-dispatch-border-item:last-child
+                {
+                    border-bottom: 0;
+                }
+
+            .pm-dispatch-border-name
+            {
+                color: var(--dispatch-text);
+                font-size: 10px;
+                line-height: 1.35;
+                font-weight: 800;
+            }
+
+            .pm-dispatch-border-meta
+            {
+                margin-top: 4px;
+                color: var(--dispatch-dim);
+                font-size: 9px;
+                line-height: 1.3;
+            }
+
+            .pm-dispatch-border-wait
+            {
+                color: var(--dispatch-yellow);
+                font-size: 10px;
+                line-height: 1.3;
+                font-weight: 800;
+                white-space: nowrap;
+            }
+
+            .pm-dispatch-empty
+            {
+                padding: 34px 16px;
+                color: var(--dispatch-dim);
+                font-size: 11px;
+                line-height: 1.5;
+                text-align: center;
+            }
+
+            .pm-dispatch-page .leaflet-container
+            {
+                font-family: inherit;
+            }
+
+            .pm-dispatch-page .leaflet-control-zoom a,
+            .pm-dispatch-page .leaflet-control-layers
+            {
+                border-color: rgba(45, 212, 191, .18) !important;
+                background: rgba(2, 21, 18, .92) !important;
+                color: var(--dispatch-text) !important;
+            }
+
+            .pm-dispatch-page .leaflet-control-zoom a
+            {
+                width: 34px;
+                height: 34px;
+                line-height: 32px;
+                font-size: 17px;
+            }
+
+            .pm-dispatch-page .leaflet-control-zoom
+            {
+                border: 1px solid rgba(45, 212, 191, .18);
+                border-radius: 9px;
+                overflow: hidden;
+            }
+
+                .pm-dispatch-page .leaflet-control-zoom a:hover
+                {
+                    background: rgba(7, 52, 43, .95) !important;
+                }
+
+            .pm-dispatch-page .leaflet-control-layers
+            {
+                border-radius: 9px;
+                overflow: hidden;
+            }
+
+            .pm-dispatch-page .leaflet-popup-content-wrapper,
+            .pm-dispatch-page .leaflet-popup-tip
+            {
+                background: #05251e;
+                color: #ecfdf5;
+            }
+
+            .pm-dispatch-page .leaflet-popup-content
+            {
+                margin: 12px 14px;
+                font-size: 11px;
+                line-height: 1.55;
+            }
+
+            .pm-dispatch-page .leaflet-marker-icon
+            {
+                filter: drop-shadow(0 2px 7px rgba(0, 0, 0, .4));
+            }
+
+            @@media (max-width: 1600px)
+            {
+                .pm-dispatch-kpis
+                {
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                }
+
+                .pm-dispatch-bottom-grid
+                {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+
+            @@media (max-width: 1250px)
+            {
+                .pm-dispatch-content
+                {
+                    padding: 26px 24px 32px;
+                }
+
+                .pm-dispatch-main-grid
+                {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+
+                .pm-dispatch-map-wrap,
+                #dispatchMap
+                {
+                    min-height: 480px;
+                    height: 480px;
+                }
+
+                .pm-dispatch-bottom-grid
+                {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+            }
+
+            @@media (max-width: 800px)
+            {
+                .pm-dispatch-content
+                {
+                    padding: 21px 17px 28px;
+                }
+
+                .pm-dispatch-header
+                {
+                    flex-direction: column;
+                    gap: 17px;
+                }
+
+                .pm-dispatch-header-actions
+                {
+                    width: 100%;
+                    flex-wrap: wrap;
+                }
+
+                .pm-dispatch-title
+                {
+                    font-size: 27px;
+                }
+
+                .pm-dispatch-kpis
+                {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 12px;
+                }
+
+                .pm-dispatch-kpi
+                {
+                    min-height: 128px;
+                    padding: 16px;
+                }
+
+                .pm-dispatch-map-wrap,
+                #dispatchMap
+                {
+                    min-height: 400px;
+                    height: 400px;
+                }
+
+                .pm-dispatch-trip-meta
+                {
+                    grid-template-columns: 1fr;
+                    gap: 9px;
+                }
+            }
+
+            @@media (max-width: 520px)
+            {
+                .pm-dispatch-kpis
+                {
+                    grid-template-columns: 1fr;
+                }
+
+                .pm-dispatch-header-actions
+                {
+                    align-items: stretch;
+                    flex-direction: column;
+                }
+
+                .pm-dispatch-btn,
+                .pm-dispatch-live-status
+                {
+                    width: 100%;
+                }
+
+                .pm-dispatch-card-head
+                {
+                    align-items: flex-start;
+                    flex-direction: column;
+                }
+
+                .pm-dispatch-card-actions
+                {
+                    width: 100%;
+                    flex-wrap: wrap;
+                }
+
+                .pm-dispatch-map-wrap,
+                #dispatchMap
+                {
+                    min-height: 360px;
+                    height: 360px;
+                }
+
+                .pm-dispatch-event
+                {
+                    grid-template-columns: 40px minmax(0, 1fr);
+                }
+
+                .pm-dispatch-event-time
+                {
+                    display: none;
+                }
+            }
+    </style>
+
+    <main class="pm-dispatch-content">
+
+        <header class="pm-dispatch-header">
+
+            <div class="pm-dispatch-heading">
+
+                <div class="pm-dispatch-kicker">
+                    ProMap Cargo · Operations
+                </div>
+
+                <h1 class="pm-dispatch-title">
+                    Command Center
+                </h1>
+
+                <div class="pm-dispatch-subtitle">
+                    Live dispatch, fleet position and exception management
+                </div>
+
+            </div>
+
+            <div class="pm-dispatch-header-actions">
+
+                <div class="pm-dispatch-live-status">
+                    <span></span>
+                    Sistem online
+                </div>
+
+                <button type="button"
+                        class="pm-dispatch-btn"
+                        id="dispatchRefresh">
+                    Osveži
+                </button>
+
+                <a class="pm-dispatch-btn primary"
+                   href="/navigation">
+                    Nova ruta
+                </a>
+
+            </div>
+
+        </header>
+
+        <section class="pm-dispatch-kpis">
+
+            <article class="pm-dispatch-kpi">
+
+                <div class="pm-dispatch-kpi-head">
+
+                    <div class="pm-dispatch-kpi-label">
+                        Aktivne ture
+                    </div>
+
+                    <div class="pm-dispatch-kpi-icon">
+                        ↗
+                    </div>
+
+                </div>
+
+                <div class="pm-dispatch-kpi-value">
+                    12
+                </div>
+
+                <div class="pm-dispatch-kpi-bottom">
+
+                    <div class="pm-dispatch-kpi-meta">
+                        trenutno u vožnji
+                    </div>
+
+                    <div class="pm-dispatch-kpi-state green">
+                        LIVE
+                    </div>
+
+                </div>
+
+            </article>
+
+            <article class="pm-dispatch-kpi">
+
+                <div class="pm-dispatch-kpi-head">
+
+                    <div class="pm-dispatch-kpi-label">
+                        Dispečeri
+                    </div>
+
+                    <div class="pm-dispatch-kpi-icon">
+                        D
+                    </div>
+
+                </div>
+
+                <div class="pm-dispatch-kpi-value">
+                    4
+                </div>
+
+                <div class="pm-dispatch-kpi-bottom">
+
+                    <div class="pm-dispatch-kpi-meta">
+                        aktivni korisnici
+                    </div>
+
+                    <div class="pm-dispatch-kpi-state green">
+                        ONLINE
+                    </div>
+
+                </div>
+
+            </article>
+
+            <article class="pm-dispatch-kpi">
+
+                <div class="pm-dispatch-kpi-head">
+
+                    <div class="pm-dispatch-kpi-label">
+                        Vozila
+                    </div>
+
+                    <div class="pm-dispatch-kpi-icon">
+                        T
+                    </div>
+
+                </div>
+
+                <div class="pm-dispatch-kpi-value">
+                    41
+                </div>
+
+                <div class="pm-dispatch-kpi-bottom">
+
+                    <div class="pm-dispatch-kpi-meta">
+                        fleet ukupno
+                    </div>
+
+                    <div class="pm-dispatch-kpi-state blue">
+                        FLEET
+                    </div>
+
+                </div>
+
+            </article>
+
+            <article class="pm-dispatch-kpi">
+
+                <div class="pm-dispatch-kpi-head">
+
+                    <div class="pm-dispatch-kpi-label">
+                        Kašnjenja
+                    </div>
+
+                    <div class="pm-dispatch-kpi-icon">
+                        !
+                    </div>
+
+                </div>
+
+                <div class="pm-dispatch-kpi-value">
+                    3
+                </div>
+
+                <div class="pm-dispatch-kpi-bottom">
+
+                    <div class="pm-dispatch-kpi-meta">
+                        zahteva pažnju
+                    </div>
+
+                    <div class="pm-dispatch-kpi-state yellow">
+                        MONITOR
+                    </div>
+
+                </div>
+
+            </article>
+
+            <article class="pm-dispatch-kpi">
+
+                <div class="pm-dispatch-kpi-head">
+
+                    <div class="pm-dispatch-kpi-label">
+                        Granice
+                    </div>
+
+                    <div class="pm-dispatch-kpi-icon">
+                        B
+                    </div>
+
+                </div>
+
+                <div class="pm-dispatch-kpi-value">
+                    3
+                </div>
+
+                <div class="pm-dispatch-kpi-bottom">
+
+                    <div class="pm-dispatch-kpi-meta">
+                        vozila na čekanju
+                    </div>
+
+                    <div class="pm-dispatch-kpi-state yellow">
+                        WAITING
+                    </div>
+
+                </div>
+
+            </article>
+
+            <article class="pm-dispatch-kpi">
+
+                <div class="pm-dispatch-kpi-head">
+
+                    <div class="pm-dispatch-kpi-label">
+                        Incidenti
+                    </div>
+
+                    <div class="pm-dispatch-kpi-icon">
+                        !
+                    </div>
+
+                </div>
+
+                <div class="pm-dispatch-kpi-value">
+                    1
+                </div>
+
+                <div class="pm-dispatch-kpi-bottom">
+
+                    <div class="pm-dispatch-kpi-meta">
+                        otvoren slučaj
+                    </div>
+
+                    <div class="pm-dispatch-kpi-state red">
+                        OPEN
+                    </div>
+
+                </div>
+
+            </article>
+
+        </section>
+
+        <section class="pm-dispatch-main-grid">
+
+            <article class="pm-dispatch-card">
+
+                <div class="pm-dispatch-card-head">
+
+                    <div class="pm-dispatch-card-heading">
+
+                        <div class="pm-dispatch-card-title">
+                            Live Fleet Map
+                        </div>
+
+                        <div class="pm-dispatch-card-subtitle">
+                            Vozila, ture i operativni događaji
+                        </div>
+
+                    </div>
+
+                    <div class="pm-dispatch-card-actions">
+
+                        <button type="button"
+                                class="pm-dispatch-small-btn active"
+                                data-map-filter="all">
+                            Sva vozila
+                        </button>
+
+                        <button type="button"
+                                class="pm-dispatch-small-btn"
+                                data-map-filter="active">
+                            Aktivna
+                        </button>
+
+                        <button type="button"
+                                class="pm-dispatch-small-btn"
+                                data-map-filter="alerts">
+                            Alerts
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="pm-dispatch-map-wrap">
+
+                    <div class="pm-dispatch-map-overlay">
+
+                        <div class="pm-dispatch-map-chip">
+
+                            <i></i>
+
+                            <strong>
+                                41
+                            </strong>
+
+                            vozilo u floti
+
+                        </div>
+
+                        <div class="pm-dispatch-map-chip">
+
+                            Routing:
+
+                            <strong>
+                                PostGIS · OSM
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div id="dispatchMap"
+                         class="pm-map"
+                         data-map-proxy="/api/map/tiles/{layer}/{z}/{x}/{y}.png"
+                         data-map-config="/api/map/config"
+                         data-map-default-base="dark"
+                         data-map-max-zoom="19">
+                    </div>
+
+                    <div class="pm-dispatch-map-controls">
+
+                        <button type="button"
+                                class="pm-dispatch-map-control"
+                                id="dispatchFitMap"
+                                title="Cela flota">
+                            ⛶
+                        </button>
+
+                        <button type="button"
+                                class="pm-dispatch-map-control"
+                                id="dispatchCenterMap"
+                                title="Centar Srbije">
+                            ◎
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+            <article class="pm-dispatch-card">
+
+                <div class="pm-dispatch-card-head">
+
+                    <div class="pm-dispatch-card-heading">
+
+                        <div class="pm-dispatch-card-title">
+                            Aktivne ture
+                        </div>
+
+                        <div class="pm-dispatch-card-subtitle">
+                            Trenutni operativni status
+                        </div>
+
+                    </div>
+
+                    <a class="pm-dispatch-small-btn"
+                       href="/trips">
+                        Otvori ture
+                    </a>
+
+                </div>
+
+                <div class="pm-dispatch-trip-list">
+
+                    <div class="pm-dispatch-trip"
+                         data-trip="BG-241-AA">
+
+                        <div class="pm-dispatch-trip-top">
+
+                            <div>
+
+                                <div class="pm-dispatch-trip-route">
+                                    BG-241-AA · Beograd → München
+                                </div>
+
+                                <div class="pm-dispatch-trip-id">
+                                    TRP-2026-0841
+                                </div>
+
+                            </div>
+
+                            <div class="pm-dispatch-trip-status green">
+                                IN TRANSIT
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-trip-meta">
+
+                            <div class="pm-dispatch-trip-stat">
+
+                                <div class="pm-dispatch-trip-stat-label">
+                                    Vozač
+                                </div>
+
+                                <div class="pm-dispatch-trip-stat-value">
+                                    Marko Petrović
+                                </div>
+
+                            </div>
+
+                            <div class="pm-dispatch-trip-stat">
+
+                                <div class="pm-dispatch-trip-stat-label">
+                                    ETA
+                                </div>
+
+                                <div class="pm-dispatch-trip-stat-value">
+                                    18:40
+                                </div>
+
+                            </div>
+
+                            <div class="pm-dispatch-trip-stat">
+
+                                <div class="pm-dispatch-trip-stat-label">
+                                    Napredak
+                                </div>
+
+                                <div class="pm-dispatch-trip-stat-value">
+                                    68%
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-progress">
+                            <span style="width:68%"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="pm-dispatch-trip"
+                         data-trip="NS-882-KK">
+
+                        <div class="pm-dispatch-trip-top">
+
+                            <div>
+
+                                <div class="pm-dispatch-trip-route">
+                                    NS-882-KK · Novi Sad → Graz
+                                </div>
+
+                                <div class="pm-dispatch-trip-id">
+                                    TRP-2026-0837
+                                </div>
+
+                            </div>
+
+                            <div class="pm-dispatch-trip-status blue">
+                                APPROACHING
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-trip-meta">
+
+                            <div class="pm-dispatch-trip-stat">
+
+                                <div class="pm-dispatch-trip-stat-label">
+                                    Vozač
+                                </div>
+
+                                <div class="pm-dispatch-trip-stat-value">
+                                    Nikola Jovanović
+                                </div>
+
+                            </div>
+
+                            <div class="pm-dispatch-trip-stat">
+
+                                <div class="pm-dispatch-trip-stat-label">
+                                    ETA
+                                </div>
+
+                                <div class="pm-dispatch-trip-stat-value">
+                                    15:20
+                                </div>
+
+                            </div>
+
+                            <div class="pm-dispatch-trip-stat">
+
+                                <div class="pm-dispatch-trip-stat-label">
+                                    Napredak
+                                </div>
+
+                                <div class="pm-dispatch-trip-stat-value">
+                                    54%
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-progress">
+                            <span style="width:54%"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="pm-dispatch-trip"
+                         data-trip="NI-401-TT">
+
+                        <div class="pm-dispatch-trip-top">
+
+                            <div>
+
+                                <div class="pm-dispatch-trip-route">
+                                    NI-401-TT · Niš → Zagreb
+                                </div>
+
+                                <div class="pm-dispatch-trip-id">
+                                    TRP-2026-0829
+                                </div>
+
+                            </div>
+
+                            <div class="pm-dispatch-trip-status yellow">
+                                BORDER CHECK
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-trip-meta">
+
+                            <div class="pm-dispatch-trip-stat">
+
+                                <div class="pm-dispatch-trip-stat-label">
+                                    Vozač
+                                </div>
+
+                                <div class="pm-dispatch-trip-stat-value">
+                                    Ivan Stojanović
+                                </div>
+
+                            </div>
+
+                            <div class="pm-dispatch-trip-stat">
+
+                                <div class="pm-dispatch-trip-stat-label">
+                                    ETA
+                                </div>
+
+                                <div class="pm-dispatch-trip-stat-value">
+                                    21:10
+                                </div>
+
+                            </div>
+
+                            <div class="pm-dispatch-trip-stat">
+
+                                <div class="pm-dispatch-trip-stat-label">
+                                    Napredak
+                                </div>
+
+                                <div class="pm-dispatch-trip-stat-value">
+                                    41%
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-progress">
+                            <span style="width:41%"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="pm-dispatch-trip"
+                         data-trip="KG-119-MP">
+
+                        <div class="pm-dispatch-trip-top">
+
+                            <div>
+
+                                <div class="pm-dispatch-trip-route">
+                                    KG-119-MP · Kragujevac → Milano
+                                </div>
+
+                                <div class="pm-dispatch-trip-id">
+                                    TRP-2026-0846
+                                </div>
+
+                            </div>
+
+                            <div class="pm-dispatch-trip-status green">
+                                LOADING
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-trip-meta">
+
+                            <div class="pm-dispatch-trip-stat">
+
+                                <div class="pm-dispatch-trip-stat-label">
+                                    Vozač
+                                </div>
+
+                                <div class="pm-dispatch-trip-stat-value">
+                                    Stefan Ilić
+                                </div>
+
+                            </div>
+
+                            <div class="pm-dispatch-trip-stat">
+
+                                <div class="pm-dispatch-trip-stat-label">
+                                    Polazak
+                                </div>
+
+                                <div class="pm-dispatch-trip-stat-value">
+                                    16:00
+                                </div>
+
+                            </div>
+
+                            <div class="pm-dispatch-trip-stat">
+
+                                <div class="pm-dispatch-trip-stat-label">
+                                    Priprema
+                                </div>
+
+                                <div class="pm-dispatch-trip-stat-value">
+                                    27%
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-progress">
+                            <span style="width:27%"></span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        </section>
+
+        <section class="pm-dispatch-bottom-grid">
+
+            <article class="pm-dispatch-card">
+
+                <div class="pm-dispatch-card-head">
+
+                    <div class="pm-dispatch-card-heading">
+
+                        <div class="pm-dispatch-card-title">
+                            Operativni događaji
+                        </div>
+
+                        <div class="pm-dispatch-card-subtitle">
+                            Najnovije promene u floti
+                        </div>
+
+                    </div>
+
+                    <button type="button"
+                            class="pm-dispatch-small-btn"
+                            id="dispatchClearEvents">
+                        Očisti
+                    </button>
+
+                </div>
+
+                <div class="pm-dispatch-list"
+                     id="dispatchEvents">
+
+                    <div class="pm-dispatch-event">
+
+                        <div class="pm-dispatch-event-icon warning">
+                            !
+                        </div>
+
+                        <div>
+
+                            <div class="pm-dispatch-event-title">
+                                Kašnjenje na granici
+                            </div>
+
+                            <div class="pm-dispatch-event-text">
+                                NI-401-TT čeka kontrolu na prelazu Batrovci.
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-event-time">
+                            2 min
+                        </div>
+
+                    </div>
+
+                    <div class="pm-dispatch-event">
+
+                        <div class="pm-dispatch-event-icon">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <div class="pm-dispatch-event-title">
+                                Ruta potvrđena
+                            </div>
+
+                            <div class="pm-dispatch-event-text">
+                                BG-241-AA nastavlja prema München-u.
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-event-time">
+                            7 min
+                        </div>
+
+                    </div>
+
+                    <div class="pm-dispatch-event">
+
+                        <div class="pm-dispatch-event-icon info">
+                            GPS
+                        </div>
+
+                        <div>
+
+                            <div class="pm-dispatch-event-title">
+                                GPS signal stabilan
+                            </div>
+
+                            <div class="pm-dispatch-event-text">
+                                NS-882-KK ima preciznost pozicije 8 m.
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-event-time">
+                            11 min
+                        </div>
+
+                    </div>
+
+                    <div class="pm-dispatch-event">
+
+                        <div class="pm-dispatch-event-icon danger">
+                            !
+                        </div>
+
+                        <div>
+
+                            <div class="pm-dispatch-event-title">
+                                Otvoren incident
+                            </div>
+
+                            <div class="pm-dispatch-event-text">
+                                Potrebna potvrda dispečera za vozilo KG-119-MP.
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-event-time">
+                            18 min
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+            <article class="pm-dispatch-card">
+
+                <div class="pm-dispatch-card-head">
+
+                    <div class="pm-dispatch-card-heading">
+
+                        <div class="pm-dispatch-card-title">
+                            Fleet status
+                        </div>
+
+                        <div class="pm-dispatch-card-subtitle">
+                            Raspoloživost vozila
+                        </div>
+
+                    </div>
+
+                    <a class="pm-dispatch-small-btn"
+                       href="/vehicles">
+                        Vozila
+                    </a>
+
+                </div>
+
+                <div class="pm-dispatch-fleet">
+
+                    <div class="pm-dispatch-fleet-row">
+
+                        <div class="pm-dispatch-fleet-label">
+                            In transit
+                        </div>
+
+                        <div class="pm-dispatch-fleet-track">
+                            <div class="pm-dispatch-fleet-fill"
+                                 style="width:68%">
+                            </div>
+                        </div>
+
+                        <div class="pm-dispatch-fleet-value">
+                            28
+                        </div>
+
+                    </div>
+
+                    <div class="pm-dispatch-fleet-row">
+
+                        <div class="pm-dispatch-fleet-label">
+                            Loading
+                        </div>
+
+                        <div class="pm-dispatch-fleet-track">
+                            <div class="pm-dispatch-fleet-fill"
+                                 style="width:24%">
+                            </div>
+                        </div>
+
+                        <div class="pm-dispatch-fleet-value">
+                            6
+                        </div>
+
+                    </div>
+
+                    <div class="pm-dispatch-fleet-row">
+
+                        <div class="pm-dispatch-fleet-label">
+                            Available
+                        </div>
+
+                        <div class="pm-dispatch-fleet-track">
+                            <div class="pm-dispatch-fleet-fill"
+                                 style="width:12%">
+                            </div>
+                        </div>
+
+                        <div class="pm-dispatch-fleet-value">
+                            4
+                        </div>
+
+                    </div>
+
+                    <div class="pm-dispatch-fleet-row">
+
+                        <div class="pm-dispatch-fleet-label">
+                            Maintenance
+                        </div>
+
+                        <div class="pm-dispatch-fleet-track">
+                            <div class="pm-dispatch-fleet-fill"
+                                 style="width:7%">
+                            </div>
+                        </div>
+
+                        <div class="pm-dispatch-fleet-value">
+                            3
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+            <article class="pm-dispatch-card">
+
+                <div class="pm-dispatch-card-head">
+
+                    <div class="pm-dispatch-card-heading">
+
+                        <div class="pm-dispatch-card-title">
+                            Border watch
+                        </div>
+
+                        <div class="pm-dispatch-card-subtitle">
+                            Aktivna čekanja
+                        </div>
+
+                    </div>
+
+                    <a class="pm-dispatch-small-btn"
+                       href="/monitoring">
+                        Monitoring
+                    </a>
+
+                </div>
+
+                <div class="pm-dispatch-border-list">
+
+                    <div class="pm-dispatch-border-item">
+
+                        <div>
+
+                            <div class="pm-dispatch-border-name">
+                                Batrovci
+                            </div>
+
+                            <div class="pm-dispatch-border-meta">
+                                SRB → HR · 1 vozilo
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-border-wait">
+                            34 min
+                        </div>
+
+                    </div>
+
+                    <div class="pm-dispatch-border-item">
+
+                        <div>
+
+                            <div class="pm-dispatch-border-name">
+                                Horgoš
+                            </div>
+
+                            <div class="pm-dispatch-border-meta">
+                                SRB → HUN · 1 vozilo
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-border-wait">
+                            21 min
+                        </div>
+
+                    </div>
+
+                    <div class="pm-dispatch-border-item">
+
+                        <div>
+
+                            <div class="pm-dispatch-border-name">
+                                Gradina
+                            </div>
+
+                            <div class="pm-dispatch-border-meta">
+                                SRB → BGR · 1 vozilo
+                            </div>
+
+                        </div>
+
+                        <div class="pm-dispatch-border-wait">
+                            18 min
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        </section>
+
+    </main>
+</div>
+
+@section Scripts
+{
+    <script>
+        (() => {
+            "use strict";
+
+            const state = {
+                map: null,
+                markers: [],
+                markerGroups: {
+                    all: [],
+                    active: [],
+                    alerts: []
+                }
+            };
+
+            const fleet = [
+                {
+                    id: "BG-241-AA",
+                    lat: 44.8178,
+                    lon: 20.4573,
+                    route: "Beograd → München",
+                    status: "IN TRANSIT",
+                    group: "active"
+                },
+                {
+                    id: "NS-882-KK",
+                    lat: 45.2551,
+                    lon: 19.8335,
+                    route: "Novi Sad → Graz",
+                    status: "APPROACHING",
+                    group: "active"
+                },
+                {
+                    id: "NI-401-TT",
+                    lat: 43.3200,
+                    lon: 21.9000,
+                    route: "Niš → Zagreb",
+                    status: "BORDER CHECK",
+                    group: "alerts"
+                },
+                {
+                    id: "KG-119-MP",
+                    lat: 44.0128,
+                    lon: 20.9114,
+                    route: "Kragujevac → Milano",
+                    status: "LOADING",
+                    group: "active"
+                },
+                {
+                    id: "SU-552-RT",
+                    lat: 46.1000,
+                    lon: 19.6670,
+                    route: "Subotica → Budapest",
+                    status: "IN TRANSIT",
+                    group: "active"
+                },
+                {
+                    id: "CA-731-BG",
+                    lat: 45.2671,
+                    lon: 19.8335,
+                    route: "Novi Sad → Beograd",
+                    status: "DELAY",
+                    group: "alerts"
+                }
+            ];
+
+            function initMap() {
+                const element =
+                    document.getElementById("dispatchMap");
+
+                if (!element || !window.L) {
+                    return;
+                }
+
+                if (state.map) {
+                    return;
+                }
+
+                state.map = L.map(element, {
+                    zoomControl: true,
+                    preferCanvas: true
+                }).setView([44.9, 20.5], 7);
+
+                const lightMap = L.tileLayer(
+                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    {
+                        maxZoom: 19,
+                        attribution:
+                            "© OpenStreetMap contributors"
+                    }
+                );
+
+                const darkMap = L.tileLayer(
+                    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+                    {
+                        maxZoom: 20,
+                        subdomains: "abcd",
+                        attribution:
+                            "© OpenStreetMap contributors © CARTO"
+                    }
+                );
+
+                darkMap.addTo(state.map);
+
+                L.control.layers(
+                    {
+                        "Dark Map": darkMap,
+                        "OSM Light": lightMap
+                    },
+                    null,
+                    {
+                        collapsed: true,
+                        position: "topright"
+                    }
+                ).addTo(state.map);
+
+                fleet.forEach(addFleetMarker);
+
+                setTimeout(() => {
+                    state.map.invalidateSize();
+                }, 150);
+            }
+
+            function addFleetMarker(vehicle) {
+                if (!state.map) {
+                    return;
+                }
+
+                const marker = L.circleMarker(
+                    [vehicle.lat, vehicle.lon],
+                    {
+                        radius: 9,
+                        weight: 2,
+                        fillOpacity: 0.9
+                    }
+                ).addTo(state.map);
+
+                marker.bindPopup(
+                    `
+                            <strong>${escapeHtml(vehicle.id)}</strong><br>
+                            ${escapeHtml(vehicle.route)}<br>
+                            <span>${escapeHtml(vehicle.status)}</span>
+                            `
+                );
+
+                state.markers.push({
+                    marker,
+                    group: vehicle.group,
+                    id: vehicle.id
+                });
+
+                state.markerGroups.all.push(marker);
+
+                if (vehicle.group === "active") {
+                    state.markerGroups.active.push(marker);
+                }
+
+                if (vehicle.group === "alerts") {
+                    state.markerGroups.alerts.push(marker);
+                }
+            }
+
+            function setMapFilter(filter) {
+                state.markers.forEach(item => {
+
+                    const visible =
+                        filter === "all" ||
+                        item.group === filter;
+
+                    if (visible) {
+
+                        if (!state.map.hasLayer(item.marker)) {
+                            item.marker.addTo(state.map);
+                        }
+
+                    } else {
+
+                        if (state.map.hasLayer(item.marker)) {
+                            item.marker.remove();
+                        }
+
+                    }
+                });
+
+                document
+                    .querySelectorAll("[data-map-filter]")
+                    .forEach(button => {
+
+                        button.classList.toggle(
+                            "active",
+                            button.dataset.mapFilter === filter
+                        );
+
+                    });
+            }
+
+            function fitMap() {
+                if (!state.map || !fleet.length) {
+                    return;
+                }
+
+                const bounds = L.latLngBounds(
+                    fleet.map(vehicle => [
+                        vehicle.lat,
+                        vehicle.lon
+                    ])
+                );
+
+                state.map.fitBounds(
+                    bounds,
+                    {
+                        padding: [35, 35]
+                    }
+                );
+            }
+
+            function centerMap() {
+                if (!state.map) {
+                    return;
+                }
+
+                state.map.setView(
+                    [44.9, 20.5],
+                    7,
+                    {
+                        animate: true
+                    }
+                );
+            }
+
+            function clearEvents() {
+                const container =
+                    document.getElementById("dispatchEvents");
+
+                if (!container) {
+                    return;
+                }
+
+                container.innerHTML = `
+                            <div class="pm-dispatch-empty">
+                                Nema novih događaja.
+                            </div>
+                        `;
+            }
+
+            function refreshPage() {
+                const button =
+                    document.getElementById("dispatchRefresh");
+
+                if (!button) {
+                    return;
+                }
+
+                const original =
+                    button.textContent;
+
+                button.disabled = true;
+                button.textContent = "Osvežavanje…";
+
+                window.setTimeout(() => {
+
+                    button.disabled = false;
+                    button.textContent = original;
+
+                }, 700);
+            }
+
+            function focusTrip(id) {
+                const vehicle = fleet.find(
+                    item => item.id === id
+                );
+
+                if (!vehicle || !state.map) {
+                    return;
+                }
+
+                state.map.setView(
+                    [vehicle.lat, vehicle.lon],
+                    11,
+                    {
+                        animate: true
+                    }
+                );
+
+                const markerItem =
+                    state.markers.find(
+                        item => item.id === id
+                    );
+
+                if (markerItem) {
+                    markerItem.marker.openPopup();
+                }
+            }
+
+            function escapeHtml(value) {
+                return String(value ?? "")
+                    .replaceAll("&", "&amp;")
+                    .replaceAll("<", "&lt;")
+                    .replaceAll(">", "&gt;")
+                    .replaceAll('"', "&quot;")
+                    .replaceAll("'", "&#039;");
+            }
+
+            function bindEvents() {
+
+                document
+                    .querySelectorAll("[data-map-filter]")
+                    .forEach(button => {
+
+                        button.addEventListener(
+                            "click",
+                            () => {
+
+                                setMapFilter(
+                                    button.dataset.mapFilter ||
+                                    "all"
+                                );
+
+                            }
+                        );
+
+                    });
+
+                document
+                    .getElementById("dispatchFitMap")
+                    ?.addEventListener(
+                        "click",
+                        fitMap
+                    );
+
+                document
+                    .getElementById("dispatchCenterMap")
+                    ?.addEventListener(
+                        "click",
+                        centerMap
+                    );
+
+                document
+                    .getElementById("dispatchRefresh")
+                    ?.addEventListener(
+                        "click",
+                        refreshPage
+                    );
+
+                document
+                    .getElementById("dispatchClearEvents")
+                    ?.addEventListener(
+                        "click",
+                        clearEvents
+                    );
+
+                document
+                    .querySelectorAll(".pm-dispatch-trip")
+                    .forEach(trip => {
+
+                        trip.addEventListener(
+                            "click",
+                            () => {
+
+                                const id =
+                                    trip.dataset.trip;
+
+                                if (id) {
+                                    focusTrip(id);
+                                }
+
+                            }
+                        );
+
+                    });
+            }
+
+            function initialize() {
+                initMap();
+                bindEvents();
+            }
+
+            if (document.readyState === "loading") {
+
+                document.addEventListener(
+                    "DOMContentLoaded",
+                    initialize,
+                    {
+                        once: true
+                    }
+                );
+
+            } else {
+
+                initialize();
+
+            }
+
+        })();
+    </script>
+}

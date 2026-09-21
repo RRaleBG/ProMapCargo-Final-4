@@ -1,0 +1,78 @@
+:root {
+    --pm-font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --pm-font-xs: 11px;
+    --pm-font-sm: 12px;
+    --pm-font-md: 14px;
+    --pm-font-base: 16px;
+    --pm-font-lg: 18px;
+    --pm-font-xl: 24px;
+    --pm-font-2xl: 32px;
+
+    --pm-bg: #021512;
+    --pm-bg-deep: #010d0b;
+    --pm-bg-soft: #031c18;
+    --pm-surface: rgba(4, 31, 26, 0.78);
+    --pm-surface-strong: rgba(5, 39, 32, 0.88);
+    --pm-surface-soft: rgba(7, 52, 43, 0.58);
+    --pm-surface-hover: rgba(12, 70, 57, 0.72);
+
+    --pm-emerald-50: #ecfdf5;
+    --pm-emerald-100: #d1fae5;
+    --pm-emerald-200: #a7f3d0;
+    --pm-emerald-300: #6ee7b7;
+    --pm-emerald-400: #34d399;
+    --pm-emerald-500: #10b981;
+    --pm-emerald-600: #059669;
+    --pm-emerald-700: #047857;
+    --pm-teal: #2dd4bf;
+    --pm-cyan: #22d3ee;
+
+    --pm-text: #f0fdf8;
+    --pm-text-soft: #d1fae5;
+    --pm-text-muted: #8eb8aa;
+    --pm-text-dim: #638b80;
+
+    --pm-border: rgba(79, 209, 169, 0.14);
+    --pm-border-strong: rgba(45, 212, 191, 0.30);
+    --pm-border-soft: rgba(255, 255, 255, 0.055);
+
+    --pm-success: #34d399;
+    --pm-success-bg: rgba(16, 185, 129, 0.13);
+    --pm-warning: #fbbf24;
+    --pm-warning-bg: rgba(245, 158, 11, 0.13);
+    --pm-danger: #fb7185;
+    --pm-danger-bg: rgba(244, 63, 94, 0.13);
+    --pm-info: #38bdf8;
+    --pm-info-bg: rgba(14, 165, 233, 0.13);
+
+    --pm-space-1: 4px;
+    --pm-space-2: 8px;
+    --pm-space-3: 12px;
+    --pm-space-4: 16px;
+    --pm-space-5: 20px;
+    --pm-space-6: 24px;
+    --pm-space-7: 32px;
+    --pm-space-8: 40px;
+
+    --pm-radius-xs: 6px;
+    --pm-radius-sm: 9px;
+    --pm-radius-md: 13px;
+    --pm-radius-lg: 17px;
+    --pm-radius-xl: 22px;
+
+    --pm-sidebar-width: 252px;
+    --pm-topbar-height: 72px;
+    --pm-footer-height: 42px;
+
+    --pm-shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.16);
+    --pm-shadow-md: 0 16px 45px rgba(0, 0, 0, 0.22);
+    --pm-shadow-glow: 0 0 35px rgba(16, 185, 129, 0.09);
+
+    --pm-motion-fast: 140ms;
+    --pm-motion-normal: 180ms;
+    --pm-motion-slow: 260ms;
+    --pm-motion-page: 420ms;
+    --pm-motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --pm-motion-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+    --pm-focus-ring: 0 0 0 3px rgba(45, 212, 191, 0.12), 0 0 0 1px rgba(45, 212, 191, 0.42);
+}

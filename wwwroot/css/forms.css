@@ -1,0 +1,17 @@
+.pm-field { display: grid; gap: 7px; min-width: 0; }
+.pm-label { color: var(--pm-text-soft); font-size: var(--pm-font-sm); font-weight: 750; }
+.pm-help { color: var(--pm-text-dim); font-size: var(--pm-font-xs); }
+.pm-error { color: var(--pm-danger); font-size: var(--pm-font-xs); font-weight: 700; }
+.pm-input, .pm-select, .pm-textarea {
+    width: 100%; min-height: 42px; padding: 10px 12px;
+    border: 1px solid var(--pm-border); border-radius: var(--pm-radius-sm);
+    background: rgba(1,13,11,.72); color: var(--pm-text); outline: 0;
+}
+.pm-textarea { min-height: 110px; resize: vertical; }
+.pm-input::placeholder, .pm-textarea::placeholder { color: var(--pm-text-dim); }
+.pm-input:hover, .pm-select:hover, .pm-textarea:hover { border-color: rgba(45,212,191,.22); }
+.pm-input:focus, .pm-select:focus, .pm-textarea:focus { border-color: var(--pm-border-strong); box-shadow: var(--pm-focus-ring); }
+.pm-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--pm-space-4); }
+.pm-check { display: flex; align-items: center; gap: 9px; color: var(--pm-text-soft); font-size: var(--pm-font-sm); }
+.pm-check input { width: 17px; height: 17px; accent-color: var(--pm-emerald-500); }
+@media (max-width: 720px) { .pm-field-grid { grid-template-columns: 1fr; } }

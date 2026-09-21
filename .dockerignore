@@ -1,0 +1,105 @@
+# ============================================================
+# ProMap Cargo - Docker build context
+# ============================================================
+
+# .NET build output
+bin/
+obj/
+out/
+publish/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Git
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Logs / temp
+*.log
+*.tmp
+*.temp
+*.cache
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Local development configuration
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+
+# ============================================================
+# OSM raw data
+# ============================================================
+
+*.osm
+*.osm.pbf
+*.osm.pbf.tmp
+*.osm.gz
+*.osm.zip
+
+# ============================================================
+# OSRM generated datasets
+# ============================================================
+
+*.osrm
+*.osrm.*
+*.osrm.timestamp
+*.osrm.names
+*.osrm.datasource_names
+
+# ============================================================
+# Local map datasets
+# ============================================================
+
+/maps/
+/data/
+
+# Generated OSM directory contents
+/osm/*
+!/osm/.gitkeep
+
+# Generated PMTiles
+*.pmtiles
+*.mbtiles
+
+# ============================================================
+# Docker local artifacts
+# ============================================================
+
+docker-compose.override.yml
+docker-compose.local.yml
+
+# ============================================================
+# Test / coverage output
+# ============================================================
+
+TestResults/
+coverage/
+coverage-*.xml
+
+# ============================================================
+# OS / editor files
+# ============================================================
+
+.DS_Store
+Thumbs.db
+desktop.ini

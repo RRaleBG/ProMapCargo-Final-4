@@ -1,0 +1,10 @@
+{
+  "version": "3.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "maplibre-gl@6.10.0",
+      "destination": "wwwroot/lib/maplibre-gl/"
+    }
+  ]
+}

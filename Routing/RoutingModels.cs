@@ -1,0 +1,66 @@
+using NetTopologySuite.Geometries;
+using ProMapCargo.Api.Models;
+namespace ProMapCargo.Api.Routing;
+public sealed record RoadEdge(
+long Id,
+long WayId,
+long SourceNode,
+long TargetNode,
+short Direction,
+string? Highway,
+double LengthM,
+double SpeedKmh,
+bool Routable,
+Geometry Geometry,
+string? Access,
+string? Vehicle,
+string? MotorVehicle,
+string? Hgv,
+string? Goods,
+string? Hazmat,
+double? MaxHeight,
+double? MaxWidth,
+double? MaxLength,
+double? MaxWeight,
+double? MaxAxleLoad,
+long GraphVersion,
+string? CountryCode);
+public sealed record SnapResult(
+long EdgeId,
+long SourceNode,
+long TargetNode,
+Point InputPoint,
+Point SnappedPoint,
+double DistanceToEdgeM,
+double DistanceFromSourceM,
+double DistanceToTargetM,
+double EdgeLengthM,
+double Fraction,
+bool CanTravelForward,
+bool CanTravelReverse);
+public sealed record RoutedTraversal(
+long EdgeId,
+long SourceNode,
+long TargetNode,
+bool Forward,
+double DistanceM,
+double DurationS);
+public sealed record RouteManeuver(
+int Index,
+string Type,
+string Instruction,
+double DistanceFromPreviousMeters,
+double DistanceFromRouteStartMeters,
+double Latitude,
+double Longitude,
+string? RoadName,
+string? RoadRef,
+int? RoundaboutExit);
+public sealed record PostGisRouteResult(
+bool Success,
+IReadOnlyList<RoutedTraversal> Traversals,
+double DistanceM,
+double DurationS,
+int ExpandedStates,
+string Engine,
+string? FailureReason);

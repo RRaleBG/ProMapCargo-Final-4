@@ -1,0 +1,30 @@
+*, *::before, *::after { box-sizing: border-box; }
+html { color-scheme: dark; }
+body { font-family: var(--pm-font-family); font-size: var(--pm-font-md); line-height: 1.5; }
+button, input, select, textarea { font: inherit; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+img, svg { max-width: 100%; }
+[hidden] { display: none !important; }
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring);
+}
+
+.pm-sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.pm-text-muted { color: var(--pm-text-muted) !important; }
+.pm-text-danger { color: var(--pm-danger) !important; }
+.pm-text-warning { color: var(--pm-warning) !important; }
+.pm-text-success { color: var(--pm-success) !important; }
+.pm-text-info { color: var(--pm-info) !important; }

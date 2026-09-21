@@ -1,0 +1,2887 @@
+@page "/alerts"
+@{
+    ViewData["Title"] = "Alerts · ProMap Cargo";
+}
+
+<div class="pm-alerts-page" data-module="alerts">
+
+    <header class="pm-alerts-header">
+
+        <div class="pm-alerts-heading">
+
+            <div class="pm-alerts-kicker">
+                <span class="pm-alerts-kicker-dot"></span>
+                CONTROL · ALERT CENTER
+            </div>
+
+            <h1>
+                Alerts
+            </h1>
+
+            <p>
+                Centralni pregled svih operativnih, bezbednosnih,
+                fleet, navigation, compliance i finansijskih alerta.
+            </p>
+
+        </div>
+
+        <div class="pm-alerts-header-actions">
+
+            <div class="pm-alerts-live">
+
+                <span class="pm-alerts-live-dot"></span>
+
+                <span>
+                    Alert engine
+                </span>
+
+                <strong>
+                    LIVE
+                </strong>
+
+            </div>
+
+            <button
+                type="button"
+                class="pm-alerts-btn"
+                id="alertsRefresh">
+
+                <span>↻</span>
+                Osveži
+
+            </button>
+
+            <button
+                type="button"
+                class="pm-alerts-btn pm-alerts-btn-primary"
+                id="alertsClearResolved">
+
+                Očisti rešene
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <section
+        class="pm-alerts-kpis"
+        aria-label="Alert statistika">
+
+        <article class="pm-alert-kpi pm-alert-kpi-open">
+
+            <div class="pm-alert-kpi-top">
+
+                <span>
+                    Otvoreni alerti
+                </span>
+
+                <span class="pm-alert-kpi-icon">
+                    !
+                </span>
+
+            </div>
+
+            <strong id="alertsOpenCount">
+                —
+            </strong>
+
+            <small>
+                zahtevaju pažnju
+            </small>
+
+        </article>
+
+
+        <article class="pm-alert-kpi pm-alert-kpi-critical">
+
+            <div class="pm-alert-kpi-top">
+
+                <span>
+                    Critical
+                </span>
+
+                <span class="pm-alert-kpi-icon">
+                    !
+                </span>
+
+            </div>
+
+            <strong id="alertsCriticalCount">
+                —
+            </strong>
+
+            <small>
+                bezbednosni / blokirajući
+            </small>
+
+        </article>
+
+
+        <article class="pm-alert-kpi">
+
+            <div class="pm-alert-kpi-top">
+
+                <span>
+                    High
+                </span>
+
+                <span class="pm-alert-kpi-icon">
+                    ↑
+                </span>
+
+            </div>
+
+            <strong id="alertsHighCount">
+                —
+            </strong>
+
+            <small>
+                visoki prioritet
+            </small>
+
+        </article>
+
+
+        <article class="pm-alert-kpi">
+
+            <div class="pm-alert-kpi-top">
+
+                <span>
+                    Danas
+                </span>
+
+                <span class="pm-alert-kpi-icon">
+                    ◷
+                </span>
+
+            </div>
+
+            <strong id="alertsTodayCount">
+                —
+            </strong>
+
+            <small>
+                generisano danas
+            </small>
+
+        </article>
+
+
+        <article class="pm-alert-kpi">
+
+            <div class="pm-alert-kpi-top">
+
+                <span>
+                    Resolved
+                </span>
+
+                <span class="pm-alert-kpi-icon">
+                    ✓
+                </span>
+
+            </div>
+
+            <strong id="alertsResolvedCount">
+                —
+            </strong>
+
+            <small>
+                uspešno rešeno
+            </small>
+
+        </article>
+
+    </section>
+
+
+    <section class="pm-alerts-workspace">
+
+
+        <div class="pm-alerts-main">
+
+
+            <section class="pm-alerts-card">
+
+
+                <div class="pm-alerts-card-header">
+
+                    <div>
+
+                        <div class="pm-alerts-eyebrow">
+                            ALERT STREAM
+                        </div>
+
+                        <h2>
+                            Svi operativni alerti
+                        </h2>
+
+                        <p>
+                            Centralizovani događaji iz svih ProMap Cargo modula.
+                        </p>
+
+                    </div>
+
+                    <div
+                        class="pm-alerts-result-count"
+                        id="alertsResultCount">
+                        —
+                    </div>
+
+                </div>
+
+
+                <div class="pm-alerts-filters">
+
+
+                    <div class="pm-alerts-search">
+
+                        <span>
+                            ⌕
+                        </span>
+
+                        <input
+                            id="alertsSearch"
+                            type="search"
+                            autocomplete="off"
+                            placeholder="Pretraži alert, vozilo, vozača, turu..." />
+
+                    </div>
+
+
+                    <select
+                        id="alertsSeverity"
+                        class="pm-alerts-select">
+
+                        <option value="">
+                            Sve severity
+                        </option>
+
+                        <option value="critical">
+                            Critical
+                        </option>
+
+                        <option value="high">
+                            High
+                        </option>
+
+                        <option value="medium">
+                            Medium
+                        </option>
+
+                        <option value="low">
+                            Low
+                        </option>
+
+                        <option value="info">
+                            Info
+                        </option>
+
+                    </select>
+
+
+                    <select
+                        id="alertsCategory"
+                        class="pm-alerts-select">
+
+                        <option value="">
+                            Sve kategorije
+                        </option>
+
+                        <option value="navigation">
+                            Navigacija
+                        </option>
+
+                        <option value="gps">
+                            GPS
+                        </option>
+
+                        <option value="compliance">
+                            Compliance
+                        </option>
+
+                        <option value="border">
+                            Granica
+                        </option>
+
+                        <option value="maintenance">
+                            Servis
+                        </option>
+
+                        <option value="tachograph">
+                            Tachograph
+                        </option>
+
+                        <option value="fuel">
+                            Gorivo / Fuel card
+                        </option>
+
+                        <option value="orders">
+                            Transportni nalozi
+                        </option>
+
+                        <option value="trips">
+                            Ture
+                        </option>
+
+                        <option value="driver">
+                            Vozači
+                        </option>
+
+                        <option value="vehicle">
+                            Vozila
+                        </option>
+
+                        <option value="finance">
+                            Finansije
+                        </option>
+
+                        <option value="system">
+                            Sistem
+                        </option>
+
+                    </select>
+
+
+                    <select
+                        id="alertsStatus"
+                        class="pm-alerts-select">
+
+                        <option value="open">
+                            Otvoreni
+                        </option>
+
+                        <option value="">
+                            Svi statusi
+                        </option>
+
+                        <option value="acknowledged">
+                            Acknowledged
+                        </option>
+
+                        <option value="snoozed">
+                            Snoozed
+                        </option>
+
+                        <option value="resolved">
+                            Resolved
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div
+                    class="pm-alerts-list"
+                    id="alertsList">
+                </div>
+
+
+                <div
+                    class="pm-alerts-empty"
+                    id="alertsEmpty"
+                    hidden>
+
+                    <div class="pm-alerts-empty-icon">
+                        ✓
+                    </div>
+
+                    <strong>
+                        Nema alerta
+                    </strong>
+
+                    <span>
+                        Za izabrane filtere nema rezultata.
+                    </span>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <aside class="pm-alerts-side">
+
+
+            <section class="pm-alerts-card pm-alerts-detail-card">
+
+
+                <div class="pm-alerts-card-header">
+
+                    <div>
+
+                        <div class="pm-alerts-eyebrow">
+                            ALERT DETAIL
+                        </div>
+
+                        <h2>
+                            Detalji
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="alertDetails"
+                    class="pm-alerts-details">
+
+                    <div class="pm-alerts-detail-empty">
+
+                        <div>
+                            !
+                        </div>
+
+                        <strong>
+                            Izaberite alert
+                        </strong>
+
+                        <span>
+                            Kliknite na alert iz liste da vidite
+                            kompletan kontekst i akcije.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="pm-alerts-card">
+
+
+                <div class="pm-alerts-card-header">
+
+                    <div>
+
+                        <div class="pm-alerts-eyebrow">
+                            SOURCES
+                        </div>
+
+                        <h2>
+                            Izvori alerta
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pm-alert-source-list">
+
+                    <div>
+                        <span class="pm-alert-source-dot navigation"></span>
+                        <strong>Navigacija</strong>
+                        <em id="sourceNavigation">0</em>
+                    </div>
+
+                    <div>
+                        <span class="pm-alert-source-dot compliance"></span>
+                        <strong>Compliance</strong>
+                        <em id="sourceCompliance">0</em>
+                    </div>
+
+                    <div>
+                        <span class="pm-alert-source-dot gps"></span>
+                        <strong>GPS / Monitoring</strong>
+                        <em id="sourceGps">0</em>
+                    </div>
+
+                    <div>
+                        <span class="pm-alert-source-dot fleet"></span>
+                        <strong>Fleet / Vozila</strong>
+                        <em id="sourceFleet">0</em>
+                    </div>
+
+                    <div>
+                        <span class="pm-alert-source-dot driver"></span>
+                        <strong>Vozači</strong>
+                        <em id="sourceDriver">0</em>
+                    </div>
+
+                    <div>
+                        <span class="pm-alert-source-dot finance"></span>
+                        <strong>Finansije</strong>
+                        <em id="sourceFinance">0</em>
+                    </div>
+
+                    <div>
+                        <span class="pm-alert-source-dot operations"></span>
+                        <strong>Operacije</strong>
+                        <em id="sourceOperations">0</em>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="pm-alerts-card">
+
+
+                <div class="pm-alerts-card-header">
+
+                    <div>
+
+                        <div class="pm-alerts-eyebrow">
+                            SEVERITY
+                        </div>
+
+                        <h2>
+                            Prioritet
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pm-alert-severity-bars">
+
+                    <div>
+
+                        <span>
+                            Critical
+                        </span>
+
+                        <div>
+                            <i
+                                id="severityCriticalBar"
+                                style="width:0%">
+                            </i>
+                        </div>
+
+                        <strong
+                            id="severityCriticalValue">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            High
+                        </span>
+
+                        <div>
+                            <i
+                                id="severityHighBar"
+                                style="width:0%">
+                            </i>
+                        </div>
+
+                        <strong
+                            id="severityHighValue">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Medium
+                        </span>
+
+                        <div>
+                            <i
+                                id="severityMediumBar"
+                                style="width:0%">
+                            </i>
+                        </div>
+
+                        <strong
+                            id="severityMediumValue">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+    </section>
+
+</div>
+
+
+<style>
+
+.pm-alerts-page
+{
+    width: 100%;
+    min-width: 0;
+    color: var(--pm-text);
+}
+
+
+.pm-alerts-header
+{
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 22px;
+}
+
+
+.pm-alerts-heading
+{
+    min-width: 0;
+}
+
+
+.pm-alerts-kicker
+{
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 7px;
+    color: var(--pm-teal);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+}
+
+
+.pm-alerts-kicker-dot
+{
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--pm-danger);
+    box-shadow: 0 0 0 4px rgba(251,113,133,.08);
+}
+
+
+.pm-alerts-heading h1
+{
+    margin: 0;
+    color: var(--pm-text);
+    font-size: 31px;
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -.04em;
+}
+
+
+.pm-alerts-heading p
+{
+    max-width: 760px;
+    margin: 8px 0 0;
+    color: var(--pm-text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+
+.pm-alerts-header-actions
+{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+
+.pm-alerts-live
+{
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid var(--pm-border);
+    border-radius: 10px;
+    background: rgba(16,185,129,.055);
+    color: var(--pm-text-muted);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+.pm-alerts-live strong
+{
+    color: var(--pm-emerald-300);
+    font-size: 9px;
+    letter-spacing: .08em;
+}
+
+
+.pm-alerts-live-dot
+{
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--pm-emerald-400);
+    box-shadow: 0 0 0 4px rgba(52,211,153,.08);
+}
+
+
+.pm-alerts-btn
+{
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 13px;
+    border: 1px solid var(--pm-border);
+    border-radius: 10px;
+    background: var(--pm-surface);
+    color: var(--pm-text-soft);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        transform .18s ease,
+        border-color .18s ease,
+        background .18s ease;
+}
+
+
+.pm-alerts-btn:hover
+{
+    transform: translateY(-1px);
+    border-color: var(--pm-border-strong);
+    background: var(--pm-surface-hover);
+}
+
+
+.pm-alerts-btn-primary
+{
+    background: rgba(16,185,129,.12);
+    border-color: rgba(52,211,153,.24);
+    color: var(--pm-emerald-200);
+}
+
+
+.pm-alerts-kpis
+{
+    display: grid;
+    grid-template-columns:
+        repeat(5,minmax(0,1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+
+.pm-alert-kpi
+{
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius-md);
+    background: var(--pm-surface);
+    box-shadow: var(--pm-shadow-sm);
+}
+
+
+.pm-alert-kpi-open
+{
+    border-color: rgba(45,212,191,.24);
+}
+
+
+.pm-alert-kpi-critical
+{
+    border-color: rgba(251,113,133,.22);
+}
+
+
+.pm-alert-kpi-top
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--pm-text-muted);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+.pm-alert-kpi-icon
+{
+    width: 27px;
+    height: 27px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(255,255,255,.035);
+    color: var(--pm-teal);
+    font-weight: 900;
+}
+
+
+.pm-alert-kpi-critical .pm-alert-kpi-icon
+{
+    color: var(--pm-danger);
+    background: var(--pm-danger-bg);
+}
+
+
+.pm-alert-kpi strong
+{
+    display: block;
+    margin-top: 8px;
+    color: var(--pm-text);
+    font-size: 25px;
+    line-height: 1;
+    font-weight: 800;
+}
+
+
+.pm-alert-kpi small
+{
+    display: block;
+    margin-top: 7px;
+    color: var(--pm-text-dim);
+    font-size: 10px;
+}
+
+
+.pm-alerts-workspace
+{
+    display: grid;
+    grid-template-columns:
+        minmax(0,1fr)
+        350px;
+    gap: 14px;
+    align-items: start;
+}
+
+
+.pm-alerts-main,
+.pm-alerts-side
+{
+    min-width: 0;
+}
+
+
+.pm-alerts-side
+{
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+
+.pm-alerts-card
+{
+    overflow: hidden;
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius-lg);
+    background: var(--pm-surface);
+    box-shadow: var(--pm-shadow-sm);
+}
+
+
+.pm-alerts-card-header
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 17px;
+    border-bottom: 1px solid var(--pm-border-soft);
+}
+
+
+.pm-alerts-eyebrow
+{
+    margin-bottom: 5px;
+    color: var(--pm-teal);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+
+.pm-alerts-card-header h2
+{
+    margin: 0;
+    color: var(--pm-text);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -.015em;
+}
+
+
+.pm-alerts-card-header p
+{
+    margin: 5px 0 0;
+    color: var(--pm-text-dim);
+    font-size: 10px;
+}
+
+
+.pm-alerts-result-count
+{
+    padding: 6px 9px;
+    border: 1px solid var(--pm-border);
+    border-radius: 999px;
+    color: var(--pm-text-muted);
+    background: rgba(255,255,255,.025);
+    font-size: 9px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+
+.pm-alerts-filters
+{
+    display: grid;
+    grid-template-columns:
+        minmax(220px,1.6fr)
+        repeat(3,minmax(130px,.7fr));
+    gap: 9px;
+    padding: 13px 15px;
+    border-bottom: 1px solid var(--pm-border-soft);
+    background: rgba(2,24,20,.22);
+}
+
+
+.pm-alerts-search
+{
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 0 11px;
+    border: 1px solid var(--pm-border);
+    border-radius: 9px;
+    background: rgba(2,24,20,.55);
+}
+
+
+.pm-alerts-search > span
+{
+    color: var(--pm-text-dim);
+    font-size: 18px;
+}
+
+
+.pm-alerts-search input
+{
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--pm-text);
+    font: inherit;
+    font-size: 11px;
+}
+
+
+.pm-alerts-search input::placeholder
+{
+    color: var(--pm-text-dim);
+}
+
+
+.pm-alerts-select
+{
+    min-width: 0;
+    min-height: 38px;
+    padding: 0 10px;
+    border: 1px solid var(--pm-border);
+    border-radius: 9px;
+    outline: 0;
+    background: rgba(2,24,20,.55);
+    color: var(--pm-text-soft);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+.pm-alerts-select:focus
+{
+    border-color: var(--pm-border-strong);
+}
+
+
+.pm-alerts-list
+{
+    display: flex;
+    flex-direction: column;
+}
+
+
+.pm-alert-row
+{
+    display: grid;
+    grid-template-columns:
+        4px
+        34px
+        minmax(170px,1.6fr)
+        minmax(100px,.75fr)
+        minmax(100px,.7fr)
+        auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 84px;
+    padding: 11px 14px 11px 0;
+    border-bottom: 1px solid var(--pm-border-soft);
+    cursor: pointer;
+    transition:
+        background .16s ease,
+        transform .16s ease;
+}
+
+
+.pm-alert-row:last-child
+{
+    border-bottom: 0;
+}
+
+
+.pm-alert-row:hover
+{
+    background: rgba(16,185,129,.035);
+}
+
+
+.pm-alert-row.selected
+{
+    background: rgba(45,212,191,.055);
+}
+
+
+.pm-alert-severity-line
+{
+    align-self: stretch;
+    border-radius: 0 4px 4px 0;
+    background: var(--pm-info);
+}
+
+
+.pm-alert-row.critical .pm-alert-severity-line
+{
+    background: var(--pm-danger);
+}
+
+
+.pm-alert-row.high .pm-alert-severity-line
+{
+    background: #fb923c;
+}
+
+
+.pm-alert-row.medium .pm-alert-severity-line
+{
+    background: var(--pm-warning);
+}
+
+
+.pm-alert-row.low .pm-alert-severity-line
+{
+    background: var(--pm-emerald-400);
+}
+
+
+.pm-alert-row.info .pm-alert-severity-line
+{
+    background: var(--pm-info);
+}
+
+
+.pm-alert-row-icon
+{
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--pm-border);
+    border-radius: 10px;
+    background: rgba(255,255,255,.025);
+    color: var(--pm-text-soft);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+
+.pm-alert-row.critical .pm-alert-row-icon
+{
+    color: var(--pm-danger);
+    background: var(--pm-danger-bg);
+    border-color: rgba(251,113,133,.18);
+}
+
+
+.pm-alert-row.high .pm-alert-row-icon
+{
+    color: #fb923c;
+    background: rgba(249,115,22,.10);
+    border-color: rgba(249,115,22,.18);
+}
+
+
+.pm-alert-row.medium .pm-alert-row-icon
+{
+    color: var(--pm-warning);
+    background: var(--pm-warning-bg);
+}
+
+
+.pm-alert-row-content
+{
+    min-width: 0;
+}
+
+
+.pm-alert-row-title
+{
+    overflow: hidden;
+    color: var(--pm-text);
+    font-size: 11px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.pm-alert-row-message
+{
+    overflow: hidden;
+    margin-top: 4px;
+    color: var(--pm-text-muted);
+    font-size: 10px;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.pm-alert-row-meta
+{
+    margin-top: 5px;
+    color: var(--pm-text-dim);
+    font-size: 9px;
+}
+
+
+.pm-alert-row-context
+{
+    min-width: 0;
+}
+
+
+.pm-alert-context-main
+{
+    overflow: hidden;
+    color: var(--pm-text-soft);
+    font-size: 10px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.pm-alert-context-sub
+{
+    overflow: hidden;
+    margin-top: 4px;
+    color: var(--pm-text-dim);
+    font-size: 9px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.pm-alert-row-status
+{
+    display: inline-flex;
+    justify-content: center;
+}
+
+
+.pm-alert-status
+{
+    display: inline-flex;
+    align-items: center;
+    min-height: 23px;
+    padding: 0 8px;
+    border: 1px solid var(--pm-border);
+    border-radius: 999px;
+    color: var(--pm-text-muted);
+    background: rgba(255,255,255,.025);
+    font-size: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+
+.pm-alert-status.open
+{
+    color: var(--pm-danger);
+    border-color: rgba(251,113,133,.18);
+    background: var(--pm-danger-bg);
+}
+
+
+.pm-alert-status.acknowledged
+{
+    color: var(--pm-warning);
+    background: var(--pm-warning-bg);
+}
+
+
+.pm-alert-status.snoozed
+{
+    color: var(--pm-info);
+    background: var(--pm-info-bg);
+}
+
+
+.pm-alert-status.resolved
+{
+    color: var(--pm-success);
+    background: var(--pm-success-bg);
+}
+
+
+.pm-alert-severity-badge
+{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 22px;
+    padding: 0 8px;
+    border-radius: 999px;
+    font-size: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+
+.pm-alert-severity-badge.critical
+{
+    color: #fecdd3;
+    background: var(--pm-danger-bg);
+    border: 1px solid rgba(251,113,133,.16);
+}
+
+
+.pm-alert-severity-badge.high
+{
+    color: #fed7aa;
+    background: rgba(249,115,22,.10);
+    border: 1px solid rgba(249,115,22,.16);
+}
+
+
+.pm-alert-severity-badge.medium
+{
+    color: #fde68a;
+    background: var(--pm-warning-bg);
+    border: 1px solid rgba(251,191,36,.16);
+}
+
+
+.pm-alert-severity-badge.low
+{
+    color: var(--pm-emerald-200);
+    background: var(--pm-success-bg);
+    border: 1px solid rgba(52,211,153,.15);
+}
+
+
+.pm-alert-severity-badge.info
+{
+    color: #bae6fd;
+    background: var(--pm-info-bg);
+    border: 1px solid rgba(56,189,248,.15);
+}
+
+
+.pm-alert-row-action
+{
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--pm-border);
+    border-radius: 8px;
+    color: var(--pm-text-muted);
+    background: rgba(255,255,255,.02);
+    font-size: 14px;
+}
+
+
+.pm-alerts-details
+{
+    min-height: 250px;
+}
+
+
+.pm-alert-detail
+{
+    padding: 15px;
+}
+
+
+.pm-alert-detail-top
+{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+
+.pm-alert-detail-id
+{
+    color: var(--pm-text-dim);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+
+.pm-alert-detail h3
+{
+    margin: 6px 0 0;
+    color: var(--pm-text);
+    font-size: 17px;
+    line-height: 1.2;
+    font-weight: 800;
+}
+
+
+.pm-alert-detail-message
+{
+    margin: 10px 0 0;
+    color: var(--pm-text-muted);
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+
+.pm-alert-detail-grid
+{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+
+.pm-alert-detail-item
+{
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid var(--pm-border-soft);
+    border-radius: 9px;
+    background: rgba(2,24,20,.32);
+}
+
+
+.pm-alert-detail-item span
+{
+    display: block;
+    color: var(--pm-text-dim);
+    font-size: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+
+.pm-alert-detail-item strong
+{
+    display: block;
+    overflow: hidden;
+    margin-top: 4px;
+    color: var(--pm-text-soft);
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.pm-alert-detail-action
+{
+    margin-top: 12px;
+    padding: 11px;
+    border: 1px solid rgba(45,212,191,.14);
+    border-radius: 9px;
+    background: rgba(45,212,191,.035);
+}
+
+
+.pm-alert-detail-action span
+{
+    display: block;
+    color: var(--pm-teal);
+    font-size: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+
+.pm-alert-detail-action p
+{
+    margin: 5px 0 0;
+    color: var(--pm-text-muted);
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+
+.pm-alert-detail-actions
+{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-top: 12px;
+}
+
+
+.pm-alert-detail-btn
+{
+    min-height: 34px;
+    border: 1px solid var(--pm-border);
+    border-radius: 9px;
+    color: var(--pm-text-soft);
+    background: rgba(255,255,255,.025);
+    font-size: 9px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+
+.pm-alert-detail-btn:hover
+{
+    border-color: var(--pm-border-strong);
+    background: var(--pm-surface-hover);
+}
+
+
+.pm-alert-detail-btn.primary
+{
+    color: var(--pm-emerald-200);
+    border-color: rgba(52,211,153,.18);
+    background: rgba(16,185,129,.09);
+}
+
+
+.pm-alert-detail-empty
+{
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+    text-align: center;
+}
+
+
+.pm-alert-detail-empty > div
+{
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 11px;
+    border: 1px solid var(--pm-border);
+    border-radius: 12px;
+    color: var(--pm-teal);
+    background: rgba(45,212,191,.045);
+    font-weight: 900;
+}
+
+
+.pm-alert-detail-empty strong
+{
+    color: var(--pm-text-soft);
+    font-size: 11px;
+}
+
+
+.pm-alert-detail-empty span
+{
+    max-width: 220px;
+    margin-top: 5px;
+    color: var(--pm-text-dim);
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+
+.pm-alert-source-list
+{
+    padding: 7px 15px 12px;
+}
+
+
+.pm-alert-source-list > div
+{
+    display: grid;
+    grid-template-columns: 8px minmax(0,1fr) auto;
+    align-items: center;
+    gap: 9px;
+    min-height: 33px;
+    border-bottom: 1px solid var(--pm-border-soft);
+}
+
+
+.pm-alert-source-list > div:last-child
+{
+    border-bottom: 0;
+}
+
+
+.pm-alert-source-list strong
+{
+    color: var(--pm-text-soft);
+    font-size: 10px;
+}
+
+
+.pm-alert-source-list em
+{
+    color: var(--pm-text-muted);
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 800;
+}
+
+
+.pm-alert-source-dot
+{
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--pm-text-dim);
+}
+
+
+.pm-alert-source-dot.navigation
+{
+    background: var(--pm-teal);
+}
+
+
+.pm-alert-source-dot.compliance
+{
+    background: var(--pm-danger);
+}
+
+
+.pm-alert-source-dot.gps
+{
+    background: var(--pm-info);
+}
+
+
+.pm-alert-source-dot.fleet
+{
+    background: var(--pm-emerald-400);
+}
+
+
+.pm-alert-source-dot.driver
+{
+    background: #a78bfa;
+}
+
+
+.pm-alert-source-dot.finance
+{
+    background: var(--pm-warning);
+}
+
+
+.pm-alert-source-dot.operations
+{
+    background: #fb923c;
+}
+
+
+.pm-alert-severity-bars
+{
+    padding: 12px 15px 15px;
+}
+
+
+.pm-alert-severity-bars > div
+{
+    display: grid;
+    grid-template-columns: 58px minmax(0,1fr) 24px;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+
+.pm-alert-severity-bars > div:last-child
+{
+    margin-bottom: 0;
+}
+
+
+.pm-alert-severity-bars span
+{
+    color: var(--pm-text-muted);
+    font-size: 9px;
+    font-weight: 700;
+}
+
+
+.pm-alert-severity-bars > div > div
+{
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255,255,255,.045);
+}
+
+
+.pm-alert-severity-bars i
+{
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--pm-teal);
+}
+
+
+.pm-alert-severity-bars > div:nth-child(1) i
+{
+    background: var(--pm-danger);
+}
+
+
+.pm-alert-severity-bars > div:nth-child(2) i
+{
+    background: #fb923c;
+}
+
+
+.pm-alert-severity-bars > div:nth-child(3) i
+{
+    background: var(--pm-warning);
+}
+
+
+.pm-alert-severity-bars strong
+{
+    color: var(--pm-text-soft);
+    font-size: 9px;
+    text-align: right;
+}
+
+
+.pm-alerts-empty
+{
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    text-align: center;
+}
+
+
+.pm-alerts-empty-icon
+{
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 11px;
+    border-radius: 13px;
+    background: var(--pm-success-bg);
+    color: var(--pm-success);
+    font-weight: 900;
+}
+
+
+.pm-alerts-empty strong
+{
+    color: var(--pm-text-soft);
+    font-size: 12px;
+}
+
+
+.pm-alerts-empty span
+{
+    margin-top: 5px;
+    color: var(--pm-text-dim);
+    font-size: 10px;
+}
+
+
+@@media (max-width: 1200px)
+{
+    .pm-alerts-workspace
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .pm-alerts-side
+    {
+        display: grid;
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+    }
+}
+
+
+@@media (max-width: 1000px)
+{
+    .pm-alerts-kpis
+    {
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+    }
+
+    .pm-alerts-filters
+    {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .pm-alert-row
+    {
+        grid-template-columns:
+            4px
+            34px
+            minmax(0,1fr)
+            auto;
+    }
+
+    .pm-alert-row-context,
+    .pm-alert-row-status
+    {
+        display: none;
+    }
+
+    .pm-alerts-side
+    {
+        grid-template-columns:
+            1fr 1fr;
+    }
+}
+
+
+@@media (max-width: 700px)
+{
+    .pm-alerts-header
+    {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .pm-alerts-header-actions
+    {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .pm-alerts-kpis
+    {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .pm-alerts-filters
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .pm-alert-row
+    {
+        grid-template-columns:
+            4px
+            34px
+            minmax(0,1fr)
+            28px;
+        gap: 9px;
+    }
+
+    .pm-alert-row-severity,
+    .pm-alert-row-status
+    {
+        display: none;
+    }
+
+    .pm-alerts-side
+    {
+        display: flex;
+    }
+}
+
+
+@@media (max-width: 460px)
+{
+    .pm-alerts-kpis
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .pm-alerts-heading h1
+    {
+        font-size: 27px;
+    }
+
+    .pm-alert-detail-grid
+    {
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+
+
+@section Scripts
+{
+<script src="~/js/alerts.js"></script>
+}
+<script>
+
+(function ()
+{
+    "use strict";
+
+    function escapeHtml(value)
+    {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+
+    function $(id)
+    {
+        return document.getElementById(id);
+    }
+
+
+    function formatDate(value)
+    {
+        if (!value)
+        {
+            return "—";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime()))
+        {
+            return String(value);
+        }
+
+        return new Intl.DateTimeFormat(
+            "sr-Latn-RS",
+            {
+                dateStyle: "short",
+                timeStyle: "short"
+            }
+        ).format(date);
+    }
+
+
+    function severityLabel(value)
+    {
+        return window.ProMap.Alerts.severityLabel(value);
+    }
+
+
+    function categoryLabel(value)
+    {
+        return window.ProMap.Alerts.categoryLabel(value);
+    }
+
+
+    function statusLabel(value)
+    {
+        switch (value)
+        {
+            case "open":
+                return "OPEN";
+
+            case "acknowledged":
+                return "ACKNOWLEDGED";
+
+            case "snoozed":
+                return "SNOOZED";
+
+            case "resolved":
+                return "RESOLVED";
+
+            default:
+                return String(value || "").toUpperCase();
+        }
+    }
+
+
+    function alertIcon(alert)
+    {
+        switch (alert.category)
+        {
+            case "navigation":
+                return "◎";
+
+            case "gps":
+                return "◉";
+
+            case "compliance":
+                return "▣";
+
+            case "maintenance":
+                return "🔧";
+
+            case "fuel":
+                return "⛽";
+
+            case "tachograph":
+                return "◷";
+
+            case "border":
+                return "⌂";
+
+            case "finance":
+                return "₿";
+
+            case "driver":
+                return "♙";
+
+            case "vehicle":
+                return "▣";
+
+            case "orders":
+                return "▤";
+
+            case "trips":
+                return "↗";
+
+            default:
+                return "!";
+        }
+    }
+
+
+    function getContextMain(alert)
+    {
+        return (
+            alert.vehicle ||
+            alert.driver ||
+            alert.trip ||
+            alert.location ||
+            "Sistem"
+        );
+    }
+
+
+    function getContextSub(alert)
+    {
+        const values = [];
+
+        if (alert.vehicle)
+        {
+            values.push(alert.vehicle);
+        }
+
+        if (alert.driver)
+        {
+            values.push(alert.driver);
+        }
+
+        if (alert.trip)
+        {
+            values.push(alert.trip);
+        }
+
+        return values
+            .filter(Boolean)
+            .join(" · ");
+    }
+
+
+    const state =
+    {
+        alerts: [],
+        filtered: [],
+        selectedId: null
+    };
+
+
+    const elements =
+    {
+        list: $("alertsList"),
+        empty: $("alertsEmpty"),
+        resultCount: $("alertsResultCount"),
+
+        search: $("alertsSearch"),
+        severity: $("alertsSeverity"),
+        category: $("alertsCategory"),
+        status: $("alertsStatus"),
+
+        detail: $("alertDetails"),
+
+        open: $("alertsOpenCount"),
+        critical: $("alertsCriticalCount"),
+        high: $("alertsHighCount"),
+        today: $("alertsTodayCount"),
+        resolved: $("alertsResolvedCount"),
+
+        sourceNavigation: $("sourceNavigation"),
+        sourceCompliance: $("sourceCompliance"),
+        sourceGps: $("sourceGps"),
+        sourceFleet: $("sourceFleet"),
+        sourceDriver: $("sourceDriver"),
+        sourceFinance: $("sourceFinance"),
+        sourceOperations: $("sourceOperations"),
+
+        criticalBar: $("severityCriticalBar"),
+        highBar: $("severityHighBar"),
+        mediumBar: $("severityMediumBar"),
+
+        criticalValue: $("severityCriticalValue"),
+        highValue: $("severityHighValue"),
+        mediumValue: $("severityMediumValue")
+    };
+
+
+    function updateKpis()
+    {
+        const alerts = state.alerts;
+
+        const open =
+            alerts.filter(
+                alert =>
+                    alert.status === "open"
+            );
+
+        const critical =
+            open.filter(
+                alert =>
+                    alert.severity === "critical"
+            );
+
+        const high =
+            open.filter(
+                alert =>
+                    alert.severity === "high"
+            );
+
+        const resolved =
+            alerts.filter(
+                alert =>
+                    alert.status === "resolved"
+            );
+
+        elements.open.textContent =
+            open.length;
+
+        elements.critical.textContent =
+            critical.length;
+
+        elements.high.textContent =
+            high.length;
+
+        elements.today.textContent =
+            window.ProMap.Alerts.getTodayCount();
+
+        elements.resolved.textContent =
+            resolved.length;
+
+
+        const sourceCounts =
+        {
+            navigation: 0,
+            compliance: 0,
+            gps: 0,
+            fleet: 0,
+            driver: 0,
+            finance: 0,
+            operations: 0
+        };
+
+
+        open.forEach(
+            function (alert)
+            {
+                switch (alert.category)
+                {
+                    case "navigation":
+                        sourceCounts.navigation++;
+                        break;
+
+                    case "compliance":
+                        sourceCounts.compliance++;
+                        break;
+
+                    case "gps":
+                        sourceCounts.gps++;
+                        break;
+
+                    case "vehicle":
+                    case "maintenance":
+                        sourceCounts.fleet++;
+                        break;
+
+                    case "driver":
+                    case "tachograph":
+                        sourceCounts.driver++;
+                        break;
+
+                    case "finance":
+                    case "fuel":
+                        sourceCounts.finance++;
+                        break;
+
+                    default:
+                        sourceCounts.operations++;
+                        break;
+                }
+            }
+        );
+
+
+        elements.sourceNavigation.textContent =
+            sourceCounts.navigation;
+
+        elements.sourceCompliance.textContent =
+            sourceCounts.compliance;
+
+        elements.sourceGps.textContent =
+            sourceCounts.gps;
+
+        elements.sourceFleet.textContent =
+            sourceCounts.fleet;
+
+        elements.sourceDriver.textContent =
+            sourceCounts.driver;
+
+        elements.sourceFinance.textContent =
+            sourceCounts.finance;
+
+        elements.sourceOperations.textContent =
+            sourceCounts.operations;
+
+
+        const severityTotal =
+            Math.max(
+                1,
+                open.length
+            );
+
+
+        const criticalCount =
+            open.filter(
+                a => a.severity === "critical"
+            ).length;
+
+        const highCount =
+            open.filter(
+                a => a.severity === "high"
+            ).length;
+
+        const mediumCount =
+            open.filter(
+                a => a.severity === "medium"
+            ).length;
+
+
+        elements.criticalValue.textContent =
+            criticalCount;
+
+        elements.highValue.textContent =
+            highCount;
+
+        elements.mediumValue.textContent =
+            mediumCount;
+
+
+        elements.criticalBar.style.width =
+            (
+                criticalCount /
+                severityTotal *
+                100
+            ) + "%";
+
+        elements.highBar.style.width =
+            (
+                highCount /
+                severityTotal *
+                100
+            ) + "%";
+
+        elements.mediumBar.style.width =
+            (
+                mediumCount /
+                severityTotal *
+                100
+            ) + "%";
+    }
+
+
+    function applyFilters()
+    {
+        const search =
+            String(
+                elements.search.value || ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        const severity =
+            elements.severity.value;
+
+        const category =
+            elements.category.value;
+
+        const status =
+            elements.status.value;
+
+
+        state.filtered =
+            state.alerts.filter(
+                function (alert)
+                {
+                    if (
+                        severity &&
+                        alert.severity !== severity
+                    )
+                    {
+                        return false;
+                    }
+
+                    if (
+                        category &&
+                        alert.category !== category
+                    )
+                    {
+                        return false;
+                    }
+
+                    if (
+                        status &&
+                        alert.status !== status
+                    )
+                    {
+                        return false;
+                    }
+
+
+                    if (!search)
+                    {
+                        return true;
+                    }
+
+
+                    const haystack =
+                        [
+                            alert.id,
+                            alert.title,
+                            alert.message,
+                            alert.type,
+                            alert.vehicle,
+                            alert.driver,
+                            alert.trip,
+                            alert.location,
+                            alert.source,
+                            categoryLabel(alert.category)
+                        ]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase();
+
+
+                    return haystack.includes(
+                        search
+                    );
+                }
+            );
+
+
+        renderList();
+    }
+
+
+    function renderList()
+    {
+        elements.resultCount.textContent =
+            state.filtered.length +
+            " rezultata";
+
+
+        elements.empty.hidden =
+            state.filtered.length !== 0;
+
+
+        elements.list.innerHTML = "";
+
+
+        if (!state.filtered.length)
+        {
+            return;
+        }
+
+
+        state.filtered.forEach(
+            function (alert)
+            {
+                const row =
+                    document.createElement("div");
+
+
+                row.className =
+                    "pm-alert-row " +
+                    alert.severity +
+                    (
+                        state.selectedId === alert.id
+                            ? " selected"
+                            : ""
+                    );
+
+
+                row.dataset.alertId =
+                    alert.id;
+
+
+                row.innerHTML =
+                    `
+                    <div class="pm-alert-severity-line"></div>
+
+                    <div class="pm-alert-row-icon">
+                        ${escapeHtml(alertIcon(alert))}
+                    </div>
+
+                    <div class="pm-alert-row-content">
+
+                        <div class="pm-alert-row-title">
+                            ${escapeHtml(alert.title)}
+                        </div>
+
+                        <div class="pm-alert-row-message">
+                            ${escapeHtml(alert.message)}
+                        </div>
+
+                        <div class="pm-alert-row-meta">
+                            ${escapeHtml(alert.id)}
+                            ·
+                            ${escapeHtml(categoryLabel(alert.category))}
+                            ·
+                            ${escapeHtml(formatDate(alert.createdAt))}
+                        </div>
+
+                    </div>
+
+                    <div class="pm-alert-row-context">
+
+                        <div class="pm-alert-context-main">
+                            ${escapeHtml(getContextMain(alert))}
+                        </div>
+
+                        <div class="pm-alert-context-sub">
+                            ${escapeHtml(getContextSub(alert))}
+                        </div>
+
+                    </div>
+
+                    <div class="pm-alert-row-status">
+
+                        <div>
+
+                            <span class="pm-alert-severity-badge ${escapeHtml(alert.severity)}">
+                                ${escapeHtml(severityLabel(alert.severity))}
+                            </span>
+
+                            <br />
+
+                            <span class="pm-alert-status ${escapeHtml(alert.status)}">
+                                ${escapeHtml(statusLabel(alert.status))}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="pm-alert-row-action">
+                        ›
+                    </div>
+                    `;
+
+
+                row.addEventListener(
+                    "click",
+                    function ()
+                    {
+                        state.selectedId =
+                            alert.id;
+
+                        renderList();
+
+                        renderDetails(
+                            alert
+                        );
+                    }
+                );
+
+
+                elements.list.appendChild(
+                    row
+                );
+            }
+        );
+    }
+
+
+    function renderDetails(alert)
+    {
+        if (!alert)
+        {
+            elements.detail.innerHTML =
+                `
+                <div class="pm-alert-detail-empty">
+
+                    <div>
+                        !
+                    </div>
+
+                    <strong>
+                        Izaberite alert
+                    </strong>
+
+                    <span>
+                        Kliknite na alert iz liste da vidite
+                        kompletan kontekst i akcije.
+                    </span>
+
+                </div>
+                `;
+
+            return;
+        }
+
+
+        elements.detail.innerHTML =
+            `
+            <div class="pm-alert-detail">
+
+                <div class="pm-alert-detail-top">
+
+                    <div>
+
+                        <div class="pm-alert-detail-id">
+                            ${escapeHtml(alert.id)}
+                        </div>
+
+                        <h3>
+                            ${escapeHtml(alert.title)}
+                        </h3>
+
+                    </div>
+
+                    <span class="pm-alert-severity-badge ${escapeHtml(alert.severity)}">
+                        ${escapeHtml(severityLabel(alert.severity))}
+                    </span>
+
+                </div>
+
+
+                <div class="pm-alert-detail-message">
+                    ${escapeHtml(alert.message)}
+                </div>
+
+
+                <div class="pm-alert-detail-grid">
+
+                    <div class="pm-alert-detail-item">
+                        <span>Kategorija</span>
+                        <strong>
+                            ${escapeHtml(categoryLabel(alert.category))}
+                        </strong>
+                    </div>
+
+                    <div class="pm-alert-detail-item">
+                        <span>Status</span>
+                        <strong>
+                            ${escapeHtml(statusLabel(alert.status))}
+                        </strong>
+                    </div>
+
+                    <div class="pm-alert-detail-item">
+                        <span>Vozilo</span>
+                        <strong>
+                            ${escapeHtml(alert.vehicle || "—")}
+                        </strong>
+                    </div>
+
+                    <div class="pm-alert-detail-item">
+                        <span>Vozač</span>
+                        <strong>
+                            ${escapeHtml(alert.driver || "—")}
+                        </strong>
+                    </div>
+
+                    <div class="pm-alert-detail-item">
+                        <span>Tura</span>
+                        <strong>
+                            ${escapeHtml(alert.trip || "—")}
+                        </strong>
+                    </div>
+
+                    <div class="pm-alert-detail-item">
+                        <span>Lokacija</span>
+                        <strong>
+                            ${escapeHtml(alert.location || "—")}
+                        </strong>
+                    </div>
+
+                    <div class="pm-alert-detail-item">
+                        <span>Izvor</span>
+                        <strong>
+                            ${escapeHtml(alert.source || "—")}
+                        </strong>
+                    </div>
+
+                    <div class="pm-alert-detail-item">
+                        <span>Vreme</span>
+                        <strong>
+                            ${escapeHtml(formatDate(alert.createdAt))}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="pm-alert-detail-action">
+
+                    <span>
+                        Preporučena akcija
+                    </span>
+
+                    <p>
+                        ${escapeHtml(alert.action || "Proverite alert i preduzmite odgovarajuću akciju.")}
+                    </p>
+
+                </div>
+
+
+                <div class="pm-alert-detail-actions">
+
+                    ${
+                        alert.status === "resolved"
+                            ? `
+                                <button
+                                    type="button"
+                                    class="pm-alert-detail-btn"
+                                    data-alert-action="reopen">
+                                    Ponovo otvori
+                                </button>
+                            `
+                            : `
+                                <button
+                                    type="button"
+                                    class="pm-alert-detail-btn primary"
+                                    data-alert-action="resolve">
+                                    Reši alert
+                                </button>
+                            `
+                    }
+
+
+                    ${
+                        alert.status === "open"
+                            ? `
+                                <button
+                                    type="button"
+                                    class="pm-alert-detail-btn"
+                                    data-alert-action="acknowledge">
+                                    Preuzmi
+                                </button>
+                            `
+                            : `
+                                <button
+                                    type="button"
+                                    class="pm-alert-detail-btn"
+                                    data-alert-action="snooze">
+                                    Odloži 30 min
+                                </button>
+                            `
+                    }
+
+
+                    ${
+                        alert.actionUrl
+                            ? `
+                                <button
+                                    type="button"
+                                    class="pm-alert-detail-btn"
+                                    data-alert-action="open-source">
+                                    Otvori modul
+                                </button>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+            </div>
+            `;
+
+
+        elements.detail
+            .querySelectorAll(
+                "[data-alert-action]"
+            )
+            .forEach(
+                function (button)
+                {
+                    button.addEventListener(
+                        "click",
+                        function ()
+                        {
+                            const action =
+                                button.dataset.alertAction;
+
+
+                            if (
+                                action ===
+                                "resolve"
+                            )
+                            {
+                                window.ProMap.Alerts.resolve(
+                                    alert.id
+                                );
+                            }
+
+
+                            if (
+                                action ===
+                                "reopen"
+                            )
+                            {
+                                window.ProMap.Alerts.reopen(
+                                    alert.id
+                                );
+                            }
+
+
+                            if (
+                                action ===
+                                "acknowledge"
+                            )
+                            {
+                                window.ProMap.Alerts.acknowledge(
+                                    alert.id
+                                );
+                            }
+
+
+                            if (
+                                action ===
+                                "snooze"
+                            )
+                            {
+                                window.ProMap.Alerts.snooze(
+                                    alert.id,
+                                    30
+                                );
+                            }
+
+
+                            if (
+                                action ===
+                                "open-source"
+                            )
+                            {
+                                window.location.href =
+                                    alert.actionUrl;
+                                return;
+                            }
+
+
+                            reload();
+                        }
+                    );
+                }
+            );
+    }
+
+
+    function reload()
+    {
+        state.alerts =
+            window.ProMap.Alerts.get();
+
+
+        updateKpis();
+
+        applyFilters();
+
+
+        if (state.selectedId)
+        {
+            const selected =
+                state.alerts.find(
+                    alert =>
+                        alert.id ===
+                        state.selectedId
+                );
+
+            renderDetails(
+                selected || null
+            );
+        }
+    }
+
+
+    function clearResolved()
+    {
+        const remaining =
+            window.ProMap.Alerts
+                .get()
+                .filter(
+                    alert =>
+                        alert.status !==
+                        "resolved"
+                );
+
+
+        localStorage.setItem(
+            window.ProMap.Alerts.storageKey,
+            JSON.stringify(remaining)
+        );
+
+
+        window.dispatchEvent(
+            new CustomEvent(
+                "promap:alerts-changed",
+                {
+                    detail:
+                    {
+                        alerts: remaining
+                    }
+                }
+            )
+        );
+
+
+        state.selectedId = null;
+
+        reload();
+
+        renderDetails(null);
+    }
+
+
+    function bind()
+    {
+        [
+            elements.search,
+            elements.severity,
+            elements.category,
+            elements.status
+        ]
+        .forEach(
+            function (element)
+            {
+                element.addEventListener(
+                    "input",
+                    applyFilters
+                );
+
+                element.addEventListener(
+                    "change",
+                    applyFilters
+                );
+            }
+        );
+
+
+        $("alertsRefresh")
+            .addEventListener(
+                "click",
+                reload
+            );
+
+
+        $("alertsClearResolved")
+            .addEventListener(
+                "click",
+                clearResolved
+            );
+
+
+        window.addEventListener(
+            "promap:alerts-changed",
+            reload
+        );
+    }
+
+
+    function init()
+    {
+        if (
+            !window.ProMap ||
+            !window.ProMap.Alerts
+        )
+        {
+            console.error(
+                "ProMap Alerts module nije učitan."
+            );
+
+            return;
+        }
+
+
+        bind();
+
+        reload();
+    }
+
+
+    if (
+        document.readyState ===
+        "loading"
+    )
+    {
+        document.addEventListener(
+            "DOMContentLoaded",
+            init
+        );
+    }
+    else
+    {
+        init();
+    }
+
+})();
+
+</script>

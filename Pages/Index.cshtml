@@ -1,0 +1,3159 @@
+@page "/"
+@{
+    Layout = null;
+    ViewData["Title"] = "ProMap Cargo · Truck Intelligence Platform";
+}
+
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>ProMap Cargo · Truck Intelligence Platform</title>
+    <meta name="description" content="ProMap Cargo — truck-aware routing, fleet operations, live GPS navigation and intelligent transport management." />
+    <meta name="theme-color" content="#021512" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIINfQ3gJ6a6QxXnXv8X8Rr7G1M4xV3N6Z8="
+        crossorigin=""
+    />
+
+    <style>
+        :root {
+            --pm-bg: #021512;
+            --pm-bg-deep: #010b09;
+            --pm-bg-soft: #031c18;
+
+            --pm-surface: rgba(4, 31, 26, 0.76);
+            --pm-surface-strong: rgba(5, 39, 32, 0.90);
+            --pm-surface-soft: rgba(7, 52, 43, 0.52);
+
+            --pm-emerald-300: #6ee7b7;
+            --pm-emerald-400: #34d399;
+            --pm-emerald-500: #10b981;
+            --pm-emerald-600: #059669;
+
+            --pm-teal: #2dd4bf;
+            --pm-cyan: #22d3ee;
+
+            --pm-text: #f0fdf8;
+            --pm-text-soft: #d1fae5;
+            --pm-text-muted: #8eb8aa;
+            --pm-text-dim: #638b80;
+
+            --pm-border: rgba(79, 209, 169, 0.14);
+            --pm-border-strong: rgba(45, 212, 191, 0.30);
+            --pm-border-soft: rgba(255, 255, 255, 0.055);
+
+            --pm-danger: #fb7185;
+            --pm-warning: #fbbf24;
+            --pm-info: #38bdf8;
+
+            --pm-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+            --pm-shadow-soft: 0 14px 45px rgba(0, 0, 0, 0.20);
+
+            --pm-radius-sm: 10px;
+            --pm-radius-md: 15px;
+            --pm-radius-lg: 21px;
+            --pm-radius-xl: 28px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background: var(--pm-bg-deep);
+        }
+
+        body {
+            margin: 0;
+            min-width: 320px;
+            background:
+                radial-gradient(circle at 12% 5%, rgba(16, 185, 129, 0.12), transparent 28rem),
+                radial-gradient(circle at 88% 12%, rgba(45, 212, 191, 0.08), transparent 30rem),
+                var(--pm-bg-deep);
+            color: var(--pm-text);
+            font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        .pm-public-page {
+            position: relative;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* =========================================================
+           BACKGROUND
+           ========================================================= */
+
+        .pm-bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: -5;
+            pointer-events: none;
+            opacity: .26;
+            background-image:
+                linear-gradient(rgba(45, 212, 191, .045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(45, 212, 191, .045) 1px, transparent 1px);
+            background-size: 58px 58px;
+            mask-image: linear-gradient(to bottom, black, transparent 82%);
+        }
+
+        .pm-bg-glow {
+            position: fixed;
+            width: 520px;
+            height: 520px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -4;
+            filter: blur(70px);
+            opacity: .16;
+        }
+
+        .pm-bg-glow-one {
+            top: -220px;
+            left: -150px;
+            background: var(--pm-emerald-500);
+            animation: pmFloatGlowOne 14s ease-in-out infinite;
+        }
+
+        .pm-bg-glow-two {
+            top: 500px;
+            right: -240px;
+            background: var(--pm-teal);
+            animation: pmFloatGlowTwo 18s ease-in-out infinite;
+        }
+
+        .pm-bg-glow-three {
+            top: 1150px;
+            left: 30%;
+            background: #0f766e;
+            animation: pmFloatGlowThree 20s ease-in-out infinite;
+        }
+
+        @@keyframes pmFloatGlowOne {
+            0%, 100% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            50% {
+                transform: translate3d(60px, 35px, 0);
+            }
+        }
+
+        @@keyframes pmFloatGlowTwo {
+            0%, 100% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            50% {
+                transform: translate3d(-50px, -40px, 0);
+            }
+        }
+
+        @@keyframes pmFloatGlowThree {
+            0%, 100% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            50% {
+                transform: translate3d(40px, -30px, 0);
+            }
+        }
+
+        /* =========================================================
+           HEADER
+           ========================================================= */
+
+        .pm-public-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 18px 28px;
+            transition:
+                padding .3s ease,
+                background .3s ease,
+                border-color .3s ease,
+                backdrop-filter .3s ease;
+        }
+
+        .pm-public-header.scrolled {
+            padding: 11px 28px;
+            background: rgba(1, 13, 11, .78);
+            border-bottom: 1px solid var(--pm-border);
+            backdrop-filter: blur(20px);
+        }
+
+        .pm-public-header-inner {
+            width: min(1380px, calc(100% - 20px));
+            margin: 0 auto;
+            min-height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+        }
+
+        .pm-public-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 900;
+            letter-spacing: -.04em;
+            white-space: nowrap;
+        }
+
+        .pm-public-brand-mark {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            border: 1px solid rgba(110, 231, 183, .24);
+            background:
+                radial-gradient(circle at 35% 25%, rgba(255,255,255,.18), transparent 25%),
+                linear-gradient(145deg, rgba(16,185,129,.38), rgba(5,150,105,.12));
+            box-shadow:
+                0 0 30px rgba(16,185,129,.14),
+                inset 0 1px rgba(255,255,255,.08);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .pm-public-brand-mark::before {
+            content: "";
+            width: 15px;
+            height: 15px;
+            border-radius: 5px;
+            border: 2px solid var(--pm-emerald-300);
+            transform: rotate(45deg);
+            animation: pmBrandPulse 3s ease-in-out infinite;
+        }
+
+        .pm-public-brand-mark::after {
+            content: "";
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--pm-teal);
+            box-shadow: 0 0 14px var(--pm-teal);
+        }
+
+        @@keyframes pmBrandPulse {
+            0%, 100% {
+                transform: rotate(45deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(45deg) scale(1.14);
+            }
+        }
+
+        .pm-public-brand-name {
+            font-size: 18px;
+        }
+
+        .pm-public-brand-name span {
+            color: var(--pm-teal);
+        }
+
+        .pm-public-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pm-public-nav-link {
+            position: relative;
+            padding: 9px 12px;
+            color: var(--pm-text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 9px;
+            transition:
+                color .2s ease,
+                background .2s ease,
+                transform .2s ease;
+        }
+
+        .pm-public-nav-link:hover {
+            color: var(--pm-text);
+            background: rgba(255,255,255,.045);
+            transform: translateY(-1px);
+        }
+
+        .pm-public-nav-link::after {
+            content: "";
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            bottom: 4px;
+            height: 1px;
+            background: var(--pm-teal);
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform .25s ease;
+        }
+
+        .pm-public-nav-link:hover::after {
+            transform: scaleX(1);
+        }
+
+        .pm-public-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .pm-header-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 39px;
+            padding: 0 14px;
+            border: 1px solid var(--pm-border);
+            border-radius: 10px;
+            color: var(--pm-text-soft);
+            font-size: 12px;
+            font-weight: 800;
+            background: rgba(255,255,255,.025);
+            transition:
+                transform .2s ease,
+                border-color .2s ease,
+                background .2s ease;
+        }
+
+        .pm-header-link:hover {
+            transform: translateY(-2px);
+            border-color: var(--pm-border-strong);
+            background: rgba(16,185,129,.08);
+        }
+
+        .pm-header-link-primary {
+            color: #021512;
+            background: var(--pm-emerald-500);
+            border-color: var(--pm-emerald-500);
+            box-shadow: 0 8px 25px rgba(16,185,129,.16);
+        }
+
+        .pm-header-link-primary:hover {
+            background: var(--pm-emerald-400);
+            border-color: var(--pm-emerald-400);
+            box-shadow: 0 12px 30px rgba(16,185,129,.25);
+        }
+
+        /* =========================================================
+           HERO
+           ========================================================= */
+
+        .pm-hero {
+            position: relative;
+            min-height: 930px;
+            padding: 170px 24px 90px;
+            display: flex;
+            align-items: center;
+        }
+
+        .pm-hero-inner {
+            width: min(1380px, 100%);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, .92fr) minmax(480px, 1.08fr);
+            align-items: center;
+            gap: 65px;
+        }
+
+        .pm-hero-copy {
+            position: relative;
+            z-index: 5;
+            max-width: 680px;
+        }
+
+        .pm-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 7px 11px;
+            border: 1px solid var(--pm-border);
+            border-radius: 999px;
+            background: rgba(7,52,43,.42);
+            color: var(--pm-emerald-300);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .13em;
+            text-transform: uppercase;
+            animation: pmReveal .75s .05s both;
+        }
+
+        .pm-eyebrow-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--pm-emerald-400);
+            box-shadow: 0 0 0 5px rgba(52,211,153,.09);
+            animation: pmStatusPulse 2s infinite;
+        }
+
+        @@keyframes pmStatusPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(52,211,153,.16);
+            }
+
+            50% {
+                box-shadow: 0 0 0 7px rgba(52,211,153,0);
+            }
+        }
+
+        .pm-hero-title {
+            margin: 24px 0 0;
+            font-size: clamp(50px, 6.3vw, 94px);
+            line-height: .94;
+            letter-spacing: -.065em;
+            font-weight: 900;
+            animation: pmReveal .8s .15s both;
+        }
+
+        .pm-hero-title-line {
+            display: block;
+        }
+
+        .pm-hero-title-accent {
+            color: transparent;
+            background: linear-gradient(100deg, var(--pm-emerald-300), var(--pm-teal), var(--pm-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            background-size: 180% auto;
+            animation:
+                pmGradientText 5s ease-in-out infinite,
+                pmReveal .8s .15s both;
+        }
+
+        @@keyframes pmGradientText {
+            0%, 100% {
+                background-position: 0% center;
+            }
+
+            50% {
+                background-position: 100% center;
+            }
+        }
+
+        .pm-hero-description {
+            max-width: 590px;
+            margin: 28px 0 0;
+            color: var(--pm-text-muted);
+            font-size: 17px;
+            line-height: 1.75;
+            animation: pmReveal .8s .25s both;
+        }
+
+        .pm-hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 34px;
+            animation: pmReveal .8s .35s both;
+        }
+
+        .pm-hero-btn {
+            min-height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0 19px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 900;
+            transition:
+                transform .25s ease,
+                box-shadow .25s ease,
+                background .25s ease,
+                border-color .25s ease;
+        }
+
+        .pm-hero-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .pm-hero-btn-primary {
+            color: #021512;
+            background: var(--pm-emerald-500);
+            box-shadow: 0 15px 35px rgba(16,185,129,.18);
+        }
+
+        .pm-hero-btn-primary:hover {
+            background: var(--pm-emerald-400);
+            box-shadow: 0 18px 45px rgba(16,185,129,.28);
+        }
+
+        .pm-hero-btn-secondary {
+            border: 1px solid var(--pm-border-strong);
+            color: var(--pm-text-soft);
+            background: rgba(255,255,255,.025);
+        }
+
+        .pm-hero-btn-secondary:hover {
+            background: rgba(45,212,191,.07);
+            border-color: rgba(45,212,191,.48);
+        }
+
+        .pm-btn-arrow {
+            transition: transform .25s ease;
+        }
+
+        .pm-hero-btn:hover .pm-btn-arrow {
+            transform: translateX(4px);
+        }
+
+        .pm-hero-proof {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 22px;
+            margin-top: 36px;
+            animation: pmReveal .8s .45s both;
+        }
+
+        .pm-proof-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--pm-text-dim);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .pm-proof-icon {
+            width: 24px;
+            height: 24px;
+            display: grid;
+            place-items: center;
+            border: 1px solid var(--pm-border);
+            border-radius: 7px;
+            color: var(--pm-emerald-300);
+            background: rgba(16,185,129,.06);
+        }
+
+        @@keyframes pmReveal {
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =========================================================
+           HERO ROUTING VISUAL
+           ========================================================= */
+
+        .pm-hero-visual {
+            position: relative;
+            min-height: 620px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pmVisualReveal 1s .2s both;
+        }
+
+        @@keyframes pmVisualReveal {
+            from {
+                opacity: 0;
+                transform: scale(.96) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .pm-routing-orbit {
+            position: absolute;
+            width: 590px;
+            height: 590px;
+            border: 1px solid rgba(45,212,191,.09);
+            border-radius: 50%;
+            animation: pmOrbitRotate 28s linear infinite;
+        }
+
+        .pm-routing-orbit::before,
+        .pm-routing-orbit::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            border: 1px dashed rgba(45,212,191,.07);
+        }
+
+        .pm-routing-orbit::before {
+            inset: 55px;
+        }
+
+        .pm-routing-orbit::after {
+            inset: 120px;
+        }
+
+        @@keyframes pmOrbitRotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .pm-routing-panel {
+            position: relative;
+            width: min(610px, 100%);
+            height: 545px;
+            overflow: hidden;
+            border: 1px solid var(--pm-border);
+            border-radius: 28px;
+            background:
+                linear-gradient(135deg, rgba(7,52,43,.82), rgba(1,13,11,.88)),
+                var(--pm-surface);
+            box-shadow:
+                var(--pm-shadow),
+                0 0 80px rgba(16,185,129,.07);
+            backdrop-filter: blur(18px);
+        }
+
+        .pm-routing-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(rgba(45,212,191,.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(45,212,191,.045) 1px, transparent 1px);
+            background-size: 38px 38px;
+            opacity: .55;
+        }
+
+        .pm-routing-panel::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 52% 48%, rgba(16,185,129,.11), transparent 40%);
+        }
+
+        .pm-route-topbar {
+            position: relative;
+            z-index: 5;
+            height: 66px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            border-bottom: 1px solid var(--pm-border-soft);
+            background: rgba(1,13,11,.42);
+        }
+
+        .pm-route-top-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--pm-text-soft);
+        }
+
+        .pm-route-top-icon {
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            border: 1px solid rgba(45,212,191,.18);
+            color: var(--pm-teal);
+            background: rgba(45,212,191,.07);
+        }
+
+        .pm-route-live {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 9px;
+            border: 1px solid rgba(52,211,153,.14);
+            border-radius: 999px;
+            color: var(--pm-emerald-300);
+            background: rgba(16,185,129,.055);
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: .08em;
+        }
+
+        .pm-route-live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--pm-emerald-400);
+            box-shadow: 0 0 10px rgba(52,211,153,.75);
+            animation: pmStatusPulse 1.8s infinite;
+        }
+
+        .pm-route-map {
+            position: absolute;
+            inset: 66px 0 0;
+        }
+
+        .pm-route-map-grid {
+            position: absolute;
+            inset: 0;
+            opacity: .32;
+            background-image:
+                linear-gradient(25deg, transparent 46%, rgba(255,255,255,.035) 47%, transparent 48%),
+                linear-gradient(-18deg, transparent 48%, rgba(255,255,255,.025) 49%, transparent 50%);
+            background-size: 130px 100px, 170px 125px;
+        }
+
+        .pm-route-river {
+            position: absolute;
+            width: 150%;
+            height: 95px;
+            left: -25%;
+            top: 49%;
+            border-radius: 50%;
+            transform: rotate(-13deg);
+            border-top: 2px solid rgba(34,211,238,.14);
+            box-shadow: 0 -10px 40px rgba(34,211,238,.025);
+        }
+
+        .pm-route-river-two {
+            top: 21%;
+            width: 120%;
+            left: -5%;
+            height: 75px;
+            transform: rotate(16deg);
+            border-top-color: rgba(34,211,238,.07);
+        }
+
+        .pm-route-road {
+            position: absolute;
+            height: 2px;
+            transform-origin: left center;
+            border-radius: 999px;
+            background: rgba(255,255,255,.10);
+        }
+
+        .pm-route-road-1 {
+            width: 270px;
+            left: 8%;
+            top: 70%;
+            transform: rotate(-24deg);
+        }
+
+        .pm-route-road-2 {
+            width: 210px;
+            left: 39%;
+            top: 41%;
+            transform: rotate(36deg);
+        }
+
+        .pm-route-road-3 {
+            width: 220px;
+            left: 53%;
+            top: 76%;
+            transform: rotate(-43deg);
+        }
+
+        .pm-route-road-4 {
+            width: 185px;
+            left: 16%;
+            top: 30%;
+            transform: rotate(22deg);
+        }
+
+        .pm-route-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .pm-route-shadow {
+            fill: none;
+            stroke: rgba(16,185,129,.12);
+            stroke-width: 11;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: blur(7px);
+        }
+
+        .pm-route-line {
+            fill: none;
+            stroke: url(#pmRouteGradient);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 9 11;
+            animation: pmRouteDash 1.5s linear infinite;
+            filter: drop-shadow(0 0 6px rgba(45,212,191,.38));
+        }
+
+        @@keyframes pmRouteDash {
+            to {
+                stroke-dashoffset: -40;
+            }
+        }
+
+        .pm-route-node {
+            fill: var(--pm-bg);
+            stroke: var(--pm-emerald-300);
+            stroke-width: 2;
+        }
+
+        .pm-route-node-glow {
+            fill: rgba(52,211,153,.10);
+            stroke: rgba(52,211,153,.22);
+            stroke-width: 1;
+            animation: pmNodePulse 2.2s ease-in-out infinite;
+        }
+
+        @@keyframes pmNodePulse {
+            0%, 100% {
+                r: 11;
+                opacity: .6;
+            }
+
+            50% {
+                r: 19;
+                opacity: .12;
+            }
+        }
+
+        .pm-truck {
+            position: absolute;
+            left: 52%;
+            top: 47%;
+            z-index: 10;
+            width: 46px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(110,231,183,.36);
+            border-radius: 14px;
+            color: #021512;
+            background: var(--pm-emerald-400);
+            box-shadow:
+                0 0 0 8px rgba(52,211,153,.07),
+                0 0 40px rgba(16,185,129,.32);
+            animation: pmTruckMove 7s ease-in-out infinite;
+        }
+
+        .pm-truck::before {
+            content: "";
+            position: absolute;
+            inset: -11px;
+            border: 1px solid rgba(52,211,153,.20);
+            border-radius: 18px;
+            animation: pmTruckPulse 2.5s ease-out infinite;
+        }
+
+        @@keyframes pmTruckPulse {
+            0% {
+                transform: scale(.65);
+                opacity: .8;
+            }
+
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        @@keyframes pmTruckMove {
+            0% {
+                left: 16%;
+                top: 73%;
+            }
+
+            24% {
+                left: 31%;
+                top: 65%;
+            }
+
+            48% {
+                left: 47%;
+                top: 49%;
+            }
+
+            72% {
+                left: 64%;
+                top: 35%;
+            }
+
+            100% {
+                left: 82%;
+                top: 23%;
+            }
+        }
+
+        .pm-map-pin {
+            position: absolute;
+            z-index: 8;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--pm-teal);
+            box-shadow:
+                0 0 0 5px rgba(45,212,191,.08),
+                0 0 20px rgba(45,212,191,.35);
+        }
+
+        .pm-map-pin-start {
+            left: 10%;
+            top: 77%;
+        }
+
+        .pm-map-pin-end {
+            right: 10%;
+            top: 17%;
+            background: var(--pm-cyan);
+        }
+
+        .pm-route-label {
+            position: absolute;
+            z-index: 9;
+            padding: 8px 10px;
+            border: 1px solid var(--pm-border);
+            border-radius: 9px;
+            background: rgba(1,13,11,.76);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--pm-shadow-soft);
+            font-size: 9px;
+            font-weight: 800;
+            color: var(--pm-text-soft);
+            white-space: nowrap;
+        }
+
+        .pm-route-label-start {
+            left: 6%;
+            top: 83%;
+        }
+
+        .pm-route-label-end {
+            right: 5%;
+            top: 9%;
+        }
+
+        .pm-route-bottom {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 16px;
+            z-index: 20;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .pm-route-metric {
+            padding: 11px 12px;
+            border: 1px solid var(--pm-border);
+            border-radius: 11px;
+            background: rgba(1,13,11,.72);
+            backdrop-filter: blur(14px);
+        }
+
+        .pm-route-metric-label {
+            color: var(--pm-text-dim);
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .pm-route-metric-value {
+            margin-top: 4px;
+            color: var(--pm-text);
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .pm-route-metric-value span {
+            color: var(--pm-emerald-300);
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        /* =========================================================
+           SECTION COMMON
+           ========================================================= */
+
+        .pm-section {
+            position: relative;
+            width: min(1380px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 120px 0;
+        }
+
+        .pm-section-header {
+            max-width: 720px;
+            margin-bottom: 48px;
+        }
+
+        .pm-section-kicker {
+            color: var(--pm-teal);
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+        }
+
+        .pm-section-title {
+            margin: 12px 0 0;
+            font-size: clamp(34px, 4vw, 58px);
+            line-height: 1.02;
+            letter-spacing: -.055em;
+            font-weight: 900;
+        }
+
+        .pm-section-description {
+            margin: 18px 0 0;
+            color: var(--pm-text-muted);
+            font-size: 15px;
+            line-height: 1.75;
+            max-width: 650px;
+        }
+
+        .pm-reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition:
+                opacity .75s ease,
+                transform .75s cubic-bezier(.2,.8,.2,1);
+        }
+
+        .pm-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* =========================================================
+           PLATFORM
+           ========================================================= */
+
+        .pm-platform {
+            padding-top: 110px;
+        }
+
+        .pm-platform-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .pm-feature-card {
+            position: relative;
+            min-height: 300px;
+            overflow: hidden;
+            padding: 28px;
+            border: 1px solid var(--pm-border);
+            border-radius: var(--pm-radius-lg);
+            background:
+                linear-gradient(145deg, rgba(7,52,43,.66), rgba(2,21,18,.75));
+            box-shadow: var(--pm-shadow-soft);
+            transition:
+                transform .35s cubic-bezier(.2,.8,.2,1),
+                border-color .35s ease,
+                box-shadow .35s ease;
+        }
+
+        .pm-feature-card::before {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            top: -90px;
+            right: -70px;
+            border-radius: 50%;
+            background: rgba(16,185,129,.07);
+            filter: blur(18px);
+            transition: transform .45s ease;
+        }
+
+        .pm-feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(45,212,191,.30);
+            box-shadow:
+                0 24px 65px rgba(0,0,0,.28),
+                0 0 45px rgba(16,185,129,.05);
+        }
+
+        .pm-feature-card:hover::before {
+            transform: scale(1.4);
+        }
+
+        .pm-feature-number {
+            position: absolute;
+            right: 22px;
+            top: 19px;
+            color: rgba(110,231,183,.18);
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: .1em;
+        }
+
+        .pm-feature-icon {
+            width: 52px;
+            height: 52px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(45,212,191,.18);
+            border-radius: 15px;
+            color: var(--pm-emerald-300);
+            background: rgba(16,185,129,.07);
+            transition:
+                transform .35s ease,
+                background .35s ease,
+                box-shadow .35s ease;
+        }
+
+        .pm-feature-card:hover .pm-feature-icon {
+            transform: translateY(-3px) rotate(-3deg) scale(1.05);
+            background: rgba(16,185,129,.12);
+            box-shadow: 0 10px 25px rgba(16,185,129,.12);
+        }
+
+        .pm-feature-title {
+            margin: 25px 0 0;
+            font-size: 21px;
+            letter-spacing: -.035em;
+            font-weight: 900;
+        }
+
+        .pm-feature-text {
+            margin: 13px 0 0;
+            color: var(--pm-text-muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .pm-feature-footer {
+            position: absolute;
+            left: 28px;
+            right: 28px;
+            bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--pm-text-dim);
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .pm-feature-footer-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--pm-emerald-400);
+        }
+
+        /* =========================================================
+           ROUTING ENGINE
+           ========================================================= */
+
+        .pm-engine-section {
+            padding-top: 80px;
+        }
+
+        .pm-engine {
+            position: relative;
+            overflow: hidden;
+            padding: 40px;
+            border: 1px solid var(--pm-border);
+            border-radius: var(--pm-radius-xl);
+            background:
+                radial-gradient(circle at 50% 50%, rgba(16,185,129,.09), transparent 45%),
+                rgba(4,31,26,.64);
+            box-shadow: var(--pm-shadow);
+        }
+
+        .pm-engine::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(45,212,191,.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(45,212,191,.035) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .pm-engine-pipeline {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 1fr 70px 1fr 70px 1fr 70px 1fr;
+            align-items: center;
+            gap: 0;
+        }
+
+        .pm-engine-node {
+            min-height: 170px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 22px 15px;
+            border: 1px solid var(--pm-border);
+            border-radius: 18px;
+            background: rgba(1,13,11,.62);
+            transition:
+                transform .3s ease,
+                border-color .3s ease,
+                box-shadow .3s ease;
+        }
+
+        .pm-engine-node.active {
+            border-color: rgba(45,212,191,.30);
+            box-shadow: 0 0 35px rgba(16,185,129,.07);
+            transform: translateY(-4px);
+        }
+
+        .pm-engine-node:hover {
+            transform: translateY(-6px);
+            border-color: rgba(45,212,191,.36);
+        }
+
+        .pm-engine-icon {
+            width: 50px;
+            height: 50px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: var(--pm-teal);
+            border: 1px solid rgba(45,212,191,.18);
+            background: rgba(45,212,191,.06);
+        }
+
+        .pm-engine-node-title {
+            margin-top: 15px;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .pm-engine-node-text {
+            margin-top: 6px;
+            text-align: center;
+            color: var(--pm-text-dim);
+            font-size: 9px;
+            line-height: 1.55;
+        }
+
+        .pm-engine-arrow {
+            position: relative;
+            height: 2px;
+            background: rgba(45,212,191,.13);
+        }
+
+        .pm-engine-arrow::before {
+            content: "";
+            position: absolute;
+            left: -20px;
+            top: -3px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--pm-teal);
+            box-shadow: 0 0 12px rgba(45,212,191,.45);
+            animation: pmPipelineDot 2.4s linear infinite;
+        }
+
+        .pm-engine-arrow::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 8px;
+            height: 8px;
+            border-top: 2px solid var(--pm-teal);
+            border-right: 2px solid var(--pm-teal);
+            transform: rotate(45deg);
+        }
+
+        @@keyframes pmPipelineDot {
+            0% {
+                left: -20px;
+                opacity: 0;
+            }
+
+            15% {
+                opacity: 1;
+            }
+
+            85% {
+                opacity: 1;
+            }
+
+            100% {
+                left: calc(100% - 2px);
+                opacity: 0;
+            }
+        }
+
+        .pm-engine-caption {
+            position: relative;
+            z-index: 2;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--pm-border-soft);
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            color: var(--pm-text-dim);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .pm-engine-caption strong {
+            color: var(--pm-text-soft);
+        }
+
+        /* =========================================================
+           OPERATIONS
+           ========================================================= */
+
+        .pm-operations-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(340px, .85fr);
+            gap: 18px;
+        }
+
+        .pm-ops-panel {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--pm-border);
+            border-radius: var(--pm-radius-lg);
+            background: rgba(4,31,26,.62);
+            box-shadow: var(--pm-shadow-soft);
+        }
+
+        .pm-ops-map {
+            min-height: 475px;
+            background:
+                radial-gradient(circle at 48% 45%, rgba(16,185,129,.12), transparent 30%),
+                #031c18;
+        }
+
+        .pm-ops-map::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: .30;
+            background-image:
+                linear-gradient(25deg, transparent 46%, rgba(255,255,255,.05) 47%, transparent 48%),
+                linear-gradient(-20deg, transparent 48%, rgba(255,255,255,.04) 49%, transparent 50%);
+            background-size: 100px 80px, 130px 110px;
+        }
+
+        .pm-ops-map-route {
+            position: absolute;
+            width: 72%;
+            height: 55%;
+            left: 14%;
+            top: 22%;
+            border: 3px solid var(--pm-emerald-500);
+            border-color: transparent transparent var(--pm-emerald-500) transparent;
+            border-radius: 50%;
+            transform: rotate(-18deg);
+            filter: drop-shadow(0 0 8px rgba(16,185,129,.3));
+            animation: pmRouteFloat 5s ease-in-out infinite;
+        }
+
+        @@keyframes pmRouteFloat {
+            0%, 100% {
+                transform: rotate(-18deg) translateY(0);
+            }
+
+            50% {
+                transform: rotate(-18deg) translateY(-6px);
+            }
+        }
+
+        .pm-ops-map-line {
+            position: absolute;
+            left: 25%;
+            top: 44%;
+            width: 51%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--pm-teal), transparent);
+            transform: rotate(-18deg);
+            animation: pmScanLine 3s ease-in-out infinite;
+        }
+
+        @@keyframes pmScanLine {
+            0%, 100% {
+                opacity: .3;
+                transform: rotate(-18deg) scaleX(.7);
+            }
+
+            50% {
+                opacity: 1;
+                transform: rotate(-18deg) scaleX(1);
+            }
+        }
+
+        .pm-ops-map-point {
+            position: absolute;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: var(--pm-emerald-400);
+            box-shadow:
+                0 0 0 6px rgba(52,211,153,.07),
+                0 0 25px rgba(52,211,153,.35);
+            animation: pmStatusPulse 2.4s infinite;
+        }
+
+        .pm-ops-map-point-1 {
+            left: 20%;
+            top: 67%;
+        }
+
+        .pm-ops-map-point-2 {
+            left: 48%;
+            top: 49%;
+            animation-delay: .7s;
+        }
+
+        .pm-ops-map-point-3 {
+            right: 19%;
+            top: 27%;
+            animation-delay: 1.3s;
+        }
+
+        .pm-ops-map-badge {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            z-index: 5;
+            padding: 9px 11px;
+            border: 1px solid var(--pm-border);
+            border-radius: 10px;
+            background: rgba(1,13,11,.72);
+            backdrop-filter: blur(12px);
+            color: var(--pm-text-soft);
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .pm-ops-map-badge span {
+            color: var(--pm-emerald-300);
+        }
+
+        .pm-ops-side {
+            display: grid;
+            gap: 12px;
+            grid-template-rows: repeat(3, 1fr);
+        }
+
+        .pm-ops-stat {
+            position: relative;
+            overflow: hidden;
+            padding: 25px;
+            border: 1px solid var(--pm-border);
+            border-radius: var(--pm-radius-lg);
+            background: rgba(4,31,26,.62);
+            box-shadow: var(--pm-shadow-soft);
+            transition:
+                transform .3s ease,
+                border-color .3s ease;
+        }
+
+        .pm-ops-stat:hover {
+            transform: translateX(5px);
+            border-color: rgba(45,212,191,.28);
+        }
+
+        .pm-ops-stat::after {
+            content: "";
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            right: -40px;
+            bottom: -40px;
+            border-radius: 50%;
+            background: rgba(16,185,129,.06);
+            filter: blur(10px);
+        }
+
+        .pm-ops-stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .pm-ops-stat-label {
+            color: var(--pm-text-dim);
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .pm-ops-stat-icon {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            border: 1px solid var(--pm-border);
+            color: var(--pm-emerald-300);
+            background: rgba(16,185,129,.05);
+        }
+
+        .pm-ops-stat-value {
+            margin-top: 15px;
+            font-size: 31px;
+            font-weight: 900;
+            letter-spacing: -.05em;
+        }
+
+        .pm-ops-stat-meta {
+            margin-top: 5px;
+            color: var(--pm-text-muted);
+            font-size: 10px;
+        }
+
+        .pm-ops-stat-meta strong {
+            color: var(--pm-emerald-300);
+        }
+
+        /* =========================================================
+           CAPABILITIES
+           ========================================================= */
+
+        .pm-capabilities {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .pm-capability {
+            padding: 22px;
+            border: 1px solid var(--pm-border);
+            border-radius: 16px;
+            background: rgba(4,31,26,.48);
+            transition:
+                transform .28s ease,
+                border-color .28s ease,
+                background .28s ease;
+        }
+
+        .pm-capability:hover {
+            transform: translateY(-5px);
+            border-color: rgba(45,212,191,.25);
+            background: rgba(7,52,43,.58);
+        }
+
+        .pm-capability-index {
+            color: var(--pm-emerald-500);
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .pm-capability-title {
+            margin-top: 16px;
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .pm-capability-text {
+            margin-top: 8px;
+            color: var(--pm-text-dim);
+            font-size: 10px;
+            line-height: 1.65;
+        }
+
+        /* =========================================================
+           CTA
+           ========================================================= */
+
+        .pm-cta-section {
+            padding-top: 80px;
+            padding-bottom: 110px;
+        }
+
+        .pm-cta {
+            position: relative;
+            overflow: hidden;
+            padding: 70px 50px;
+            text-align: center;
+            border: 1px solid var(--pm-border-strong);
+            border-radius: 30px;
+            background:
+                radial-gradient(circle at 50% 10%, rgba(45,212,191,.13), transparent 35%),
+                linear-gradient(145deg, rgba(7,52,43,.78), rgba(2,21,18,.86));
+            box-shadow:
+                var(--pm-shadow),
+                0 0 100px rgba(16,185,129,.06);
+        }
+
+        .pm-cta::before {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                rgba(45,212,191,.24) 65deg,
+                transparent 115deg,
+                transparent 220deg,
+                rgba(16,185,129,.22) 275deg,
+                transparent 320deg
+            );
+            animation: pmCtaRotate 9s linear infinite;
+            opacity: .65;
+            mask:
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            mask-composite: exclude;
+            padding: 1px;
+        }
+
+        @@keyframes pmCtaRotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .pm-cta-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .pm-cta-kicker {
+            color: var(--pm-teal);
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+        }
+
+        .pm-cta-title {
+            margin: 14px auto 0;
+            max-width: 800px;
+            font-size: clamp(38px, 5vw, 68px);
+            line-height: 1;
+            letter-spacing: -.06em;
+            font-weight: 900;
+        }
+
+        .pm-cta-text {
+            max-width: 620px;
+            margin: 19px auto 0;
+            color: var(--pm-text-muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .pm-cta-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 11px;
+            margin-top: 30px;
+        }
+
+        /* =========================================================
+           FOOTER
+           ========================================================= */
+
+        .pm-public-footer {
+            border-top: 1px solid var(--pm-border-soft);
+            background: rgba(1,11,9,.72);
+        }
+
+        .pm-footer-inner {
+            width: min(1380px, calc(100% - 48px));
+            min-height: 105px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+        }
+
+        .pm-footer-brand {
+            color: var(--pm-text-soft);
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .pm-footer-brand span {
+            color: var(--pm-teal);
+        }
+
+        .pm-footer-copy {
+            margin-top: 5px;
+            color: var(--pm-text-dim);
+            font-size: 9px;
+        }
+
+        .pm-footer-links {
+            display: flex;
+            gap: 18px;
+            color: var(--pm-text-dim);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .pm-footer-links a {
+            transition: color .2s ease;
+        }
+
+        .pm-footer-links a:hover {
+            color: var(--pm-text-soft);
+        }
+
+        /* =========================================================
+           MOBILE MENU
+           ========================================================= */
+
+        .pm-mobile-menu {
+            display: none;
+            width: 40px;
+            height: 40px;
+            place-items: center;
+            border: 1px solid var(--pm-border);
+            border-radius: 10px;
+            color: var(--pm-text-soft);
+            background: rgba(255,255,255,.025);
+            cursor: pointer;
+        }
+
+        .pm-mobile-nav {
+            display: none;
+            position: fixed;
+            top: 72px;
+            left: 14px;
+            right: 14px;
+            z-index: 999;
+            padding: 12px;
+            border: 1px solid var(--pm-border);
+            border-radius: 16px;
+            background: rgba(1,13,11,.94);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--pm-shadow);
+        }
+
+        .pm-mobile-nav.open {
+            display: grid;
+            animation: pmReveal .25s ease both;
+        }
+
+        .pm-mobile-nav a {
+            padding: 13px;
+            border-radius: 9px;
+            color: var(--pm-text-muted);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .pm-mobile-nav a:hover {
+            color: var(--pm-text);
+            background: rgba(16,185,129,.07);
+        }
+
+        /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+        @@media (max-width: 1180px) {
+            .pm-hero-inner {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+
+            .pm-hero-copy {
+                max-width: 820px;
+                margin: 0 auto;
+                text-align: center;
+            }
+
+            .pm-eyebrow {
+                justify-content: center;
+            }
+
+            .pm-hero-description {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .pm-hero-actions,
+            .pm-hero-proof {
+                justify-content: center;
+            }
+
+            .pm-hero-visual {
+                min-height: 590px;
+            }
+
+            .pm-platform-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pm-capabilities {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @@media (max-width: 900px) {
+            .pm-public-nav {
+                display: none;
+            }
+
+            .pm-mobile-menu {
+                display: grid;
+            }
+
+            .pm-header-link {
+                display: none;
+            }
+
+            .pm-header-link-primary {
+                display: inline-flex;
+            }
+
+            .pm-engine-pipeline {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .pm-engine-arrow {
+                width: 2px;
+                height: 40px;
+                margin: 0 auto;
+            }
+
+            .pm-engine-arrow::before {
+                top: -20px;
+                left: -3px;
+                animation-name: pmPipelineDotVertical;
+            }
+
+            .pm-engine-arrow::after {
+                right: -3px;
+                top: auto;
+                bottom: 0;
+                transform: rotate(135deg);
+            }
+
+            .pm-operations-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pm-ops-side {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: 1fr;
+            }
+
+            @@keyframes pmPipelineDotVertical {
+                0% {
+                    top: -20px;
+                    opacity: 0;
+                }
+
+                15% {
+                    opacity: 1;
+                }
+
+                85% {
+                    opacity: 1;
+                }
+
+                100% {
+                    top: calc(100% - 2px);
+                    opacity: 0;
+                }
+            }
+        }
+
+        @@media (max-width: 680px) {
+            .pm-public-header {
+                padding: 12px 14px;
+            }
+
+            .pm-public-header.scrolled {
+                padding: 9px 14px;
+            }
+
+            .pm-public-header-inner {
+                width: 100%;
+            }
+
+            .pm-public-brand-name {
+                font-size: 16px;
+            }
+
+            .pm-public-brand-mark {
+                width: 35px;
+                height: 35px;
+            }
+
+            .pm-hero {
+                min-height: auto;
+                padding: 130px 16px 65px;
+            }
+
+            .pm-hero-inner {
+                gap: 35px;
+            }
+
+            .pm-hero-title {
+                font-size: clamp(44px, 14vw, 70px);
+            }
+
+            .pm-hero-description {
+                font-size: 14px;
+                line-height: 1.65;
+            }
+
+            .pm-hero-actions {
+                flex-direction: column;
+            }
+
+            .pm-hero-btn {
+                width: 100%;
+            }
+
+            .pm-hero-proof {
+                gap: 12px;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .pm-hero-visual {
+                min-height: 475px;
+            }
+
+            .pm-routing-panel {
+                height: 450px;
+                border-radius: 20px;
+            }
+
+            .pm-routing-orbit {
+                width: 430px;
+                height: 430px;
+            }
+
+            .pm-route-bottom {
+                grid-template-columns: 1fr;
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+            }
+
+            .pm-route-metric {
+                padding: 7px 9px;
+            }
+
+            .pm-route-metric-label {
+                display: inline;
+            }
+
+            .pm-route-metric-value {
+                display: inline;
+                margin-left: 6px;
+            }
+
+            .pm-platform-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pm-section {
+                width: min(100% - 32px, 1380px);
+                padding: 75px 0;
+            }
+
+            .pm-section-title {
+                font-size: 38px;
+            }
+
+            .pm-feature-card {
+                min-height: 275px;
+            }
+
+            .pm-engine {
+                padding: 20px;
+            }
+
+            .pm-engine-caption {
+                flex-direction: column;
+            }
+
+            .pm-ops-side {
+                grid-template-columns: 1fr;
+            }
+
+            .pm-ops-map {
+                min-height: 380px;
+            }
+
+            .pm-capabilities {
+                grid-template-columns: 1fr;
+            }
+
+            .pm-cta {
+                padding: 55px 22px;
+                border-radius: 22px;
+            }
+
+            .pm-cta-title {
+                font-size: 41px;
+            }
+
+            .pm-footer-inner {
+                width: min(100% - 32px, 1380px);
+                padding: 25px 0;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .pm-footer-links {
+                flex-wrap: wrap;
+            }
+        }
+
+        @@media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+
+            .pm-reveal {
+                opacity: 1;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="pm-public-page">
+
+        <div class="pm-bg-grid"></div>
+        <div class="pm-bg-glow pm-bg-glow-one"></div>
+        <div class="pm-bg-glow pm-bg-glow-two"></div>
+        <div class="pm-bg-glow pm-bg-glow-three"></div>
+
+        <!-- =====================================================
+             PUBLIC HEADER
+             ===================================================== -->
+
+        <header class="pm-public-header" id="publicHeader">
+            <div class="pm-public-header-inner">
+
+                <a href="/" class="pm-public-brand" aria-label="ProMap Cargo">
+                    <span class="pm-public-brand-mark"></span>
+
+                    <span class="pm-public-brand-name">
+                        ProMap <span>Cargo</span>
+                    </span>
+                </a>
+
+                <nav class="pm-public-nav">
+                    <a class="pm-public-nav-link" href="#platform">Platform</a>
+                    <a class="pm-public-nav-link" href="#routing">Truck Routing</a>
+                    <a class="pm-public-nav-link" href="#operations">Operations</a>
+                    <a class="pm-public-nav-link" href="#infrastructure">Infrastructure</a>
+                </nav>
+
+                <div class="pm-public-header-actions">
+                    <a class="pm-header-link" href="/navigation">
+                        Navigation
+                    </a>
+
+                    <a class="pm-header-link pm-header-link-primary" href="/dispatch">
+                        Open Platform
+                    </a>
+
+                    <button
+                        type="button"
+                        class="pm-mobile-menu"
+                        id="mobileMenuButton"
+                        aria-label="Otvori meni"
+                        aria-expanded="false">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
+        </header>
+
+        <nav class="pm-mobile-nav" id="mobileNav">
+            <a href="#platform">Platform</a>
+            <a href="#routing">Truck Routing</a>
+            <a href="#operations">Operations</a>
+            <a href="#infrastructure">Infrastructure</a>
+            <a href="/navigation">Navigation</a>
+            <a href="/dispatch">Open Platform</a>
+        </nav>
+
+        <!-- =====================================================
+             HERO
+             ===================================================== -->
+
+        <main>
+
+            <section class="pm-hero">
+                <div class="pm-hero-inner">
+
+                    <div class="pm-hero-copy">
+
+                        <div class="pm-eyebrow">
+                            <span class="pm-eyebrow-dot"></span>
+                            Truck Intelligence Platform
+                        </div>
+
+                        <h1 class="pm-hero-title">
+                            <span class="pm-hero-title-line">Move smarter.</span>
+                            <span class="pm-hero-title-line pm-hero-title-accent">
+                                Route precisely.
+                            </span>
+                            <span class="pm-hero-title-line">Operate better.</span>
+                        </h1>
+
+                        <p class="pm-hero-description">
+                            ProMap Cargo povezuje truck-aware routing, fleet operations,
+                            live GPS navigaciju i transportnu infrastrukturu u jednu
+                            operativnu platformu.
+                        </p>
+
+                        <div class="pm-hero-actions">
+                            <a class="pm-hero-btn pm-hero-btn-primary" href="/navigation">
+                                Explore Navigation
+
+                                <span class="pm-btn-arrow">→</span>
+                            </a>
+
+                            <a class="pm-hero-btn pm-hero-btn-secondary" href="#platform">
+                                Discover Platform
+                            </a>
+                        </div>
+
+                        <div class="pm-hero-proof">
+
+                            <div class="pm-proof-item">
+                                <span class="pm-proof-icon">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 21s7-5.2 7-12a7 7 0 1 0-14 0c0 6.8 7 12 7 12Z"></path>
+                                        <circle cx="12" cy="9" r="2.5"></circle>
+                                    </svg>
+                                </span>
+                                OSM routing
+                            </div>
+
+                            <div class="pm-proof-item">
+                                <span class="pm-proof-icon">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <ellipse cx="12" cy="5" rx="7" ry="3"></ellipse>
+                                        <path d="M5 5v7c0 1.7 3.1 3 7 3s7-1.3 7-3V5"></path>
+                                        <path d="M5 12v7c0 1.7 3.1 3 7 3s7-1.3 7-3v-7"></path>
+                                    </svg>
+                                </span>
+                                PostGIS graph
+                            </div>
+
+                            <div class="pm-proof-item">
+                                <span class="pm-proof-icon">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M5 17a7 7 0 0 1 14 0"></path>
+                                        <path d="M8 17a4 4 0 0 1 8 0"></path>
+                                        <path d="M12 17h.01"></path>
+                                    </svg>
+                                </span>
+                                Live GPS
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Animated route visualization -->
+
+                    <div class="pm-hero-visual">
+
+                        <div class="pm-routing-orbit"></div>
+
+                        <div class="pm-routing-panel">
+
+                            <div class="pm-route-topbar">
+
+                                <div class="pm-route-top-title">
+                                    <span class="pm-route-top-icon">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M3 12h18"></path>
+                                            <path d="M13 6l6 6-6 6"></path>
+                                        </svg>
+                                    </span>
+
+                                    Truck Route Intelligence
+                                </div>
+
+                                <div class="pm-route-live">
+                                    <span class="pm-route-live-dot"></span>
+                                    LIVE ENGINE
+                                </div>
+
+                            </div>
+
+                            <div class="pm-route-map">
+
+                                <div class="pm-route-map-grid"></div>
+
+                                <div class="pm-route-river"></div>
+                                <div class="pm-route-river pm-route-river-two"></div>
+
+                                <div class="pm-route-road pm-route-road-1"></div>
+                                <div class="pm-route-road pm-route-road-2"></div>
+                                <div class="pm-route-road pm-route-road-3"></div>
+                                <div class="pm-route-road pm-route-road-4"></div>
+
+                                <svg
+                                    class="pm-route-svg"
+                                    viewBox="0 0 610 480"
+                                    preserveAspectRatio="none">
+
+                                    <defs>
+                                        <linearGradient id="pmRouteGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#10b981"></stop>
+                                            <stop offset="55%" stop-color="#2dd4bf"></stop>
+                                            <stop offset="100%" stop-color="#22d3ee"></stop>
+                                        </linearGradient>
+                                    </defs>
+
+                                    <path
+                                        class="pm-route-shadow"
+                                        d="M72 366 C145 350 154 318 216 315 C280 312 280 248 333 232 C384 217 389 173 437 145 C474 124 513 100 552 71">
+                                    </path>
+
+                                    <path
+                                        class="pm-route-line"
+                                        d="M72 366 C145 350 154 318 216 315 C280 312 280 248 333 232 C384 217 389 173 437 145 C474 124 513 100 552 71">
+                                    </path>
+
+                                    <circle
+                                        class="pm-route-node-glow"
+                                        cx="72"
+                                        cy="366"
+                                        r="15">
+                                    </circle>
+
+                                    <circle
+                                        class="pm-route-node"
+                                        cx="72"
+                                        cy="366"
+                                        r="6">
+                                    </circle>
+
+                                    <circle
+                                        class="pm-route-node-glow"
+                                        cx="216"
+                                        cy="315"
+                                        r="13">
+                                    </circle>
+
+                                    <circle
+                                        class="pm-route-node"
+                                        cx="216"
+                                        cy="315"
+                                        r="5">
+                                    </circle>
+
+                                    <circle
+                                        class="pm-route-node-glow"
+                                        cx="333"
+                                        cy="232"
+                                        r="14">
+                                    </circle>
+
+                                    <circle
+                                        class="pm-route-node"
+                                        cx="333"
+                                        cy="232"
+                                        r="5">
+                                    </circle>
+
+                                    <circle
+                                        class="pm-route-node-glow"
+                                        cx="437"
+                                        cy="145"
+                                        r="13">
+                                    </circle>
+
+                                    <circle
+                                        class="pm-route-node"
+                                        cx="437"
+                                        cy="145"
+                                        r="5">
+                                    </circle>
+
+                                    <circle
+                                        class="pm-route-node-glow"
+                                        cx="552"
+                                        cy="71"
+                                        r="15">
+                                    </circle>
+
+                                    <circle
+                                        class="pm-route-node"
+                                        cx="552"
+                                        cy="71"
+                                        r="6">
+                                    </circle>
+
+                                </svg>
+
+                                <span class="pm-map-pin pm-map-pin-start"></span>
+                                <span class="pm-map-pin pm-map-pin-end"></span>
+
+                                <span class="pm-route-label pm-route-label-start">
+                                    BEOGRAD
+                                </span>
+
+                                <span class="pm-route-label pm-route-label-end">
+                                    NOVI SAD
+                                </span>
+
+                                <div class="pm-truck">
+                                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <path d="M3 6h11v10H3z"></path>
+                                        <path d="M14 10h4l3 3v3h-7"></path>
+                                        <circle cx="7" cy="18" r="2"></circle>
+                                        <circle cx="18" cy="18" r="2"></circle>
+                                    </svg>
+                                </div>
+
+                                <div class="pm-route-bottom">
+
+                                    <div class="pm-route-metric">
+                                        <div class="pm-route-metric-label">
+                                            Distance
+                                        </div>
+
+                                        <div class="pm-route-metric-value">
+                                            94.2 <span>km</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="pm-route-metric">
+                                        <div class="pm-route-metric-label">
+                                            ETA
+                                        </div>
+
+                                        <div class="pm-route-metric-value">
+                                            01:10 <span>h</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="pm-route-metric">
+                                        <div class="pm-route-metric-label">
+                                            Vehicle
+                                        </div>
+
+                                        <div class="pm-route-metric-value">
+                                            40t <span>truck</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- =================================================
+                 PLATFORM
+                 ================================================= -->
+
+            <section class="pm-section pm-platform" id="platform">
+
+                <div class="pm-section-header pm-reveal">
+                    <div class="pm-section-kicker">
+                        One operational platform
+                    </div>
+
+                    <h2 class="pm-section-title">
+                        Sve što transportna operacija treba.
+                    </h2>
+
+                    <p class="pm-section-description">
+                        Od planiranja rute do live GPS navigacije i fleet kontrole —
+                        ProMap Cargo objedinjuje ključne operacije na jednom mestu.
+                    </p>
+                </div>
+
+                <div class="pm-platform-grid">
+
+                    <article class="pm-feature-card pm-reveal">
+                        <span class="pm-feature-number">01</span>
+
+                        <div class="pm-feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                                <path d="M4 19V5"></path>
+                                <path d="M4 19h16"></path>
+                                <path d="M7 15l4-5 3 2 5-7"></path>
+                                <circle cx="7" cy="15" r="1.5"></circle>
+                                <circle cx="11" cy="10" r="1.5"></circle>
+                                <circle cx="14" cy="12" r="1.5"></circle>
+                                <circle cx="19" cy="5" r="1.5"></circle>
+                            </svg>
+                        </div>
+
+                        <h3 class="pm-feature-title">
+                            Truck-aware Routing
+                        </h3>
+
+                        <p class="pm-feature-text">
+                            Rute uzimaju u obzir dimenzije, masu, osovinsko opterećenje,
+                            ADR parametre i aktivna ograničenja za vozilo.
+                        </p>
+
+                        <div class="pm-feature-footer">
+                            <span class="pm-feature-footer-dot"></span>
+                            OSM · PostGIS · OSRM fallback
+                        </div>
+                    </article>
+
+                    <article class="pm-feature-card pm-reveal">
+                        <span class="pm-feature-number">02</span>
+
+                        <div class="pm-feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                                <rect x="3" y="6" width="18" height="13" rx="2"></rect>
+                                <path d="M7 6V4h10v2"></path>
+                                <circle cx="8" cy="19" r="1.5"></circle>
+                                <circle cx="16" cy="19" r="1.5"></circle>
+                                <path d="M7 11h10"></path>
+                            </svg>
+                        </div>
+
+                        <h3 class="pm-feature-title">
+                            Fleet Operations
+                        </h3>
+
+                        <p class="pm-feature-text">
+                            Vozila, vozači, ture, transportni nalozi, statusi,
+                            upozorenja i operativna kontrola povezani su u jednu celinu.
+                        </p>
+
+                        <div class="pm-feature-footer">
+                            <span class="pm-feature-footer-dot"></span>
+                            Vehicles · Drivers · Trips
+                        </div>
+                    </article>
+
+                    <article class="pm-feature-card pm-reveal">
+                        <span class="pm-feature-number">03</span>
+
+                        <div class="pm-feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                                <path d="M12 21a9 9 0 1 0-9-9"></path>
+                                <path d="M3 12h4"></path>
+                                <path d="M12 3v4"></path>
+                                <path d="M12 12l5-3"></path>
+                                <circle cx="12" cy="12" r="1.7"></circle>
+                            </svg>
+                        </div>
+
+                        <h3 class="pm-feature-title">
+                            Live Navigation
+                        </h3>
+
+                        <p class="pm-feature-text">
+                            GPS pozicija, napredak rute, sledeći manevar, off-route
+                            detekcija i ponovno rutiranje tokom vožnje.
+                        </p>
+
+                        <div class="pm-feature-footer">
+                            <span class="pm-feature-footer-dot"></span>
+                            GPS · ETA · Turn-by-turn
+                        </div>
+                    </article>
+
+                    <article class="pm-feature-card pm-reveal">
+                        <span class="pm-feature-number">04</span>
+
+                        <div class="pm-feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                                <path d="M12 3l8 4v5c0 4.6-3.4 7.9-8 9-4.6-1.1-8-4.4-8-9V7l8-4Z"></path>
+                                <path d="M9 12l2 2 4-4"></path>
+                            </svg>
+                        </div>
+
+                        <h3 class="pm-feature-title">
+                            Control & Compliance
+                        </h3>
+
+                        <p class="pm-feature-text">
+                            Restrikcije, alerts, audit, compliance i sistemska
+                            dijagnostika dostupni su operativnom timu.
+                        </p>
+
+                        <div class="pm-feature-footer">
+                            <span class="pm-feature-footer-dot"></span>
+                            Alerts · Audit · Compliance
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+            <!-- =================================================
+                 ROUTING ENGINE
+                 ================================================= -->
+
+            <section class="pm-section pm-engine-section" id="routing">
+
+                <div class="pm-section-header pm-reveal">
+                    <div class="pm-section-kicker">
+                        Routing architecture
+                    </div>
+
+                    <h2 class="pm-section-title">
+                        Od OpenStreetMap podataka do rute.
+                    </h2>
+
+                    <p class="pm-section-description">
+                        Routing sloj je projektovan kao pipeline u kome se
+                        geografski podaci, truck ograničenja i routing engine
+                        spajaju u rezultat koji navigacija može da koristi.
+                    </p>
+                </div>
+
+                <div class="pm-engine pm-reveal">
+
+                    <div class="pm-engine-pipeline">
+
+                        <div class="pm-engine-node active">
+                            <div class="pm-engine-icon">
+                                <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                                    <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"></path>
+                                    <path d="M9 3v15"></path>
+                                    <path d="M15 6v15"></path>
+                                </svg>
+                            </div>
+
+                            <div class="pm-engine-node-title">
+                                OSM
+                            </div>
+
+                            <div class="pm-engine-node-text">
+                                Road network<br />
+                                geographic data
+                            </div>
+                        </div>
+
+                        <div class="pm-engine-arrow"></div>
+
+                        <div class="pm-engine-node">
+                            <div class="pm-engine-icon">
+                                <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                                    <ellipse cx="12" cy="5" rx="7" ry="3"></ellipse>
+                                    <path d="M5 5v7c0 1.7 3.1 3 7 3s7-1.3 7-3V5"></path>
+                                    <path d="M5 12v7c0 1.7 3.1 3 7 3s7-1.3 7-3v-7"></path>
+                                </svg>
+                            </div>
+
+                            <div class="pm-engine-node-title">
+                                PostGIS
+                            </div>
+
+                            <div class="pm-engine-node-text">
+                                Spatial database<br />
+                                routing graph
+                            </div>
+                        </div>
+
+                        <div class="pm-engine-arrow"></div>
+
+                        <div class="pm-engine-node">
+                            <div class="pm-engine-icon">
+                                <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                                    <path d="M4 19h16"></path>
+                                    <path d="M5 16l4-5 3 2 5-7"></path>
+                                    <circle cx="5" cy="16" r="1.5"></circle>
+                                    <circle cx="9" cy="11" r="1.5"></circle>
+                                    <circle cx="12" cy="13" r="1.5"></circle>
+                                    <circle cx="17" cy="6" r="1.5"></circle>
+                                </svg>
+                            </div>
+
+                            <div class="pm-engine-node-title">
+                                Routing
+                            </div>
+
+                            <div class="pm-engine-node-text">
+                                Truck profile<br />
+                                restrictions & analysis
+                            </div>
+                        </div>
+
+                        <div class="pm-engine-arrow"></div>
+
+                        <div class="pm-engine-node">
+                            <div class="pm-engine-icon">
+                                <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                                    <path d="M3 6h11v10H3z"></path>
+                                    <path d="M14 10h4l3 3v3h-7"></path>
+                                    <circle cx="7" cy="18" r="2"></circle>
+                                    <circle cx="18" cy="18" r="2"></circle>
+                                </svg>
+                            </div>
+
+                            <div class="pm-engine-node-title">
+                                Navigation
+                            </div>
+
+                            <div class="pm-engine-node-text">
+                                Route geometry<br />
+                                ETA & maneuvers
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="pm-engine-caption">
+                        <span>
+                            Routing path:
+                            <strong>OSM → PostGIS → Truck Analysis → Navigation</strong>
+                        </span>
+
+                        <span>
+                            Fallback:
+                            <strong>OSRM</strong>
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- =================================================
+                 OPERATIONS
+                 ================================================= -->
+
+            <section class="pm-section" id="operations">
+
+                <div class="pm-section-header pm-reveal">
+                    <div class="pm-section-kicker">
+                        Fleet operations
+                    </div>
+
+                    <h2 class="pm-section-title">
+                        Jedan pogled na celu operaciju.
+                    </h2>
+
+                    <p class="pm-section-description">
+                        Operativni sistem povezuje vozila, rute i teretne operacije
+                        kako bi informacije bile dostupne tamo gde su potrebne.
+                    </p>
+                </div>
+
+                <div class="pm-operations-grid">
+
+                    <div class="pm-ops-panel pm-ops-map pm-reveal">
+
+                        <div class="pm-ops-map-badge">
+                            NETWORK STATUS
+                            <span> · ONLINE</span>
+                        </div>
+
+                        <div class="pm-ops-map-route"></div>
+                        <div class="pm-ops-map-line"></div>
+
+                        <span class="pm-ops-map-point pm-ops-map-point-1"></span>
+                        <span class="pm-ops-map-point pm-ops-map-point-2"></span>
+                        <span class="pm-ops-map-point pm-ops-map-point-3"></span>
+
+                    </div>
+
+                    <div class="pm-ops-side">
+
+                        <article class="pm-ops-stat pm-reveal">
+                            <div class="pm-ops-stat-top">
+                                <div class="pm-ops-stat-label">
+                                    Fleet Control
+                                </div>
+
+                                <div class="pm-ops-stat-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <rect x="3" y="6" width="18" height="13" rx="2"></rect>
+                                        <circle cx="8" cy="19" r="1.5"></circle>
+                                        <circle cx="16" cy="19" r="1.5"></circle>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="pm-ops-stat-value">
+                                24/7
+                            </div>
+
+                            <div class="pm-ops-stat-meta">
+                                Operativna kontrola <strong>flote</strong>
+                            </div>
+                        </article>
+
+                        <article class="pm-ops-stat pm-reveal">
+                            <div class="pm-ops-stat-top">
+                                <div class="pm-ops-stat-label">
+                                    Navigation
+                                </div>
+
+                                <div class="pm-ops-stat-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <circle cx="12" cy="12" r="8"></circle>
+                                        <path d="M12 7v5l3 2"></path>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="pm-ops-stat-value">
+                                LIVE
+                            </div>
+
+                            <div class="pm-ops-stat-meta">
+                                GPS · ETA · <strong>rerouting</strong>
+                            </div>
+                        </article>
+
+                        <article class="pm-ops-stat pm-reveal">
+                            <div class="pm-ops-stat-top">
+                                <div class="pm-ops-stat-label">
+                                    Routing
+                                </div>
+
+                                <div class="pm-ops-stat-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <path d="M5 19c5-1 8-4 8-9 0-2 1-4 5-5"></path>
+                                        <circle cx="5" cy="19" r="2"></circle>
+                                        <circle cx="18" cy="5" r="2"></circle>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="pm-ops-stat-value">
+                                OSM
+                            </div>
+
+                            <div class="pm-ops-stat-meta">
+                                Truck-aware <strong>routing engine</strong>
+                            </div>
+                        </article>
+
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- =================================================
+                 INFRASTRUCTURE
+                 ================================================= -->
+
+            <section class="pm-section" id="infrastructure">
+
+                <div class="pm-section-header pm-reveal">
+                    <div class="pm-section-kicker">
+                        Platform capabilities
+                    </div>
+
+                    <h2 class="pm-section-title">
+                        Built for real transport operations.
+                    </h2>
+
+                    <p class="pm-section-description">
+                        Sistem je organizovan oko operativnih komponenti koje mogu
+                        da rade zajedno: routing, fleet, navigation, compliance,
+                        monitoring i transportni procesi.
+                    </p>
+                </div>
+
+                <div class="pm-capabilities">
+
+                    <article class="pm-capability pm-reveal">
+                        <div class="pm-capability-index">01</div>
+                        <div class="pm-capability-title">Transport Orders</div>
+                        <div class="pm-capability-text">
+                            Upravljanje transportnim zahtevima i njihovim statusima.
+                        </div>
+                    </article>
+
+                    <article class="pm-capability pm-reveal">
+                        <div class="pm-capability-index">02</div>
+                        <div class="pm-capability-title">Trips</div>
+                        <div class="pm-capability-text">
+                            Planiranje i praćenje tura kroz operativni sistem.
+                        </div>
+                    </article>
+
+                    <article class="pm-capability pm-reveal">
+                        <div class="pm-capability-index">03</div>
+                        <div class="pm-capability-title">Vehicles</div>
+                        <div class="pm-capability-text">
+                            Fleet identitet, status, GPS i tehnički parametri vozila.
+                        </div>
+                    </article>
+
+                    <article class="pm-capability pm-reveal">
+                        <div class="pm-capability-index">04</div>
+                        <div class="pm-capability-title">Drivers</div>
+                        <div class="pm-capability-text">
+                            Vozači i njihova povezanost sa operativnim procesima.
+                        </div>
+                    </article>
+
+                    <article class="pm-capability pm-reveal">
+                        <div class="pm-capability-index">05</div>
+                        <div class="pm-capability-title">Alerts</div>
+                        <div class="pm-capability-text">
+                            Operativna upozorenja i reakcija na događaje u sistemu.
+                        </div>
+                    </article>
+
+                    <article class="pm-capability pm-reveal">
+                        <div class="pm-capability-index">06</div>
+                        <div class="pm-capability-title">Compliance</div>
+                        <div class="pm-capability-text">
+                            Restrikcije i kontrola usklađenosti transportne operacije.
+                        </div>
+                    </article>
+
+                    <article class="pm-capability pm-reveal">
+                        <div class="pm-capability-index">07</div>
+                        <div class="pm-capability-title">Monitoring</div>
+                        <div class="pm-capability-text">
+                            Sistemски monitoring i pregled aktivnog operativnog stanja.
+                        </div>
+                    </article>
+
+                    <article class="pm-capability pm-reveal">
+                        <div class="pm-capability-index">08</div>
+                        <div class="pm-capability-title">Audit</div>
+                        <div class="pm-capability-text">
+                            Evidencija i pregled sistemskih i operativnih aktivnosti.
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+            <!-- =================================================
+                 CTA
+                 ================================================= -->
+
+            <section class="pm-section pm-cta-section">
+
+                <div class="pm-cta pm-reveal">
+
+                    <div class="pm-cta-content">
+
+                        <div class="pm-cta-kicker">
+                            ProMap Cargo
+                        </div>
+
+                        <h2 class="pm-cta-title">
+                            Your fleet.
+                            One operational view.
+                        </h2>
+
+                        <p class="pm-cta-text">
+                            Istražite truck-aware navigaciju ili otvorite operativni
+                            Command Center.
+                        </p>
+
+                        <div class="pm-cta-actions">
+
+                            <a
+                                href="/navigation"
+                                class="pm-hero-btn pm-hero-btn-primary">
+                                Open Navigation
+                                <span class="pm-btn-arrow">→</span>
+                            </a>
+
+                            <a
+                                href="/dispatch"
+                                class="pm-hero-btn pm-hero-btn-secondary">
+                                Command Center
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- =====================================================
+             FOOTER
+             ===================================================== -->
+
+        <footer class="pm-public-footer">
+
+            <div class="pm-footer-inner">
+
+                <div>
+                    <div class="pm-footer-brand">
+                        ProMap <span>Cargo</span>
+                    </div>
+
+                    <div class="pm-footer-copy">
+                        Truck intelligence · Route precision · Fleet control
+                    </div>
+                </div>
+
+                <div class="pm-footer-links">
+                    <a href="#platform">Platform</a>
+                    <a href="#routing">Routing</a>
+                    <a href="#operations">Operations</a>
+                    <a href="#infrastructure">Infrastructure</a>
+                    <a href="/navigation">Navigation</a>
+                    <a href="/dispatch">Command Center</a>
+                </div>
+
+            </div>
+
+        </footer>
+
+    </div>
+
+    <script>
+        (() => {
+            "use strict";
+
+            const header = document.getElementById("publicHeader");
+            const mobileMenuButton = document.getElementById("mobileMenuButton");
+            const mobileNav = document.getElementById("mobileNav");
+
+            /*
+             * Header scroll state
+             */
+
+            const updateHeader = () => {
+                if (!header) {
+                    return;
+                }
+
+                if (window.scrollY > 24) {
+                    header.classList.add("scrolled");
+                } else {
+                    header.classList.remove("scrolled");
+                }
+            };
+
+            window.addEventListener("scroll", updateHeader, {
+                passive: true
+            });
+
+            updateHeader();
+
+            /*
+             * Mobile navigation
+             */
+
+            if (mobileMenuButton && mobileNav) {
+                mobileMenuButton.addEventListener("click", () => {
+                    const isOpen = mobileNav.classList.toggle("open");
+
+                    mobileMenuButton.setAttribute(
+                        "aria-expanded",
+                        isOpen ? "true" : "false"
+                    );
+                });
+
+                mobileNav.querySelectorAll("a").forEach(link => {
+                    link.addEventListener("click", () => {
+                        mobileNav.classList.remove("open");
+                        mobileMenuButton.setAttribute(
+                            "aria-expanded",
+                            "false"
+                        );
+                    });
+                });
+            }
+
+            /*
+             * Scroll reveal
+             */
+
+            const revealElements = document.querySelectorAll(".pm-reveal");
+
+            if ("IntersectionObserver" in window) {
+                const revealObserver = new IntersectionObserver(
+                    entries => {
+                        entries.forEach(entry => {
+                            if (!entry.isIntersecting) {
+                                return;
+                            }
+
+                            entry.target.classList.add("visible");
+                            revealObserver.unobserve(entry.target);
+                        });
+                    },
+                    {
+                        threshold: 0.12,
+                        rootMargin: "0px 0px -50px 0px"
+                    }
+                );
+
+                revealElements.forEach((element, index) => {
+                    element.style.transitionDelay =
+                        `${Math.min(index % 4, 3) * 70}ms`;
+
+                    revealObserver.observe(element);
+                });
+            } else {
+                revealElements.forEach(element => {
+                    element.classList.add("visible");
+                });
+            }
+
+            /*
+             * Active routing pipeline.
+             */
+
+            const engineNodes =
+                document.querySelectorAll(".pm-engine-node");
+
+            if (engineNodes.length > 0) {
+                let activeIndex = 0;
+
+                setInterval(() => {
+                    engineNodes.forEach(node => {
+                        node.classList.remove("active");
+                    });
+
+                    engineNodes[activeIndex].classList.add("active");
+
+                    activeIndex++;
+
+                    if (activeIndex >= engineNodes.length) {
+                        activeIndex = 0;
+                    }
+                }, 1800);
+            }
+
+            /*
+             * Subtle mouse parallax for the hero routing panel.
+             * Disabled on touch devices and reduced-motion users.
+             */
+
+            const heroVisual =
+                document.querySelector(".pm-hero-visual");
+
+            const prefersReducedMotion =
+                window.matchMedia &&
+                window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+            const hasTouch =
+                "ontouchstart" in window ||
+                navigator.maxTouchPoints > 0;
+
+            if (
+                heroVisual &&
+                !prefersReducedMotion &&
+                !hasTouch
+            ) {
+                heroVisual.addEventListener("mousemove", event => {
+                    const rect =
+                        heroVisual.getBoundingClientRect();
+
+                    const x =
+                        (event.clientX - rect.left) /
+                        rect.width -
+                        0.5;
+
+                    const y =
+                        (event.clientY - rect.top) /
+                        rect.height -
+                        0.5;
+
+                    heroVisual.style.transform =
+                        `perspective(1000px) rotateY(${x * 2}deg) rotateX(${y * -2}deg)`;
+                });
+
+                heroVisual.addEventListener("mouseleave", () => {
+                    heroVisual.style.transform = "";
+                });
+            }
+
+            /*
+             * Smooth internal navigation.
+             */
+
+            document.querySelectorAll('a[href^="#"]').forEach(link => {
+                link.addEventListener("click", event => {
+                    const targetId =
+                        link.getAttribute("href");
+
+                    if (!targetId || targetId === "#") {
+                        return;
+                    }
+
+                    const target =
+                        document.querySelector(targetId);
+
+                    if (!target) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    target.scrollIntoView({
+                        behavior: prefersReducedMotion
+                            ? "auto"
+                            : "smooth",
+                        block: "start"
+                    });
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
