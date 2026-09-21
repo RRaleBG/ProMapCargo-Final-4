@@ -8,7 +8,7 @@ namespace ProMapCargo.Api.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/alerts")]
+[Route("alerts")]
 public sealed class AlertsController(
     ProMapCargoDbContext db,
     ICurrentUserContext current) : ControllerBase
@@ -33,9 +33,7 @@ public sealed class AlertsController(
     }
 
     [HttpGet]
-    public async Task<ActionResult<object>> List(
-        [FromQuery] bool summary = false,
-        CancellationToken ct = default)
+    public async Task<ActionResult<object>> List([FromQuery] bool summary = false, CancellationToken ct = default)
     {
         if (current.CompanyId is not Guid companyId)
             return Unauthorized();

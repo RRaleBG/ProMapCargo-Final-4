@@ -3,17 +3,11 @@
 window.ProMap = window.ProMap || {};
 
 window.ProMap.Maneuvers = (() => {
-
     function getNumber(...values) {
         for (const value of values) {
-            const number =
-                Number(value);
+            const number = Number(value);
 
-            if (
-                Number.isFinite(
-                    number
-                )
-            ) {
+            if (Number.isFinite(number)) {
                 return number;
             }
         }
@@ -27,87 +21,59 @@ window.ProMap.Maneuvers = (() => {
                 type: "continue",
                 modifier: null,
                 icon: "↑",
-                instruction:
-                    "Nastavi pravo",
+                instruction: "Nastavi pravo",
                 distanceMeters: null,
-                durationSeconds: null
+                durationSeconds: null,
             };
         }
 
-        const type =
-            maneuver.type ||
-            maneuver.Type ||
-            "continue";
+        const type = maneuver.type || maneuver.Type || "continue";
 
-        const modifier =
-            maneuver.modifier ||
-            maneuver.Modifier ||
-            null;
+        const modifier = maneuver.modifier || maneuver.Modifier || null;
 
-        const distanceMeters =
-            getNumber(
-                maneuver.distanceMeters,
-                maneuver.DistanceMeters,
-                maneuver.distanceFromPreviousMeters,
-                maneuver.DistanceFromPreviousMeters,
-                maneuver.distance,
-                maneuver.Distance
-            );
+        const distanceMeters = getNumber(
+            maneuver.distanceMeters,
+            maneuver.DistanceMeters,
+            maneuver.distanceFromPreviousMeters,
+            maneuver.DistanceFromPreviousMeters,
+            maneuver.distance,
+            maneuver.Distance,
+        );
 
-        const durationSeconds =
-            getNumber(
-                maneuver.durationSeconds,
-                maneuver.DurationSeconds,
-                maneuver.duration,
-                maneuver.Duration
-            );
+        const durationSeconds = getNumber(
+            maneuver.durationSeconds,
+            maneuver.DurationSeconds,
+            maneuver.duration,
+            maneuver.Duration,
+        );
 
         const instruction =
             maneuver.instruction ||
             maneuver.Instruction ||
-            buildInstruction(
-                type,
-                modifier
-            );
+            buildInstruction(type, modifier);
 
         return {
             type,
             modifier,
 
-            icon:
-                maneuver.icon ||
-                maneuver.Icon ||
-                getIcon(
-                    type,
-                    modifier
-                ),
+            icon: maneuver.icon || maneuver.Icon || getIcon(type, modifier),
 
             instruction,
 
             distanceMeters,
 
-            durationSeconds
+            durationSeconds,
         };
     }
 
     function getIcon(type, modifier) {
-        switch (
-        String(
-            type || ""
-        ).toLowerCase()
-        ) {
+        switch (String(type || "").toLowerCase()) {
             case "turn":
-                if (
-                    modifier ===
-                    "left"
-                ) {
+                if (modifier === "left") {
                     return "↰";
                 }
 
-                if (
-                    modifier ===
-                    "right"
-                ) {
+                if (modifier === "right") {
                     return "↱";
                 }
 
@@ -142,163 +108,86 @@ window.ProMap.Maneuvers = (() => {
         }
     }
 
-    function buildInstruction(
-        type,
-        modifier
-    ) {
-        const normalized =
-            String(
-                type || ""
-            ).toLowerCase();
+    function buildInstruction(type, modifier) {
+        const normalized = String(type || "").toLowerCase();
 
-        if (
-            normalized ===
-            "turn"
-        ) {
-            if (
-                modifier ===
-                "left"
-            ) {
+        if (normalized === "turn") {
+            if (modifier === "left") {
                 return "Skreni levo";
             }
 
-            if (
-                modifier ===
-                "right"
-            ) {
+            if (modifier === "right") {
                 return "Skreni desno";
             }
 
             return "Skretanje";
         }
 
-        if (
-            normalized ===
-            "roundabout"
-        ) {
+        if (normalized === "roundabout") {
             return "Uđi u kružni tok";
         }
 
-        if (
-            normalized ===
-            "uturn" ||
-            normalized ===
-            "u-turn"
-        ) {
+        if (normalized === "uturn" || normalized === "u-turn") {
             return "Polukružno okretanje";
         }
 
-        if (
-            normalized ===
-            "merge"
-        ) {
+        if (normalized === "merge") {
             return "Uključi se";
         }
 
-        if (
-            normalized ===
-            "fork"
-        ) {
-            if (
-                modifier ===
-                "left"
-            ) {
+        if (normalized === "fork") {
+            if (modifier === "left") {
                 return "Drži levo";
             }
 
-            if (
-                modifier ===
-                "right"
-            ) {
+            if (modifier === "right") {
                 return "Drži desno";
             }
 
             return "Račvanje puta";
         }
 
-        if (
-            normalized ===
-            "arrive" ||
-            normalized ===
-            "arrival"
-        ) {
+        if (normalized === "arrive" || normalized === "arrival") {
             return "Stigli ste na odredište";
         }
 
-        if (
-            normalized ===
-            "depart" ||
-            normalized ===
-            "departure"
-        ) {
+        if (normalized === "depart" || normalized === "departure") {
             return "Polazak";
         }
 
         return "Nastavi pravo";
     }
 
-    function formatDistance(
-        meters
-    ) {
-        const value =
-            Number(meters);
+    function formatDistance(meters) {
+        const value = Number(meters);
 
-        if (
-            !Number.isFinite(
-                value
-            )
-        ) {
+        if (!Number.isFinite(value)) {
             return "—";
         }
 
-        if (
-            value < 1000
-        ) {
-            return `${Math.round(
-                value
-            )} m`;
+        if (value < 1000) {
+            return `${Math.round(value)} m`;
         }
 
-        return `${(
-            value / 1000
-        ).toFixed(1)} km`;
+        return `${(value / 1000).toFixed(1)} km`;
     }
 
-    function formatDuration(
-        seconds
-    ) {
-        const value =
-            Number(seconds);
+    function formatDuration(seconds) {
+        const value = Number(seconds);
 
-        if (
-            !Number.isFinite(
-                value
-            )
-        ) {
+        if (!Number.isFinite(value)) {
             return "—";
         }
 
-        const minutes =
-            Math.max(
-                0,
-                Math.round(
-                    value / 60
-                )
-            );
+        const minutes = Math.max(0, Math.round(value / 60));
 
-        if (
-            minutes < 60
-        ) {
+        if (minutes < 60) {
             return `${minutes} min`;
         }
 
-        const hours =
-            Math.floor(
-                minutes / 60
-            );
+        const hours = Math.floor(minutes / 60);
 
-        const remainder =
-            minutes % 60;
+        const remainder = minutes % 60;
 
         return `${hours} h ${remainder} min`;
     }
@@ -308,6 +197,6 @@ window.ProMap.Maneuvers = (() => {
         getIcon,
         buildInstruction,
         formatDistance,
-        formatDuration
+        formatDuration,
     };
 })();

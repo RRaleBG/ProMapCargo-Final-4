@@ -14,7 +14,7 @@ The routing engine, map infrastructure, OSM graph, truck restrictions, PMTiles d
 
 ---
 
-# 2. SOURCE OF TRUTH
+## 2. SOURCE OF TRUTH
 
 Before changing code:
 
@@ -45,7 +45,7 @@ Check `.gitignore` before concluding that a missing GitHub file is missing from 
 
 ---
 
-# 3. CURRENT TECHNOLOGY STACK
+## 3. CURRENT TECHNOLOGY STACK
 
 Use the technology versions already defined by the repository.
 
@@ -79,7 +79,7 @@ Documentation should be corrected to match the actual project.
 
 ---
 
-# 4. REPOSITORY STRUCTURE
+## 4. REPOSITORY STRUCTURE
 
 Important directories and responsibilities:
 
@@ -133,7 +133,7 @@ Business logic belongs in services/repositories, not duplicated inside controlle
 
 ---
 
-# 5. RAZOR PAGES
+## 5. RAZOR PAGES
 
 The UI is Razor Pages based.
 
@@ -167,7 +167,7 @@ Do not create React, Vue, Angular or Blazor infrastructure unless explicitly req
 
 ---
 
-# 6. NAVIGATION PAGE IS A CRITICAL SYSTEM
+## 6. NAVIGATION PAGE IS A CRITICAL SYSTEM
 
 The Navigation page is not a mock/demo page.
 
@@ -216,9 +216,11 @@ Navigation must support:
 
 Do not reduce Navigation to only drawing two markers.
 
+Prefer one authoritative PMTiles source and avoid overlapping multiple MapLibre initialization paths when possible.
+
 ---
 
-# 7. ROUTING ARCHITECTURE
+## 7. ROUTING ARCHITECTURE
 
 Routing has two conceptual layers.
 
@@ -259,7 +261,7 @@ Do not remove the fallback merely because PostGIS is the preferred engine.
 
 ---
 
-# 8. ROUTING ENGINE SELECTION
+## 8. ROUTING ENGINE SELECTION
 
 Current intended behavior:
 
@@ -281,7 +283,7 @@ OSRM fallback is a compatibility/fallback route, not a replacement for the PostG
 
 ---
 
-# 9. ROUTE REQUEST CONTRACT
+## 9. ROUTE REQUEST CONTRACT
 
 The canonical route request model is:
 
@@ -320,7 +322,7 @@ Never fix a compile error by merely renaming one property in one file.
 
 ---
 
-# 10. COORDINATE CONTRACT
+## 10. COORDINATE CONTRACT
 
 All geographic coordinates use:
 
@@ -364,7 +366,7 @@ Never send the literal text value as coordinates.
 
 ---
 
-# 11. TRUCK PROFILE
+## 11. TRUCK PROFILE
 
 Truck routing must respect the existing `TruckProfile`.
 
@@ -394,7 +396,7 @@ Truck restrictions must be evaluated against graph edge metadata.
 
 ---
 
-# 12. TRUCK RESTRICTION LOGIC
+## 12. TRUCK RESTRICTION LOGIC
 
 Truck-aware routing must consider OSM-derived restrictions such as:
 
@@ -427,7 +429,7 @@ Do not treat every OSM road as truck-routable.
 
 ---
 
-# 13. POSTGIS GRAPH
+## 13. POSTGIS GRAPH
 
 The routing graph is versioned.
 
@@ -457,7 +459,7 @@ Never delete the currently active graph before a replacement graph has successfu
 
 ---
 
-# 14. OSM IMPORTER
+## 14. OSM IMPORTER
 
 The OSM importer is a separate executable.
 
@@ -486,7 +488,7 @@ Do not mix application UI logic into importer code.
 
 ---
 
-# 15. MAP ARCHITECTURE
+## 15. MAP ARCHITECTURE
 
 The frontend uses a local map architecture.
 
@@ -513,7 +515,7 @@ Do not introduce remote OSM/CARTO/TomTom/Esri basemap tiles when the existing lo
 
 ---
 
-# 16. PMTILES
+## 16. PMTILES
 
 PMTiles is the local vector map distribution mechanism.
 
@@ -548,7 +550,7 @@ and not:
 
 ---
 
-# 17. LARGE MAP FILES
+## 17. LARGE MAP FILES
 
 Large map files are intentionally not stored in Git.
 
@@ -576,7 +578,7 @@ A missing large file from GitHub can be intentional.
 
 ---
 
-# 18. MAP GENERATION
+## 18. MAP GENERATION
 
 Relevant scripts include:
 
@@ -600,7 +602,7 @@ Do not update only one platform script if both are maintained.
 
 ---
 
-# 19. MAPLIBRE STYLE
+## 19. MAPLIBRE STYLE
 
 Primary style:
 
@@ -620,7 +622,7 @@ Use the existing substitution/configuration mechanism.
 
 ---
 
-# 20. LEAFLET VS MAPLIBRE
+## 20. LEAFLET VS MAPLIBRE
 
 The application intentionally uses both technologies.
 
@@ -646,7 +648,7 @@ Reuse the existing map-layer infrastructure.
 
 ---
 
-# 21. SHARED MAP HELPER
+## 21. SHARED MAP HELPER
 
 Primary shared helper:
 
@@ -666,7 +668,7 @@ If a new map source is needed, first extend the shared infrastructure.
 
 ---
 
-# 22. MAP INITIALIZATION
+## 22. MAP INITIALIZATION
 
 When debugging a blank map, inspect the full chain:
 
@@ -690,7 +692,7 @@ Map rendering and route calculation are separate subsystems.
 
 ---
 
-# 23. NAVIGATION MAP DEBUGGING
+## 23. NAVIGATION MAP DEBUGGING
 
 If the Navigation page displays start/end markers but no route line:
 
@@ -715,13 +717,11 @@ The routing API and route rendering must be diagnosed independently.
 
 ---
 
-# 24. ROUTE GEOMETRY CONTRACT
+## 24. ROUTE GEOMETRY CONTRACT
 
 Route geometry is GeoJSON-compatible.
 
 Expected structure:
-
-```json
 {
   "type": "LineString",
   "coordinates": [
@@ -729,23 +729,18 @@ Expected structure:
     [20.5, 44.9]
   ]
 }
-```
-
 The first number is longitude.
 
 The second number is latitude.
 
 Never emit:
-
-```text
 [latitude, longitude]
-```
 
 for GeoJSON.
 
 ---
 
-# 25. ROUTE RESPONSE
+## 25. ROUTE RESPONSE
 
 Use the existing:
 
@@ -776,7 +771,7 @@ Never report `UsedFallback = false` for an OSRM fallback.
 
 ---
 
-# 26. OSRM
+## 26. OSRM
 
 OSRM is a fallback/compatibility routing engine.
 
@@ -800,7 +795,7 @@ If public OSRM is used, clearly identify it as fallback behavior.
 
 ---
 
-# 27. GEOCODING
+## 27. GEOCODING
 
 Geocoding currently uses Nominatim-compatible infrastructure.
 
@@ -824,7 +819,7 @@ The Navigation UI must preserve this separation.
 
 ---
 
-# 28. DATABASE
+## 28. DATABASE
 
 There is one primary PostgreSQL/PostGIS database:
 
@@ -851,7 +846,7 @@ Do not rewrite the graph repository into EF Core simply for consistency.
 
 ---
 
-# 29. DATABASE NAMING
+## 29. DATABASE NAMING
 
 The application uses PostgreSQL snake_case naming.
 
@@ -873,7 +868,7 @@ If schema changes are necessary:
 
 ---
 
-# 30. DATABASE BOOTSTRAP
+## 30. DATABASE BOOTSTRAP
 
 `Program.cs` performs startup database bootstrap.
 
@@ -895,7 +890,7 @@ Log bootstrap failures clearly.
 
 ---
 
-# 31. SEED DATA
+## 31. SEED DATA
 
 Development seed data may create:
 
@@ -917,7 +912,7 @@ Never copy credentials from `appsettings.json` into production documentation.
 
 ---
 
-# 32. DOCKER
+## 32. DOCKER
 
 Docker is a first-class supported deployment mode.
 
@@ -943,7 +938,7 @@ Never change Docker internal connection strings to `localhost`.
 
 ---
 
-# 33. DOCKER MAP MOUNTS
+## 33. DOCKER MAP MOUNTS
 
 The Docker API service mounts local map assets.
 
@@ -966,7 +961,7 @@ If a map works locally but not in Docker, inspect:
 
 ---
 
-# 34. STATIC FILES
+## 34. STATIC FILES
 
 `Program.cs` configures custom MIME types for:
 
@@ -987,7 +982,7 @@ with a simple full-file response.
 
 ---
 
-# 35. CONTENT SECURITY POLICY
+## 35. CONTENT SECURITY POLICY
 
 The application defines a CSP.
 
@@ -1008,33 +1003,25 @@ Do not solve frontend errors by setting:
 
 ---
 
-# 36. FRONTEND ASSET RULE
+## 36. FRONTEND ASSET RULE
 
 Browser-facing paths must be root-relative.
 
 Correct:
-
-```text
 /lib/leaflet/leaflet.js
 /js/navigation.js
 /maps/serbia.pmtiles
 /styles/promap-dark.json
 /fonts/Noto Sans Regular/0-255.pbf
-```
-
 Incorrect:
-
-```text
 wwwroot/lib/leaflet/leaflet.js
 wwwroot/maps/serbia.pmtiles
 C:\project\wwwroot\maps\serbia.pmtiles
-```
-
 Server filesystem paths and browser URLs are different concepts.
 
 ---
 
-# 37. JAVASCRIPT ARCHITECTURE
+## 37. JAVASCRIPT ARCHITECTURE
 
 Frontend JavaScript is modularized.
 
@@ -1059,7 +1046,7 @@ Prefer the existing `window.ProMap` namespace where appropriate.
 
 ---
 
-# 38. JAVASCRIPT INITIALIZATION
+## 38. JAVASCRIPT INITIALIZATION
 
 Navigation initialization must be idempotent.
 
@@ -1075,7 +1062,7 @@ Do not attach duplicate click handlers every time a script executes.
 
 ---
 
-# 39. RAZOR + JAVASCRIPT CONTRACT
+## 39. RAZOR + JAVASCRIPT CONTRACT
 
 IDs and `data-*` attributes in `Pages/Navigation/Index.cshtml` are API-like contracts between Razor and JavaScript.
 
@@ -1100,7 +1087,7 @@ without checking all references.
 
 ---
 
-# 40. UI DESIGN
+## 40. UI DESIGN
 
 The application has an established ProMap Cargo dark fleet-operations visual language.
 
@@ -1120,7 +1107,7 @@ Do not replace the existing visual system with Bootstrap defaults.
 
 ---
 
-# 41. RESPONSIVE DESIGN
+## 41. RESPONSIVE DESIGN
 
 Navigation and command-center pages must remain usable on:
 
@@ -1137,7 +1124,7 @@ If the map is inside a hidden/collapsed container, call the appropriate map resi
 
 ---
 
-# 42. SIGNALR
+## 42. SIGNALR
 
 Navigation telemetry uses SignalR.
 
@@ -1159,7 +1146,7 @@ Live GPS should degrade gracefully if SignalR or browser geolocation is unavaila
 
 ---
 
-# 43. GPS
+## 43. GPS
 
 Browser GPS is optional.
 
@@ -1184,7 +1171,7 @@ without crashing the Navigation page.
 
 ---
 
-# 44. OFF-ROUTE / REROUTING
+## 44. OFF-ROUTE / REROUTING
 
 Live navigation can detect deviation from the current route.
 
@@ -1201,7 +1188,7 @@ Do not reroute on every GPS update.
 
 ---
 
-# 45. MANEUVERS
+## 45. MANEUVERS
 
 Maneuver generation is a backend concern where possible.
 
@@ -1217,7 +1204,7 @@ Do not duplicate complicated maneuver inference independently in the browser if 
 
 ---
 
-# 46. API ERROR CONTRACT
+## 46. API ERROR CONTRACT
 
 API errors should be structured.
 
@@ -1239,13 +1226,11 @@ Do not expose sensitive exception details in production responses.
 
 ---
 
-# 47. LOGGING
+## 47. LOGGING
 
 Use structured logging.
 
 Prefer:
-
-```csharp
 logger.LogInformation(
     "Routing request: {Profile} {StartLat},{StartLon} -> {EndLat},{EndLon}",
     profile,
@@ -1253,8 +1238,6 @@ logger.LogInformation(
     start.Lon,
     end.Lat,
     end.Lon);
-```
-
 Do not use large `Console.WriteLine` debugging blocks in production code.
 
 Do not log:
@@ -1267,7 +1250,7 @@ Do not log:
 
 ---
 
-# 48. PERFORMANCE
+## 48. PERFORMANCE
 
 Routing is performance-sensitive.
 
@@ -1293,7 +1276,7 @@ Use:
 
 ---
 
-# 49. POSTGIS ROUTING PERFORMANCE
+## 49. POSTGIS ROUTING PERFORMANCE
 
 The A* router has an expansion limit.
 
@@ -1317,7 +1300,7 @@ Do not arbitrarily increase it to hide coordinate problems.
 
 ---
 
-# 50. GRAPH VERSIONING
+## 50. GRAPH VERSIONING
 
 The graph is protected by versioning.
 
@@ -1343,7 +1326,7 @@ Importer flow should conceptually be:
 
 ---
 
-# 51. TURN RESTRICTIONS
+## 51. TURN RESTRICTIONS
 
 Turn restrictions are stateful.
 
@@ -1361,7 +1344,7 @@ Do not remove previous-edge state from the A* search merely to simplify code.
 
 ---
 
-# 52. DATABASE SQL
+## 52. DATABASE SQL
 
 SQL files are part of the application architecture.
 
@@ -1383,7 +1366,7 @@ Do not modify SQL schema without checking:
 
 ---
 
-# 53. IMPORTER AND APPLICATION MUST AGREE
+## 53. IMPORTER AND APPLICATION MUST AGREE
 
 The importer and API share the same graph schema.
 
@@ -1403,7 +1386,7 @@ Do not modify one side independently.
 
 ---
 
-# 54. DOCUMENTATION CONSISTENCY
+## 54. DOCUMENTATION CONSISTENCY
 
 Documentation must describe the actual implementation.
 
@@ -1422,30 +1405,18 @@ When architecture changes, update:
 
 ---
 
-# 55. TESTING REQUIREMENTS
+## 55. TESTING REQUIREMENTS
 
 Before declaring a change complete, perform the strongest available validation.
 
 At minimum:
-
-```bash
 dotnet restore ProMapCargo.sln
 dotnet build ProMapCargo.sln
-```
-
 When Docker-related code changes:
-
-```bash
 docker compose config
 docker compose build
-```
-
 When practical:
-
-```bash
 docker compose up
-```
-
 Then verify:
 
 * API starts
@@ -1461,18 +1432,14 @@ Do not claim a build is successful without actually building when the environmen
 
 ---
 
-# 56. MAP VERIFICATION
+## 56. MAP VERIFICATION
 
 When changing map code, verify the actual browser/network chain.
 
 Check:
-
-```text
 GET /maps/serbia.pmtiles
 GET /styles/promap-dark.json
 GET /fonts/Noto Sans Regular/...
-```
-
 Check for:
 
 * 200 responses
@@ -1488,14 +1455,10 @@ Do not mark a map issue fixed only because the JavaScript has no syntax error.
 
 ---
 
-# 57. ROUTING VERIFICATION
+## 57. ROUTING VERIFICATION
 
 For a standard test route:
-
-```text
 Beograd -> Novi Sad
-```
-
 verify:
 
 1. geocoding resolves both locations
@@ -1516,7 +1479,7 @@ verify:
 
 ---
 
-# 58. NEVER MASK ROOT CAUSES
+## 58. NEVER MASK ROOT CAUSES
 
 Do not solve an error by:
 
@@ -1535,7 +1498,7 @@ A temporary fallback is acceptable only when it is a real configured fallback su
 
 ---
 
-# 59. NO FAKE FUNCTIONALITY
+## 59. NO FAKE FUNCTIONALITY
 
 Do not create UI controls that appear functional but do nothing.
 
@@ -1549,7 +1512,7 @@ Do not leave placeholder buttons in production UI.
 
 ---
 
-# 60. NO DUPLICATE ARCHITECTURES
+## 60. NO DUPLICATE ARCHITECTURES
 
 Before adding:
 
@@ -1566,7 +1529,7 @@ Prefer extending the existing implementation.
 
 ---
 
-# 61. SECURITY
+## 61. SECURITY
 
 Never commit:
 
@@ -1585,7 +1548,7 @@ Do not weaken authentication or authorization to solve a development problem.
 
 ---
 
-# 62. AUTHENTICATION / IDENTITY
+## 62. AUTHENTICATION / IDENTITY
 
 The project uses ASP.NET Identity.
 
@@ -1614,34 +1577,29 @@ Do not default every endpoint to anonymous access.
 
 ---
 
-# 63. API COMPATIBILITY
+## 63. API COMPATIBILITY
 
 Before changing an API:
 
 Search for:
 
-```text
 /api/routing
 /api/geocoding
 /api/navigation
 /hubs/navigation
-```
-
 and inspect both server and browser consumers.
 
 A backend change is incomplete until the frontend consumer is compatible.
 
 ---
 
-# 64. JSON CONTRACT
+## 64. JSON CONTRACT
 
 Existing JSON names use explicit `JsonPropertyName` attributes in important request models.
 
 Preserve the established names.
 
 Examples:
-
-```text
 start
 destination
 end
@@ -1649,13 +1607,11 @@ profile
 avoidRestricted
 truck
 departureAt
-```
-
 Do not rename them to C# property names unless the API contract is intentionally changed.
 
 ---
 
-# 65. C# STYLE
+## 65. C# STYLE
 
 Use:
 
@@ -1674,16 +1630,12 @@ Do not refactor unrelated files during a focused bug fix.
 
 ---
 
-# 66. ASYNC / CANCELLATION
+## 66. ASYNC / CANCELLATION
 
 HTTP/database operations should accept and propagate `CancellationToken`.
 
 Do not use:
-
-```csharp
 CancellationToken.None
-```
-
 when a request token is available.
 
 Do not block async operations with:
@@ -1693,7 +1645,7 @@ Do not block async operations with:
 
 ---
 
-# 67. SQL SAFETY
+## 67. SQL SAFETY
 
 Use parameters.
 
@@ -1705,7 +1657,7 @@ Dapper queries must use parameter objects.
 
 ---
 
-# 68. JAVASCRIPT STYLE
+## 68. JAVASCRIPT STYLE
 
 Use modern browser JavaScript.
 
@@ -1727,7 +1679,7 @@ Avoid:
 
 ---
 
-# 69. FRONTEND ERROR HANDLING
+## 69. FRONTEND ERROR HANDLING
 
 Frontend errors must distinguish:
 
@@ -1750,7 +1702,7 @@ Error messages should identify the subsystem.
 
 ---
 
-# 70. MAP ERROR HANDLING
+## 70. MAP ERROR HANDLING
 
 Map errors should contain enough diagnostics to answer:
 
@@ -1767,7 +1719,7 @@ messages.
 
 ---
 
-# 71. NO EXTERNAL MAP PROVIDER BY DEFAULT
+## 71. NO EXTERNAL MAP PROVIDER BY DEFAULT
 
 The current architecture intentionally uses local map assets.
 
@@ -1786,7 +1738,7 @@ External geocoding/routing services are separate concerns and do not justify rep
 
 ---
 
-# 72. LOCAL ASSET SCRIPTS
+## 72. LOCAL ASSET SCRIPTS
 
 `prepare-local-map-assets.ps1` currently downloads frontend runtime dependencies into the repository.
 
@@ -1798,7 +1750,7 @@ The resulting assets are expected to be served locally.
 
 ---
 
-# 73. GITIGNORE
+## 73. GITIGNORE
 
 Respect `.gitignore`.
 
@@ -1816,7 +1768,7 @@ should remain outside normal source control.
 
 ---
 
-# 74. WHEN A FILE IS MISSING
+## 74. WHEN A FILE IS MISSING
 
 Before concluding that a file is missing:
 
@@ -1835,7 +1787,7 @@ from Git does not automatically mean the application cannot load it.
 
 ---
 
-# 75. WHEN A PAGE IS EMPTY
+## 75. WHEN A PAGE IS EMPTY
 
 If a Razor page renders only a minimal placeholder:
 
@@ -1853,16 +1805,12 @@ Do not delete existing pages without proving they are obsolete.
 
 ---
 
-# 76. WHEN COMPILATION FAILS
+## 76. WHEN COMPILATION FAILS
 
 Always fix the underlying contract.
 
 For example, if the compiler says:
-
-```text
 'RouteRequest' does not contain a definition for 'Truck'
-```
-
 do not blindly change all references.
 
 First inspect:
@@ -1886,7 +1834,7 @@ The repository must have one authoritative `RouteRequest`.
 
 ---
 
-# 77. BRANCH / VERSION CONFUSION
+## 77. BRANCH / VERSION CONFUSION
 
 If code appears inconsistent:
 
@@ -1904,19 +1852,15 @@ Do not assume the code shown in one file represents the entire repository.
 
 ---
 
-# 78. BUILD CONTEXT
+## 78. BUILD CONTEXT
 
 Docker build context is the repository root.
 
 Important:
-
-```text
 Dockerfile
 ProMapCargo.sln
 ProMapCargo.Api.csproj
 Importer/ProMapCargo.OsmImporter.csproj
-```
-
 must remain compatible with the Docker build instructions.
 
 Do not move projects without updating:
@@ -1929,7 +1873,7 @@ Do not move projects without updating:
 
 ---
 
-# 79. GITHUB ACTIONS
+## 79. GITHUB ACTIONS
 
 The repository has CI/build infrastructure.
 
@@ -1945,7 +1889,7 @@ unless the feature is explicitly Windows-specific.
 
 ---
 
-# 80. CROSS-PLATFORM SCRIPTS
+## 80. CROSS-PLATFORM SCRIPTS
 
 Where both exist:
 
@@ -1960,16 +1904,12 @@ Shell scripts are important for Linux/Docker/CI workflows.
 
 ---
 
-# 81. FILE PATHS
+## 81. FILE PATHS
 
 Use portable paths in C#.
 
 Do not hard-code:
-
-```text
 C:\Users\...
-```
-
 Use:
 
 * `Path.Combine`
@@ -1980,7 +1920,7 @@ The browser must never receive server filesystem paths.
 
 ---
 
-# 82. MAP PATH SECURITY
+## 82. MAP PATH SECURITY
 
 The dynamic PMTiles endpoint must only serve files from:
 
@@ -1994,7 +1934,7 @@ Do not turn it into an arbitrary filesystem path.
 
 ---
 
-# 83. ROUTING SECURITY
+## 83. ROUTING SECURITY
 
 Routing endpoints may be anonymous where currently configured, but they must still validate:
 
@@ -2008,7 +1948,7 @@ Do not trust browser-provided truck parameters.
 
 ---
 
-# 84. TRUCK PARAMETER VALIDATION
+## 84. TRUCK PARAMETER VALIDATION
 
 When validating truck parameters, reject impossible values such as:
 
@@ -2022,7 +1962,7 @@ Validation should protect both the database and routing algorithm.
 
 ---
 
-# 85. NO SILENT CONTRACT CHANGES
+## 85. NO SILENT CONTRACT CHANGES
 
 When modifying:
 
@@ -2040,7 +1980,7 @@ Use repository-wide search before committing.
 
 ---
 
-# 86. CHANGE SCOPE
+## 86. CHANGE SCOPE
 
 For bug fixes:
 
@@ -2061,7 +2001,7 @@ For architectural changes:
 
 ---
 
-# 87. CODE REVIEW PRIORITIES
+## 87. CODE REVIEW PRIORITIES
 
 When reviewing changes, prioritize:
 
@@ -2081,7 +2021,7 @@ Do not prioritize cosmetic refactoring over functional correctness.
 
 ---
 
-# 88. ROUTING BUG TRIAGE
+## 88. ROUTING BUG TRIAGE
 
 When route calculation fails, use this decision tree:
 
@@ -2146,7 +2086,7 @@ Inspect:
 
 ---
 
-# 89. MAP BUG TRIAGE
+## 89. MAP BUG TRIAGE
 
 When the map itself does not render:
 
@@ -2194,7 +2134,7 @@ Never start by modifying routing code when the basemap itself is not loading.
 
 ---
 
-# 90. ROUTE LINE BUG TRIAGE
+## 90. ROUTE LINE BUG TRIAGE
 
 If the basemap is visible but the route line is not:
 
@@ -2217,7 +2157,7 @@ The route line is application overlay logic, not PMTiles basemap data.
 
 ---
 
-# 91. NO FAKE MAP DATA
+## 91. NO FAKE MAP DATA
 
 Do not generate fake road networks to make the UI look populated.
 
@@ -2229,7 +2169,7 @@ Do not fabricate a PostGIS route.
 
 ---
 
-# 92. NO FAKE ROUTING DIAGNOSTICS
+## 92. NO FAKE ROUTING DIAGNOSTICS
 
 Diagnostics must represent actual execution.
 
@@ -2255,7 +2195,7 @@ Never fabricate a graph version.
 
 ---
 
-# 93. DATABASE FAILURE BEHAVIOR
+## 93. DATABASE FAILURE BEHAVIOR
 
 If PostgreSQL is unavailable:
 
@@ -2268,7 +2208,7 @@ Do not return fake database records.
 
 ---
 
-# 94. EXTERNAL DEPENDENCY FAILURE
+## 94. EXTERNAL DEPENDENCY FAILURE
 
 External services include:
 
@@ -2286,7 +2226,7 @@ Design the application so:
 
 ---
 
-# 95. LOCAL MAP INDEPENDENCE
+## 95. LOCAL MAP INDEPENDENCE
 
 The local basemap should continue working if:
 
@@ -2298,7 +2238,7 @@ The map rendering subsystem should not depend on the routing subsystem.
 
 ---
 
-# 96. DO NOT COUPLE MAP AND ROUTING
+## 96. DO NOT COUPLE MAP AND ROUTING
 
 A route request must not be responsible for initializing the basemap.
 
@@ -2310,7 +2250,7 @@ Keep the subsystems independent.
 
 ---
 
-# 97. DO NOT COUPLE GEOCODING AND MAP RENDERING
+## 97. DO NOT COUPLE GEOCODING AND MAP RENDERING
 
 Geocoding failure should not destroy the map.
 
@@ -2320,7 +2260,7 @@ Routing failure should not destroy either.
 
 ---
 
-# 98. PAGE SCRIPT LOADING
+## 98. PAGE SCRIPT LOADING
 
 Shared scripts are loaded from `_Layout.cshtml`.
 
@@ -2332,21 +2272,17 @@ Do not load a CDN copy in one page while loading a local copy in another.
 
 ---
 
-# 99. CACHE BUSTING
+## 99. CACHE BUSTING
 
 Use ASP.NET Core:
-
-```text
 asp-append-version="true"
-```
-
 for static assets where already established.
 
 Do not manually append random query strings.
 
 ---
 
-# 100. CSS ARCHITECTURE
+## 100. CSS ARCHITECTURE
 
 Existing CSS is split across:
 
@@ -2367,7 +2303,7 @@ Do not introduce another global CSS framework.
 
 ---
 
-# 101. ACCESSIBILITY
+## 101. ACCESSIBILITY
 
 Controls must have:
 
@@ -2382,7 +2318,7 @@ Do not remove ARIA labels already present.
 
 ---
 
-# 102. INTERNATIONALIZATION
+## 102. INTERNATIONALIZATION
 
 The current UI contains Serbian terminology.
 
@@ -2394,7 +2330,7 @@ Do not randomly translate domain concepts.
 
 ---
 
-# 103. COMMENTS
+## 103. COMMENTS
 
 Comments should explain:
 
@@ -2406,7 +2342,7 @@ Avoid comments that simply restate the code.
 
 ---
 
-# 104. GENERATED FILES
+## 104. GENERATED FILES
 
 Do not manually edit generated:
 
@@ -2419,7 +2355,7 @@ Modify the source/generation script instead.
 
 ---
 
-# 105. BINARY TOOLS
+## 105. BINARY TOOLS
 
 The repository may contain helper binaries such as PMTiles tooling.
 
@@ -2431,24 +2367,20 @@ If a binary is already part of the repository workflow, understand why before re
 
 ---
 
-# 106. DOCUMENTATION COMMANDS
+## 106. DOCUMENTATION COMMANDS
 
 When documenting commands, ensure commands match the actual project.
 
 Prefer:
-
-```bash
 dotnet restore ProMapCargo.sln
 dotnet build ProMapCargo.sln
 docker compose config
 docker compose up --build
-```
-
 Do not document commands for projects/files that do not exist.
 
 ---
 
-# 107. CLEAN BUILD PRINCIPLE
+## 107. CLEAN BUILD PRINCIPLE
 
 Before finalizing a change, check for:
 
@@ -2464,7 +2396,7 @@ Before finalizing a change, check for:
 
 ---
 
-# 108. SEARCH BEFORE EDIT
+## 108. SEARCH BEFORE EDIT
 
 Before modifying an important symbol, search for all usages.
 
@@ -2487,7 +2419,7 @@ Especially search before changing:
 
 ---
 
-# 109. ONE AUTHORITATIVE IMPLEMENTATION
+## 109. ONE AUTHORITATIVE IMPLEMENTATION
 
 For every domain concept there should be one authoritative implementation.
 
@@ -2525,7 +2457,7 @@ Do not create shadow implementations.
 
 ---
 
-# 110. WHEN REFACTORING ROUTING
+## 110. WHEN REFACTORING ROUTING
 
 Routing refactors must preserve:
 
@@ -2543,7 +2475,7 @@ A routing refactor is not successful if it merely compiles.
 
 ---
 
-# 111. WHEN REFACTORING MAPS
+## 111. WHEN REFACTORING MAPS
 
 Map refactors must preserve:
 
@@ -2561,7 +2493,7 @@ A map refactor is not successful if the page loads but routes disappear.
 
 ---
 
-# 112. WHEN ADDING NEW MAP REGIONS
+## 112. WHEN ADDING NEW MAP REGIONS
 
 If adding a new region:
 
@@ -2576,7 +2508,7 @@ If adding a new region:
 
 ---
 
-# 113. WHEN ADDING NEW ROUTING PROFILE
+## 113. WHEN ADDING NEW ROUTING PROFILE
 
 If adding a profile:
 
@@ -2593,7 +2525,7 @@ Do not silently map a new truck profile to generic driving without explicitly id
 
 ---
 
-# 114. WHEN ADDING NEW TRUCK RESTRICTION
+## 114. WHEN ADDING NEW TRUCK RESTRICTION
 
 If adding a restriction:
 
@@ -2608,7 +2540,7 @@ If adding a restriction:
 
 ---
 
-# 115. PULL REQUEST EXPECTATIONS
+## 115. PULL REQUEST EXPECTATIONS
 
 Every meaningful PR should explain:
 
@@ -2625,7 +2557,7 @@ Do not mix unrelated feature work into a routing bug fix.
 
 ---
 
-# 116. COPILOT RESPONSE BEHAVIOR
+## 116. COPILOT RESPONSE BEHAVIOR
 
 When asked to fix something:
 
@@ -2644,7 +2576,7 @@ Do not immediately generate replacement files without understanding the current 
 
 ---
 
-# 117. COPILOT MUST NOT GUESS
+## 117. COPILOT MUST NOT GUESS
 
 If information is missing:
 
@@ -2666,37 +2598,23 @@ Do not invent:
 
 ---
 
-# 118. COPILOT MUST DISTINGUISH LOCAL VS GITHUB STATE
+## 118. COPILOT MUST DISTINGUISH LOCAL VS GITHUB STATE
 
 GitHub may intentionally omit large runtime datasets.
 
 When investigating a map problem, distinguish:
-
-```text
 source-controlled code
-```
-
 from:
-
-```text
 local generated data
-```
-
 and:
-
-```text
 Docker-mounted runtime data
-```
-
 A repository tree is not necessarily the complete runtime filesystem.
 
 ---
 
-# 119. CURRENT MAP ARCHITECTURE
+## 119. CURRENT MAP ARCHITECTURE
 
 The intended current architecture is:
-
-```text
 Browser
   |
   +-- Razor Pages
@@ -2719,8 +2637,6 @@ Browser
   +-- /hubs/navigation
          |
          +-- GPS / telemetry
-```
-
 The basemap is local.
 
 Routing is server-side.
@@ -2731,9 +2647,7 @@ Telemetry is separate.
 
 ---
 
-# 120. CURRENT ROUTING ARCHITECTURE
-
-```text
+## 120. CURRENT ROUTING ARCHITECTURE
 Navigation UI
      |
      v
@@ -2761,15 +2675,11 @@ RouteResponse
      |
      v
 Navigation UI
-```
-
 Do not bypass this architecture without an explicit architectural decision.
 
 ---
 
-# 121. CURRENT DATABASE ARCHITECTURE
-
-```text
+## 121. CURRENT DATABASE ARCHITECTURE
 PostgreSQL/PostGIS
         |
         +-- Application/Identity data
@@ -2783,15 +2693,11 @@ PostgreSQL/PostGIS
         +-- Routing graph versions
         |
         +-- Turn restrictions
-```
-
 There is one primary database.
 
 ---
 
-# 122. CURRENT OSM IMPORT ARCHITECTURE
-
-```text
+## 122. CURRENT OSM IMPORT ARCHITECTURE
 OSM PBF
   |
   v
@@ -2814,13 +2720,9 @@ active graph
   |
   v
 PostGIS routing
-```
-
 ---
 
-# 123. CURRENT MAP DATA ARCHITECTURE
-
-```text
+## 123. CURRENT MAP DATA ARCHITECTURE
 OSM PBF
    |
    v
@@ -2843,15 +2745,13 @@ PMTiles client
    |
    v
 MapLibre
-```
-
 Do not confuse this map pipeline with the PostGIS routing graph pipeline.
 
 They may use the same OSM source but are different generated datasets.
 
 ---
 
-# 124. FINAL VALIDATION CHECKLIST
+## 124. FINAL VALIDATION CHECKLIST
 
 Before declaring a feature complete:
 
@@ -2910,7 +2810,7 @@ Before declaring a feature complete:
 
 ---
 
-# 125. GOLDEN RULES
+## 125. GOLDEN RULES
 
 Always remember:
 

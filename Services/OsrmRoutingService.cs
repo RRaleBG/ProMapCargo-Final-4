@@ -61,12 +61,24 @@ public sealed class OsrmRoutingService(
         var coordinates =
             $"{startLon},{startLat};{endLon},{endLat}";
 
+        var query = new List<string>
+        {
+            "overview=full",
+            "geometries=geojson",
+            "steps=true",
+            "alternatives=true",
+            "annotations=distance,duration,speed"
+        };
+
+        var truck = request.Truck;
+
+        if (string.Equals(request.Profile, "truck", StringComparison.OrdinalIgnoreCase) && truck is not null)
+        {
+            query.Add("exclude=ferry");
+        }
+
         var url =
-            $"{baseUrl}/route/v1/{profile}/{coordinates}" +
-            "?overview=full" +
-            "&geometries=geojson" +
-            "&steps=true" +
-            "&alternatives=true";
+            $"{baseUrl}/route/v1/{profile}/{coordinates}?{string.Join("&", query)}";
 
         using var response =
             await http.GetAsync(

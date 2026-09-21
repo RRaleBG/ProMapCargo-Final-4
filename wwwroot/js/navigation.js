@@ -67,6 +67,8 @@ window.ProMap = window.ProMap || {};
             lastError: null,
             archive: null,
             syncFrame: 0,
+            lastSyncZoom: null,
+            lastSyncCenter: null,
         },
     };
 
@@ -709,6 +711,17 @@ window.ProMap = window.ProMap || {};
 
         const center = leafletMap.getCenter();
         const zoom = leafletMap.getZoom();
+        const roundedZoom = Number(zoom.toFixed(2));
+        const roundedLat = Number(center.lat.toFixed(6));
+        const roundedLng = Number(center.lng.toFixed(6));
+
+        if (
+            state.localMap.lastSyncZoom === roundedZoom &&
+            state.localMap.lastSyncCenter?.lat === roundedLat &&
+            state.localMap.lastSyncCenter?.lng === roundedLng
+        ) {
+            return;
+        }
 
         try {
             localMap.jumpTo({
@@ -717,6 +730,12 @@ window.ProMap = window.ProMap || {};
                 bearing: 0,
                 pitch: 0,
             });
+
+            state.localMap.lastSyncZoom = roundedZoom;
+            state.localMap.lastSyncCenter = {
+                lat: roundedLat,
+                lng: roundedLng,
+            };
         } catch {
             // Ignore transient lifecycle errors.
         }
@@ -755,25 +774,29 @@ window.ProMap = window.ProMap || {};
     // LOCAL MAP STYLE
     // ============================================================
 
+    let localMapStylePromise = null;
+
     async function loadLocalMapStyle(mapElement) {
         try {
             const maplibregl = await loadMapLibre();
             await ensurePmtilesProtocol();
 
-            const response = await fetch(LOCAL_MAP_STYLE, {
+            localMapStylePromise ??= fetch(LOCAL_MAP_STYLE, {
                 headers: {
                     Accept: "application/json",
                 },
 
                 credentials: "same-origin",
-                cache: "no-store",
+                cache: "force-cache",
+            }).then(async (response) => {
+                if (!response.ok) {
+                    throw new Error(`promap-dark.json HTTP ${response.status}`);
+                }
+
+                return response.json();
             });
 
-            if (!response.ok) {
-                throw new Error(`promap-dark.json HTTP ${response.status}`);
-            }
-
-            const rawStyle = await response.json();
+            const rawStyle = await localMapStylePromise;
 
             const style = JSON.parse(
                 JSON.stringify(rawStyle).replaceAll(
@@ -868,8 +891,31 @@ window.ProMap = window.ProMap || {};
         state.localMap.failed = false;
         state.localMap.archive = PROMAP_PMTILES_ENDPOINT;
 
+        if (window.ProMap.MapEnhancements?.install) {
+            state.localMap.enhancements = window.ProMap.MapEnhancements.install(map, {
+                visibleGroups: {
+                    route: true,
+                    restrictions: true,
+                    traffic: false,
+                    incidents: false,
+                    fleet: false,
+                    poi: true,
+                    weather: false,
+                    elevation: false,
+                },
+            });
+        }
+
         setLocalMapHostVisible(true);
         scheduleLocalMapBackgroundSync();
+
+        window.setTimeout(() => {
+            state.localMap.enhancements?.setGroupVisible?.("fleet", true);
+            state.localMap.enhancements?.startFleetPolling?.({
+                intervalMs: 30000,
+                initialDelayMs: 1200,
+            });
+        }, 600);
 
         try {
             map.resize();
@@ -951,13 +997,7 @@ window.ProMap = window.ProMap || {};
             }
         });
 
-        state.map.on("zoom", () => {
-            if (state.localMap.visible) {
-                scheduleLocalMapBackgroundSync();
-            }
-        });
-
-        state.map.on("moveend zoomend viewreset", () => {
+        state.map.on("moveend zoomend viewreset resize", () => {
             if (state.localMap.visible) {
                 scheduleLocalMapBackgroundSync();
             }
@@ -2349,17 +2389,20 @@ window.ProMap = window.ProMap || {};
 
             // ========================================================
             // PROMAP MAP ENHANCEMENTS
-            // Povezuje PostGIS/OSRM rezultat sa MapLibre map layerima
+            // Povezuje PostGIS/OSRM rezultat sa aktivnim MapLibre slojevima
             // ========================================================
 
-            updateProMapMapLayers(response, state.selectedRouteIndex);
+            state.localMap.enhancements?.setRoute?.(
+                response,
+                state.selectedRouteIndex,
+            );
 
             const selectedRoute =
                 response.routes?.[state.selectedRouteIndex] ??
                 response.routes?.[0] ??
                 null;
 
-            updateProMapRestrictions(
+            state.localMap.enhancements?.setRestrictions?.(
                 selectedRoute?.analysis?.violations ?? response?.violations ?? [],
             );
 

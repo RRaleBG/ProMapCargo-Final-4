@@ -3,11 +3,9 @@
 
     window.ProMap = window.ProMap || {};
 
-    const manager =
-        window.ProMap.MapLayers = window.ProMap.MapLayers || {};
+    const manager = (window.ProMap.MapLayers = window.ProMap.MapLayers || {});
 
-    const maps =
-        new WeakMap();
+    const maps = new WeakMap();
 
     const LOCAL_MAPLIBRE_JS = "/lib/maplibre-gl/dist/maplibre-gl.js";
     const LOCAL_MAPLIBRE_CSS = "/lib/maplibre-gl/dist/maplibre-gl.css";
@@ -39,7 +37,8 @@
             }
 
             link.onload = () => resolve();
-            link.onerror = () => reject(new Error(`Lokalni CSS nije moguće učitati: ${href}`));
+            link.onerror = () =>
+                reject(new Error(`Lokalni CSS nije moguće učitati: ${href}`));
             document.head.appendChild(link);
         });
     }
@@ -54,16 +53,27 @@
             const existing = document.querySelector(`script[src="${src}"]`);
 
             if (existing) {
-                existing.addEventListener("load", () => resolve(globalName ? window[globalName] : undefined), { once: true });
-                existing.addEventListener("error", () => reject(new Error(`Lokalni JavaScript nije moguće učitati: ${src}`)), { once: true });
+                existing.addEventListener(
+                    "load",
+                    () => resolve(globalName ? window[globalName] : undefined),
+                    { once: true },
+                );
+                existing.addEventListener(
+                    "error",
+                    () =>
+                        reject(new Error(`Lokalni JavaScript nije moguće učitati: ${src}`)),
+                    { once: true },
+                );
                 return;
             }
 
             const script = document.createElement("script");
             script.src = src;
             script.async = false;
-            script.onload = () => resolve(globalName ? window[globalName] : undefined);
-            script.onerror = () => reject(new Error(`Lokalni JavaScript nije moguće učitati: ${src}`));
+            script.onload = () =>
+                resolve(globalName ? window[globalName] : undefined);
+            script.onerror = () =>
+                reject(new Error(`Lokalni JavaScript nije moguće učitati: ${src}`));
             document.head.appendChild(script);
         });
     }
@@ -74,7 +84,11 @@
         const maplibregl = await loadScriptOnce(LOCAL_MAPLIBRE_JS, "maplibregl");
         const pmtiles = await loadScriptOnce(LOCAL_PMTILES_JS, "pmtiles");
 
-        if (!maplibregl || typeof maplibregl.Map !== "function" || typeof maplibregl.addProtocol !== "function") {
+        if (
+            !maplibregl ||
+            typeof maplibregl.Map !== "function" ||
+            typeof maplibregl.addProtocol !== "function"
+        ) {
             throw new Error("Lokalni MapLibre paket nije validan.");
         }
 
@@ -97,8 +111,8 @@
             credentials: "same-origin",
             cache: "no-store",
             headers: {
-                Accept: "application/json"
-            }
+                Accept: "application/json",
+            },
         });
 
         if (!response.ok) {
@@ -110,8 +124,8 @@
         return JSON.parse(
             JSON.stringify(rawStyle).replaceAll(
                 "__PROMAP_PM_TILES_URL__",
-                archiveUrl
-            )
+                archiveUrl,
+            ),
         );
     }
 
@@ -138,7 +152,7 @@
             pointerEvents: "none",
             visibility: "hidden",
             overflow: "hidden",
-            background: "#031712"
+            background: "#031712",
         });
 
         container.appendChild(host);
@@ -157,11 +171,10 @@
                 center: [center.lng, center.lat],
                 zoom: record.leafletMap.getZoom(),
                 bearing: 0,
-                pitch: 0
+                pitch: 0,
             });
             record.maplibreMap.resize();
-        } catch {
-        }
+        } catch { }
     }
 
     async function createMaplibreMap(host, archiveUrl, center, zoom) {
@@ -181,7 +194,7 @@
             doubleClickZoom: false,
             dragRotate: false,
             keyboard: false,
-            touchZoomRotate: false
+            touchZoomRotate: false,
         });
 
         await new Promise((resolve, reject) => {
@@ -192,7 +205,9 @@
                 }
 
                 settled = true;
-                reject(new Error("Lokalna PMTiles mapa nije učitana u roku od 20 sekundi."));
+                reject(
+                    new Error("Lokalna PMTiles mapa nije učitana u roku od 20 sekundi."),
+                );
             }, 20000);
 
             map.once("load", () => {
@@ -205,7 +220,7 @@
                 resolve();
             });
 
-            map.once("error", event => {
+            map.once("error", (event) => {
                 if (settled) {
                     return;
                 }
@@ -242,7 +257,7 @@
                 host,
                 archiveUrl,
                 maplibreMap: null,
-                bound: false
+                bound: false,
             };
         }
 
@@ -275,7 +290,7 @@
 
     async function setArchive(map, archiveUrl) {
         return attach(map, {
-            archiveUrl: archiveUrl || DEFAULT_ARCHIVE_URL
+            archiveUrl: archiveUrl || DEFAULT_ARCHIVE_URL,
         });
     }
 

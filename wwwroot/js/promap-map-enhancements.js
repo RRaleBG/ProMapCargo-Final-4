@@ -5,7 +5,7 @@
 
     const EMPTY = () => ({
         type: "FeatureCollection",
-        features: []
+        features: [],
     });
 
     const GROUPS = {
@@ -13,18 +13,15 @@
             "route-alternative-casing",
             "route-alternative",
             "route-main-casing",
-            "route-main"
+            "route-main",
         ],
-        restrictions: [
-            "route-restriction",
-            "route-warning-point"
-        ],
+        restrictions: ["route-restriction", "route-warning-point"],
         traffic: ["traffic"],
         incidents: ["incident"],
         fleet: ["fleet-vehicles", "fleet-vehicle-label"],
         poi: ["truck-poi"],
         weather: ["weather"],
-        elevation: ["elevation"]
+        elevation: ["elevation"],
     };
 
     const SOURCES = [
@@ -37,7 +34,7 @@
         "traffic",
         "incidents",
         "weather",
-        "elevation"
+        "elevation",
     ];
 
     function asFeatureCollection(value) {
@@ -52,25 +49,27 @@
         if (value.type === "Feature") {
             return {
                 type: "FeatureCollection",
-                features: [value]
+                features: [value],
             };
         }
 
         if (value.type && value.coordinates) {
             return {
                 type: "FeatureCollection",
-                features: [{
-                    type: "Feature",
-                    geometry: value,
-                    properties: {}
-                }]
+                features: [
+                    {
+                        type: "Feature",
+                        geometry: value,
+                        properties: {},
+                    },
+                ],
             };
         }
 
         if (Array.isArray(value)) {
             return {
                 type: "FeatureCollection",
-                features: value.filter(Boolean)
+                features: value.filter(Boolean),
             };
         }
 
@@ -95,8 +94,8 @@
                 ...geometry,
                 properties: {
                     ...(geometry.properties || {}),
-                    ...properties
-                }
+                    ...properties,
+                },
             };
         }
 
@@ -107,7 +106,7 @@
         return {
             type: "Feature",
             geometry,
-            properties
+            properties,
         };
     }
 
@@ -133,8 +132,8 @@
                 ...value,
                 properties: {
                     ...(value.properties || {}),
-                    ...properties
-                }
+                    ...properties,
+                },
             };
         }
 
@@ -148,10 +147,7 @@
 
         const violations = route?.analysis?.violations;
 
-        if (
-            Array.isArray(violations) &&
-            violations.length
-        ) {
+        if (Array.isArray(violations) && violations.length) {
             return "warning";
         }
 
@@ -166,203 +162,131 @@
         const properties = {
             status: routeStatusFrom(route),
 
-            distance:
-                Number.isFinite(Number(route.distance))
-                    ? Number(route.distance)
-                    : null,
+            distance: Number.isFinite(Number(route.distance))
+                ? Number(route.distance)
+                : null,
 
-            duration:
-                Number.isFinite(Number(route.duration))
-                    ? Number(route.duration)
-                    : null,
+            duration: Number.isFinite(Number(route.duration))
+                ? Number(route.duration)
+                : null,
 
-            routeId:
-                route.id ?? null
+            routeId: route.id ?? null,
         };
 
-        if (
-            Array.isArray(route.segments) &&
-            route.segments.length
-        ) {
-            const features =
-                route.segments
-                    .map(
-                        segment =>
-                            geometryToFeature(
-                                segment.geometry ??
-                                segment.geojson,
-                                {
-                                    ...properties,
+        if (Array.isArray(route.segments) && route.segments.length) {
+            const features = route.segments
+                .map((segment) =>
+                    geometryToFeature(segment.geometry ?? segment.geojson, {
+                        ...properties,
 
-                                    status:
-                                        segment.status ??
-                                        properties.status,
+                        status: segment.status ?? properties.status,
 
-                                    severity:
-                                        segment.severity ??
-                                        null,
+                        severity: segment.severity ?? null,
 
-                                    reason:
-                                        segment.reason ??
-                                        null
-                                }
-                            )
-                    )
-                    .filter(Boolean);
+                        reason: segment.reason ?? null,
+                    }),
+                )
+                .filter(Boolean);
 
             if (features.length) {
                 return {
                     type: "FeatureCollection",
-                    features
+                    features,
                 };
             }
         }
 
-        const feature =
-            geometryToFeature(
-                route.geometry,
-                properties
-            );
+        const feature = geometryToFeature(route.geometry, properties);
 
         return feature
             ? {
                 type: "FeatureCollection",
-                features: [feature]
+                features: [feature],
             }
             : EMPTY();
     }
 
-    function routeAlternativeCollection(
-        routes,
-        selectedIndex
-    ) {
+    function routeAlternativeCollection(routes, selectedIndex) {
         const features = [];
 
-        (
-            Array.isArray(routes)
-                ? routes
-                : []
-        ).forEach(
-            (route, index) => {
-                if (index === selectedIndex) {
-                    return;
-                }
-
-                const fc =
-                    routeToFeatureCollection({
-                        ...route,
-                        analysis:
-                            route.analysis || {}
-                    });
-
-                for (const feature of fc.features) {
-                    feature.properties = {
-                        ...(feature.properties || {}),
-
-                        status:
-                            "alternative",
-
-                        routeIndex:
-                            index,
-
-                        opacity:
-                            0.56
-                    };
-
-                    features.push(feature);
-                }
+        (Array.isArray(routes) ? routes : []).forEach((route, index) => {
+            if (index === selectedIndex) {
+                return;
             }
-        );
+
+            const fc = routeToFeatureCollection({
+                ...route,
+                analysis: route.analysis || {},
+            });
+
+            for (const feature of fc.features) {
+                feature.properties = {
+                    ...(feature.properties || {}),
+
+                    status: "alternative",
+
+                    routeIndex: index,
+
+                    opacity: 0.56,
+                };
+
+                features.push(feature);
+            }
+        });
 
         return {
             type: "FeatureCollection",
-            features
+            features,
         };
     }
 
     function violationCollection(violations) {
         const features = [];
 
-        for (
-            const item of
-            Array.isArray(violations)
-                ? violations
-                : []
-        ) {
+        for (const item of Array.isArray(violations) ? violations : []) {
             const props = {
-                severity:
-                    item.severity ||
-                    (
-                        item.blocked
-                            ? "blocked"
-                            : "warning"
-                    ),
+                severity: item.severity || (item.blocked ? "blocked" : "warning"),
 
-                type:
-                    item.type ||
-                    "restriction",
+                type: item.type || "restriction",
 
-                name:
-                    item.name ||
-                    item.id ||
-                    "Truck restriction",
+                name: item.name || item.id || "Truck restriction",
 
-                reason:
-                    item.reason ||
-                    "Aktivno ograničenje"
+                reason: item.reason || "Aktivno ograničenje",
             };
 
-            const feature =
-                geometryToFeature(
-                    item.geometry ||
-                    item.geom ||
-                    item.location ||
-                    item.geojson,
+            const feature = geometryToFeature(
+                item.geometry || item.geom || item.location || item.geojson,
 
-                    props
-                );
+                props,
+            );
 
             if (feature) {
                 features.push(feature);
                 continue;
             }
 
-            const lat =
-                Number(
-                    item.latitude ??
-                    item.lat
-                );
+            const lat = Number(item.latitude ?? item.lat);
 
-            const lon =
-                Number(
-                    item.longitude ??
-                    item.lon
-                );
+            const lon = Number(item.longitude ?? item.lon);
 
-            if (
-                Number.isFinite(lat) &&
-                Number.isFinite(lon)
-            ) {
+            if (Number.isFinite(lat) && Number.isFinite(lon)) {
                 features.push({
                     type: "Feature",
 
                     geometry: {
                         type: "Point",
 
-                        coordinates: [
-                            lon,
-                            lat
-                        ]
+                        coordinates: [lon, lat],
                     },
 
-                    properties: props
+                    properties: props,
                 });
             }
         }
 
         return {
             type: "FeatureCollection",
-            features
+            features,
         };
     }
 
@@ -379,61 +303,43 @@
 
             if (
                 coords.length >= 2 &&
-                Number.isFinite(
-                    Number(coords[0])
-                ) &&
-                Number.isFinite(
-                    Number(coords[1])
-                )
+                Number.isFinite(Number(coords[0])) &&
+                Number.isFinite(Number(coords[1]))
             ) {
-                const x =
-                    Number(coords[0]);
+                const x = Number(coords[0]);
 
-                const y =
-                    Number(coords[1]);
+                const y = Number(coords[1]);
 
-                minX =
-                    Math.min(minX, x);
+                minX = Math.min(minX, x);
 
-                minY =
-                    Math.min(minY, y);
+                minY = Math.min(minY, y);
 
-                maxX =
-                    Math.max(maxX, x);
+                maxX = Math.max(maxX, x);
 
-                maxY =
-                    Math.max(maxY, y);
+                maxY = Math.max(maxY, y);
 
                 return;
             }
 
-            for (
-                const item of coords
-            ) {
+            for (const item of coords) {
                 visit(item);
             }
         }
 
-        for (
-            const feature of
-            fc.features || []
-        ) {
-            visit(
-                feature?.geometry?.coordinates
-            );
+        for (const feature of fc.features || []) {
+            visit(feature?.geometry?.coordinates);
         }
 
         return Number.isFinite(minX)
             ? [
                 [minX, minY],
-                [maxX, maxY]
+                [maxX, maxY],
             ]
             : null;
     }
 
     function popupHtml(feature) {
-        const properties =
-            feature?.properties || {};
+        const properties = feature?.properties || {};
 
         const title =
             properties.name ||
@@ -442,29 +348,23 @@
             properties.type ||
             "ProMap";
 
-        const lines =
-            Object.entries(properties)
-                .filter(
-                    ([key, value]) =>
-                        value !== null &&
-                        value !== undefined &&
-                        value !== "" &&
-                        ![
-                            "name",
-                            "label",
-                            "id",
-                            "type"
-                        ].includes(key)
-                )
-                .slice(0, 10)
-                .map(
-                    ([key, value]) =>
-                        `<div>` +
-                        `<strong>${escapeHtml(key)}</strong>` +
-                        `: ${escapeHtml(value)}` +
-                        `</div>`
-                )
-                .join("");
+        const lines = Object.entries(properties)
+            .filter(
+                ([key, value]) =>
+                    value !== null &&
+                    value !== undefined &&
+                    value !== "" &&
+                    !["name", "label", "id", "type"].includes(key),
+            )
+            .slice(0, 10)
+            .map(
+                ([key, value]) =>
+                    `<div>` +
+                    `<strong>${escapeHtml(key)}</strong>` +
+                    `: ${escapeHtml(value)}` +
+                    `</div>`,
+            )
+            .join("");
 
         return `
             <div style="
@@ -511,157 +411,74 @@
             .replaceAll("'", "&#039;");
     }
 
-    function addSourceIfNeeded(
-        map,
-        sourceId,
-        data
-    ) {
-        const source =
-            map.getSource(sourceId);
+    function addSourceIfNeeded(map, sourceId, data) {
+        const source = map.getSource(sourceId);
 
         if (source) {
-            source.setData(
-                asFeatureCollection(data)
-            );
+            source.setData(asFeatureCollection(data));
 
             return;
         }
 
-        map.addSource(
-            sourceId,
-            {
-                type: "geojson",
-                data:
-                    asFeatureCollection(data)
-            }
-        );
+        map.addSource(sourceId, {
+            type: "geojson",
+            data: asFeatureCollection(data),
+        });
     }
 
-    function setLayoutVisibility(
-        map,
-        layerId,
-        visible
-    ) {
+    function setLayoutVisibility(map, layerId, visible) {
         if (!map.getLayer(layerId)) {
             return;
         }
 
-        map.setLayoutProperty(
-            layerId,
-            "visibility",
-            visible
-                ? "visible"
-                : "none"
-        );
+        map.setLayoutProperty(layerId, "visibility", visible ? "visible" : "none");
     }
 
-    function applyVisibility(
-        map,
-        visibleGroups
-    ) {
-        for (
-            const [
-                group,
-                layerIds
-            ] of Object.entries(GROUPS)
-        ) {
-            const visible =
-                visibleGroups[group] !== false;
+    function applyVisibility(map, visibleGroups) {
+        for (const [group, layerIds] of Object.entries(GROUPS)) {
+            const visible = visibleGroups[group] !== false;
 
-            for (
-                const layerId of layerIds
-            ) {
-                setLayoutVisibility(
-                    map,
-                    layerId,
-                    visible
-                );
+            for (const layerId of layerIds) {
+                setLayoutVisibility(map, layerId, visible);
             }
         }
     }
 
-    function setDataSafe(
-        map,
-        sourceId,
-        data
-    ) {
-        const source =
-            map.getSource(sourceId);
+    function setDataSafe(map, sourceId, data) {
+        const source = map.getSource(sourceId);
 
         if (!source) {
             return;
         }
 
-        source.setData(
-            asFeatureCollection(data)
-        );
+        source.setData(asFeatureCollection(data));
     }
 
-    function buildFleetCollection(
-        vehicles,
-        trips
-    ) {
+    function buildFleetCollection(vehicles, trips) {
         const features = [];
 
-        const vehicleRows =
-            Array.isArray(vehicles)
-                ? vehicles
-                : [];
+        const vehicleRows = Array.isArray(vehicles) ? vehicles : [];
 
-        const tripRows =
-            Array.isArray(trips)
-                ? trips
-                : [];
+        const tripRows = Array.isArray(trips) ? trips : [];
 
-        const tripByVehicle =
-            new Map();
+        const tripByVehicle = new Map();
 
-        for (
-            const trip of tripRows
-        ) {
-            if (
-                trip?.VehicleId ||
-                trip?.vehicleId
-            ) {
-                tripByVehicle.set(
-                    String(
-                        trip.VehicleId ??
-                        trip.vehicleId
-                    ),
-                    trip
-                );
+        for (const trip of tripRows) {
+            if (trip?.VehicleId || trip?.vehicleId) {
+                tripByVehicle.set(String(trip.VehicleId ?? trip.vehicleId), trip);
             }
         }
 
-        for (
-            const vehicle of vehicleRows
-        ) {
-            const lat =
-                Number(
-                    vehicle.currentLatitude ??
-                    vehicle.CurrentLatitude
-                );
+        for (const vehicle of vehicleRows) {
+            const lat = Number(vehicle.currentLatitude ?? vehicle.CurrentLatitude);
 
-            const lon =
-                Number(
-                    vehicle.currentLongitude ??
-                    vehicle.CurrentLongitude
-                );
+            const lon = Number(vehicle.currentLongitude ?? vehicle.CurrentLongitude);
 
-            if (
-                !Number.isFinite(lat) ||
-                !Number.isFinite(lon)
-            ) {
+            if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
                 continue;
             }
 
-            const trip =
-                tripByVehicle.get(
-                    String(
-                        vehicle.id ??
-                        vehicle.Id
-                    )
-                );
+            const trip = tripByVehicle.get(String(vehicle.id ?? vehicle.Id));
 
             const speed =
                 vehicle.currentSpeedKmh ??
@@ -678,9 +495,7 @@
                 0;
 
             const registration =
-                vehicle.registration ??
-                vehicle.Registration ??
-                "TRUCK";
+                vehicle.registration ?? vehicle.Registration ?? "TRUCK";
 
             const status =
                 vehicle.status ??
@@ -695,86 +510,63 @@
                 geometry: {
                     type: "Point",
 
-                    coordinates: [
-                        lon,
-                        lat
-                    ]
+                    coordinates: [lon, lat],
                 },
 
                 properties: {
-                    id:
-                        vehicle.id ??
-                        vehicle.Id ??
-                        null,
+                    id: vehicle.id ?? vehicle.Id ?? null,
 
                     registration,
 
                     status,
 
-                    speedKmh:
-                        speed,
+                    speedKmh: speed,
 
                     bearing,
 
-                    type:
-                        "fleet"
-                }
+                    type: "fleet",
+                },
             });
         }
 
         return {
             type: "FeatureCollection",
-            features
+            features,
         };
     }
 
-    async function fetchJson(
-        url
-    ) {
-        const response =
-            await fetch(
-                url,
-                {
-                    headers: {
-                        Accept:
-                            "application/json"
-                    },
+    async function fetchJson(url, authOptions = {}) {
+        const headers = {
+            Accept: "application/json",
+            ...(authOptions.headers || {}),
+        };
 
-                    credentials:
-                        "same-origin"
-                }
-            );
+        if (authOptions.token) {
+            headers["Authorization"] = `Bearer ${authOptions.token}`;
+        }
+
+        const response = await fetch(url, {
+            headers,
+            credentials: authOptions.credentials || "same-origin",
+        });
 
         if (!response.ok) {
-            throw new Error(
-                `${url} HTTP ${response.status}`
-            );
+            throw new Error(`${url} HTTP ${response.status}`);
         }
 
         return response.json();
     }
 
-    function install(
-        map,
-        options = {}
-    ) {
-        if (
-            !map ||
-            typeof map.addSource !==
-            "function"
-        ) {
+    function install(map, options = {}) {
+        if (!map || typeof map.addSource !== "function") {
             throw new Error(
-                "ProMap.MapEnhancements.install zahteva MapLibre map instancu."
+                "ProMap.MapEnhancements.install zahteva MapLibre map instancu.",
             );
         }
 
         const opts = {
-            fitPadding:
-                options.fitPadding ?? 60,
-
-            popup:
-                options.popup !== false,
-
+            fitPadding: options.fitPadding ?? 60,
+            popup: options.popup !== false,
             visibleGroups: {
                 route: true,
                 restrictions: true,
@@ -785,114 +577,70 @@
                 weather: false,
                 elevation: false,
 
-                ...(options.visibleGroups || {})
-            }
+                ...(options.visibleGroups || {}),
+            },
         };
 
-        for (
-            const sourceId of SOURCES
-        ) {
-            if (
-                !map.getSource(
-                    sourceId
-                )
-            ) {
-                map.addSource(
-                    sourceId,
-                    {
-                        type: "geojson",
-                        data: EMPTY()
-                    }
-                );
+        for (const sourceId of SOURCES) {
+            if (!map.getSource(sourceId)) {
+                map.addSource(sourceId, {
+                    type: "geojson",
+                    data: EMPTY(),
+                });
             }
         }
 
-        applyVisibility(
-            map,
-            opts.visibleGroups
-        );
+        applyVisibility(map, opts.visibleGroups);
 
-        if (
-            opts.popup &&
-            !map.__promapEnhancementPopupBound
-        ) {
-            map.__promapEnhancementPopupBound =
-                true;
+        if (opts.popup && !map.__promapEnhancementPopupBound) {
+            map.__promapEnhancementPopupBound = true;
 
             const popupLayerIds = [
                 "route-warning-point",
                 "incident",
                 "truck-poi",
                 "fleet-vehicles",
-                "weather"
-            ].filter(
-                id =>
-                    map.getLayer(id)
-            );
+                "weather",
+            ].filter((id) => map.getLayer(id));
 
             if (popupLayerIds.length) {
-                map.on(
-                    "click",
-                    popupLayerIds,
-                    event => {
-                        const feature =
-                            event.features?.[0];
+                map.on("click", popupLayerIds, (event) => {
+                    const feature = event.features?.[0];
 
-                        if (!feature) {
-                            return;
-                        }
-
-                        new map.constructor.Popup({
-                            offset: 12
-                        })
-                            .setLngLat(
-                                event.lngLat
-                            )
-                            .setHTML(
-                                popupHtml(
-                                    feature
-                                )
-                            )
-                            .addTo(map);
+                    if (!feature) {
+                        return;
                     }
-                );
+
+                    new map.constructor.Popup({
+                        offset: 12,
+                    })
+                        .setLngLat(event.lngLat)
+                        .setHTML(popupHtml(feature))
+                        .addTo(map);
+                });
             }
         }
 
         async function loadFleet() {
             try {
-                const [
-                    vehicles,
-                    trips
-                ] =
-                    await Promise.all([
-                        fetchJson(
-                            "/api/business/vehicles"
-                        ),
+                const [vehicles, trips] = await Promise.all([
+                    fetchJson("/api/business/vehicles"),
 
-                        fetchJson(
-                            "/api/business/trips"
-                        )
-                    ]);
+                    fetchJson("/api/business/trips"),
+                ]);
 
                 setDataSafe(
                     map,
                     "fleet-vehicles",
-                    buildFleetCollection(
-                        vehicles,
-                        trips
-                    )
+                    buildFleetCollection(vehicles, trips),
                 );
 
                 return {
                     vehicles,
-                    trips
+                    trips,
                 };
             } catch (error) {
-                console.warn(
-                    "[ProMap] Fleet load failed:",
-                    error
-                );
+                console.warn("[ProMap] Fleet load failed:", error);
 
                 return null;
             }
@@ -900,227 +648,107 @@
 
         let fleetTimer = null;
 
-        function startFleetPolling(
-            config = {}
-        ) {
+        function startFleetPolling(config = {}) {
             stopFleetPolling();
 
-            const intervalMs =
-                Math.max(
-                    5000,
-                    Number(
-                        config.intervalMs ||
-                        15000
-                    )
-                );
+            const intervalMs = Math.max(5000, Number(config.intervalMs || 15000));
 
-            void loadFleet();
+            const initialDelayMs = Math.max(0, Number(config.initialDelayMs || 0));
 
-            fleetTimer =
-                window.setInterval(
-                    () => {
-                        void loadFleet();
-                    },
-                    intervalMs
-                );
+            const triggerLoad = () => {
+                void loadFleet();
+            };
+
+            if (initialDelayMs > 0) {
+                window.setTimeout(triggerLoad, initialDelayMs);
+            } else {
+                triggerLoad();
+            }
+
+            fleetTimer = window.setInterval(triggerLoad, intervalMs);
         }
 
         function stopFleetPolling() {
-            if (
-                fleetTimer !== null
-            ) {
-                window.clearInterval(
-                    fleetTimer
-                );
+            if (fleetTimer !== null) {
+                window.clearInterval(fleetTimer);
 
                 fleetTimer = null;
             }
         }
 
-        function setRoute(
-            response,
-            selectedIndex = 0
-        ) {
-            const routes =
-                Array.isArray(
-                    response?.routes
-                )
-                    ? response.routes
-                    : [];
+        function setRoute(response, selectedIndex = 0) {
+            const routes = Array.isArray(response?.routes) ? response.routes : [];
 
-            const selectedRoute =
-                routes[selectedIndex] ||
-                routes[0] ||
-                null;
+            const selectedRoute = routes[selectedIndex] || routes[0] || null;
 
-            const alternative =
-                routeAlternativeCollection(
-                    routes,
-                    selectedIndex
-                );
+            const alternative = routeAlternativeCollection(routes, selectedIndex);
 
-            const restrictions =
-                violationCollection(
-                    selectedRoute
-                        ?.analysis
-                        ?.violations ??
-                    response?.violations ??
-                    []
-                );
-
-            setDataSafe(
-                map,
-                "route-main",
-                routeToFeatureCollection(
-                    selectedRoute
-                )
+            const restrictions = violationCollection(
+                selectedRoute?.analysis?.violations ?? response?.violations ?? [],
             );
 
-            setDataSafe(
-                map,
-                "route-alternative",
-                alternative
-            );
+            setDataSafe(map, "route-main", routeToFeatureCollection(selectedRoute));
 
-            setDataSafe(
-                map,
-                "route-restrictions",
-                restrictions
-            );
+            setDataSafe(map, "route-alternative", alternative);
 
-            setDataSafe(
-                map,
-                "route-warnings",
-                restrictions
-            );
+            setDataSafe(map, "route-restrictions", restrictions);
+
+            setDataSafe(map, "route-warnings", restrictions);
         }
 
-        function setFleet(
-            vehicles,
-            trips
-        ) {
-            setDataSafe(
-                map,
-                "fleet-vehicles",
-                buildFleetCollection(
-                    vehicles,
-                    trips
-                )
-            );
+        function setFleet(vehicles, trips) {
+            setDataSafe(map, "fleet-vehicles", buildFleetCollection(vehicles, trips));
         }
 
-        function setRestrictions(
-            violations
-        ) {
-            const data =
-                violationCollection(
-                    violations
-                );
+        function setRestrictions(violations) {
+            const data = violationCollection(violations);
 
-            setDataSafe(
-                map,
-                "route-restrictions",
-                data
-            );
+            setDataSafe(map, "route-restrictions", data);
 
-            setDataSafe(
-                map,
-                "route-warnings",
-                data
-            );
+            setDataSafe(map, "route-warnings", data);
         }
 
-        function setPoi(
-            value
-        ) {
-            setDataSafe(
-                map,
-                "truck-poi",
-                value
-            );
+        function setPoi(value) {
+            setDataSafe(map, "truck-poi", value);
         }
 
-        function setTraffic(
-            value
-        ) {
-            setDataSafe(
-                map,
-                "traffic",
-                value
-            );
+        function setTraffic(value) {
+            setDataSafe(map, "traffic", value);
         }
 
-        function setIncidents(
-            value
-        ) {
-            setDataSafe(
-                map,
-                "incidents",
-                value
-            );
+        function setIncidents(value) {
+            setDataSafe(map, "incidents", value);
         }
 
-        function setWeather(
-            value
-        ) {
-            setDataSafe(
-                map,
-                "weather",
-                value
-            );
+        function setWeather(value) {
+            setDataSafe(map, "weather", value);
         }
 
-        function setElevation(
-            value
-        ) {
-            setDataSafe(
-                map,
-                "elevation",
-                value
-            );
+        function setElevation(value) {
+            setDataSafe(map, "elevation", value);
         }
 
-        function setGroupVisible(
-            group,
-            visible
-        ) {
-            const ids =
-                GROUPS[group] || [];
+        function setGroupVisible(group, visible) {
+            const ids = GROUPS[group] || [];
 
-            for (
-                const layerId of ids
-            ) {
-                setLayoutVisibility(
-                    map,
-                    layerId,
-                    visible
-                );
+            for (const layerId of ids) {
+                setLayoutVisibility(map, layerId, visible);
             }
         }
 
-        function fitData(
-            value
-        ) {
-            const collection =
-                asFeatureCollection(
-                    value
-                );
+        function fitData(value) {
+            const collection = asFeatureCollection(value);
 
-            const bounds =
-                bbox(collection);
+            const bounds = bbox(collection);
 
             if (!bounds) {
                 return false;
             }
 
-            map.fitBounds(
-                bounds,
-                {
-                    padding:
-                        opts.fitPadding,
-                    maxZoom: 17
-                }
-            );
+            map.fitBounds(bounds, {
+                padding: opts.fitPadding,
+                maxZoom: 17,
+            });
 
             return true;
         }
@@ -1144,12 +772,11 @@
 
             loadFleet,
             startFleetPolling,
-            stopFleetPolling
+            stopFleetPolling,
         };
     }
 
     window.ProMap.MapEnhancements = {
-        install
+        install,
     };
-
 })(window);

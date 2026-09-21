@@ -75,6 +75,7 @@ appsettings.*.local.json
 # ============================================================
 
 /maps/
+/wwwroot/maps/
 /data/
 
 # Generated OSM directory contents
@@ -84,6 +85,8 @@ appsettings.*.local.json
 # Generated PMTiles
 *.pmtiles
 *.mbtiles
+/pmtiles.exe
+/pmtiles-tool/
 
 # ============================================================
 # Docker local artifacts

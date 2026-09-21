@@ -51,7 +51,9 @@ public sealed class RoutingController(
             Destination = request.Target,
             Profile = profile,
             AvoidRestricted = request.AvoidRestricted,
-            Truck = request.Truck,
+            Truck = NormalizeTruckProfile(
+                profile,
+                request.Truck),
             DepartureAt = request.DepartureAt
         };
 
@@ -377,6 +379,45 @@ public sealed class RoutingController(
             point.Lat <= 90 &&
             point.Lon >= -180 &&
             point.Lon <= 180;
+    }
+
+    private static TruckProfile? NormalizeTruckProfile(
+        string profile,
+        TruckProfile? truck)
+    {
+        if (!string.Equals(profile, "truck", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        truck ??= new TruckProfile();
+
+        var grossWeight = truck.GrossWeightTons > 0 ? truck.GrossWeightTons : 40m;
+        var height = truck.HeightMeters > 0 ? truck.HeightMeters : 4m;
+        var width = truck.WidthMeters > 0 ? truck.WidthMeters : 2.55m;
+        var length = truck.LengthMeters > 0 ? truck.LengthMeters : 16.5m;
+        var axleLoad = truck.AxleLoadTons is > 0 ? truck.AxleLoadTons : 10m;
+        var axles = truck.Axles > 0 ? truck.Axles : 5;
+        var maxSpeed = truck.MaxSpeedKmh > 0 ? truck.MaxSpeedKmh : 90m;
+
+        return new TruckProfile
+        {
+            GrossWeightTons = grossWeight,
+            HeightMeters = height,
+            WidthMeters = width,
+            LengthMeters = length,
+            AxleLoadTons = axleLoad,
+            Axles = axles,
+            IsHgv = truck.IsHgv,
+            Commercial = truck.Commercial,
+            Hazmat = truck.Hazmat,
+            Goods = truck.Goods,
+            AdrClass = truck.AdrClass,
+            VehicleClass = string.IsNullOrWhiteSpace(truck.VehicleClass)
+                ? "HeavyGoods"
+                : truck.VehicleClass,
+            MaxSpeedKmh = maxSpeed,
+        };
     }
 
     private static List<GeoPoint> ExtractPoints(

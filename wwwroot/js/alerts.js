@@ -23,7 +23,7 @@
             source: "Navigation",
             createdAt: "2026-09-18T18:42:00+02:00",
             action: "Otvorite navigaciju i proverite poziciju vozila.",
-            actionUrl: "/navigation"
+            actionUrl: "/navigation",
         },
         {
             id: "ALT-9022",
@@ -41,7 +41,7 @@
             source: "Compliance",
             createdAt: "2026-09-18T17:31:00+02:00",
             action: "Otvorite Compliance i unesite novi dokument.",
-            actionUrl: "/compliance"
+            actionUrl: "/compliance",
         },
         {
             id: "ALT-9023",
@@ -59,7 +59,7 @@
             source: "Monitoring",
             createdAt: "2026-09-18T16:58:00+02:00",
             action: "Proverite GPS uređaj i poslednju poznatu poziciju.",
-            actionUrl: "/monitoring"
+            actionUrl: "/monitoring",
         },
         {
             id: "ALT-9024",
@@ -68,7 +68,8 @@
             type: "TRUCK_RESTRICTION",
             status: "open",
             title: "Ruta sadrži truck restriction",
-            message: "Ruta za vozilo 40 t prolazi kroz segment sa ograničenjem visine 4.0 m.",
+            message:
+                "Ruta za vozilo 40 t prolazi kroz segment sa ograničenjem visine 4.0 m.",
             vehicleId: "V-004",
             vehicle: "NS-777-AA",
             driver: "Petar Jovanović",
@@ -77,7 +78,7 @@
             source: "Routing",
             createdAt: "2026-09-18T16:21:00+02:00",
             action: "Otvorite navigaciju i izračunajte novu truck rutu.",
-            actionUrl: "/navigation"
+            actionUrl: "/navigation",
         },
         {
             id: "ALT-9025",
@@ -95,7 +96,7 @@
             source: "Dispatch",
             createdAt: "2026-09-18T15:49:00+02:00",
             action: "Proverite status ture i eventualno promenite plan.",
-            actionUrl: "/trips"
+            actionUrl: "/trips",
         },
         {
             id: "ALT-9026",
@@ -113,7 +114,7 @@
             source: "Fleet",
             createdAt: "2026-09-18T14:17:00+02:00",
             action: "Otvorite vozilo i unesite servisni događaj.",
-            actionUrl: "/vehicles"
+            actionUrl: "/vehicles",
         },
         {
             id: "ALT-9027",
@@ -131,7 +132,7 @@
             source: "Driver / Tachograph",
             createdAt: "2026-09-18T13:42:00+02:00",
             action: "Proverite tachograph stanje i planirajte odmor.",
-            actionUrl: "/drivers"
+            actionUrl: "/drivers",
         },
         {
             id: "ALT-9028",
@@ -149,7 +150,7 @@
             source: "Finance",
             createdAt: "2026-09-18T12:33:00+02:00",
             action: "Otvorite finansije i proverite fuel card transakciju.",
-            actionUrl: "/finance"
+            actionUrl: "/finance",
         },
         {
             id: "ALT-9029",
@@ -167,7 +168,7 @@
             source: "Transport Orders",
             createdAt: "2026-09-18T11:54:00+02:00",
             action: "Otvorite transportni nalog i proverite SLA.",
-            actionUrl: "/orders"
+            actionUrl: "/orders",
         },
         {
             id: "ALT-9030",
@@ -185,7 +186,7 @@
             source: "Compliance",
             createdAt: "2026-09-18T10:42:00+02:00",
             action: "Vozilo je compliance blokirano dok se dokument ne ažurira.",
-            actionUrl: "/compliance"
+            actionUrl: "/compliance",
         },
         {
             id: "ALT-9031",
@@ -194,7 +195,8 @@
             type: "ROUTING_FALLBACK",
             status: "open",
             title: "Routing koristi OSRM fallback",
-            message: "PostGIS graph nije korišćen za poslednju rutu; aktiviran je OSRM fallback.",
+            message:
+                "PostGIS graph nije korišćen za poslednju rutu; aktiviran je OSRM fallback.",
             vehicleId: null,
             vehicle: null,
             driver: null,
@@ -203,7 +205,7 @@
             source: "Routing Engine",
             createdAt: "2026-09-18T10:12:00+02:00",
             action: "Proverite PostGIS graph ako se fallback ponavlja.",
-            actionUrl: "/navigation"
+            actionUrl: "/navigation",
         },
         {
             id: "ALT-9032",
@@ -221,7 +223,7 @@
             source: "Drivers",
             createdAt: "2026-09-18T09:27:00+02:00",
             action: "Otvorite profil vozača i ažurirajte dokument.",
-            actionUrl: "/drivers"
+            actionUrl: "/drivers",
         },
         {
             id: "ALT-9033",
@@ -239,7 +241,7 @@
             source: "Fleet",
             createdAt: "2026-09-18T08:48:00+02:00",
             action: "Otvorite vozilo i proverite prijavljeni kvar.",
-            actionUrl: "/vehicles"
+            actionUrl: "/vehicles",
         },
         {
             id: "ALT-9034",
@@ -257,8 +259,8 @@
             source: "Finance",
             createdAt: "2026-09-18T08:11:00+02:00",
             action: "Otvorite Finansije i pregledajte trošak.",
-            actionUrl: "/finance"
-        }
+            actionUrl: "/finance",
+        },
     ];
 
     const CATEGORY_LABELS = {
@@ -274,7 +276,7 @@
         driver: "Vozači",
         vehicle: "Vozila",
         finance: "Finansije",
-        system: "Sistem"
+        system: "Sistem",
     };
 
     const SEVERITY_LABELS = {
@@ -282,7 +284,7 @@
         high: "High",
         medium: "Medium",
         low: "Low",
-        info: "Info"
+        info: "Info",
     };
 
     function cloneDefaults() {
@@ -298,10 +300,7 @@
             if (!raw) {
                 const defaults = cloneDefaults();
 
-                localStorage.setItem(
-                    STORAGE_KEY,
-                    JSON.stringify(defaults)
-                );
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
 
                 return defaults;
             }
@@ -314,10 +313,7 @@
 
             return parsed;
         } catch (error) {
-            console.warn(
-                "ProMap Alerts storage error:",
-                error
-            );
+            console.warn("ProMap Alerts storage error:", error);
 
             return cloneDefaults();
         }
@@ -325,28 +321,19 @@
 
     function writeAlerts(alerts) {
         try {
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify(alerts)
-            );
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(alerts));
         } catch (error) {
-            console.warn(
-                "ProMap Alerts write error:",
-                error
-            );
+            console.warn("ProMap Alerts write error:", error);
         }
 
         updateBadges(alerts);
 
         window.dispatchEvent(
-            new CustomEvent(
-                "promap:alerts-changed",
-                {
-                    detail: {
-                        alerts: alerts
-                    }
-                }
-            )
+            new CustomEvent("promap:alerts-changed", {
+                detail: {
+                    alerts: alerts,
+                },
+            }),
         );
     }
 
@@ -385,18 +372,14 @@
     }
 
     function updateBadges(alerts) {
-        const source = Array.isArray(alerts)
-            ? alerts
-            : readAlerts();
+        const source = Array.isArray(alerts) ? alerts : readAlerts();
 
         const count = source.filter(function (alert) {
             return alert.status === "open";
         }).length;
 
         document
-            .querySelectorAll(
-                ".pm-nav-count[data-alert-count]"
-            )
+            .querySelectorAll(".pm-nav-count[data-alert-count]")
             .forEach(function (element) {
                 element.textContent = count;
 
@@ -404,9 +387,7 @@
             });
 
         document
-            .querySelectorAll(
-                ".pm-notification-badge[data-alert-count]"
-            )
+            .querySelectorAll(".pm-notification-badge[data-alert-count]")
             .forEach(function (element) {
                 element.textContent = count;
 
@@ -431,8 +412,7 @@
 
         alerts[index].status = status;
 
-        alerts[index].updatedAt =
-            new Date().toISOString();
+        alerts[index].updatedAt = new Date().toISOString();
 
         writeAlerts(alerts);
 
@@ -440,24 +420,15 @@
     }
 
     function acknowledge(id) {
-        return setStatus(
-            id,
-            "acknowledged"
-        );
+        return setStatus(id, "acknowledged");
     }
 
     function resolve(id) {
-        return setStatus(
-            id,
-            "resolved"
-        );
+        return setStatus(id, "resolved");
     }
 
     function reopen(id) {
-        return setStatus(
-            id,
-            "open"
-        );
+        return setStatus(id, "open");
     }
 
     function snooze(id, minutes) {
@@ -471,22 +442,13 @@
             return null;
         }
 
-        const until =
-            Date.now() +
-            Math.max(
-                1,
-                Number(minutes) || 30
-            ) *
-            60 *
-            1000;
+        const until = Date.now() + Math.max(1, Number(minutes) || 30) * 60 * 1000;
 
         alerts[index].status = "snoozed";
 
-        alerts[index].snoozedUntil =
-            new Date(until).toISOString();
+        alerts[index].snoozedUntil = new Date(until).toISOString();
 
-        alerts[index].updatedAt =
-            new Date().toISOString();
+        alerts[index].updatedAt = new Date().toISOString();
 
         writeAlerts(alerts);
 
@@ -494,43 +456,25 @@
     }
 
     function getCategoryLabel(category) {
-        return (
-            CATEGORY_LABELS[category] ||
-            category ||
-            "Sistem"
-        );
+        return CATEGORY_LABELS[category] || category || "Sistem";
     }
 
     function getSeverityLabel(severity) {
-        return (
-            SEVERITY_LABELS[severity] ||
-            severity ||
-            "Info"
-        );
+        return SEVERITY_LABELS[severity] || severity || "Info";
     }
 
     function init() {
         updateBadgesNow();
 
-        window.addEventListener(
-            "storage",
-            function (event) {
-                if (event.key === STORAGE_KEY) {
-                    updateBadgesNow();
-                }
+        window.addEventListener("storage", function (event) {
+            if (event.key === STORAGE_KEY) {
+                updateBadgesNow();
             }
-        );
+        });
 
-        window.addEventListener(
-            "promap:alerts-changed",
-            function (event) {
-                updateBadges(
-                    event.detail
-                        ? event.detail.alerts
-                        : null
-                );
-            }
-        );
+        window.addEventListener("promap:alerts-changed", function (event) {
+            updateBadges(event.detail ? event.detail.alerts : null);
+        });
     }
 
     window.ProMap.Alerts = {
@@ -548,16 +492,11 @@
         setStatus: setStatus,
         categoryLabel: getCategoryLabel,
         severityLabel: getSeverityLabel,
-        refreshBadges: updateBadgesNow
+        refreshBadges: updateBadgesNow,
     };
 
-    if (
-        document.readyState === "loading"
-    ) {
-        document.addEventListener(
-            "DOMContentLoaded",
-            init
-        );
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
     } else {
         init();
     }
