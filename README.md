@@ -1,6 +1,6 @@
 # ProMap Cargo – Final
 
-Truck-aware transport logistics and navigation platform built with ASP.NET Core 9, PostgreSQL/PostGIS, OSM/PBF import, Leaflet and SignalR.
+Truck-aware transport logistics and navigation platform built with ASP.NET Core 10, PostgreSQL/PostGIS, OSM/PBF import, Leaflet, MapLibre, local PMTiles vector maps, and SignalR.
 
 ## Final architecture
 
@@ -24,8 +24,9 @@ There is **one PostgreSQL/PostGIS database**: `promapcargo`.
 - PostGIS routing with a truck-aware Dijkstra state search and OSRM compatibility fallback.
 - Route persistence and driver dispatch workflow.
 - SignalR navigation telemetry hub.
-- Leaflet-based command-center UI.
-- Dockerfile and Docker Compose for API + PostGIS.
+- Leaflet + MapLibre command-center UI with local PMTiles basemaps.
+- Self-hosted frontend map assets under `wwwroot/lib`, `wwwroot/fonts`, `wwwroot/styles`, and `wwwroot/maps`.
+- Dockerfile and Docker Compose for API + PostGIS + OSRM.
 - GitHub Actions build workflow.
 
 ## Packages
@@ -42,28 +43,33 @@ Then run `docker compose up --build`. The final version uses PostgreSQL snake_ca
 
 ## Run locally
 
-1. Start PostGIS:
+1. Make sure local map archives exist in `wwwroot/maps`:
 
-   `docker compose up -d postgres`
+   - `wwwroot/maps/serbia.pmtiles`
+   - `wwwroot/maps/europe.pmtiles`
 
-2. Restore and build:
+   Generate or refresh Serbia PMTiles with:
+
+   `./scripts/build-serbia-pmtiles.ps1`
+
+2. Start infrastructure:
+
+   `docker compose up -d postgres osrm`
+
+3. Restore and build:
 
    `dotnet restore ProMapCargo.sln`
    `dotnet build ProMapCargo.sln`
 
-3. Start the API:
+4. Start the API:
 
    `dotnet run --project ProMapCargo.Api.csproj`
 
-4. Open the application and check:
+5. Open the application:
 
    `http://localhost:5090`
 
-   Health endpoint:
-
-   `http://localhost:5000/health`
-
-The API automatically creates the EF Core database schema, enables PostGIS, creates the routing schema/indexes and performs the demo seed on first startup.
+The API automatically creates the EF Core database schema, enables PostGIS, creates the routing schema/indexes and performs the demo seed on first startup. The local frontend uses self-hosted Leaflet, MapLibre, PMTiles, SignalR, and glyph/font assets from `wwwroot`.
 
 ## Docker
 
@@ -71,13 +77,26 @@ Run the complete application stack:
 
 `docker compose up --build`
 
-API:
+The Docker stack includes:
 
-`http://localhost:8080`
+- `postgres` for PostgreSQL/PostGIS
+- `osrm` for OSRM fallback routing
+- `api` for the ASP.NET Core app
 
-PostGIS:
+Required local map/runtime assets for the `api` container:
 
-`localhost:5432`, database `promapcargo`, user `promap`.
+- `wwwroot/styles/promap-dark.json`
+- `wwwroot/maps/serbia.pmtiles`
+- `wwwroot/maps/europe.pmtiles`
+- self-hosted frontend libraries and glyphs under `wwwroot/lib` and `wwwroot/fonts`
+
+Endpoints:
+
+- API/UI: `http://localhost:8080`
+- PostGIS: `localhost:5432`, database `promapcargo`, user `promap`
+- OSRM: `http://localhost:5001`
+
+By default, the web maps now use the local Europe PMTiles archive, while Monitoring can switch between Europe and Serbia archives.
 
 ## OSM routing graph import
 

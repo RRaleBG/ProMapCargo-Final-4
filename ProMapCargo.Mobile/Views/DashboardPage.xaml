@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProMapCargo.Mobile.Views.DashboardPage"
+             Title="Operations"
+             BackgroundColor="#061B17">
+    <Grid RowDefinitions="Auto,*" Padding="18,24">
+        <VerticalStackLayout Spacing="4">
+            <Label Text="{Binding WelcomeText}"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="#ECFDF5" />
+            <Label Text="{Binding StatusText}"
+                   FontSize="13"
+                   TextColor="#94A3B8" />
+            <Label Text="{Binding RouteSummary}"
+                   FontSize="13"
+                   TextColor="#5EEAD4" />
+        </VerticalStackLayout>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="18" Padding="0,20,0,20">
+                <Button Text="Refresh"
+                        Command="{Binding RefreshCommand}"
+                        BackgroundColor="#10B981"
+                        TextColor="#031712"
+                        CornerRadius="14"
+                        HeightRequest="50" />
+
+                <Border BackgroundColor="#0B2D26" Stroke="#1C5448" StrokeShape="RoundRectangle 18" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Monitoring" FontAttributes="Bold" FontSize="18" TextColor="#F8FAFC" />
+                        <CollectionView ItemsSource="{Binding Vehicles}" SelectionMode="None" HeightRequest="220">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label Text="{Binding Registration}" FontAttributes="Bold" TextColor="#ECFDF5" />
+                                            <Label Text="{Binding Status}" FontSize="12" TextColor="#94A3B8" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="{Binding LastGpsAt}" FontSize="12" TextColor="#5EEAD4" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border BackgroundColor="#0B2D26" Stroke="#1C5448" StrokeShape="RoundRectangle 18" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Dispatch" FontAttributes="Bold" FontSize="18" TextColor="#F8FAFC" />
+                        <CollectionView ItemsSource="{Binding Orders}" SelectionMode="None" HeightRequest="220">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label Text="{Binding OrderNumber}" FontAttributes="Bold" TextColor="#ECFDF5" />
+                                            <Label Text="{Binding CustomerName}" FontSize="12" TextColor="#94A3B8" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="{Binding Status}" FontSize="12" TextColor="#5EEAD4" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border BackgroundColor="#0B2D26" Stroke="#1C5448" StrokeShape="RoundRectangle 18" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Navigation" FontAttributes="Bold" FontSize="18" TextColor="#F8FAFC" />
+                        <CollectionView ItemsSource="{Binding Trips}" SelectionMode="None" HeightRequest="220">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label Text="{Binding ExecutionState}" FontAttributes="Bold" TextColor="#ECFDF5" />
+                                            <Label Text="{Binding Status}" FontSize="12" TextColor="#94A3B8" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="{Binding RouteProgressPercent, StringFormat='{0:0}%'}" FontSize="12" TextColor="#5EEAD4" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

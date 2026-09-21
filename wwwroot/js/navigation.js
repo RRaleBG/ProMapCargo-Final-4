@@ -45,6 +45,7 @@ window.ProMap = window.ProMap || {};
         liveFollow: true,
         profile: "truck",
         picking: null,
+        lastHeading: null,
 
         geocodeTimers: {
             start: null,
@@ -65,6 +66,7 @@ window.ProMap = window.ProMap || {};
             visible: false,
             lastError: null,
             archive: null,
+            syncFrame: 0,
         },
     };
 
@@ -138,7 +140,7 @@ window.ProMap = window.ProMap || {};
 
     const LOCAL_MAPLIBRE_CSS_ID = "promap-local-maplibre-css";
 
-    const PROMAP_PMTILES_ENDPOINT = "/maps/serbia.pmtiles";
+    const PROMAP_PMTILES_ENDPOINT = "/maps/europe.pmtiles";
 
     // ============================================================
     // GENERIC HELPERS
@@ -200,12 +202,13 @@ window.ProMap = window.ProMap || {};
         }
 
         element.textContent = text;
-
         element.classList.remove("ready", "warning", "danger");
 
         if (kind) {
             element.classList.add(kind);
         }
+
+        setText("navKpiGps", text || "Standby");
     }
 
     function setEngine(engine, usedFallback = false) {
@@ -214,12 +217,10 @@ window.ProMap = window.ProMap || {};
         const summary = usedFallback ? `${normalized} · FALLBACK` : normalized;
 
         setText("engineHeader", normalized.toUpperCase());
-
         setText("summaryEngine", summary);
-
         setText("diagnosticEngine", normalized);
-
         setText("diagnosticFallback", usedFallback ? "DA" : "NE");
+        setText("navKpiEngine", usedFallback ? "Fallback" : normalized);
 
         const badge = $("engineBadge");
 
@@ -227,7 +228,7 @@ window.ProMap = window.ProMap || {};
             badge.classList.remove("error");
             badge.classList.add("ready");
 
-            badge.innerHTML = `< span ></span > ${escapeHtml(
+            badge.innerHTML = `<span></span > ${escapeHtml(
                 summary.toUpperCase(),
             )} `;
         }
@@ -681,6 +682,7 @@ window.ProMap = window.ProMap || {};
         host.setAttribute("aria-hidden", "true");
         Object.assign(host.style, {
             position: "absolute",
+
             inset: "0",
             width: "100%",
             height: "100%",
@@ -710,19 +712,25 @@ window.ProMap = window.ProMap || {};
 
         try {
             localMap.jumpTo({
-                center:
-                    [
-                        center.lng,
-                        center.lat
-                    ],
+                center: [center.lng, center.lat],
                 zoom,
                 bearing: 0,
                 pitch: 0,
             });
-            localMap.resize();
         } catch {
             // Ignore transient lifecycle errors.
         }
+    }
+
+    function scheduleLocalMapBackgroundSync() {
+        if (state.localMap.syncFrame) {
+            return;
+        }
+
+        state.localMap.syncFrame = window.requestAnimationFrame(() => {
+            state.localMap.syncFrame = 0;
+            syncLocalMapBackground();
+        });
     }
 
     function setLocalMapHostVisible(visible) {
@@ -848,18 +856,24 @@ window.ProMap = window.ProMap || {};
     }
 
     async function activateLocalBaseMap(mapElement) {
-        const map = await loadLocalMapStyle(mapElement);
+        const host = prepareLocalMapHost(mapElement);
+        const map = await loadLocalMapStyle(host);
 
         if (!map) {
             return;
         }
 
-        setLocalMapHostVisible(true);
+        state.localMap.map = map;
+        state.localMap.ready = true;
+        state.localMap.failed = false;
+        state.localMap.archive = PROMAP_PMTILES_ENDPOINT;
 
-        syncLocalMapBackground();
+        setLocalMapHostVisible(true);
+        scheduleLocalMapBackgroundSync();
 
         try {
             map.resize();
+            scheduleLocalMapBackgroundSync();
         } catch {
             // Ignore resize errors.
         }
@@ -898,9 +912,28 @@ window.ProMap = window.ProMap || {};
         state.map = L.map(mapElement, {
             zoomControl: true,
             preferCanvas: true,
+            minZoom: 3,
             maxZoom: 22,
+            zoomSnap: 0.25,
+            zoomDelta: 0.5,
+            wheelPxPerZoomLevel: 90,
             attributionControl: true,
-        }).setView([50, 15], 4);
+            scrollWheelZoom: true,
+            dragging: true,
+            doubleClickZoom: true,
+            boxZoom: true,
+            keyboard: true,
+            touchZoom: true,
+            tapHold: true,
+            zoomAnimation: false,
+            fadeAnimation: false,
+            markerZoomAnimation: false,
+        }).setView([15, 50], 4);
+
+        L.control.scale({
+            imperial: false,
+            position: "bottomleft",
+        }).addTo(state.map);
 
         mapElement.style.position = mapElement.style.position || "relative";
         mapElement.style.overflow = "hidden";
@@ -914,13 +947,19 @@ window.ProMap = window.ProMap || {};
 
         state.map.on("move", () => {
             if (state.localMap.visible) {
-                syncLocalMapBackground();
+                scheduleLocalMapBackgroundSync();
             }
         });
 
         state.map.on("zoom", () => {
             if (state.localMap.visible) {
-                syncLocalMapBackground();
+                scheduleLocalMapBackgroundSync();
+            }
+        });
+
+        state.map.on("moveend zoomend viewreset", () => {
+            if (state.localMap.visible) {
+                scheduleLocalMapBackgroundSync();
             }
         });
 
@@ -971,11 +1010,13 @@ window.ProMap = window.ProMap || {};
         requestAnimationFrame(() => {
             state.map?.invalidateSize();
             state.localMap.map?.resize();
+            scheduleLocalMapBackgroundSync();
         });
 
         window.setTimeout(() => {
             state.map?.invalidateSize();
             state.localMap.map?.resize();
+            scheduleLocalMapBackgroundSync();
         }, 250);
 
         void activateLocalBaseMap(mapElement);
@@ -1465,9 +1506,9 @@ window.ProMap = window.ProMap || {};
             const active = entry.index === state.selectedRouteIndex;
 
             entry.layer.setStyle({
-                weight: active ? 7 : 4,
-
-                opacity: active ? 0.96 : 0.36,
+                weight: active ? 8 : 4,
+                opacity: active ? 0.98 : 0.3,
+                color: active ? "#54f3b1" : "#64748b",
             });
 
             if (active) {
@@ -2205,12 +2246,11 @@ window.ProMap = window.ProMap || {};
             const active = index === state.selectedRouteIndex;
 
             const layer = L.polyline(coordinates, {
-                weight: active ? 7 : 4,
-
-                opacity: active ? 0.96 : 0.36,
-
-                color: active ? "#22c55e" : "#64748b",
-
+                weight: active ? 8 : 4,
+                opacity: active ? 0.98 : 0.3,
+                color: active ? "#54f3b1" : "#64748b",
+                lineCap: "round",
+                lineJoin: "round",
                 className: active ? "pm-route-active" : "pm-route-alternative",
             }).addTo(state.map);
 
@@ -2487,7 +2527,7 @@ window.ProMap = window.ProMap || {};
         });
 
         if (state.localMap.visible) {
-            window.setTimeout(syncLocalMapBackground, 60);
+            window.setTimeout(scheduleLocalMapBackgroundSync, 60);
         }
     }
 
@@ -2505,16 +2545,67 @@ window.ProMap = window.ProMap || {};
         }
 
         state.liveFollow = true;
+        followLivePosition(position, true);
+    }
 
-        state.map.setView(
-            [position.latitude, position.longitude],
+    function normalizedHeading(value) {
+        const heading = Number(value);
 
-            Math.max(17, state.map.getZoom() || 17),
+        if (!Number.isFinite(heading)) {
+            return null;
+        }
 
-            {
-                animate: true,
+        const normalized = heading % 360;
+        return normalized < 0 ? normalized + 360 : normalized;
+    }
+
+    function effectiveHeading(position) {
+        const heading = normalizedHeading(position?.heading ?? position?.coords?.heading);
+
+        if (heading != null) {
+            state.lastHeading = heading;
+            return heading;
+        }
+
+        return state.lastHeading;
+    }
+
+    function followLivePosition(position, force = false) {
+        if (!state.map || !position) {
+            return;
+        }
+
+        const latitude = Number(position.latitude ?? position.coords?.latitude);
+        const longitude = Number(position.longitude ?? position.coords?.longitude);
+
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+            return;
+        }
+
+        const zoom = Math.max(16, state.map.getZoom() || 16);
+        const heading = effectiveHeading(position);
+        const offsetMeters = zoom >= 17 ? 180 : 260;
+        let targetLatitude = latitude;
+        let targetLongitude = longitude;
+
+        if (heading != null) {
+            const radians = (heading * Math.PI) / 180;
+            const latitudeOffset = (-Math.cos(radians) * offsetMeters) / 111320;
+            const longitudeOffset = (Math.sin(radians) * offsetMeters) / (111320 * Math.max(Math.cos((latitude * Math.PI) / 180), 0.2));
+            targetLatitude += latitudeOffset;
+            targetLongitude += longitudeOffset;
+        }
+        else {
+            targetLatitude -= 0.0012;
+        }
+
+        state.map.setView([targetLatitude, targetLongitude], zoom, {
+            animate: !force,
+            pan: {
+                duration: force ? 0 : 0.9,
+                easeLinearity: 0.25,
             },
-        );
+        });
     }
 
     function updateGpsMarker(position) {
@@ -2534,9 +2625,13 @@ window.ProMap = window.ProMap || {};
 
         if (!state.gpsMarker) {
             state.gpsMarker = L.circleMarker([latitude, longitude], {
-                radius: 8,
+                radius: 9,
                 weight: 3,
-                fillOpacity: 0.9,
+                color: "#ecfeff",
+                opacity: 0.98,
+                fillColor: "#14f1a0",
+                fillOpacity: 0.95,
+                className: "pm-gps-marker",
             }).addTo(state.map);
         } else {
             state.gpsMarker.setLatLng([latitude, longitude]);
@@ -2592,9 +2687,10 @@ window.ProMap = window.ProMap || {};
         });
 
         if (state.live && state.liveFollow) {
-            state.map.panTo([latitude, longitude], {
-                animate: true,
-                duration: 0.3,
+            followLivePosition({
+                latitude,
+                longitude,
+                heading: Number(position?.heading ?? position?.coords?.heading),
             });
         }
 
@@ -2665,6 +2761,7 @@ window.ProMap = window.ProMap || {};
         state.liveFollow = true;
 
         state.lastRerouteAt = 0;
+        state.lastHeading = null;
 
         setHidden("startLiveNavigation", true);
 
@@ -2673,6 +2770,10 @@ window.ProMap = window.ProMap || {};
         setGpsStatus("STARTING", "warning");
 
         setText("liveChip", "GPS STARTING");
+
+        if (state.routeCoordinates.length) {
+            fitRoute();
+        }
 
         window.ProMap.Gps.start({
             enableHighAccuracy: true,
@@ -2701,6 +2802,7 @@ window.ProMap = window.ProMap || {};
         state.live = false;
 
         state.liveFollow = true;
+        state.lastHeading = null;
 
         setHidden("startLiveNavigation", false);
 
@@ -2899,9 +3001,10 @@ window.ProMap = window.ProMap || {};
 
         window.addEventListener("resize", () => {
             state.map?.invalidateSize();
+            state.localMap.map?.resize();
 
             if (state.localMap.visible) {
-                syncLocalMapBackground();
+                scheduleLocalMapBackgroundSync();
             }
         });
     }
@@ -2972,8 +3075,8 @@ window.ProMap = window.ProMap || {};
 
         window.setTimeout(() => {
             state.map?.invalidateSize();
-
             state.localMap.map?.resize();
+            scheduleLocalMapBackgroundSync();
         }, 250);
     }
 

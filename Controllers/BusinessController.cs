@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using ProMapCargo.Api.Models;
 using ProMapCargo.Api.Services;
 namespace ProMapCargo.Api.Controllers;
-[ApiController][Authorize][Route("api/business")]
+
+[ApiController]
+[Authorize(Policy = "AppOrMobile")]
+[Route("api/business")]
 public sealed class BusinessController(BusinessService service):ControllerBase {
     [HttpGet("dashboard")]public Task<object> Dashboard(CancellationToken ct)=>service.DashboardAsync(ct);
     [HttpGet("vehicles")]public Task<List<Vehicle>> Vehicles(CancellationToken ct)=>service.VehiclesAsync(ct);

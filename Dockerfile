@@ -4,11 +4,9 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 WORKDIR /src
 
-COPY ProMapCargo.sln .
 COPY ProMapCargo.Api.csproj .
-COPY Importer/ProMapCargo.OsmImporter.csproj Importer/
 
-RUN dotnet restore ProMapCargo.sln
+RUN dotnet restore ProMapCargo.Api.csproj
 
 COPY . .
 

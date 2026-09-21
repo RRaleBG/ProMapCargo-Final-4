@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="DocumentFormat.OpenXml" Version="3.5.1" />
     <PackageReference Include="Itinero" Version="1.5.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -24,10 +25,14 @@
   <ItemGroup>
     <None Include="Sql/*.sql" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-  <!-- The importer is a separate executable project nested below this project. -->
+  <!-- The importer and MAUI app are separate projects nested below this project. -->
   <ItemGroup>
     <Compile Remove="Importer/**/*.cs" />
+    <Compile Remove="ProMapCargo.Mobile/**/*.cs" />
+    <EmbeddedResource Remove="ProMapCargo.Mobile/**" />
+    <MauiXaml Remove="ProMapCargo.Mobile/**" />
     <None Remove="Importer/**" />
+    <None Remove="ProMapCargo.Mobile/**" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pages\Fleet\" />

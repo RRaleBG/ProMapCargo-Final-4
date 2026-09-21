@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ProMapCargo.Mobile.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:ProMapCargo.Mobile.Views"
+    Title="ProMapCargo Mobile"
+    Shell.NavBarIsVisible="False">
+
+    <TabBar Route="dashboard">
+        <ShellContent
+            Title="Operations"
+            ContentTemplate="{DataTemplate views:DashboardPage}"
+            Route="dashboard-home" />
+    </TabBar>
+
+    <ShellContent
+        Title="Login"
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Route="login" />
+
+</Shell>

@@ -1,6 +1,25 @@
+@inject IWebHostEnvironment Environment
 @{
     var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
     var pageTitle = ViewData["Title"]?.ToString() ?? "ProMap Cargo";
+    var webRootPath = string.IsNullOrWhiteSpace(Environment.WebRootPath)
+        ? System.IO.Path.Combine(Environment.ContentRootPath, "wwwroot")
+        : Environment.WebRootPath;
+    var pageAssetKey = currentPage.Trim('/').Replace('/', '-').ToLowerInvariant();
+    var pageCssVirtualPath = string.IsNullOrWhiteSpace(pageAssetKey)
+        ? null
+        : $"/css/pages/{pageAssetKey}.css";
+    var pageJsVirtualPath = string.IsNullOrWhiteSpace(pageAssetKey)
+        ? null
+        : $"/js/pages/{pageAssetKey}.js";
+    var pageCssPhysicalPath = string.IsNullOrWhiteSpace(pageAssetKey)
+        ? null
+        : System.IO.Path.Combine(webRootPath, "css", "pages", $"{pageAssetKey}.css");
+    var pageJsPhysicalPath = string.IsNullOrWhiteSpace(pageAssetKey)
+        ? null
+        : System.IO.Path.Combine(webRootPath, "js", "pages", $"{pageAssetKey}.js");
+    var includePageCss = !string.IsNullOrWhiteSpace(pageCssPhysicalPath) && System.IO.File.Exists(pageCssPhysicalPath);
+    var includePageJs = !string.IsNullOrWhiteSpace(pageJsPhysicalPath) && System.IO.File.Exists(pageJsPhysicalPath);
 }
 
 <!DOCTYPE html>
@@ -22,6 +41,10 @@
     <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tables.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
+    @if (includePageCss)
+    {
+        <link rel="stylesheet" href="@pageCssVirtualPath" asp-append-version="true" />
+    }
 
     @await RenderSectionAsync("Head", required: false)
 </head>
@@ -151,6 +174,10 @@
     <script src="~/js/core/compat.js" asp-append-version="true" defer></script>
     <script src="~/js/services/alerts.js" asp-append-version="true" defer></script>
     <script src="~/js/app.js" asp-append-version="true"  defer></script>
+    @if (includePageJs)
+    {
+        <script src="@pageJsVirtualPath" asp-append-version="true" defer></script>
+    }
 
 @await RenderSectionAsync("Scripts", required: false)
 </body>

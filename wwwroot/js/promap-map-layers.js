@@ -13,7 +13,7 @@
     const LOCAL_MAPLIBRE_CSS = "/lib/maplibre-gl/dist/maplibre-gl.css";
     const LOCAL_PMTILES_JS = "/lib/pmtiles/dist/pmtiles.js";
     const LOCAL_MAP_STYLE = "/styles/promap-dark.json";
-    const DEFAULT_ARCHIVE_URL = "/maps/serbia.pmtiles";
+    const DEFAULT_ARCHIVE_URL = "/maps/europe.pmtiles";
     const LOCAL_MAPLIBRE_CSS_ID = "promap-shared-maplibre-css";
 
     function loadCssOnce(href, id) {

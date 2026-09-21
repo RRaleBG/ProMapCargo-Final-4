@@ -29,23 +29,7 @@
   </div>
 </div>
 
-<style>
-.pm-page{min-height:100vh;background:linear-gradient(135deg,#022c22,#064e3b 55%,#075e54);color:#f8fafc;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
-.pm-header{height:74px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(2,44,34,.9);position:sticky;top:0;z-index:40;backdrop-filter:blur(12px)}
-.pm-brand{font-size:21px;font-weight:900} .pm-brand span{color:#2dd4bf} .pm-kicker{font-size:12px;font-weight:800;margin-top:3px} .pm-subtitle{font-size:11px;color:#a7f3d0;margin-top:2px}
-.pm-header-actions{display:flex;gap:8px} .pm-btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:9px 13px;color:#f8fafc;text-decoration:none;background:#075e54;font-size:12px;font-weight:800;cursor:pointer} .pm-btn:hover{filter:brightness(1.12)} .pm-btn-primary{background:#10b981;color:#022c22;border-color:#10b981}
-.pm-layout{display:flex;min-height:calc(100vh - 74px)} .pm-sidebar{width:238px;flex:0 0 238px;border-right:1px solid rgba(255,255,255,.1);padding:20px 12px;display:flex;flex-direction:column} .pm-nav-title{font-size:10px;color:#6ee7b7;font-weight:900;letter-spacing:.12em;padding:0 10px 8px} .pm-nav{display:flex;flex-direction:column;gap:4px} .pm-nav a{color:#c8f7e5;text-decoration:none;padding:10px;border-radius:8px;font-size:12px;font-weight:700} .pm-nav a:hover,.pm-nav a.active{background:#075e54;color:#fff} .pm-sidebar-footer{margin-top:auto;border-top:1px solid rgba(255,255,255,.1);padding:14px 10px;font-size:10px;color:#a7f3d0;line-height:1.65} .pm-sidebar-footer span{color:#5eead4}
-.pm-content{flex:1;min-width:0;padding:25px;max-width:1600px} .pm-grid{display:grid;gap:14px} .pm-grid-2{grid-template-columns:repeat(2,minmax(0,1fr))} .pm-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))} .pm-grid-4{grid-template-columns:repeat(4,minmax(0,1fr))} .pm-grid-6{grid-template-columns:repeat(6,minmax(0,1fr))}
-.pm-card{background:rgba(6,78,59,.86);border:1px solid rgba(255,255,255,.1);border-radius:14px;box-shadow:0 12px 35px rgba(0,0,0,.12)} .pm-card-head{padding:16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between} .pm-card-body{padding:16px}
-.pm-title{font-size:22px;font-weight:900} .pm-h2{font-size:15px;font-weight:900} .pm-muted{color:#a7f3d0;font-size:11px} .pm-label{display:block;color:#a7f3d0;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px} .pm-value{font-size:24px;font-weight:900;margin-top:3px}
-.pm-field{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.12);background:#043f31;color:#fff;border-radius:9px;padding:10px;font-size:12px;outline:none} .pm-field:focus{border-color:#2dd4bf} .pm-row{display:flex;gap:9px;align-items:center}
-.pm-table{width:100%;border-collapse:collapse;font-size:12px} .pm-table th{color:#a7f3d0;font-size:10px;text-transform:uppercase;text-align:left;padding:11px;border-bottom:1px solid rgba(255,255,255,.1)} .pm-table td{padding:12px 11px;border-bottom:1px solid rgba(255,255,255,.07)} .pm-table tr:hover td{background:rgba(255,255,255,.025)}
-.pm-badge{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:900;background:#075e54;color:#99f6e4} .pm-badge.warn{background:#713f12;color:#fde68a} .pm-badge.danger{background:#7f1d1d;color:#fecaca} .pm-badge.info{background:#164e63;color:#a5f3fc}
-.pm-actions{display:flex;gap:7px;flex-wrap:wrap} .pm-progress{height:7px;background:#022c22;border-radius:999px;overflow:hidden} .pm-progress span{display:block;height:100%;background:#10b981;border-radius:999px}
-.pm-list{display:flex;flex-direction:column;gap:8px} .pm-item{padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(7,94,84,.45)} .pm-map{height:430px;border-radius:12px;overflow:hidden;background:#0b3b31} .pm-empty{padding:38px;text-align:center;color:#a7f3d0}
-.pm-stat{padding:15px} .pm-stat small{color:#a7f3d0;font-size:10px;text-transform:uppercase}
-@@media(max-width:1000px){.pm-sidebar{display:none}.pm-grid-6,.pm-grid-4,.pm-grid-3,.pm-grid-2{grid-template-columns:1fr 1fr}.pm-content{padding:15px}} @@media(max-width:620px){.pm-header{padding:0 12px}.pm-header-actions .pm-btn:first-child{display:none}.pm-grid-6,.pm-grid-4,.pm-grid-3,.pm-grid-2{grid-template-columns:1fr}.pm-content{padding:10px}}
-</style>
+
 <script>
 // Pages are server-rendered and must remain independent from the legacy SPA renderer.
 document.addEventListener('DOMContentLoaded',()=>{
@@ -54,3 +38,4 @@ document.addEventListener('DOMContentLoaded',()=>{
   },true));
 });
 </script>
+

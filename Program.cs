@@ -1,6 +1,10 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 using ProMapCargo.Api.Data;
 using ProMapCargo.Api.Models;
@@ -74,6 +78,49 @@ builder.Services
     .AddEntityFrameworkStores<ProMapCargoDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.Configure<MobileAuthOptions>(builder.Configuration.GetSection("MobileAuth"));
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<MobileAuthOptions>>().Value);
+
+var mobileAuthOptions = builder.Configuration.GetSection("MobileAuth").Get<MobileAuthOptions>() ?? new MobileAuthOptions();
+var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(mobileAuthOptions.SigningKey));
+
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+    })
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = mobileAuthOptions.Issuer,
+            ValidateAudience = true,
+            ValidAudience = mobileAuthOptions.Audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = signingKey,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(2)
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("MobileBearer", policy =>
+    {
+        policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+    });
+
+    options.AddPolicy("AppOrMobile", policy =>
+    {
+        policy.AuthenticationSchemes.Add(IdentityConstants.ApplicationScheme);
+        policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+    });
+});
+
 
 // ============================================================
 // APPLICATION SERVICES
@@ -82,6 +129,7 @@ builder.Services
 builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, IdentityClaimsFactory>();
 builder.Services.AddScoped<BusinessService>();
+builder.Services.AddScoped<MobileTokenService>();
 
 
 // ============================================================
@@ -271,6 +319,7 @@ static async Task BootstrapAsync(WebApplication app)
         }
 
         await db.Database.EnsureCreatedAsync();
+        await EnsureMobileRefreshTokenTableAsync(db, app.Logger);
         await ExecuteSqlFileAsync(app, db, "03-routing-graph.sql");
         await ExecuteSqlFileAsync(app, db, "04-operational-indexes.sql");
 
@@ -294,6 +343,33 @@ static async Task BootstrapAsync(WebApplication app)
     catch (Exception ex)
     {
         app.Logger.LogWarning(ex, "Database bootstrap failed. API can still start; run SQL/migrations before routing.");
+    }
+}
+
+static async Task EnsureMobileRefreshTokenTableAsync(ProMapCargoDbContext db, ILogger logger)
+{
+    const string sql = """
+        CREATE TABLE IF NOT EXISTS mobile_refresh_tokens (
+            id uuid PRIMARY KEY,
+            user_id uuid NOT NULL,
+            token text NOT NULL,
+            expires_at timestamptz NOT NULL,
+            created_at timestamptz NOT NULL,
+            revoked_at timestamptz NULL,
+            CONSTRAINT fk_mobile_refresh_tokens_users FOREIGN KEY (user_id) REFERENCES asp_net_users (id) ON DELETE CASCADE
+        );
+
+        CREATE UNIQUE INDEX IF NOT EXISTS ix_mobile_refresh_tokens_token ON mobile_refresh_tokens (token);
+        CREATE INDEX IF NOT EXISTS ix_mobile_refresh_tokens_user_id_expires_at ON mobile_refresh_tokens (user_id, expires_at);
+        """;
+
+    try
+    {
+        await db.Database.ExecuteSqlRawAsync(sql);
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex, "Failed creating mobile refresh token table.");
     }
 }
 

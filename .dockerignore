@@ -7,6 +7,10 @@ bin/
 obj/
 out/
 publish/
+**/bin/
+**/obj/
+**/out/
+**/publish/
 
 # Visual Studio / Rider / VS Code
 .vs/

@@ -50,15 +50,19 @@ services:
     volumes:
       - ./wwwroot/styles:/app/wwwroot/styles:ro
       - ./wwwroot/maps:/app/wwwroot/maps:ro
+      - ./wwwroot/fonts:/app/wwwroot/fonts:ro
+      - ./wwwroot/lib:/app/wwwroot/lib:ro
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-
       ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
-
       Routing__OsrmBaseUrl: http://osrm:5000
       Routing__OsrmFallbackBaseUrl: https://router.project-osrm.org
-      
+      Cors__Origins__0: http://localhost:8080
+      Cors__Origins__1: http://localhost:5090
+      MobileAuth__Issuer: ProMapCargo
+      MobileAuth__Audience: ProMapCargo.Mobile
+      MobileAuth__SigningKey: promapcargo-mobile-change-this-signing-key-2026
     ports:
       - "8080:8080"
 
