@@ -684,7 +684,7 @@ window.ProMap = window.ProMap || {};
             inset: "0",
             width: "100%",
             height: "100%",
-            zIndex: "300",
+            zIndex: "0",
             pointerEvents: "none",
             visibility: "hidden",
             overflow: "hidden",
