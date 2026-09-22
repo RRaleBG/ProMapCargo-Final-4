@@ -1,53 +1,62 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="ProMapCargo.Mobile.Views.LoginPage"
-             Title="Sign in"
-             BackgroundColor="#061B17">
+<ContentPage
+    x:Class="ProMapCargo.Mobile.Views.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Sign in"
+    BackgroundColor="#061B17">
     <ScrollView>
         <VerticalStackLayout Padding="24,40" Spacing="20">
             <VerticalStackLayout Spacing="6">
-                <Label Text="ProMap Cargo"
-                       FontSize="28"
-                       FontAttributes="Bold"
-                       TextColor="#ECFDF5" />
-                <Label Text="Native operations access for Navigation, Monitoring, and Dispatch."
-                       FontSize="14"
-                       TextColor="#94A3B8" />
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="28"
+                    Text="ProMap Cargo"
+                    TextColor="#ECFDF5" />
+                <Label
+                    FontSize="14"
+                    Text="Native operations access for Navigation, Monitoring, and Dispatch."
+                    TextColor="#94A3B8" />
             </VerticalStackLayout>
 
-            <Border BackgroundColor="#0B2D26"
-                    Stroke="#1C5448"
-                    StrokeShape="RoundRectangle 20"
-                    Padding="20">
+            <Border
+                Padding="20"
+                BackgroundColor="#0B2D26"
+                Stroke="#1C5448"
+                StrokeShape="RoundRectangle 20">
                 <VerticalStackLayout Spacing="14">
-                    <Label Text="Mobile token login"
-                           FontSize="18"
-                           FontAttributes="Bold"
-                           TextColor="#F8FAFC" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="18"
+                        Text="Mobile token login"
+                        TextColor="#F8FAFC" />
 
-                    <Entry Placeholder="Email"
-                           Keyboard="Email"
-                           Text="{Binding Email}"
-                           TextColor="#F8FAFC"
-                           PlaceholderColor="#64748B" />
+                    <Entry
+                        Keyboard="Email"
+                        Placeholder="Email"
+                        PlaceholderColor="#64748B"
+                        Text="{Binding Email}"
+                        TextColor="#F8FAFC" />
 
-                    <Entry Placeholder="Password"
-                           IsPassword="True"
-                           Text="{Binding Password}"
-                           TextColor="#F8FAFC"
-                           PlaceholderColor="#64748B" />
+                    <Entry
+                        IsPassword="True"
+                        Placeholder="Password"
+                        PlaceholderColor="#64748B"
+                        Text="{Binding Password}"
+                        TextColor="#F8FAFC" />
 
-                    <Label Text="{Binding ErrorMessage}"
-                           TextColor="#FB7185"
-                           IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+                    <Label
+                        IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                        Text="{Binding ErrorMessage}"
+                        TextColor="#FB7185" />
 
-                    <Button Text="Sign in"
-                            Command="{Binding LoginCommand}"
-                            BackgroundColor="#10B981"
-                            TextColor="#031712"
-                            CornerRadius="14"
-                            HeightRequest="52" />
+                    <Button
+                        BackgroundColor="#10B981"
+                        Command="{Binding LoginCommand}"
+                        CornerRadius="14"
+                        HeightRequest="52"
+                        Text="Sign in"
+                        TextColor="#031712" />
                 </VerticalStackLayout>
             </Border>
         </VerticalStackLayout>

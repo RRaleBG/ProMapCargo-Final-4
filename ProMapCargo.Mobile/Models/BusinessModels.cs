@@ -56,16 +56,61 @@ public sealed record RouteRequest(
 public sealed record RouteResponse(
     [property: JsonPropertyName("code")] string Code,
     [property: JsonPropertyName("routes")] IReadOnlyList<RouteCandidate> Routes,
+    [property: JsonPropertyName("selectedRouteIndex")] int SelectedRouteIndex,
+    [property: JsonPropertyName("isTruckSafe")] bool IsTruckSafe,
+    [property: JsonPropertyName("violations")] IReadOnlyList<RestrictionViolation> Violations,
+    [property: JsonPropertyName("summary")] RouteSummary? Summary,
+    [property: JsonPropertyName("diagnostics")] RouteDiagnostics? Diagnostics,
     [property: JsonPropertyName("maneuvers")] IReadOnlyList<RouteManeuver> Maneuvers);
 
 public sealed record RouteCandidate(
     [property: JsonPropertyName("distance")] double Distance,
-    [property: JsonPropertyName("duration")] double Duration);
+    [property: JsonPropertyName("duration")] double Duration,
+    [property: JsonPropertyName("analysis")] RouteAnalysis? Analysis);
+
+public sealed record RouteAnalysis(
+    [property: JsonPropertyName("restricted")] bool Restricted,
+    [property: JsonPropertyName("score")] int Score,
+    [property: JsonPropertyName("violations")] IReadOnlyList<RestrictionViolation> Violations,
+    [property: JsonPropertyName("debug")] RouteDebug? Debug);
+
+public sealed record RouteDebug(
+    [property: JsonPropertyName("summary")] string? Summary,
+    [property: JsonPropertyName("startSnap")] string? StartSnap,
+    [property: JsonPropertyName("endSnap")] string? EndSnap,
+    [property: JsonPropertyName("traversalCount")] int TraversalCount,
+    [property: JsonPropertyName("highlights")] IReadOnlyList<string> Highlights);
+
+public sealed record RestrictionViolation(
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("type")] string Type,
+    [property: JsonPropertyName("reason")] string Reason);
+
+public sealed record RouteSummary(
+    [property: JsonPropertyName("distanceMeters")] double DistanceMeters,
+    [property: JsonPropertyName("durationSeconds")] double DurationSeconds,
+    [property: JsonPropertyName("estimatedArrival")] DateTimeOffset? EstimatedArrival);
+
+public sealed record RouteDiagnostics(
+    [property: JsonPropertyName("engine")] string Engine,
+    [property: JsonPropertyName("usedFallback")] bool UsedFallback,
+    [property: JsonPropertyName("expandedStates")] int ExpandedStates,
+    [property: JsonPropertyName("graphVersion")] long? GraphVersion,
+    [property: JsonPropertyName("failureReason")] string? FailureReason,
+    [property: JsonPropertyName("startSnap")] string? StartSnap,
+    [property: JsonPropertyName("endSnap")] string? EndSnap,
+    [property: JsonPropertyName("traversalCount")] int TraversalCount,
+    [property: JsonPropertyName("highlights")] IReadOnlyList<string> Highlights);
 
 public sealed record RouteManeuver(
     [property: JsonPropertyName("index")] int Index,
+    [property: JsonPropertyName("type")] string Type,
     [property: JsonPropertyName("instruction")] string Instruction,
     [property: JsonPropertyName("distanceFromPreviousMeters")] double DistanceFromPreviousMeters,
     [property: JsonPropertyName("distanceFromRouteStartMeters")] double DistanceFromRouteStartMeters,
     [property: JsonPropertyName("latitude")] double Latitude,
-    [property: JsonPropertyName("longitude")] double Longitude);
+    [property: JsonPropertyName("longitude")] double Longitude,
+    [property: JsonPropertyName("roadName")] string? RoadName,
+    [property: JsonPropertyName("roadRef")] string? RoadRef,
+    [property: JsonPropertyName("roundaboutExit")] int? RoundaboutExit);

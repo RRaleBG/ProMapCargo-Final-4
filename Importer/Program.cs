@@ -15,7 +15,10 @@ var graphVersion = args.Length > 1 && long.TryParse(args[1], out var parsedVersi
 : DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Postgres")
 ?? Environment.GetEnvironmentVariable("PROMAP_POSTGRES")
-?? "Host=Host=postgres;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me";
+?? "Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me";
+
+Console.WriteLine($"Using connection: {connectionString}");
+Console.WriteLine($"PBF file: {pbfPath}");
 
 await new GraphImporter(connectionString).ImportAsync(
 pbfPath,

@@ -551,10 +551,26 @@
         });
 
         if (!response.ok) {
-            throw new Error(`${url} HTTP ${response.status}`);
+            const error = new Error(`${url} HTTP ${response.status}`);
+            error.status = response.status;
+            error.url = url;
+            throw error;
         }
 
         return response.json();
+    }
+
+    function clearFleetData(map) {
+        setDataSafe(map, "fleet-vehicles", EMPTY());
+    }
+
+    function isUnauthorizedFleetError(error) {
+        return error?.status === 401;
+    }
+
+    function handleFleetUnavailable(map) {
+        clearFleetData(map);
+        return { vehicles: [], trips: [] };
     }
 
     function install(map, options = {}) {
@@ -624,24 +640,21 @@
         async function loadFleet() {
             try {
                 const [vehicles, trips] = await Promise.all([
-                    fetchJson("/api/business/vehicles"),
-
-                    fetchJson("/api/business/trips"),
+                    fetchJson("/api/business/vehicles", opts.auth),
+                    fetchJson("/api/business/trips", opts.auth)
                 ]);
 
-                setDataSafe(
-                    map,
-                    "fleet-vehicles",
-                    buildFleetCollection(vehicles, trips),
-                );
+                setDataSafe(map, "fleet-vehicles", buildFleetCollection(vehicles, trips));
 
-                return {
-                    vehicles,
-                    trips,
-                };
-            } catch (error) {
+                return { vehicles, trips };
+            }
+            catch (error) {
+                if (isUnauthorizedFleetError(error)) {
+                    return handleFleetUnavailable(map);
+                }
+
                 console.warn("[ProMap] Fleet load failed:", error);
-
+                clearFleetData(map);
                 return null;
             }
         }
@@ -652,10 +665,9 @@
             stopFleetPolling();
 
             const intervalMs = Math.max(5000, Number(config.intervalMs || 15000));
-
             const initialDelayMs = Math.max(0, Number(config.initialDelayMs || 0));
-
-            const triggerLoad = () => {
+            const triggerLoad = () =>
+            {
                 void loadFleet();
             };
 
@@ -678,21 +690,14 @@
 
         function setRoute(response, selectedIndex = 0) {
             const routes = Array.isArray(response?.routes) ? response.routes : [];
-
             const selectedRoute = routes[selectedIndex] || routes[0] || null;
-
             const alternative = routeAlternativeCollection(routes, selectedIndex);
-
-            const restrictions = violationCollection(
-                selectedRoute?.analysis?.violations ?? response?.violations ?? [],
+            const restrictions = violationCollection(selectedRoute?.analysis?.violations ?? response?.violations ?? [],
             );
 
             setDataSafe(map, "route-main", routeToFeatureCollection(selectedRoute));
-
             setDataSafe(map, "route-alternative", alternative);
-
             setDataSafe(map, "route-restrictions", restrictions);
-
             setDataSafe(map, "route-warnings", restrictions);
         }
 
@@ -702,9 +707,7 @@
 
         function setRestrictions(violations) {
             const data = violationCollection(violations);
-
             setDataSafe(map, "route-restrictions", data);
-
             setDataSafe(map, "route-warnings", data);
         }
 

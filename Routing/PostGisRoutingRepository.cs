@@ -7,7 +7,7 @@ namespace ProMapCargo.Api.Routing;
 
 public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
 {
-    private const string EdgeColumns = "id, way_id, source_node, target_node, direction, highway, length_m, speed_kmh, routable, ST_AsText(geom) AS wkt, access, vehicle, motor_vehicle, hgv, goods, hazmat, maxheight, maxwidth, maxlength, maxweight, maxaxleload, graph_version, country_code";
+    private const string EdgeColumns = "id, way_id, source_node, target_node, direction, highway, name, ref, length_m, speed_kmh, routable, ST_AsText(geom) AS wkt, access, vehicle, motor_vehicle, hgv, goods, hazmat, maxheight, maxwidth, maxlength, maxweight, maxaxleload, graph_version, country_code";
    
     
     public async Task<long?> GetActiveGraphVersionAsync(CancellationToken ct)
@@ -47,6 +47,8 @@ public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
             e.target_node,
             e.direction,
             e.highway,
+            e.name,
+            e.ref,
             e.length_m,
             e.speed_kmh,
             e.routable,
@@ -164,6 +166,8 @@ public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
         (long)row.target_node,
         (short)row.direction,
         (string?)row.highway,
+        (string?)row.name,
+        (string?)row.@ref,
         (double)row.length_m,
         (double)row.speed_kmh,
         (bool)row.routable,

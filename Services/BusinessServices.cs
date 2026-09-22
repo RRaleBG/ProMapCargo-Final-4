@@ -5,54 +5,69 @@ using ProMapCargo.Api.Models;
 
 namespace ProMapCargo.Api.Services;
 
-public sealed class BusinessService(
-    ProMapCargoDbContext db,
-    ICurrentUserContext current,
-    IHubContext<NavigationHub> hub)
+public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext current, IHubContext<NavigationHub> hub)
 {
-    private Guid CompanyId =>
+    private Guid GetRequiredCompanyId() =>
         current.CompanyId ?? throw new UnauthorizedAccessException("Company context is required.");
 
-    public Task<List<Vehicle>> VehiclesAsync(CancellationToken ct) =>
-        db.Vehicles
-            .Where(x => x.CompanyId == CompanyId)
+    public Task<List<Vehicle>> VehiclesAsync(CancellationToken ct)
+    {
+        var companyId = GetRequiredCompanyId();
+
+        return db.Vehicles
+            .Where(x => x.CompanyId == companyId)
             .OrderBy(x => x.Registration)
             .ToListAsync(ct);
+    }
 
-    public Task<List<Driver>> DriversAsync(CancellationToken ct) =>
-        db.Drivers
-            .Where(x => x.CompanyId == CompanyId)
+    public Task<List<Driver>> DriversAsync(CancellationToken ct)
+    {
+        var companyId = GetRequiredCompanyId();
+
+        return db.Drivers
+            .Where(x => x.CompanyId == companyId)
             .OrderBy(x => x.FullName)
             .ToListAsync(ct);
+    }
 
-    public Task<List<TransportOrder>> OrdersAsync(CancellationToken ct) =>
-        db.TransportOrders
-            .Where(x => x.CompanyId == CompanyId)
+    public Task<List<TransportOrder>> OrdersAsync(CancellationToken ct)
+    {
+        var companyId = GetRequiredCompanyId();
+
+        return db.TransportOrders
+            .Where(x => x.CompanyId == companyId)
             .OrderByDescending(x => x.CreatedAt)
             .Take(500)
             .ToListAsync(ct);
+    }
 
-    public Task<List<Trip>> TripsAsync(CancellationToken ct) =>
-        db.Trips
-            .Where(x => x.CompanyId == CompanyId)
+    public Task<List<Trip>> TripsAsync(CancellationToken ct)
+    {
+        var companyId = GetRequiredCompanyId();
+
+        return db.Trips
+            .Where(x => x.CompanyId == companyId)
             .OrderByDescending(x => x.StartedAt)
             .Take(500)
             .ToListAsync(ct);
+    }
 
     public async Task<object> DashboardAsync(CancellationToken ct)
     {
+        var companyId = GetRequiredCompanyId();
+
         var trips = await db.Trips
-            .Where(x => x.CompanyId == CompanyId
+            .Where(x => x.CompanyId == companyId
                         && x.Status != TripStatus.Completed
                         && x.Status != TripStatus.Cancelled)
             .ToListAsync(ct);
 
         var vehicles = await db.Vehicles
-            .Where(x => x.CompanyId == CompanyId)
+            .Where(x => x.CompanyId == companyId)
             .ToListAsync(ct);
 
         var alerts = await db.OperationalAlerts
-            .Where(x => x.CompanyId == CompanyId && x.Status != "Resolved")
+            .Where(x => x.CompanyId == companyId && x.Status != "Resolved")
             .OrderByDescending(x => x.CreatedAt)
             .Take(50)
             .ToListAsync(ct);
@@ -75,25 +90,31 @@ public sealed class BusinessService(
         };
     }
 
-    public Task<TripRoute?> ActiveRouteAsync(Guid tripId, CancellationToken ct) =>
-        db.TripRoutes
-            .Where(x => x.CompanyId == CompanyId
+    public Task<TripRoute?> ActiveRouteAsync(Guid tripId, CancellationToken ct)
+    {
+        var companyId = GetRequiredCompanyId();
+
+        return db.TripRoutes
+            .Where(x => x.CompanyId == companyId
                         && x.TripId == tripId
                         && x.Status == TripRouteStatus.Active)
             .OrderByDescending(x => x.CreatedAt)
             .FirstOrDefaultAsync(ct);
+    }
 
     public async Task<RouteDispatch> DispatchAsync(
         Guid tripId,
         Guid routeId,
         CancellationToken ct)
     {
+        var companyId = GetRequiredCompanyId();
+
         var trip = await db.Trips.SingleOrDefaultAsync(
-            x => x.CompanyId == CompanyId && x.Id == tripId,
+            x => x.CompanyId == companyId && x.Id == tripId,
             ct) ?? throw new KeyNotFoundException("Trip not found");
 
         var route = await db.TripRoutes.SingleOrDefaultAsync(
-            x => x.CompanyId == CompanyId
+            x => x.CompanyId == companyId
                  && x.Id == routeId
                  && x.TripId == tripId
                  && x.Status == TripRouteStatus.Active,
@@ -105,7 +126,7 @@ public sealed class BusinessService(
         }
 
         await db.RouteDispatches
-            .Where(x => x.CompanyId == CompanyId
+            .Where(x => x.CompanyId == companyId
                         && x.TripId == tripId
                         && x.Status != RouteDispatchStatus.Rejected
                         && x.Status != RouteDispatchStatus.Cancelled)
@@ -118,7 +139,7 @@ public sealed class BusinessService(
         var dispatch = new RouteDispatch
         {
             Id = Guid.NewGuid(),
-            CompanyId = CompanyId,
+            CompanyId = companyId,
             TripId = tripId,
             TripRouteId = route.Id,
             DriverId = trip.DriverId.Value,
@@ -132,7 +153,7 @@ public sealed class BusinessService(
         await db.SaveChangesAsync(ct);
 
         await hub.Clients
-            .Group($"company:{CompanyId}")
+            .Group($"company:{companyId}")
             .SendAsync(
                 "routeDispatched",
                 new

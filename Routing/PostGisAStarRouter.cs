@@ -46,7 +46,10 @@ public sealed class PostGisAStarRouter(
                 0,
                 0,
                 "PostGIS-AStar",
-                "Start edge not found.");
+                "Start edge not found.",
+                [],
+                null,
+                null);
         }
 
         if (!terminalEdges.TryGetValue(end.EdgeId, out var endEdge))
@@ -58,7 +61,10 @@ public sealed class PostGisAStarRouter(
                 0,
                 0,
                 "PostGIS-AStar",
-                "Destination edge not found.");
+                "Destination edge not found.",
+                [],
+                null,
+                null);
         }
 
         /*
@@ -71,6 +77,9 @@ public sealed class PostGisAStarRouter(
         {
             var directCandidates =
                 new List<RoutedTraversal>();
+
+            var startSnap = BuildSnapDebug(start, startEdge);
+            var endSnap = BuildSnapDebug(end, endEdge);
 
             if (end.Fraction >= start.Fraction &&
                 start.CanTravelForward &&
@@ -131,7 +140,10 @@ public sealed class PostGisAStarRouter(
                     0,
                     1,
                     "PostGIS-AStar",
-                    "No valid direction exists between start and destination on the same edge.");
+                    "No valid direction exists between start and destination on the same edge.",
+                    [],
+                    startSnap,
+                    endSnap);
             }
 
             var direct =
@@ -146,7 +158,10 @@ public sealed class PostGisAStarRouter(
                 direct.DurationS,
                 1,
                 "PostGIS-AStar",
-                null);
+                null,
+                [BuildTraversalHighlight(startEdge, direct.DistanceM, direct.DurationS)],
+                startSnap,
+                endSnap);
         }
 
         /*
@@ -203,7 +218,10 @@ public sealed class PostGisAStarRouter(
                 0,
                 0,
                 "PostGIS-AStar",
-                "Start edge is not allowed for this truck.");
+                "Start edge is not legal for this truck profile.",
+                [],
+                BuildSnapDebug(start, startEdge),
+                BuildSnapDebug(end, endEdge));
         }
 
         if (start.CanTravelForward)
@@ -285,7 +303,10 @@ public sealed class PostGisAStarRouter(
                 0,
                 0,
                 "PostGIS-AStar",
-                "Start edge has no legal travel direction.");
+                "Start edge has no legal travel direction.",
+                [],
+                BuildSnapDebug(start, startEdge),
+                BuildSnapDebug(end, endEdge));
         }
 
         /*
@@ -611,7 +632,10 @@ public sealed class PostGisAStarRouter(
                 0,
                 expanded,
                 "PostGIS-AStar",
-                reason);
+                reason,
+                [],
+                BuildSnapDebug(start, startEdge),
+                BuildSnapDebug(end, endEdge));
         }
 
         /*
@@ -662,7 +686,10 @@ public sealed class PostGisAStarRouter(
                 0,
                 expanded,
                 "PostGIS-AStar",
-                "Route reconstruction returned no traversals.");
+                "Route reconstruction returned no traversals.",
+                [],
+                BuildSnapDebug(start, startEdge),
+                BuildSnapDebug(end, endEdge));
         }
 
         /*
@@ -679,6 +706,21 @@ public sealed class PostGisAStarRouter(
             reversed.Sum(
                 x => x.DurationS);
 
+        var edgeLookup = terminalEdges;
+        var highlights =
+            reversed
+                .Take(8)
+                .Select(traversal =>
+                {
+                    if (edgeLookup.TryGetValue(traversal.EdgeId, out var edge))
+                    {
+                        return BuildTraversalHighlight(edge, traversal.DistanceM, traversal.DurationS);
+                    }
+
+                    return $"edge {traversal.EdgeId}: {traversal.DistanceM:F0} m / {traversal.DurationS:F0} s";
+                })
+                .ToList();
+
         return new PostGisRouteResult(
             true,
             reversed,
@@ -686,7 +728,10 @@ public sealed class PostGisAStarRouter(
             totalDuration,
             expanded,
             "PostGIS-AStar",
-            null);
+            null,
+            highlights,
+            BuildSnapDebug(start, startEdge),
+            BuildSnapDebug(end, endEdge));
     }
 
     private static void AddSeed(
@@ -704,6 +749,37 @@ public sealed class PostGisAStarRouter(
             dist[state] = distance;
             seeds[state] = traversal;
         }
+    }
+
+    private static string BuildSnapDebug(
+        SnapResult snap,
+        RoadEdge edge)
+    {
+        var road = string.IsNullOrWhiteSpace(edge.Name)
+            ? edge.Highway
+            : edge.Name;
+
+        var reference = string.IsNullOrWhiteSpace(edge.Ref)
+            ? string.Empty
+            : $" [{edge.Ref}]";
+
+        return $"edge {edge.Id} · {road ?? "unknown"}{reference} · offset {snap.DistanceToEdgeM:F0} m · fraction {snap.Fraction:F3}";
+    }
+
+    private static string BuildTraversalHighlight(
+        RoadEdge edge,
+        double distanceMeters,
+        double durationSeconds)
+    {
+        var road = string.IsNullOrWhiteSpace(edge.Name)
+            ? edge.Highway
+            : edge.Name;
+
+        var reference = string.IsNullOrWhiteSpace(edge.Ref)
+            ? string.Empty
+            : $" [{edge.Ref}]";
+
+        return $"{road ?? "unknown"}{reference}: {distanceMeters:F0} m / {durationSeconds:F0} s";
     }
 
     private static void RegisterEdgeCoordinates(

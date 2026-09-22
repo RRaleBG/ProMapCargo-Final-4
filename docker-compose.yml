@@ -26,17 +26,19 @@ services:
     image: osrm/osrm-backend:latest
     container_name: promap-osrm
     restart: unless-stopped
-    command:
+    entrypoint:
       [
-        "osrm-routed",
-        "--algorithm",
-        "mld",
-        "/data/serbia-latest.osrm"
+        "/bin/sh",
+        "/scripts/start-osrm.sh"
       ]
+    environment:
+      OSRM_DATASET: europe-truck
+      OSRM_ALGORITHM: mld
     ports:
       - "5001:5000"
     volumes:
       - ./osm:/data:ro
+      - ./scripts/start-osrm.sh:/scripts/start-osrm.sh:ro
     depends_on:
       postgres:
         condition: service_healthy

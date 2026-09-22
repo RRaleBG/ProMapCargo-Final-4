@@ -13,25 +13,36 @@ namespace ProMapCargo.OsmImporter;
 public sealed class GraphImporter(string connection)
 {
     static readonly GeometryFactory Gf = NtsGeometryServices.Instance.CreateGeometryFactory(4326);
-    static readonly HashSet<string> Highways = new(StringComparer.OrdinalIgnoreCase) {
-        "motorway","motorway_link","trunk","trunk_link","primary","primary_link","secondary","secondary_link","tertiary","unclassified","residential","living_street","service"
+    static readonly HashSet<string> Highways = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "motorway", "motorway_link", "trunk", "trunk_link", "primary", "primary_link", "secondary", "secondary_link",
+        "tertiary", "tertiary_link", "unclassified", "residential", "living_street", "service", "road", "track"
     };
 
     public async Task ImportAsync(string pbf, long version, CancellationToken ct)
     {
+        Console.WriteLine("[IMPORT] Starting graph import...");
         await using var ds = CreateDataSource();
         await using var db = await ds.OpenConnectionAsync(ct);
+
+        Console.WriteLine("[IMPORT] Executing schema SQL...");
         await using (var cmd = new NpgsqlCommand(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Sql", "03-routing-graph.sql")), db)) await cmd.ExecuteNonQueryAsync(ct);
+
+        Console.WriteLine("[IMPORT] Cleaning up previous version data...");
         await using (var cleanup = new NpgsqlCommand("DELETE FROM routing_overlay_edges WHERE graph_version=@v; DELETE FROM routing_edge_cells WHERE graph_version=@v; DELETE FROM routing_node_cells WHERE graph_version=@v; DELETE FROM routing_boundaries WHERE graph_version=@v; DELETE FROM routing_cell_adjacency WHERE graph_version=@v; DELETE FROM routing_cells WHERE graph_version=@v; DELETE FROM compiled_turn_restrictions WHERE graph_version=@v; DELETE FROM turn_restrictions WHERE graph_version=@v; DELETE FROM road_edges WHERE graph_version=@v; DELETE FROM osm_way_nodes WHERE graph_version=@v; DELETE FROM osm_ways WHERE graph_version=@v; DELETE FROM osm_nodes WHERE graph_version=@v; DELETE FROM routing_graph_versions WHERE graph_version=@v;", db))
         {
             cleanup.Parameters.AddWithValue("v", version);
             await cleanup.ExecuteNonQueryAsync(ct);
         }
+
+        Console.WriteLine("[IMPORT] Inserting graph version record as 'building'...");
         await using (var cmd = new NpgsqlCommand("INSERT INTO routing_graph_versions(graph_version,status) VALUES(@v,'building')", db))
         {
             cmd.Parameters.AddWithValue("v", version);
             await cmd.ExecuteNonQueryAsync(ct);
         }
+
+        Console.WriteLine("[IMPORT] Reading PBF file...");
         var nodes = new Dictionary<long, Coordinate>();
         var ways = new List<WayRecord>();
         var restrictions = new List<RelationRecord>();
@@ -57,15 +68,27 @@ public sealed class GraphImporter(string connection)
                 }
             }
         }
+        Console.WriteLine($"[IMPORT] PBF parsed: {nodes.Count:n0} nodes, {ways.Count:n0} ways, {restrictions.Count:n0} restrictions");
+
+        Console.WriteLine("[IMPORT] Copying nodes to database...");
         await CopyNodes(ds, nodes, version, ct);
+        Console.WriteLine("[IMPORT] Nodes copied.");
+
+        Console.WriteLine("[IMPORT] Copying ways and edges to database...");
         await CopyWays(ds, ways, nodes, version, ct);
+        Console.WriteLine("[IMPORT] Ways copied.");
+
+        Console.WriteLine("[IMPORT] Copying restrictions to database...");
         await CopyRestrictions(ds, restrictions, version, ct);
+        Console.WriteLine("[IMPORT] Restrictions copied.");
+
+        Console.WriteLine("[IMPORT] Finalizing graph status to 'ready'...");
         await using (var cmd = new NpgsqlCommand("UPDATE routing_graph_versions SET status='ready',activated_at=now() WHERE graph_version=@v;", db))
         {
             cmd.Parameters.AddWithValue("v", version);
             await cmd.ExecuteNonQueryAsync(ct);
         }
-        Console.WriteLine($"Graph {version} ready: nodes={nodes.Count:n0}, ways={ways.Count:n0}, restrictions={restrictions.Count:n0}");
+        Console.WriteLine($"[IMPORT] Graph {version} ready: nodes={nodes.Count:n0}, ways={ways.Count:n0}, restrictions={restrictions.Count:n0}");
     }
 
     NpgsqlDataSource CreateDataSource()
@@ -123,11 +146,13 @@ public sealed class GraphImporter(string connection)
 
     async Task CopyWays(NpgsqlDataSource ds, List<WayRecord> ways, Dictionary<long, Coordinate> nodes, long v, CancellationToken ct)
     {
+        Console.WriteLine("[COPYWAYS] Opening database connections...");
         await using var wayConnection = await ds.OpenConnectionAsync(ct);
 
         await using var wayNodeConnection = await ds.OpenConnectionAsync(ct);
 
         await using var edgeConnection = await ds.OpenConnectionAsync(ct);
+        Console.WriteLine("[COPYWAYS] Starting binary import writers...");
 
         await using var wayWriter = wayConnection.BeginBinaryImport(
                 "COPY osm_ways(" +
@@ -138,6 +163,9 @@ public sealed class GraphImporter(string connection)
                 ") FROM STDIN (FORMAT BINARY)");
 
         await using var wayNodeWriter =  wayNodeConnection.BeginBinaryImport("COPY osm_way_nodes(" + "graph_version,way_id,seq,node_id" + ") FROM STDIN (FORMAT BINARY)");
+
+        Console.WriteLine($"[COPYWAYS] Processing {ways.Count:n0} ways...");
+        int processedWays = 0;
 
         foreach (var x in ways)
         {
@@ -230,10 +258,19 @@ public sealed class GraphImporter(string connection)
                 nodes,
                 v,
                 ct);
+
+            processedWays++;
+            if (processedWays % 10000 == 0)
+            {
+                Console.WriteLine($"[COPYWAYS] Processed {processedWays:n0} / {ways.Count:n0} ways...");
+            }
         }
 
+        Console.WriteLine("[COPYWAYS] Completing way writer...");
         await wayWriter.CompleteAsync(ct);
+        Console.WriteLine("[COPYWAYS] Completing way node writer...");
         await wayNodeWriter.CompleteAsync(ct);
+        Console.WriteLine("[COPYWAYS] All writers completed successfully.");
     }
 
 
@@ -264,6 +301,8 @@ public sealed class GraphImporter(string connection)
                 target_node,
                 direction,
                 highway,
+                name,
+                ref,
                 access,
                 vehicle,
                 motor_vehicle,
@@ -282,7 +321,8 @@ public sealed class GraphImporter(string connection)
                 routable,
                 tags,
                 geom,
-                is_connector
+                is_connector,
+                hierarchy_penalty
             )
             VALUES(
                 @v,
@@ -291,6 +331,8 @@ public sealed class GraphImporter(string connection)
                 @t,
                 @d,
                 @hw,
+                @name,
+                @ref,
                 @access,
                 @vehicle,
                 @motor_vehicle,
@@ -309,7 +351,8 @@ public sealed class GraphImporter(string connection)
                 true,
                 @tags,
                 @geom,
-                @conn
+                @conn,
+                @penalty
             )
             """;
 
@@ -321,11 +364,13 @@ public sealed class GraphImporter(string connection)
             cmd.Parameters.AddWithValue("t", x.Nodes[i + 1]);
             cmd.Parameters.AddWithValue("d", dir);
             cmd.Parameters.AddWithValue("hw", (object?)V(x.Tags, "highway") ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("name", (object?)V(x.Tags, "name") ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("ref", (object?)V(x.Tags, "ref") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("access", (object?)V(x.Tags, "access") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("vehicle", (object?)V(x.Tags, "vehicle") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("motor_vehicle", (object?)V(x.Tags, "motor_vehicle") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("hgv", (object?)V(x.Tags, "hgv") ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("goods", (object?)V(x.Tags, "goods") ?? DBNull.Value);            
+            cmd.Parameters.AddWithValue("goods", (object?)V(x.Tags, "goods") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("hazmat", (object?)V(x.Tags, "hazmat") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("mh", (object?)Num(x.Tags, "maxheight") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("mw", (object?)Num(x.Tags, "maxwidth") ?? DBNull.Value);
@@ -333,8 +378,9 @@ public sealed class GraphImporter(string connection)
             cmd.Parameters.AddWithValue("mwt", (object?)Weight(x.Tags, "maxweight") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("mal", (object?)Weight(x.Tags, "maxaxleload") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("ms", (object?)Speed(x.Tags, "maxspeed") ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("msh", (object?)Speed(x.Tags, "maxspeed:hgv") ?? DBNull.Value);            
+            cmd.Parameters.AddWithValue("msh", (object?)Speed(x.Tags, "maxspeed:hgv") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("speed", DefaultSpeed(V(x.Tags, "highway")));
+            cmd.Parameters.AddWithValue("penalty", HierarchyPenalty(V(x.Tags, "highway"), V(x.Tags, "access"), V(x.Tags, "hgv"), V(x.Tags, "goods")));
             cmd.Parameters.Add("tags", NpgsqlDbType.Jsonb).Value = JsonSerializer.Serialize(x.Tags);
             cmd.Parameters.AddWithValue("geom", line);
             cmd.Parameters.AddWithValue("conn", V(x.Tags, "highway")?.EndsWith("_link", StringComparison.OrdinalIgnoreCase) == true);
@@ -346,7 +392,10 @@ public sealed class GraphImporter(string connection)
 
     async Task CopyRestrictions(NpgsqlDataSource ds, List<RelationRecord> rs, long v, CancellationToken ct)
     {
+        Console.WriteLine($"[COPYRESTRICTIONS] Processing {rs.Count:n0} restrictions...");
         await using var c = await ds.OpenConnectionAsync(ct);
+        int processedRestrictions = 0;
+
         foreach (var r in rs)
         {
             var from = r.Members.FirstOrDefault(m => m.Role == "from");
@@ -366,7 +415,14 @@ public sealed class GraphImporter(string connection)
             cmd.Parameters.AddWithValue("c", (object?)V(r.Tags, "restriction:conditional") ?? DBNull.Value);
             cmd.Parameters.Add("tags", NpgsqlDbType.Jsonb).Value = JsonSerializer.Serialize(r.Tags);
             await cmd.ExecuteNonQueryAsync(ct);
+
+            processedRestrictions++;
+            if (processedRestrictions % 1000 == 0)
+            {
+                Console.WriteLine($"[COPYRESTRICTIONS] Processed {processedRestrictions:n0} / {rs.Count:n0} restrictions...");
+            }
         }
+        Console.WriteLine("[COPYRESTRICTIONS] All restrictions completed.");
     }
 
     static void Write(NpgsqlBinaryImporter w, string? v)
@@ -422,11 +478,49 @@ public sealed class GraphImporter(string connection)
         "secondary" => 70,
         "secondary_link" => 50,
         "tertiary" => 60,
+        "tertiary_link" => 45,
+        "unclassified" => 40,
+        "road" => 35,
+        "track" => 18,
         "residential" => 50,
         "living_street" => 20,
         "service" => 20,
         _ => 30
     };
+
+    static float HierarchyPenalty(string? highway, string? access, string? hgv, string? goods)
+    {
+        var penalty = highway switch
+        {
+            "motorway" or "trunk" => 0f,
+            "motorway_link" or "trunk_link" => 0.05f,
+            "primary" or "primary_link" => 0.12f,
+            "secondary" or "secondary_link" => 0.22f,
+            "tertiary" or "tertiary_link" => 0.4f,
+            "unclassified" => 0.7f,
+            "residential" => 1.1f,
+            "service" => 1.35f,
+            "road" => 1.5f,
+            "track" => 2.4f,
+            _ => 0.85f
+        };
+
+        if (string.Equals(access, "destination", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(hgv, "destination", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(goods, "destination", StringComparison.OrdinalIgnoreCase))
+        {
+            penalty += 1.4f;
+        }
+
+        if (string.Equals(access, "delivery", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(hgv, "delivery", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(goods, "delivery", StringComparison.OrdinalIgnoreCase))
+        {
+            penalty += 1.1f;
+        }
+
+        return penalty;
+    }
 
     sealed record WayRecord(long Id, long[] Nodes, Dictionary<string, string> Tags);
     sealed record RelationRecord(long Id, OsmSharp.RelationMember[] Members, Dictionary<string, string> Tags);

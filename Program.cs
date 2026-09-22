@@ -292,6 +292,39 @@ app.MapGet("/maps/{region}.pmtiles", (string region, IWebHostEnvironment environ
 
 
 // ============================================================
+// FONT PBF ROUTE (Serve Protomaps/MapLibre glyphs)
+// ============================================================
+
+app.MapGet("/fonts/{fontstack}/{range}.pbf", (string fontstack, string range, IWebHostEnvironment environment) =>
+{
+    var webRoot = string.IsNullOrWhiteSpace(environment.WebRootPath)
+        ? Path.Combine(environment.ContentRootPath, "wwwroot")
+        : environment.WebRootPath;
+
+    // Decode URL-encoded fontstack (e.g., "Noto%20Sans%20Regular" becomes "Noto Sans Regular")
+    var decodedFontstack = System.Net.WebUtility.UrlDecode(fontstack);
+
+    var fontPath = Path.Combine(webRoot, "fonts", decodedFontstack, $"{range}.pbf");
+
+    if (!File.Exists(fontPath))
+    {
+        // Try fallback to lib/protomaps-fonts directory structure
+        fontPath = Path.Combine(webRoot, "lib", "protomaps-fonts", decodedFontstack, $"{range}.pbf");
+
+        if (!File.Exists(fontPath))
+        {
+            return Results.NotFound();
+        }
+    }
+
+    return Results.File(
+        fontPath,
+        contentType: "application/x-protobuf",
+        enableRangeProcessing: true);
+});
+
+
+// ============================================================
 // DATABASE BOOTSTRAP & RUN
 // ============================================================
 

@@ -52,7 +52,11 @@ Then run `docker compose up --build`. The final version uses PostgreSQL snake_ca
 
    `./scripts/build-serbia-pmtiles.ps1`
 
-2. Start infrastructure:
+2. Build Europe truck OSRM data once after refreshing `osm/europe-latest.osm.pbf`:
+
+   `./scripts/build-europe-osrm-truck.ps1`
+
+3. Start infrastructure:
 
    `docker compose up -d postgres osrm`
 
@@ -61,11 +65,15 @@ Then run `docker compose up --build`. The final version uses PostgreSQL snake_ca
    `dotnet restore ProMapCargo.sln`
    `dotnet build ProMapCargo.sln`
 
-4. Start the API:
+4. Import the Europe routing graph so truck routing follows the same Europe network:
+
+   `dotnet run --project Importer -- ./osm/europe-latest.osm.pbf`
+
+5. Start the API:
 
    `dotnet run --project ProMapCargo.Api.csproj`
 
-5. Open the application:
+6. Open the application:
 
    `http://localhost:5090`
 
@@ -80,7 +88,7 @@ Run the complete application stack:
 The Docker stack includes:
 
 - `postgres` for PostgreSQL/PostGIS
-- `osrm` for OSRM fallback routing
+- `osrm` for Europe-wide truck OSRM fallback routing
 - `api` for the ASP.NET Core app
 
 Required local map/runtime assets for the `api` container:
@@ -95,6 +103,8 @@ Endpoints:
 - API/UI: `http://localhost:8080`
 - PostGIS: `localhost:5432`, database `promapcargo`, user `promap`
 - OSRM: `http://localhost:5001`
+
+The OSRM container now expects a preprocessed Europe truck dataset at `osm/europe-truck.osrm*`, generated from `osm/europe-latest.osm.pbf` with `profiles/osrm/truck.lua`.
 
 By default, the web maps now use the local Europe PMTiles archive, while Monitoring can switch between Europe and Serbia archives.
 
@@ -112,7 +122,7 @@ The importer creates a versioned graph, imports OSM nodes/ways/edges/restriction
 
 ## Important routing note
 
-The PostGIS graph must contain an imported OSM PBF before the truck-aware router can calculate a real graph route. If no active PostGIS graph exists, the API attempts the configured OSRM compatibility fallback.
+The PostGIS graph must contain an imported Europe OSM PBF before the truck-aware router can calculate a real graph route that matches the Europe basemap. If no active PostGIS graph exists, the API attempts the configured Europe truck OSRM fallback.
 
 ## Seed administrator
 

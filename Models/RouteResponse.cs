@@ -39,6 +39,21 @@ public sealed class RouteAnalysis
     public int Score { get; init; }
 
     public List<RestrictionViolation> Violations { get; init; } = [];
+
+    public RouteDebug? Debug { get; init; }
+}
+
+public sealed class RouteDebug
+{
+    public string? Summary { get; init; }
+
+    public string? StartSnap { get; init; }
+
+    public string? EndSnap { get; init; }
+
+    public int TraversalCount { get; init; }
+
+    public List<string> Highlights { get; init; } = [];
 }
 
 public sealed class RestrictionViolation
@@ -68,6 +83,14 @@ public sealed class RouteDiagnostics
     public long? GraphVersion { get; set; }
 
     public string? FailureReason { get; set; }
+
+    public string? StartSnap { get; set; }
+
+    public string? EndSnap { get; set; }
+
+    public int TraversalCount { get; set; }
+
+    public List<string> Highlights { get; set; } = [];
 }
 
 public sealed record RouteManeuverDto(

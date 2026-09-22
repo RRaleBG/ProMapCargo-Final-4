@@ -8,7 +8,7 @@ namespace ProMapCargo.Api.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("alerts")]
+[Route("api/alerts")]
 public sealed class AlertsController(
     ProMapCargoDbContext db,
     ICurrentUserContext current) : ControllerBase

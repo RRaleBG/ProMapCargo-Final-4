@@ -249,7 +249,20 @@ public sealed class RoutingController(
                         {
                             Restricted = restricted,
                             Score = score,
-                            Violations = violationList
+                            Violations = violationList,
+                            Debug =
+                                new RouteDebug
+                                {
+                                    Summary = restricted
+                                        ? $"OSRM candidate with {violationList.Count} truck restriction issue(s)."
+                                        : "OSRM candidate without detected truck restriction issues.",
+                                    TraversalCount = 0,
+                                    Highlights =
+                                    [
+                                        $"candidate distance {route.Distance:F0} m",
+                                        $"candidate duration {route.Duration:F0} s"
+                                    ]
+                                }
                         }
                 });
         }
@@ -346,7 +359,14 @@ public sealed class RoutingController(
                         UsedFallback = true,
                         ExpandedStates = 0,
                         GraphVersion = null,
-                        FailureReason = null
+                        FailureReason = null,
+                        TraversalCount = 0,
+                        Highlights =
+                        [
+                            $"evaluated {routeCandidates.Count} OSRM candidate(s)",
+                            $"selected candidate {selectedRouteIndex}",
+                            $"selected route restricted={selectedRoute.Analysis.Restricted}"
+                        ]
                     },
 
                 Maneuvers = []

@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS road_edges(
     target_node BIGINT NOT NULL,
     direction SMALLINT NOT NULL,
     highway TEXT,
+    name TEXT,
+    ref TEXT,
     access TEXT,
     vehicle TEXT,
     motor_vehicle TEXT,
@@ -71,6 +73,8 @@ CREATE TABLE IF NOT EXISTS road_edges(
     hierarchy_penalty REAL NOT NULL DEFAULT 0,
     geom geometry(LineString,4326) NOT NULL
 );
+ALTER TABLE road_edges ADD COLUMN IF NOT EXISTS name TEXT;
+ALTER TABLE road_edges ADD COLUMN IF NOT EXISTS ref TEXT;
 CREATE INDEX IF NOT EXISTS ix_road_edges_source ON road_edges(graph_version,source_node) WHERE routable;
 CREATE INDEX IF NOT EXISTS ix_road_edges_target ON road_edges(graph_version,target_node) WHERE routable;
 CREATE INDEX IF NOT EXISTS ix_road_edges_geom ON road_edges USING gist(geom);

@@ -10,7 +10,7 @@
     const LOCAL_MAPLIBRE_JS = "/lib/maplibre-gl/dist/maplibre-gl.js";
     const LOCAL_MAPLIBRE_CSS = "/lib/maplibre-gl/dist/maplibre-gl.css";
     const LOCAL_PMTILES_JS = "/lib/pmtiles/dist/pmtiles.js";
-    const LOCAL_MAP_STYLE = "/styles/promap-dark.json";
+    const LOCAL_MAP_STYLE = "/styles/promap-dark.json?v=20260922-road-style-fix";
     const DEFAULT_ARCHIVE_URL = "/maps/europe.pmtiles";
     const LOCAL_MAPLIBRE_CSS_ID = "promap-shared-maplibre-css";
 
@@ -106,20 +106,24 @@
         return maplibregl;
     }
 
+    let rawStylePromise = null;
+
     async function buildStyle(archiveUrl) {
-        const response = await fetch(LOCAL_MAP_STYLE, {
+        rawStylePromise ??= fetch(LOCAL_MAP_STYLE, {
             credentials: "same-origin",
             cache: "no-store",
             headers: {
                 Accept: "application/json",
             },
+        }).then(async (response) => {
+            if (!response.ok) {
+                throw new Error(`promap-dark.json HTTP ${response.status}`);
+            }
+
+            return response.json();
         });
 
-        if (!response.ok) {
-            throw new Error(`promap-dark.json HTTP ${response.status}`);
-        }
-
-        const rawStyle = await response.json();
+        const rawStyle = await rawStylePromise;
 
         return JSON.parse(
             JSON.stringify(rawStyle).replaceAll(
@@ -165,14 +169,31 @@
         }
 
         const center = record.leafletMap.getCenter();
+        const zoom = record.leafletMap.getZoom();
+        const roundedZoom = Number(zoom.toFixed(2));
+        const roundedLat = Number(center.lat.toFixed(6));
+        const roundedLng = Number(center.lng.toFixed(6));
+
+        if (
+            record.lastSyncZoom === roundedZoom &&
+            record.lastSyncCenter?.lat === roundedLat &&
+            record.lastSyncCenter?.lng === roundedLng
+        ) {
+            return;
+        }
 
         try {
             record.maplibreMap.jumpTo({
                 center: [center.lng, center.lat],
-                zoom: record.leafletMap.getZoom(),
+                zoom,
                 bearing: 0,
                 pitch: 0,
             });
+            record.lastSyncZoom = roundedZoom;
+            record.lastSyncCenter = {
+                lat: roundedLat,
+                lng: roundedLng,
+            };
             record.maplibreMap.resize();
         } catch { }
     }
@@ -221,6 +242,7 @@
             });
 
             map.once("error", (event) => {
+                console.error("[ProMap MapLayers] MapLibre load error:", event?.error || event);
                 if (settled) {
                     return;
                 }
@@ -258,6 +280,8 @@
                 archiveUrl,
                 maplibreMap: null,
                 bound: false,
+                lastSyncZoom: null,
+                lastSyncCenter: null,
             };
         }
 

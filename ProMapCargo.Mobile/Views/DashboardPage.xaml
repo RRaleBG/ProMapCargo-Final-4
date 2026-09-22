@@ -66,21 +66,86 @@
                 </Border>
 
                 <Border BackgroundColor="#0B2D26" Stroke="#1C5448" StrokeShape="RoundRectangle 18" Padding="16">
-                    <VerticalStackLayout Spacing="10">
+                    <VerticalStackLayout Spacing="14">
                         <Label Text="Navigation" FontAttributes="Bold" FontSize="18" TextColor="#F8FAFC" />
-                        <CollectionView ItemsSource="{Binding Trips}" SelectionMode="None" HeightRequest="220">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid ColumnDefinitions="*,Auto" Padding="0,8">
-                                        <VerticalStackLayout Spacing="2">
-                                            <Label Text="{Binding ExecutionState}" FontAttributes="Bold" TextColor="#ECFDF5" />
-                                            <Label Text="{Binding Status}" FontSize="12" TextColor="#94A3B8" />
-                                        </VerticalStackLayout>
-                                        <Label Grid.Column="1" Text="{Binding RouteProgressPercent, StringFormat='{0:0}%'}" FontSize="12" TextColor="#5EEAD4" />
-                                    </Grid>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
+
+                        <Border BackgroundColor="#10382F" Stroke="#145C4F" StrokeShape="RoundRectangle 16" Padding="14">
+                            <VerticalStackLayout Spacing="10">
+                                <Label Text="{Binding RouteSummary}" FontSize="15" FontAttributes="Bold" TextColor="#ECFDF5" LineBreakMode="WordWrap" />
+                                <Label Text="{Binding RouteEngine}" FontSize="12" TextColor="#5EEAD4" />
+                                <Label Text="{Binding RouteSafety}" FontSize="12" TextColor="#F8FAFC" />
+                                <Label Text="{Binding RouteDiagnosticsSummary}" FontSize="12" TextColor="#94A3B8" LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Border BackgroundColor="#0E332B" Stroke="#1C5448" StrokeShape="RoundRectangle 14" Padding="12">
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="START SNAP" FontSize="10" TextColor="#7DD3FC" />
+                                    <Label Text="{Binding RouteStartSnap}" FontSize="12" TextColor="#E2E8F0" LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1" BackgroundColor="#0E332B" Stroke="#1C5448" StrokeShape="RoundRectangle 14" Padding="12">
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="END SNAP" FontSize="10" TextColor="#7DD3FC" />
+                                    <Label Text="{Binding RouteEndSnap}" FontSize="12" TextColor="#E2E8F0" LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <Border BackgroundColor="#0E332B" Stroke="#1C5448" StrokeShape="RoundRectangle 14" Padding="12">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="FAILURE / REVIEW" FontSize="10" TextColor="#FBBF24" />
+                                <Label Text="{Binding RouteFailureReason}" FontSize="12" TextColor="#F8FAFC" LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Route Highlights" FontAttributes="Bold" FontSize="15" TextColor="#F8FAFC" />
+                            <CollectionView ItemsSource="{Binding RouteHighlights}" SelectionMode="None" HeightRequest="180">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BackgroundColor="#0E332B" Stroke="#1C5448" StrokeShape="RoundRectangle 12" Padding="10" Margin="0,0,0,8">
+                                            <Label Text="{Binding .}" FontSize="12" TextColor="#E2E8F0" LineBreakMode="WordWrap" />
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Next Maneuvers" FontAttributes="Bold" FontSize="15" TextColor="#F8FAFC" />
+                            <CollectionView ItemsSource="{Binding RouteManeuvers}" SelectionMode="None" HeightRequest="220">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BackgroundColor="#0E332B" Stroke="#1C5448" StrokeShape="RoundRectangle 12" Padding="10" Margin="0,0,0,8">
+                                            <VerticalStackLayout Spacing="4">
+                                                <Label Text="{Binding Instruction}" FontSize="13" FontAttributes="Bold" TextColor="#ECFDF5" LineBreakMode="WordWrap" />
+                                                <Label Text="{Binding RoadName}" FontSize="12" TextColor="#5EEAD4" />
+                                                <Label Text="{Binding DistanceFromPreviousMeters, StringFormat='After {0:0} m'}" FontSize="11" TextColor="#94A3B8" />
+                                            </VerticalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Trip Progress" FontAttributes="Bold" FontSize="15" TextColor="#F8FAFC" />
+                            <CollectionView ItemsSource="{Binding Trips}" SelectionMode="None" HeightRequest="220">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                            <VerticalStackLayout Spacing="2">
+                                                <Label Text="{Binding ExecutionState}" FontAttributes="Bold" TextColor="#ECFDF5" />
+                                                <Label Text="{Binding Status}" FontSize="12" TextColor="#94A3B8" />
+                                            </VerticalStackLayout>
+                                            <Label Grid.Column="1" Text="{Binding RouteProgressPercent, StringFormat='{0:0}%'}" FontSize="12" TextColor="#5EEAD4" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
                     </VerticalStackLayout>
                 </Border>
             </VerticalStackLayout>

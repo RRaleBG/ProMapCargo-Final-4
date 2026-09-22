@@ -69,6 +69,7 @@ window.ProMap = window.ProMap || {};
             syncFrame: 0,
             lastSyncZoom: null,
             lastSyncCenter: null,
+            enhancements: null,
         },
     };
 
@@ -138,7 +139,7 @@ window.ProMap = window.ProMap || {};
 
     const LOCAL_PMTILES_JS = "/lib/pmtiles/dist/pmtiles.js";
 
-    const LOCAL_MAP_STYLE = "/styles/promap-dark.json";
+    const LOCAL_MAP_STYLE = "/styles/promap-dark.json?v=20260922-road-style-fix";
 
     const LOCAL_MAPLIBRE_CSS_ID = "promap-local-maplibre-css";
 
@@ -787,7 +788,7 @@ window.ProMap = window.ProMap || {};
                 },
 
                 credentials: "same-origin",
-                cache: "force-cache",
+                cache: "no-store",
             }).then(async (response) => {
                 if (!response.ok) {
                     throw new Error(`promap-dark.json HTTP ${response.status}`);
@@ -817,7 +818,7 @@ window.ProMap = window.ProMap || {};
                 container:
                     mapElement,
                 style,
-                center: [20.4573, 44.8178],
+                center: [50.064671, 0.628492],
                 zoom: 8,
                 attributionControl: true,
                 interactive: false,
@@ -858,6 +859,7 @@ window.ProMap = window.ProMap || {};
                 });
 
                 map.once("error", (event) => {
+                    console.error("[ProMap Navigation] MapLibre load error:", event?.error || event);
                     if (settled) {
                         return;
                     }
@@ -879,20 +881,26 @@ window.ProMap = window.ProMap || {};
     }
 
     async function activateLocalBaseMap(mapElement) {
-        const host = prepareLocalMapHost(mapElement);
-        const map = await loadLocalMapStyle(host);
-
-        if (!map) {
+        if (!state.map || !window.ProMap.MapLayers?.attach) {
             return;
         }
 
-        state.localMap.map = map;
+        const record = await window.ProMap.MapLayers.attach(state.map, {
+            archiveUrl: PROMAP_PMTILES_ENDPOINT,
+        });
+
+        if (!record?.maplibreMap) {
+            return;
+        }
+
+        state.localMap.host = record.host ?? prepareLocalMapHost(mapElement);
+        state.localMap.map = record.maplibreMap;
         state.localMap.ready = true;
         state.localMap.failed = false;
-        state.localMap.archive = PROMAP_PMTILES_ENDPOINT;
+        state.localMap.archive = record.archiveUrl ?? PROMAP_PMTILES_ENDPOINT;
 
-        if (window.ProMap.MapEnhancements?.install) {
-            state.localMap.enhancements = window.ProMap.MapEnhancements.install(map, {
+        if (!state.localMap.enhancements && window.ProMap.MapEnhancements?.install) {
+            state.localMap.enhancements = window.ProMap.MapEnhancements.install(record.maplibreMap, {
                 visibleGroups: {
                     route: true,
                     restrictions: true,
@@ -918,7 +926,7 @@ window.ProMap = window.ProMap || {};
         }, 600);
 
         try {
-            map.resize();
+            state.localMap.map?.resize();
             scheduleLocalMapBackgroundSync();
         } catch {
             // Ignore resize errors.
@@ -932,6 +940,139 @@ window.ProMap = window.ProMap || {};
     // ============================================================
     // MAP
     // ============================================================
+
+    // function initializeMap() {
+    //     const mapElement = $("navMap");
+
+    //     if (!mapElement) {
+    //         console.error("[ProMap Navigation] #navMap nije pronađen u DOM-u.");
+
+    //         return;
+    //     }
+
+    //     if (!window.L) {
+    //         console.error("[ProMap Navigation] Leaflet nije učitan lokalno.");
+
+    //         showError("Leaflet nije učitan. Proveri _Layout.cshtml.");
+
+    //         return;
+    //     }
+
+    //     if (state.map) {
+    //         state.map.invalidateSize();
+    //         return;
+    //     }
+
+    //     state.map = L.map(mapElement, {
+    //         zoomControl: true,
+    //         preferCanvas: true,
+    //         minZoom: 3,
+    //         maxZoom: 22,
+    //         zoomSnap: 0.25,
+    //         zoomDelta: 0.5,
+    //         wheelPxPerZoomLevel: 70,
+    //         attributionControl: true,
+    //         scrollWheelZoom: true,
+    //         dragging: true,
+    //         doubleClickZoom: true,
+    //         boxZoom: true,
+    //         keyboard: true,
+    //         touchZoom: true,
+    //         tapHold: true,
+    //         zoomAnimation: true,
+    //         fadeAnimation: true,
+    //         markerZoomAnimation: true,
+    //     }).setView(
+    //         wideScreen ? [50.65, 8.6] : [50.2, 11.2],
+    //         wideScreen ? 4.3 : 4.1,
+    //     );
+
+    //     L.control.scale({
+    //         imperial: false,
+    //         position: "bottomleft",
+    //     }).addTo(state.map);
+
+    //     mapElement.style.position = mapElement.style.position || "relative";
+    //     mapElement.style.overflow = "hidden";
+    //     mapElement.style.background = "#031712";
+
+    //     prepareLocalMapHost(mapElement);
+
+    //     // --------------------------------------------------------
+    //     // MAP MOVEMENT
+    //     // --------------------------------------------------------
+
+    //     state.map.on("move", () => {
+    //         if (state.localMap.visible) {
+    //             scheduleLocalMapBackgroundSync();
+    //         }
+    //     });
+
+    //     state.map.on("moveend zoomend viewreset resize", () => {
+    //         if (state.localMap.visible) {
+    //             scheduleLocalMapBackgroundSync();
+    //         }
+    //     });
+
+    //     state.map.on("dragstart", () => {
+    //         if (state.live) {
+    //             state.liveFollow = false;
+    //         }
+    //     });
+
+    //     // --------------------------------------------------------
+    //     // MAP CLICK / POINT PICK
+    //     // --------------------------------------------------------
+
+    //     state.map.on("click", (event) => {
+    //         if (!state.picking) {
+    //             return;
+    //         }
+
+    //         const point = {
+    //             latitude: event.latlng.lat,
+
+    //             longitude: event.latlng.lng,
+
+    //             label: `${event.latlng.lat.toFixed(6)}, ${event.latlng.lng.toFixed(6)}`,
+    //         };
+
+    //         if (state.picking === "start") {
+    //             if ($("navStart")) {
+    //                 $("navStart").value = point.label;
+    //             }
+
+    //             setStart(point);
+    //         } else {
+    //             if ($("navEnd")) {
+    //                 $("navEnd").value = point.label;
+    //             }
+
+    //             setDestination(point);
+    //         }
+
+    //         state.picking = null;
+
+    //         state.map.getContainer().style.cursor = "";
+
+    //         showError("");
+    //     });
+
+    //     requestAnimationFrame(() => {
+    //         state.map?.invalidateSize();
+    //         state.localMap.map?.resize();
+    //         scheduleLocalMapBackgroundSync();
+    //     });
+
+    //     window.setTimeout(() => {
+    //         state.map?.invalidateSize();
+    //         state.localMap.map?.resize();
+    //         scheduleLocalMapBackgroundSync();
+    //     }, 250);
+
+    //     void activateLocalBaseMap(mapElement);
+    // }
+
 
     function initializeMap() {
         const mapElement = $("navMap");
@@ -974,7 +1115,10 @@ window.ProMap = window.ProMap || {};
             zoomAnimation: false,
             fadeAnimation: false,
             markerZoomAnimation: false,
-        }).setView([15, 50], 4);
+        }).setView(
+            mapElement ? [50.2, 9.75] : [50, 12.5],
+            mapElement ? 4.35 : 4.15,
+        );
 
         L.control.scale({
             imperial: false,
@@ -1061,6 +1205,7 @@ window.ProMap = window.ProMap || {};
 
         void activateLocalBaseMap(mapElement);
     }
+
 
     // ============================================================
     // START / DESTINATION
@@ -1498,6 +1643,10 @@ window.ProMap = window.ProMap || {};
             $("maneuverList").innerHTML = "";
         }
 
+        if ($("diagnosticHighlights")) {
+            $("diagnosticHighlights").innerHTML = "";
+        }
+
         setHidden("mapRouteCard", true);
 
         setHidden("nextInstruction", true);
@@ -1515,6 +1664,16 @@ window.ProMap = window.ProMap || {};
         setText("diagnosticStates", "—");
 
         setText("diagnosticFallback", "—");
+
+        setText("diagnosticStartSnap", "—");
+
+        setText("diagnosticEndSnap", "—");
+
+        setText("diagnosticTraversalCount", "—");
+
+        setText("diagnosticFailureReason", "—");
+
+        setText("diagnosticHighlightTitle", "Edge / road highlights");
 
         showError("");
     }
@@ -1546,9 +1705,9 @@ window.ProMap = window.ProMap || {};
             const active = entry.index === state.selectedRouteIndex;
 
             entry.layer.setStyle({
-                weight: active ? 8 : 4,
-                opacity: active ? 0.98 : 0.3,
-                color: active ? "#54f3b1" : "#64748b",
+                weight: active ? 9 : 4,
+                opacity: active ? 1 : 0.3,
+                color: active ? "#7affc4" : "#64748b",
             });
 
             if (active) {
@@ -2093,8 +2252,44 @@ window.ProMap = window.ProMap || {};
         setHidden("alternativesCard", false);
     }
 
-    function updateDiagnostics() {
+    function renderDiagnosticHighlights(items) {
+        const box = $("diagnosticHighlights");
+
+        if (!box) {
+            return;
+        }
+
+        const highlights = Array.isArray(items)
+            ? items.filter((item) => String(item || "").trim().length > 0)
+            : [];
+
+        box.innerHTML = "";
+
+        if (!highlights.length) {
+            const empty = document.createElement("div");
+            empty.className = "nav-list-item muted";
+            empty.textContent = "Nema dodatnih dijagnostičkih detalja za izabranu rutu.";
+            box.appendChild(empty);
+            return;
+        }
+
+        highlights.forEach((item, index) => {
+            const row = document.createElement("div");
+            row.className = "nav-list-item";
+            row.innerHTML = `
+                <span>Segment ${index + 1}</span>
+                <strong>${escapeHtml(item)}</strong>
+            `;
+            box.appendChild(row);
+        });
+    }
+
+    function updateDiagnostics(route = selectedRoute()) {
         const diagnostics = state.routeResponse?.diagnostics || {};
+        const routeDebug = route?.analysis?.debug || {};
+        const highlights = Array.isArray(routeDebug.highlights) && routeDebug.highlights.length
+            ? routeDebug.highlights
+            : diagnostics.highlights;
 
         setText("diagnosticEngine", diagnostics.engine || "—");
 
@@ -2113,6 +2308,28 @@ window.ProMap = window.ProMap || {};
         );
 
         setText("diagnosticFallback", diagnostics.usedFallback ? "DA" : "NE");
+
+        setText("diagnosticStartSnap", routeDebug.startSnap || diagnostics.startSnap || "—");
+
+        setText("diagnosticEndSnap", routeDebug.endSnap || diagnostics.endSnap || "—");
+
+        setText(
+            "diagnosticTraversalCount",
+            Number.isFinite(Number(routeDebug.traversalCount))
+                ? String(routeDebug.traversalCount)
+                : Number.isFinite(Number(diagnostics.traversalCount))
+                    ? String(diagnostics.traversalCount)
+                    : "—",
+        );
+
+        setText("diagnosticFailureReason", diagnostics.failureReason || "—");
+
+        setText(
+            "diagnosticHighlightTitle",
+            routeDebug.summary || "Edge / road highlights",
+        );
+
+        renderDiagnosticHighlights(highlights);
 
         setEngine(
             diagnostics.engine || "PostGIS",
@@ -2162,6 +2379,7 @@ window.ProMap = window.ProMap || {};
         const diagnosticParts = [];
 
         const diagnostics = response.diagnostics || {};
+        const routeDebug = route?.analysis?.debug || {};
 
         if (Number.isFinite(Number(diagnostics.expandedStates))) {
             diagnosticParts.push(`${diagnostics.expandedStates} states`);
@@ -2171,8 +2389,16 @@ window.ProMap = window.ProMap || {};
             diagnosticParts.push(`graph ${diagnostics.graphVersion}`);
         }
 
+        if (Number.isFinite(Number(routeDebug.traversalCount))) {
+            diagnosticParts.push(`${routeDebug.traversalCount} traversals`);
+        }
+
         if (violations.length) {
             diagnosticParts.push(`${violations.length} warnings`);
+        }
+
+        if (diagnostics.usedFallback) {
+            diagnosticParts.push("fallback");
         }
 
         setText(
@@ -2203,25 +2429,7 @@ window.ProMap = window.ProMap || {};
 
         renderWarnings(violations);
 
-        setText(
-            "diagnosticGraph",
-
-            diagnostics.graphVersion != null ? String(diagnostics.graphVersion) : "—",
-        );
-
-        setText(
-            "diagnosticStates",
-
-            diagnostics.expandedStates != null
-                ? String(diagnostics.expandedStates)
-                : "—",
-        );
-
-        setEngine(
-            diagnostics.engine || "PostGIS",
-
-            Boolean(diagnostics.usedFallback),
-        );
+        updateDiagnostics(route);
 
         updateNextInstruction();
     }
@@ -2286,9 +2494,9 @@ window.ProMap = window.ProMap || {};
             const active = index === state.selectedRouteIndex;
 
             const layer = L.polyline(coordinates, {
-                weight: active ? 8 : 4,
-                opacity: active ? 0.98 : 0.3,
-                color: active ? "#54f3b1" : "#64748b",
+                weight: active ? 9 : 4,
+                opacity: active ? 1 : 0.3,
+                color: active ? "#7affc4" : "#64748b",
                 lineCap: "round",
                 lineJoin: "round",
                 className: active ? "pm-route-active" : "pm-route-alternative",
@@ -2544,6 +2752,14 @@ window.ProMap = window.ProMap || {};
         );
     }
 
+
+    const mobile = window.matchMedia("(max-width: 900px)").matches;
+    const wideScreen = window.matchMedia("(min-width: 1500px)").matches;
+    const sidePanelWidth = mobile ? 0 : wideScreen ? 600 : 430;
+    const topOverlayHeight = mobile ? 150 : 120;
+    const bottomOverlayHeight = mobile ? 120 : 150;
+    const leftVisualOffset = mobile ? 24 : wideScreen ? 116 : 44;
+
     function fitRoute() {
         if (!state.map) {
             return;
@@ -2563,9 +2779,12 @@ window.ProMap = window.ProMap || {};
             return;
         }
 
-        state.map.fitBounds(L.latLngBounds(points), {
-            padding: [30, 30],
 
+
+        state.map.fitBounds(L.latLngBounds(points), {
+            paddingTopLeft: [leftVisualOffset, topOverlayHeight],
+            paddingBottomRight: [sidePanelWidth, bottomOverlayHeight],
+            padding: [36, 36],
             maxZoom: state.routeCoordinates.length ? undefined : 14,
         });
 
@@ -2690,19 +2909,16 @@ window.ProMap = window.ProMap || {};
 
         setText(
             "liveSpeed",
-
             Number.isFinite(speed) ? `${Math.round(speed * 3.6)} km/h` : "—",
         );
 
         setText(
             "liveAccuracy",
-
             Number.isFinite(accuracy) ? `±${Math.round(accuracy)} m` : "—",
         );
 
         setText(
             "livePosition",
-
             `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
         );
 
@@ -2710,7 +2926,6 @@ window.ProMap = window.ProMap || {};
 
         setText(
             "liveOffRoute",
-
             offRoute == null
                 ? "—"
                 : offRoute > 100
@@ -2768,13 +2983,10 @@ window.ProMap = window.ProMap || {};
         switch (error?.code) {
             case 1:
                 return "GPS dozvola je odbijena.";
-
             case 2:
                 return "GPS lokacija trenutno nije dostupna.";
-
             case 3:
                 return "GPS zahtev je istekao.";
-
             default:
                 return "Greška pri čitanju GPS lokacije.";
         }
