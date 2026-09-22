@@ -2851,7 +2851,449 @@ They may use the same OSM source but are different generated datasets.
 
 ---
 
-# 124. FINAL VALIDATION CHECKLIST
+# 124. DETAILED FILE STRUCTURE (ProMapCargo Solution)
+
+## 124.1 ProMapCargo.Api Project Root
+
+```
+ProMapCargo.Api/
+├── Program.cs                           ← Application bootstrap (ASP.NET Core setup)
+├── ProMapCargo.Api.csproj               ← Project file (.NET 10)
+├── appsettings.json                     ← Configuration (connection strings, logging)
+├── appsettings.Development.json         ← Development-specific config
+├── NuGet.config                         ← NuGet package sources
+├── .env                                 ← Docker environment variables
+├── docker-compose.yml                   ← Local development stack (Postgres, OSRM, API)
+├── Dockerfile                           ← Container image definition
+├── libman.json                          ← Frontend library management
+├── .dockerignore                        ← Docker build exclusions
+├── .gitignore                           ← Git exclusions (maps, volumes, temp files)
+├── README.md                            ← Project documentation
+├── FIXES_APPLIED.md                     ← Fix history
+├── ProMapCargo.sln                      ← Solution file
+│
+├── Controllers/                         ← HTTP API endpoints
+│   ├── RoutingController.cs             ← POST /api/routing/route (main truck routing)
+│   ├── TripRoutingController.cs         ← Trip route calculation
+│   ├── GeocodingController.cs           ← Nominatim geocoding integration
+│   ├── NavigationTelemetryController.cs ← GPS/telemetry endpoints
+│   ├── RestrictionsController.cs        ← Truck restriction query API
+│   ├── RestrictionAdminController.cs    ← Restriction management
+│   ├── OperationsController.cs          ← Fleet operations endpoints
+│   ├── BusinessController.cs            ← Business logic endpoints
+│   ├── DriverController.cs              ← Driver management API
+│   ├── AlertsController.cs              ← Alert management API
+│   └── MobileAuthController.cs          ← Mobile JWT authentication
+│
+├── Routing/                             ← PostGIS truck routing engine
+│   ├── PostGisRoutingService.cs         ← Orchestrator (snap → A* → geometry → maneuvers)
+│   ├── PostGisRoutingRepository.cs      ← Graph queries (graph versions, edges, nodes)
+│   ├── PostGisAStarRouter.cs            ← A* implementation (pathfinding)
+│   ├── EdgeSnapper.cs                   ← Snap coordinates to graph edges
+│   ├── TruckEdgeEvaluator.cs            ← Edge cost (truck constraints, restrictions)
+│   ├── TurnRestrictionMatcher.cs        ← Turn restriction validation
+│   ├── ManeuverBuilder.cs               ← Generate turn instructions
+│   └── RoutingModels.cs                 ← Domain models (traversal, maneuver, etc.)
+│
+├── Services/                            ← Business services
+│   ├── IRoutingService.cs               ← Routing interface (fallback contract)
+│   ├── OsrmRoutingService.cs            ← OSRM fallback implementation
+│   ├── IGeocodingService.cs             ← Geocoding interface
+│   ├── NominatimGeocodingService.cs     ← Nominatim geocoding implementation
+│   ├── IRestrictionEngine.cs            ← Restriction checking interface
+│   ├── PostgresRestrictionEngine.cs     ← PostGIS-backed restrictions
+│   ├── RestrictionEngine.cs             ← In-memory restrictions fallback
+│   ├── IRestrictionRepository.cs        ← Restriction data interface
+│   ├── PostgresRestrictionRepository.cs ← SQL restriction queries
+│   ├── JsonRestrictionRepository.cs     ← Local JSON restrictions
+│   ├── MobileTokenService.cs            ← JWT token generation/validation
+│   ├── ApiAuthHandler.cs                ← HTTP auth handler
+│   ├── NavigationHub.cs                 ← SignalR hub (GPS/telemetry)
+│   ├── CurrentUserContext.cs            ← User identity context
+│   ├── IdentityClaimsFactory.cs         ← ASP.NET Identity claims
+│   └── BusinessServices.cs              ← Logistics operations logic
+│
+├── Models/                              ← Data contracts
+│   ├── RouteRequest.cs                  ← Request body: start, end, truck profile
+│   ├── RouteResponse.cs                 ← Response body: geometry, maneuvers, summary
+│   ├── TruckProfile.cs                  ← Truck dimensions, weight, restrictions
+│   ├── VehicleProfile.cs                ← Generic vehicle profile
+│   ├── RouteOptions.cs                  ← Route calculation options
+│   ├── GeoPoint.cs                      ← Coordinate model (latitude/longitude)
+│   ├── GeocodingResult.cs               ← Nominatim result
+│   ├── Restriction.cs                   ← Restriction definition
+│   ├── RoadRestriction.cs               ← Road-specific restriction
+│   ├── BusinessModels.cs                ← Orders, trips, vehicles, drivers
+│   ├── MobileAuthModels.cs              ← Mobile login/register
+│   ├── MobileAuthOptions.cs             ← Mobile auth configuration
+│   └── MobileRefreshToken.cs            ← Refresh token model
+│
+├── Data/                                ← Entity Framework Core
+│   ├── ProMapCargoDbContext.cs          ← EF DbContext (application + routing tables)
+│   └── restrictions.json                ← Local restriction dataset (fallback)
+│
+├── Sql/                                 ← Database scripts
+│   ├── 03-routing-graph.sql             ← PostGIS schema (nodes, edges, restrictions, cells)
+│   ├── 01-indexes.sql                   ← Query optimization (spatial, btree)
+│   ├── 02-useful-queries.sql            ← Diagnostic queries
+│   ├── 04-operational-indexes.sql       ← Operational performance indexes
+│   └── import-plan.md                   ← Import workflow documentation
+│
+├── Pages/                               ← Razor Pages (server-rendered UI)
+│   ├── Index.cshtml                     ← Dashboard (main page)
+│   ├── Navigation/Index.cshtml          ← **CRITICAL: Route calculation & live map**
+│   ├── Dispatch/Index.cshtml            ← Fleet dispatch management
+│   ├── Monitoring/Index.cshtml          ← Live fleet monitoring
+│   ├── Orders/Index.cshtml              ← Order management
+│   ├── Trips/Index.cshtml               ← Trip management
+│   ├── Vehicles/Index.cshtml            ← Vehicle fleet list
+│   ├── Vehicles/New.cshtml              ← New vehicle form
+│   ├── Drivers/Index.cshtml             ← Driver list
+│   ├── Driver/Index.cshtml              ← Individual driver profile
+│   ├── Alerts/Index.cshtml              ← Alert management
+│   ├── Compliance/Index.cshtml          ← Compliance reporting
+│   ├── Audit/Index.cshtml               ← Audit log
+│   ├── Finance/Index.cshtml             ← Financial analytics
+│   ├── Reports/Index.cshtml             ← Report generation
+│   ├── Moderation/Index.cshtml          ← Content moderation
+│   ├── Settings/Index.cshtml            ← Application settings
+│   ├── Profile/Index.cshtml             ← User profile
+│   ├── Admin/Index.cshtml               ← Admin panel
+│   ├── Login/Index.cshtml               ← Authentication form
+│   ├── promap-layer-panel.html          ← Layer panel component
+│   ├── Shared/_Layout.cshtml            ← Master layout template
+│   ├── _ViewImports.cshtml              ← Global directives (@using, @inject)
+│   └── _ViewStart.cshtml                ← View initialization
+│
+├── wwwroot/                             ← Static web assets
+│   ├── css/
+│   │   ├── base.css                     ← Base styles
+│   │   ├── site.css                     ← Global theme
+│   │   ├── animations.css               ← Animation definitions
+│   │   ├── compat.css                   ← Browser compatibility CSS
+│   │   ├── components.css               ← Component styles (buttons, cards, etc.)
+│   │   ├── forms.css                    ← Form styling
+│   │   ├── tables.css                   ← Table styling
+│   │   ├── tokens.css                   ← Design tokens (colors, spacing)
+│   │   └── pages/                       ← Per-page styles
+│   │       ├── index.css
+│   │       ├── navigation-index.css     ← Navigation page styles
+│   │       ├── dispatch-index.css
+│   │       ├── monitoring-index.css
+│   │       ├── orders-index.css
+│   │       ├── trips-index.css
+│   │       ├── vehicles-index.css
+│   │       ├── drivers-index.css
+│   │       ├── driver-index.css
+│   │       ├── alerts-index.css
+│   │       ├── compliance-index.css
+│   │       ├── audit-index.css
+│   │       ├── finance-index.css
+│   │       ├── reports-index.css
+│   │       ├── moderation-index.css
+│   │       ├── settings-index.css
+│   │       ├── profile-index.css
+│   │       ├── admin-index.css
+│   │       ├── login-index.css
+│   │       └── vehicles-new.css
+│   │
+│   ├── js/
+│   │   ├── app.js                       ← Application initialization
+│   │   ├── navigation.js                ← **Navigation page orchestration**
+│   │   ├── promap-routing.js            ← Routing API client
+│   │   ├── promap-maneuvers.js          ← Maneuver rendering
+│   │   ├── promap-gps.js                ← GPS tracking & off-route detection
+│   │   ├── promap-map-enhancements.js   ← Map layer management
+│   │   ├── promap-map-layers.js         ← Layer definitions (roads, restrictions)
+│   │   ├── promap-pmtiles-init.js       ← PMTiles initialization
+│   │   ├── navigation-integration-snippet.js ← Integration snippet
+│   │   ├── alerts.js                    ← Alert notifications
+│   │   ├── core/                        ← Utility modules
+│   │   │   ├── compat.js                ← Browser compatibility
+│   │   │   ├── dom.js                   ← DOM helpers
+│   │   │   ├── events.js                ← Event utilities
+│   │   │   ├── format.js                ← String/date formatting
+│   │   │   ├── http.js                  ← HTTP client
+│   │   │   ├── modal.js                 ← Modal dialog control
+│   │   │   ├── toast.js                 ← Notification toasts
+│   │   │   └── validation.js            ← Form validation
+│   │   ├── services/
+│   │   │   └── alerts.js                ← Alert service
+│   │   └── pages/                       ← Page-specific logic
+│   │       ├── index.js                 ← Dashboard scripts
+│   │       ├── dispatch-index.js
+│   │       ├── monitoring-index.js
+│   │       ├── orders-index.js
+│   │       ├── finance-index.js
+│   │       ├── drivers-index.js
+│   │       └── vehicles-index.js
+│   │
+│   ├── lib/                             ← Third-party libraries
+│   │   ├── leaflet/
+│   │   │   ├── leaflet.js
+│   │   │   ├── leaflet.css
+│   │   │   └── images/
+│   │   │       ├── marker-icon.png
+│   │   │       ├── marker-icon-2x.png
+│   │   │       └── marker-shadow.png
+│   │   ├── maplibre-gl/
+│   │   │   ├── dist/
+│   │   │   │   ├── maplibre-gl.js       ← MapLibre GL vector map library
+│   │   │   │   └── maplibre-gl.css
+│   │   │   └── promap-maplibre-bridge.js ← Custom Leaflet + MapLibre bridge
+│   │   ├── maplibre-gl-leaflet/
+│   │   │   └── leaflet-maplibre-gl.js   ← Integration layer
+│   │   ├── pmtiles/
+│   │   │   └── dist/pmtiles.js          ← PMTiles protocol client
+│   │   └── signalr/
+│   │       └── signalr.min.js           ← SignalR WebSocket client
+│   │
+│   ├── maps/                            ← Vector tile archives
+│   │   ├── serbia.pmtiles               ← Serbia basemap tiles
+│   │   └── europe.pmtiles               ← Europe basemap tiles
+│   │
+│   ├── fonts/                           ← MapLibre glyph ranges
+│   │   └── Noto Sans Regular/
+│   │       ├── 0-255.pbf                ← Unicode range 0-255
+│   │       ├── 256-511.pbf              ← Unicode range 256-511
+│   │       └── 1024-1279.pbf            ← Unicode range 1024-1279
+│   │
+│   └── styles/
+│       ├── promap-dark.json             ← MapLibre GL style definition
+│       └── promap-cargo-v3-reference.html ← Style reference
+│
+├── profiles/                            ← OSRM routing profiles
+│   └── osrm/
+│       ├── car.lua                      ← Car routing profile
+│       └── truck.lua                    ← Truck routing profile (fallback fallback)
+│
+├── scripts/                             ← Build & setup scripts
+│   ├── apply-local-map.ps1              ← PowerShell: apply PMTiles
+│   ├── build-europe-osrm-truck.ps1      ← PowerShell: build OSRM Europe
+│   ├── build-europe-osrm-truck.sh       ← Bash: build OSRM Europe
+│   ├── build-serbia-pmtiles.ps1         ← PowerShell: build Serbia tiles
+│   ├── build-serbia-pmtiles.sh          ← Bash: build Serbia tiles
+│   ├── prepare-local-map-assets.ps1     ← PowerShell: map prep
+│   ├── prepare-local-map-assets.sh      ← Bash: map prep
+│   ├── start-osrm.sh                    ← Bash: start OSRM container
+│   └── verify.sh                        ← Bash: verification script
+│
+├── osm/                                 ← OSM data (local, not committed)
+│   ├── .gitkeep
+│   ├── serbia-latest.osm.pbf            ← Serbia OSM export (PBF format)
+│   ├── europe-latest.osm.pbf            ← Europe OSM export (PBF format)
+│   ├── serbia-latest.osrm                ← OSRM pre-compiled data (binary)
+│   ├── serbia-latest.osrm.* (various)   ← OSRM auxiliary files
+│   └── europe-latest.osrm.timestamp     ← OSRM timestamp
+│
+├── Properties/
+│   └── launchSettings.json              ← Debug launch configuration
+│
+├── pmtiles-metadata.json                ← PMTiles metadata
+├── pmtiles-tool/
+│   ├── pmtiles.exe                      ← PMTiles CLI tool
+│   ├── README.md
+│   └── LICENSE
+│
+└── (Generated files during runtime)
+    ├── bin/                             ← Compiled binaries
+    ├── obj/                             ← Intermediate objects
+    └── .vs/                             ← Visual Studio cache
+```
+
+## 124.2 ProMapCargo.Mobile Project (MAUI)
+
+```
+ProMapCargo.Mobile/
+├── ProMapCargo.Mobile.csproj            ← MAUI project file (.NET 10)
+│
+├── App.xaml                             ← App resource dictionary
+├── App.xaml.cs                          ← App code-behind
+├── AppShell.xaml                        ← Navigation shell
+├── AppShell.xaml.cs
+├── MainPage.xaml                        ← Landing page
+├── MainPage.xaml.cs
+├── MauiProgram.cs                       ← MAUI service bootstrap (DI)
+│
+├── Views/                               ← XAML UI pages
+│   ├── LoginPage.xaml                   ← Mobile login
+│   ├── LoginPage.xaml.cs
+│   ├── DashboardPage.xaml               ← Fleet dashboard
+│   └── DashboardPage.xaml.cs
+│
+├── ViewModels/                          ← MVVM logic
+│   ├── ViewModelBase.cs                 ← Base class (INotifyPropertyChanged)
+│   ├── LoginViewModel.cs                ← Login state & commands
+│   └── DashboardViewModel.cs            ← Dashboard state
+│
+├── Models/                              ← Data contracts
+│   ├── AuthModels.cs                    ← Login/token models
+│   ├── BusinessModels.cs                ← Fleet operations models
+│   └── MobileAppOptions.cs              ← Configuration
+│
+├── Services/                            ← Cross-platform services
+│   ├── ApiClient.cs                     ← HTTP client factory
+│   ├── ApiAuthHandler.cs                ← JWT injection handler
+│   ├── MobileSessionService.cs          ← Session management
+│   └── TokenStore.cs                    ← Secure token storage
+│
+├── Converters/                          ← XAML value converters
+│   └── StringNotEmptyConverter.cs
+│
+├── Resources/                           ← App resources
+│   ├── Styles/
+│   │   ├── Colors.xaml                  ← Color palette
+│   │   └── Styles.xaml                  ← XAML styles
+│   ├── Fonts/
+│   │   ├── OpenSans-Regular.ttf
+│   │   └── OpenSans-Semibold.ttf
+│   ├── Images/
+│   │   └── dotnet_bot.png
+│   ├── Splash/
+│   │   └── splash.svg
+│   ├── AppIcon/
+│   │   ├── appicon.svg
+│   │   └── appiconfg.svg
+│   └── Raw/
+│       └── AboutAssets.txt
+│
+└── Platforms/                           ← Platform-specific code
+    ├── Android/
+    │   ├── MainActivity.cs              ← Activity entry point
+    │   ├── MainApplication.cs           ← Application init
+    │   ├── AndroidManifest.xml
+    │   ├── Resources/
+    │   │   └── values/
+    │   │       └── colors.xml           ← Theme colors
+    │   └── (generated ProGuard configs)
+    ├── iOS/
+    │   ├── AppDelegate.cs
+    │   ├── Program.cs                   ← iOS entry point
+    │   ├── Info.plist                   ← Configuration
+    │   └── Resources/
+    │       └── PrivacyInfo.xcprivacy
+    ├── MacCatalyst/
+    │   ├── AppDelegate.cs
+    │   ├── Program.cs
+    │   ├── Entitlements.plist
+    │   └── Info.plist
+    └── Windows/
+        ├── App.xaml
+        ├── App.xaml.cs
+        ├── app.manifest
+        └── Package.appxmanifest
+```
+
+## 124.3 ProMapCargo.OsmImporter Project
+
+```
+Importer/
+├── ProMapCargo.OsmImporter.csproj       ← Console app (.NET 10)
+│
+├── Program.cs                           ← CLI entry point
+│   ├── Validates PBF file path
+│   ├── Resolves database connection
+│   ├── Generates graph version (Unix timestamp)
+│   ├── Invokes GraphImporter.ImportAsync()
+│   └── Prints summary
+│
+├── GraphImporter.cs                     ← Main orchestrator (516 lines)
+│   ├── ImportAsync()
+│   │   ├── Create database connection
+│   │   ├── Execute schema (03-routing-graph.sql)
+│   │   ├── Cleanup old version data
+│   │   ├── Insert routing_graph_versions (status='building')
+│   │   ├── Read & parse PBF file
+│   │   ├── Call CopyNodes()
+│   │   ├── Call CopyWays()
+│   │   ├── Call CopyRestrictions()
+│   │   ├── Update to status='ready'
+│   │   └── Log completion
+│   ├── CopyNodes()
+│   │   ├── Binary COPY to osm_nodes
+│   │   └── Preserves node ID and geometry
+│   ├── CopyWays()
+│   │   ├── Binary COPY to osm_ways
+│   │   ├── Binary COPY to osm_way_nodes
+│   │   └── Calls WriteEdges() for each way
+│   ├── WriteEdges()
+│   │   ├── Builds edges from consecutive nodes
+│   │   ├── Evaluates truck attributes
+│   │   ├── Calculates geometry
+│   │   ├── Calculates length via ST_Length()
+│   │   └── Executes INSERT to road_edges
+│   ├── CopyRestrictions()
+│   │   ├── Parses turn restrictions from relations
+│   │   └── Inserts to turn_restrictions
+│   └── Helper functions
+│       ├── Tags() — Parse OSM tag dictionary
+│       ├── Direction() — Determine edge directionality
+│       ├── DefaultSpeed() — Infer speed from highway type
+│       ├── HierarchyPenalty() — Truck constraint penalty
+│       └── Speed(), Weight(), Num() — Parse numeric tags
+│
+├── ImportDbContext.cs                   ← Legacy EF DbContext (may consolidate)
+├── OsmRestrictionImporter.cs            ← Restriction parsing from relations
+│
+└── (References Sql/03-routing-graph.sql at runtime)
+    └── Creates tables, constraints, spatial indexes
+```
+
+## 124.4 Solution Root
+
+```
+ProMapCargo/
+├── ProMapCargo.sln                      ← Solution file
+├── .github/
+│   └── copilot-instructions.md          ← Extended Copilot reference (.github version)
+├── copilot-instructions.md              ← This file (root version, merged all projects)
+│
+├── docker-compose.yml                   ← Multi-container local stack
+├── Dockerfile                           ← API container image
+├── .dockerignore
+├── .gitignore                           ← .gitkeep for osm/, volumes/, etc.
+├── .gitattributes                       ← Line ending rules
+│
+├── .env                                 ← Docker environment
+├── README.md                            ← Main documentation
+├── FIXES_APPLIED.md                     ← Cumulative fix log
+│
+├── Sql/
+│   ├── 03-routing-graph.sql             ← PostGIS schema (shared reference)
+│   ├── 01-indexes.sql
+│   ├── 02-useful-queries.sql
+│   ├── 04-operational-indexes.sql
+│   └── import-plan.md
+│
+├── osm/                                 ← OSM data (local only, .gitignore'd)
+│   ├── .gitkeep
+│   ├── *.osm.pbf                        ← OSM country exports
+│   ├── *.osrm*                          ← Compiled OSRM data
+│   └── *.osrm.timestamp
+│
+├── scripts/                             ← Utility scripts
+│   ├── apply-local-map.ps1              ← PowerShell
+│   ├── apply-local-map.sh               ← Bash
+│   ├── build-europe-osrm-truck.ps1
+│   ├── build-europe-osrm-truck.sh
+│   ├── build-serbia-pmtiles.ps1
+│   ├── build-serbia-pmtiles.sh
+│   ├── prepare-local-map-assets.ps1
+│   ├── prepare-local-map-assets.sh
+│   ├── start-osrm.sh
+│   └── verify.sh
+│
+├── pmtiles-tool/
+│   ├── pmtiles.exe                      ← PMTiles CLI (Windows)
+│   └── README.md
+│
+└── ProMapCargo.Api, ProMapCargo.Mobile, Importer/
+    └── (See above sections 124.1, 124.2, 124.3)
+```
+
+---
+
+# 125. FINAL VALIDATION CHECKLIST
 
 Before declaring a feature complete:
 
@@ -2910,7 +3352,7 @@ Before declaring a feature complete:
 
 ---
 
-# 125. GOLDEN RULES
+# 126. GOLDEN RULES
 
 Always remember:
 

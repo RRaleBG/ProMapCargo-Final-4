@@ -4,288 +4,134 @@
 }
 
 <div class="pm-dispatch-page" data-module="dispatch">
-
-    
-
+     
     <main class="pm-dispatch-content">
 
         <header class="pm-dispatch-header">
-
             <div class="pm-dispatch-heading">
-
-                <div class="pm-dispatch-kicker">
-                    ProMap Cargo · Operations
-                </div>
-
-                <h1 class="pm-dispatch-title">
-                    Command Center
-                </h1>
-
+                <div class="pm-dispatch-kicker"> ProMap Cargo · Operations </div>
+                <h1 class="pm-dispatch-title"> Command Center </h1>
                 <div class="pm-dispatch-subtitle">
                     Live dispatch, fleet position and exception management
                 </div>
-
             </div>
-
             <div class="pm-dispatch-header-actions">
-
-                <div class="pm-dispatch-live-status">
-                    <span></span>
+                <div class="pm-dispatch-live-status"><span></span>
                     Sistem online
                 </div>
-
-                <button type="button"
-                        class="pm-dispatch-btn"
-                        id="dispatchRefresh">
+                <button type="button" class="pm-dispatch-btn" id="dispatchRefresh">  
                     Osveži
                 </button>
-
-                <a class="pm-dispatch-btn primary"
-                   href="/navigation">
-                    Nova ruta
-                </a>
-
+                <a class="pm-dispatch-btn primary" href="/navigation"> Nova ruta </a>
             </div>
-
         </header>
+
 
         <section class="pm-dispatch-kpis">
 
             <article class="pm-dispatch-kpi">
-
                 <div class="pm-dispatch-kpi-head">
-
-                    <div class="pm-dispatch-kpi-label">
-                        Aktivne ture
-                    </div>
-
-                    <div class="pm-dispatch-kpi-icon">
-                        ↗
-                    </div>
-
+                    <div class="pm-dispatch-kpi-label"> Aktivne ture  </div>
+                    <div class="pm-dispatch-kpi-icon"> ↗ </div>
                 </div>
-
-                <div class="pm-dispatch-kpi-value">
-                    12
-                </div>
-
+                <div class="pm-dispatch-kpi-value"> 12 </div>
                 <div class="pm-dispatch-kpi-bottom">
-
-                    <div class="pm-dispatch-kpi-meta">
-                        trenutno u vožnji
-                    </div>
-
-                    <div class="pm-dispatch-kpi-state green">
-                        LIVE
-                    </div>
-
+                    <div class="pm-dispatch-kpi-meta">trenutno u vožnji</div>
+                    <div class="pm-dispatch-kpi-state green">LIVE</div>
                 </div>
-
             </article>
 
             <article class="pm-dispatch-kpi">
-
                 <div class="pm-dispatch-kpi-head">
-
-                    <div class="pm-dispatch-kpi-label">
-                        Dispečeri
-                    </div>
-
-                    <div class="pm-dispatch-kpi-icon">
-                        D
-                    </div>
-
+                    <div class="pm-dispatch-kpi-label">Dispečeri</div>
+                    <div class="pm-dispatch-kpi-icon"> D </div>
                 </div>
-
-                <div class="pm-dispatch-kpi-value">
-                    4
-                </div>
-
+                <div class="pm-dispatch-kpi-value"> 4 </div>
                 <div class="pm-dispatch-kpi-bottom">
-
-                    <div class="pm-dispatch-kpi-meta">
-                        aktivni korisnici
-                    </div>
-
-                    <div class="pm-dispatch-kpi-state green">
-                        ONLINE
-                    </div>
-
+                    <div class="pm-dispatch-kpi-meta"> aktivni korisnici </div>
+                    <div class="pm-dispatch-kpi-state green"> ONLINE </div>
                 </div>
-
             </article>
 
             <article class="pm-dispatch-kpi">
-
                 <div class="pm-dispatch-kpi-head">
-
-                    <div class="pm-dispatch-kpi-label">
-                        Vozila
-                    </div>
-
-                    <div class="pm-dispatch-kpi-icon">
-                        T
-                    </div>
-
+                    <div class="pm-dispatch-kpi-label"> Vozila </div>
+                    <div class="pm-dispatch-kpi-icon"> T </div>
                 </div>
-
-                <div class="pm-dispatch-kpi-value">
-                    41
-                </div>
-
+                <div class="pm-dispatch-kpi-value">41</div>    
                 <div class="pm-dispatch-kpi-bottom">
-
-                    <div class="pm-dispatch-kpi-meta">
-                        fleet ukupno
-                    </div>
-
-                    <div class="pm-dispatch-kpi-state blue">
-                        FLEET
-                    </div>
-
+                    <div class="pm-dispatch-kpi-meta"> fleet ukupno</div>
+                    <div class="pm-dispatch-kpi-state blue"> FLEET</div>
                 </div>
+            </article>
 
+
+
+            <article class="pm-dispatch-kpi">
+                <div class="pm-dispatch-kpi-head">
+                    <div class="pm-dispatch-kpi-label"> Kašnjenja </div>
+                    <div class="pm-dispatch-kpi-icon">   !  </div>
+                </div>
+                <div class="pm-dispatch-kpi-value"> 3 </div>
+                <div class="pm-dispatch-kpi-bottom">
+                    <div class="pm-dispatch-kpi-meta"> zahteva pažnju </div>
+                    <div class="pm-dispatch-kpi-state yellow">MONITOR </div>
+                </div>
             </article>
 
             <article class="pm-dispatch-kpi">
-
                 <div class="pm-dispatch-kpi-head">
-
-                    <div class="pm-dispatch-kpi-label">
-                        Kašnjenja
-                    </div>
-
-                    <div class="pm-dispatch-kpi-icon">
-                        !
-                    </div>
-
+                    <div class="pm-dispatch-kpi-label"> Granice </div>
+                    <div class="pm-dispatch-kpi-icon"> B </div>
                 </div>
-
-                <div class="pm-dispatch-kpi-value">
-                    3
-                </div>
-
+                <div class="pm-dispatch-kpi-value"> 3 </div>
                 <div class="pm-dispatch-kpi-bottom">
-
-                    <div class="pm-dispatch-kpi-meta">
-                        zahteva pažnju
-                    </div>
-
-                    <div class="pm-dispatch-kpi-state yellow">
-                        MONITOR
-                    </div>
-
+                    <div class="pm-dispatch-kpi-meta"> vozila na čekanju</div>
+                    <div class="pm-dispatch-kpi-state yellow"> WAITING </div>
                 </div>
-
             </article>
 
             <article class="pm-dispatch-kpi">
-
                 <div class="pm-dispatch-kpi-head">
-
-                    <div class="pm-dispatch-kpi-label">
-                        Granice
-                    </div>
-
-                    <div class="pm-dispatch-kpi-icon">
-                        B
-                    </div>
-
+                    <div class="pm-dispatch-kpi-label"> Incidenti </div>
+                    <div class="pm-dispatch-kpi-icon"> !  </div>
                 </div>
-
-                <div class="pm-dispatch-kpi-value">
-                    3
-                </div>
-
+                <div class="pm-dispatch-kpi-value">  1 </div>
                 <div class="pm-dispatch-kpi-bottom">
-
-                    <div class="pm-dispatch-kpi-meta">
-                        vozila na čekanju
-                    </div>
-
-                    <div class="pm-dispatch-kpi-state yellow">
-                        WAITING
-                    </div>
-
+                    <div class="pm-dispatch-kpi-meta"> otvoren slučaj</div>
+                    <div class="pm-dispatch-kpi-state red"> OPEN </div>
                 </div>
-
             </article>
-
-            <article class="pm-dispatch-kpi">
-
-                <div class="pm-dispatch-kpi-head">
-
-                    <div class="pm-dispatch-kpi-label">
-                        Incidenti
-                    </div>
-
-                    <div class="pm-dispatch-kpi-icon">
-                        !
-                    </div>
-
-                </div>
-
-                <div class="pm-dispatch-kpi-value">
-                    1
-                </div>
-
-                <div class="pm-dispatch-kpi-bottom">
-
-                    <div class="pm-dispatch-kpi-meta">
-                        otvoren slučaj
-                    </div>
-
-                    <div class="pm-dispatch-kpi-state red">
-                        OPEN
-                    </div>
-
-                </div>
-
-            </article>
-
         </section>
 
+
+
+
         <section class="pm-dispatch-main-grid">
-
             <article class="pm-dispatch-card">
-
                 <div class="pm-dispatch-card-head">
-
                     <div class="pm-dispatch-card-heading">
-
-                        <div class="pm-dispatch-card-title">
-                            Live Fleet Map
-                        </div>
-
-                        <div class="pm-dispatch-card-subtitle">
-                            Vozila, ture i operativni događaji
-                        </div>
-
+                        <div class="pm-dispatch-card-title"> Live Fleet Map  </div>
+                        <div class="pm-dispatch-card-subtitle"> Vozila, ture i operativni događaji </div>
                     </div>
 
                     <div class="pm-dispatch-card-actions">
-
                         <button type="button"
                                 class="pm-dispatch-small-btn active"
-                                data-map-filter="all">
-                            Sva vozila
+                                data-map-filter="all"> Sva vozila
                         </button>
-
                         <button type="button"
                                 class="pm-dispatch-small-btn"
-                                data-map-filter="active">
-                            Aktivna
+                                data-map-filter="active"> Aktivna
                         </button>
-
                         <button type="button"
                                 class="pm-dispatch-small-btn"
-                                data-map-filter="alerts">
-                            Alerts
+                                data-map-filter="alerts"> Alerts
                         </button>
-
                     </div>
-
                 </div>
+
+
 
                 <div class="pm-dispatch-map-wrap">
 

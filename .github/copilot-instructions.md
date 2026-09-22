@@ -1,16 +1,17 @@
-# ProMap Cargo — GitHub Copilot Instructions
+# ProMap Cargo — Unified GitHub Copilot Instructions
 
 ## 1. PROJECT IDENTITY
 
 ProMap Cargo is a truck-aware fleet operations, dispatch, transport management and navigation platform.
 
-The application is a server-rendered ASP.NET Core application with Razor Pages, API controllers, PostgreSQL/PostGIS, an OSM-derived routing graph, OSRM fallback routing, local PMTiles vector maps, Leaflet, MapLibre, SignalR telemetry, ASP.NET Identity and Docker.
+The solution consists of three main projects:
+- **ProMapCargo.Api** — ASP.NET Core server application
+- **ProMapCargo.Mobile** — .NET MAUI mobile application  
+- **ProMapCargo.OsmImporter** — OSM PostGIS graph importer
 
 The primary goal is a production-oriented logistics platform for truck routing and fleet operations.
 
-Do not treat this repository as a generic CRUD application.
-
-The routing engine, map infrastructure, OSM graph, truck restrictions, PMTiles delivery and Navigation UI are core functionality.
+Do not treat this repository as a generic CRUD application. The routing engine, map infrastructure, OSM graph, truck restrictions, PMTiles delivery and Navigation UI are core functionality.
 
 ---
 
@@ -29,10 +30,7 @@ Before changing code:
 9. Do not assume files that are ignored by Git do not exist locally.
 10. Do not assume that a file visible in the local workspace is present in GitHub.
 
-Large map datasets are intentionally excluded from Git.
-
-The following may exist locally but are intentionally not committed:
-
+Large map datasets are intentionally excluded from Git:
 * OSM PBF files
 * PMTiles archives
 * OSRM generated datasets
@@ -49,2788 +47,888 @@ Check `.gitignore` before concluding that a missing GitHub file is missing from 
 
 Use the technology versions already defined by the repository.
 
-Current main application target:
+### Main Technologies
+* **.NET 10** (across all projects)
+* **ASP.NET Core** (Razor Pages, MVC Controllers)
+* **Entity Framework Core 10**
+* **PostgreSQL** + **PostGIS**
+* **Npgsql** + **NetTopologySuite**
+* **SignalR** (live telemetry)
+* **ASP.NET Identity**
+* **Docker** + **Docker Compose**
 
-* .NET 10
-* ASP.NET Core
-* Razor Pages
-* MVC/API Controllers
-* SignalR
-* Entity Framework Core 10
-* PostgreSQL
-* PostGIS
-* Npgsql
-* NetTopologySuite
-* Dapper
-* Itinero where already used
-* Leaflet
-* MapLibre GL
-* PMTiles
-* local OpenMapTiles/Protomaps-compatible glyphs
-* Docker
-* Docker Compose
-* GitHub Actions
+### Web & Maps
+* **Leaflet** + **MapLibre GL**
+* **PMTiles** (local vector tiles)
+* **OpenMapTiles-compatible glyphs**
 
-Do not downgrade the project to .NET 9 or another framework version unless explicitly requested.
+### Mobile
+* **.NET MAUI** (multi-platform)
+* **No Xamarin Forms** (MAUI equivalent only)
 
-If documentation says ASP.NET Core 9 but the `.csproj` targets .NET 10, the `.csproj` is authoritative for the implementation.
+### Routing & Import
+* **PostGIS** (primary truck routing)
+* **OSRM** (fallback routing)
+* **OsmSharp** (PBF parsing)
 
-Documentation should be corrected to match the actual project.
+### Build & CI
+* **GitHub Actions**
+* **NuGet package management**
 
----
-
-## 4. REPOSITORY STRUCTURE
-
-Important directories and responsibilities:
-
-## Application
-
-* `Program.cs`
-
-  * application bootstrap
-  * dependency injection
-  * middleware
-  * static files
-  * CSP
-  * routing
-  * Razor Pages
-  * SignalR
-  * PMTiles serving
-  * database bootstrap
-
-* `ProMapCargo.Api.csproj`
-
-  * main web application
-  * .NET version
-  * NuGet dependencies
-
-* `ProMapCargo.sln`
-
-  * solution entry point
-
-## Controllers
-
-`Controllers/`
-
-Contains HTTP API endpoints.
-
-Important controllers include:
-
-* `RoutingController.cs`
-* `TripRoutingController.cs`
-* `GeocodingController.cs`
-* `NavigationTelemetryController.cs`
-* `RestrictionsController.cs`
-* `RestrictionAdminController.cs`
-* `OperationsController.cs`
-* `BusinessController.cs`
-* `DriverController.cs`
-* `AlertsController.cs`
-
-Controllers must remain thin.
-
-Business logic belongs in services/repositories, not duplicated inside controllers.
+Do not downgrade to .NET 9 or earlier unless explicitly requested.
 
 ---
 
-## 5. RAZOR PAGES
+## 4. PROJECT STRUCTURE
 
-The UI is Razor Pages based.
+### ProMapCargo.Api (Main Web Application)
 
-Important pages:
+#### Project Root Files
+* `Program.cs` — Application bootstrap, DI, middleware, static files, Razor Pages, SignalR, PMTiles serving
+* `ProMapCargo.Api.csproj` — .NET version, NuGet dependencies
+* `appsettings.json` — Configuration
+* `docker-compose.yml` — Local Docker orchestration
+* `Dockerfile` — API container definition
+* `ProMapCargo.sln` — Solution entry point
 
-* `Pages/Index.cshtml`
-* `Pages/Dispatch/Index.cshtml`
-* `Pages/Navigation/Index.cshtml`
-* `Pages/Monitoring/Index.cshtml`
-* `Pages/Orders/Index.cshtml`
-* `Pages/Trips/Index.cshtml`
-* `Pages/Vehicles/Index.cshtml`
-* `Pages/Drivers/Index.cshtml`
-* `Pages/Alerts/Index.cshtml`
-* `Pages/Compliance/Index.cshtml`
-* `Pages/Finance/Index.cshtml`
-* `Pages/Reports/Index.cshtml`
-* `Pages/Audit/Index.cshtml`
-* `Pages/Moderation/Index.cshtml`
-* `Pages/Settings/Index.cshtml`
-* `Pages/Profile/Index.cshtml`
-* `Pages/Admin/Index.cshtml`
+#### Controllers (`Controllers/`)
+HTTP API endpoints for:
+- **Routing**: `RoutingController.cs`, `TripRoutingController.cs`
+- **Navigation**: `NavigationTelemetryController.cs`
+- **Geocoding**: `GeocodingController.cs`
+- **Restrictions**: `RestrictionsController.cs`, `RestrictionAdminController.cs`
+- **Operations**: `OperationsController.cs`, `DriverController.cs`, `BusinessController.cs`
+- **Monitoring**: `AlertsController.cs`
+- **Authentication**: `MobileAuthController.cs`
 
-Shared layout:
+**Rule**: Controllers must remain thin. Business logic belongs in services/repositories.
 
-* `Pages/Shared/_Layout.cshtml`
+#### Models (`Models/`)
+Data contracts:
+- `RouteRequest.cs`, `RouteResponse.cs` — Routing API models
+- `TruckProfile.cs`, `VehicleProfile.cs` — Vehicle profiles
+- `RouteOptions.cs` — Route options (truck dimensions, weight, ADR)
+- `GeoPoint.cs`, `GeocodingResult.cs` — Geocoding models
+- `Restriction.cs`, `RoadRestriction.cs` — Restriction definitions
+- `BusinessModels.cs`, `MobileAuthModels.cs` — Domain models
 
-Do not replace Razor Pages with a SPA framework.
+#### Routing Layer (`Routing/`)
+Truck-aware PostGIS routing engine:
+- `PostGisRoutingService.cs` — Route calculation orchestrator
+- `PostGisRoutingRepository.cs` — Graph version lookup, edge/node queries
+- `PostGisAStarRouter.cs` — A* pathfinding implementation
+- `EdgeSnapper.cs` — Snap request/response to graph edges
+- `TruckEdgeEvaluator.cs` — Road restrictions, truck constraints evaluation
+- `TurnRestrictionMatcher.cs` — Turn restriction validation
+- `ManeuverBuilder.cs` — Route maneuver/instruction generation
+- `RoutingModels.cs` — Routing domain models
 
-Do not create React, Vue, Angular or Blazor infrastructure unless explicitly requested.
+**Primary Behavior**:
+1. Validate coordinates via snapping
+2. Run A* on PostGIS graph
+3. Extract route geometry with snap fractions
+4. Build maneuvers
+5. Return full route response
 
----
+**Fallback**: If any step fails, return `NoGraph` and let controller delegate to OSRM.
 
-## 6. NAVIGATION PAGE IS A CRITICAL SYSTEM
+#### Services (`Services/`)
+Core business logic:
+- `IRoutingService.cs`, `OsrmRoutingService.cs` — Fallback OSRM routing
+- `IGeocodingService.cs`, `NominatimGeocodingService.cs` — Nominatim geocoding
+- `IRestrictionEngine.cs`, `PostgresRestrictionEngine.cs`, `RestrictionEngine.cs` — Truck restriction evaluation
+- `IRestrictionRepository.cs`, `PostgresRestrictionRepository.cs`, `JsonRestrictionRepository.cs` — Restriction data
+- `MobileTokenService.cs`, `ApiAuthHandler.cs` — Mobile authentication & JWT
+- `NavigationHub.cs` — SignalR hub for live telemetry
+- `CurrentUserContext.cs`, `IdentityClaimsFactory.cs` — ASP.NET Identity integration
+- `BusinessServices.cs` — Logistics operations
 
-The Navigation page is not a mock/demo page.
+#### Data (`Data/`)
+* `ProMapCargoDbContext.cs` — EF Core DbContext
+* `restrictions.json` — Local restriction dataset
 
-Primary files:
+#### Razor Pages (`Pages/`)
+Server-rendered UI using .NET MAUI-agnostic patterns:
+- `Index.cshtml` — Dashboard
+- `Navigation/Index.cshtml` — **Critical system** (route calculation, live map, maneuvers, GPS)
+- `Dispatch/Index.cshtml` — Fleet dispatch
+- `Monitoring/Index.cshtml` — Live monitoring
+- `Orders/Index.cshtml`, `Trips/Index.cshtml`, `Vehicles/Index.cshtml`, `Drivers/Index.cshtml` — Business entities
+- `Compliance/Index.cshtml`, `Audit/Index.cshtml`, `Finance/Index.cshtml`, `Reports/Index.cshtml` — Analytics
+- `Alerts/Index.cshtml`, `Moderation/Index.cshtml` — Operations
+- `Profile/Index.cshtml`, `Settings/Index.cshtml`, `Admin/Index.cshtml` — User management
+- `Login/Index.cshtml` — Authentication
 
-* `Pages/Navigation/Index.cshtml`
-* `wwwroot/js/navigation.js`
-* `wwwroot/js/promap-routing.js`
-* `wwwroot/js/promap-maneuvers.js`
-* `wwwroot/js/promap-gps.js`
-* `wwwroot/js/promap-map-enhancements.js`
-* `wwwroot/js/promap-map-layers.js`
-* `wwwroot/js/promap-pmtiles-init.js`
+**No SPA frameworks** (React, Vue, Angular). Prefer Razor Pages + JavaScript (progressive enhancement).
 
-Navigation must support:
+#### Static Assets (`wwwroot/`)
 
-* start location
-* destination
-* geocoding
-* coordinate validation
-* truck profile
-* truck dimensions
-* weight
-* axle load
-* axles
-* maximum speed
-* hazardous materials / ADR
-* restricted road avoidance
-* route calculation
-* PostGIS truck-aware routing
-* OSRM fallback
-* route alternatives where available
-* route geometry
-* route summary
-* distance
-* duration
-* ETA
-* truck safety status
-* warnings
-* maneuvers
-* live GPS
-* off-route detection
-* rerouting
-* SignalR telemetry where applicable
-* local map rendering
+**CSS** (`wwwroot/css/`)
+- `base.css`, `site.css` — Global styling
+- `animations.css`, `compat.css` — Animations, browser compatibility
+- `components.css`, `forms.css`, `tables.css` — Component styles
+- `tokens.css` — Design tokens
+- `pages/*.css` — Page-specific styles
 
-Do not reduce Navigation to only drawing two markers.
+**JavaScript** (`wwwroot/js/`)
+- `app.js` — Application initialization
+- `navigation.js` — Navigation page orchestration
+- `promap-routing.js` — Routing API client
+- `promap-maneuvers.js` — Maneuver rendering
+- `promap-gps.js` — Live GPS tracking & off-route detection
+- `promap-map-enhancements.js` — Map layer management
+- `promap-map-layers.js` — Layer definitions (roads, traffic, restrictions)
+- `promap-pmtiles-init.js` — PMTiles initialization
+- `alerts.js` — Alert notifications
+- `core/*.js` — Core utilities (DOM, events, HTTP, validation, modals, toasts, format)
+- `services/alerts.js` — Alert service
+- `pages/*.js` — Page-specific logic
 
-Prefer one authoritative PMTiles source and avoid overlapping multiple MapLibre initialization paths when possible.
+**Libraries**
+- `lib/leaflet/` — Leaflet map library
+- `lib/maplibre-gl/` — MapLibre GL (vector maps)
+- `lib/maplibre-gl-leaflet/` — Leaflet + MapLibre bridge
+- `lib/pmtiles/` — PMTiles protocol handler
+- `lib/signalr/` — SignalR WebSocket client
 
----
+**Map Assets**
+- `maps/serbia.pmtiles` — Serbia vector tiles
+- `maps/europe.pmtiles` — Europe vector tiles
+- `fonts/Noto Sans Regular/*.pbf` — Glyphs for MapLibre text rendering
+- `styles/promap-dark.json` — MapLibre style definition
 
-## 7. ROUTING ARCHITECTURE
+#### SQL Scripts (`Sql/`)
+- `03-routing-graph.sql` — PostGIS routing schema (nodes, edges, restrictions, cells)
+- `01-indexes.sql` — Query optimization indexes
+- `02-useful-queries.sql` — Diagnostic and maintenance queries
+- `04-operational-indexes.sql` — Operational performance indexes
 
-Routing has two conceptual layers.
-
-## Primary routing engine
-
-PostGIS + OSM graph.
-
-Relevant files include:
-
-* `Routing/PostGisRoutingService.cs`
-* `Routing/PostGisRoutingRepository.cs`
-* `Routing/PostGisAStarRouter.cs`
-* `Routing/EdgeSnapper.cs`
-* `Routing/TruckEdgeEvaluator.cs`
-* `Routing/TurnRestrictionMatcher.cs`
-* `Routing/ManeuverBuilder.cs`
-
-The primary truck profile must use the PostGIS graph whenever a valid active graph exists.
-
-## Fallback routing engine
-
-OSRM.
-
-Relevant files:
-
-* `Services/OsrmRoutingService.cs`
-* `Services/IRoutingService.cs`
-
-The API must gracefully fall back to OSRM when:
-
-* no active PostGIS graph exists
-* PostGIS routing fails
-* graph snapping fails
-* graph routing produces no route
-* another recoverable PostGIS routing error occurs
-
-Do not remove the fallback merely because PostGIS is the preferred engine.
-
----
-
-## 8. ROUTING ENGINE SELECTION
-
-Current intended behavior:
-
-For truck routing:
-
-1. Validate coordinates.
-2. Normalize the request.
-3. Attempt PostGIS routing.
-4. If PostGIS produces a valid route, return it.
-5. If PostGIS cannot route, fall back to OSRM.
-6. Clearly identify the engine in diagnostics.
-7. Never silently claim that OSRM is truck-aware.
-
-For non-truck profiles, use the existing routing contract.
-
-Do not claim that standard OSRM `driving` is equivalent to truck-aware routing.
-
-OSRM fallback is a compatibility/fallback route, not a replacement for the PostGIS truck graph.
+#### Configuration Files
+- `NuGet.config` — NuGet package sources
+- `.dockerignore` — Docker build exclusions
+- `.env` — Docker Compose environment variables
+- `libman.json` — Frontend library management
 
 ---
 
-## 9. ROUTE REQUEST CONTRACT
+### ProMapCargo.Mobile (.NET MAUI Application)
 
-The canonical route request model is:
+#### Project Structure
+* `ProMapCargo.Mobile.csproj` — MAUI project definition
 
-`Models/RouteRequest.cs`
+#### Application (`ProMapCargo.Mobile/`)
+- `App.xaml`, `App.xaml.cs` — MAUI app root
+- `AppShell.xaml`, `AppShell.xaml.cs` — Navigation shell
+- `MainPage.xaml`, `MainPage.xaml.cs` — Landing page
+- `MauiProgram.cs` — MAUI service configuration
 
-Current properties include:
+#### Views (`ProMapCargo.Mobile/Views/`)
+XAML UI pages:
+- `LoginPage.xaml`, `LoginPage.xaml.cs` — Mobile authentication
+- `DashboardPage.xaml`, `DashboardPage.xaml.cs` — Fleet dashboard
 
-* `Start`
-* `Destination`
-* `End`
-* `Profile`
-* `AvoidRestricted`
-* `Truck`
-* `DepartureAt`
+#### ViewModels (`ProMapCargo.Mobile/ViewModels/`)
+MVVM logic:
+- `ViewModelBase.cs` — Base class (binding, validation, commands)
+- `LoginViewModel.cs` — Login logic
+- `DashboardViewModel.cs` — Dashboard state
 
-`Target` is a computed compatibility property resolving:
+#### Models (`ProMapCargo.Mobile/Models/`)
+Data contracts:
+- `AuthModels.cs` — Login/logout
+- `BusinessModels.cs` — Fleet operations
+- `MobileAppOptions.cs` — Configuration
 
-`Destination ?? End`
+#### Services (`ProMapCargo.Mobile/Services/`)
+Cross-platform services:
+- `ApiClient.cs` — HTTP client factory
+- `ApiAuthHandler.cs` — JWT token injection
+- `MobileSessionService.cs` — Session management
+- `TokenStore.cs` — Secure token storage
 
-Do not introduce `Target` as a second JSON request field.
+#### Converters (`ProMapCargo.Mobile/Converters/`)
+- `StringNotEmptyConverter.cs` — XAML value converters
 
-Do not break backward compatibility between `destination` and `end` without explicit approval.
+#### Resources
+- `Resources/Styles/` — XAML theme definitions (`Colors.xaml`, `Styles.xaml`)
+- `Resources/Fonts/` — OpenSans TTF fonts
+- `Resources/Images/` — App images
+- `Resources/Splash/` — Splash screen
+- `Resources/Raw/` — Raw text assets
 
-When changing the route contract:
+#### Platform-Specific (`ProMapCargo.Mobile/Platforms/`)
 
-1. update the model
-2. update the controller
-3. update PostGIS routing
-4. update OSRM routing
-5. update Navigation JavaScript
-6. update documentation
-7. search the entire repository for old property names
-8. build the complete solution
+**Android** (`Platforms/Android/`)
+- `MainActivity.cs` — Activity entry point
+- `MainApplication.cs` — Application initialization
+- `AndroidManifest.xml` — Manifest
+- `Resources/values/colors.xml` — Theme colors
 
-Never fix a compile error by merely renaming one property in one file.
+**iOS** (`Platforms/iOS/`)
+- `AppDelegate.cs` — Delegate
+- `Program.cs` — Entry point
+- `Info.plist` — Configuration
+- `Resources/PrivacyInfo.xcprivacy` — Privacy policy
 
----
+**macOS Catalyst** (`Platforms/MacCatalyst/`)
+- `AppDelegate.cs`, `Program.cs`
+- `Entitlements.plist`, `Info.plist`
 
-## 10. COORDINATE CONTRACT
-
-All geographic coordinates use:
-
-* latitude
-* longitude
-
-Internal GeoJSON coordinates use:
-
-* longitude
-* latitude
-
-This distinction is critical.
-
-`GeoPoint` represents:
-
-* `Lat`
-* `Lon`
-
-GeoJSON LineString coordinates must be:
-
-`[longitude, latitude]`
-
-Never reverse these silently.
-
-Every routing endpoint must validate:
-
-* latitude is finite
-* longitude is finite
-* latitude is between -90 and 90
-* longitude is between -180 and 180
-
-Do not accept zero coordinates as a valid real-world route unless explicitly intended.
-
-When a UI has text locations such as:
-
-`Beograd, Srbija`
-
-the browser must geocode them before routing.
-
-Never send the literal text value as coordinates.
+**Windows** (`Platforms/Windows/`)
+- `App.xaml`, `App.xaml.cs`
+- `app.manifest`, `Package.appxmanifest`
 
 ---
 
-## 11. TRUCK PROFILE
+### ProMapCargo.OsmImporter (OSM Graph Importer)
 
-Truck routing must respect the existing `TruckProfile`.
+#### Project Files
+* `ProMapCargo.OsmImporter.csproj` — .NET 10 console app
 
-Relevant fields include:
+#### Core Components
 
-* gross weight
-* height
-* width
-* length
-* axle load
-* number of axles
-* maximum speed
-* ADR/hazmat information where supported
+**Program.cs**
+- CLI entry point
+- Validates PBF file path
+- Resolves database connection string (env vars: `ConnectionStrings__Postgres`, `PROMAP_POSTGRES`)
+- Invokes `GraphImporter.ImportAsync()`
+- Prints import summary
 
-Default heavy-truck profile currently used by the routing system is approximately:
+**GraphImporter.cs** (516 lines)
+Main orchestrator:
+- **ImportAsync()**: Master workflow
+  1. Opens database connection
+  2. Executes schema SQL (`03-routing-graph.sql`)
+  3. Cleans up old data for version
+  4. Reads PBF file; extracts nodes, ways, restrictions
+  5. Calls `CopyNodes()`, `CopyWays()`, `CopyRestrictions()`
+  6. Updates `routing_graph_versions` status to `ready` with `activated_at`
+  7. Logs completion with counts
 
-* 40 t
-* 4.0 m height
-* 2.55 m width
-* 16.5 m length
+- **CopyNodes()**: Binary import of OSM nodes → `osm_nodes`
+- **CopyWays()**: Binary import of OSM ways → `osm_ways`, `osm_way_nodes`; calls `WriteEdges()` for each way
+- **WriteEdges()**: Builds road edges from consecutive way nodes; calls SQL `INSERT` for each edge
+- **CopyRestrictions()**: Parses turn restrictions; imports to `turn_restrictions`
 
-Do not hard-code truck values in multiple locations.
+**ImportDbContext.cs**
+- Legacy EF Core DbContext (may be unused; check for consolidation)
 
-If defaults change, centralize them.
+**OsmRestrictionImporter.cs**
+- Turn restriction parsing from OSM relations
 
-Truck restrictions must be evaluated against graph edge metadata.
+#### SQL Integration (`Sql/03-routing-graph.sql`)
+Importer executes this schema file to create:
+- `routing_graph_versions` — Version tracking (status: building → ready)
+- `osm_nodes` — Node coordinates
+- `osm_ways` — Way metadata
+- `osm_way_nodes` — Way node sequences
+- `road_edges` — Routable segments (graph edges)
+- `turn_restrictions` — Turn prohibitions
+- `routing_cells`, `routing_node_cells`, `routing_edge_cells` — Spatial indexing (empty after import; computed later if needed)
+- `routing_cell_adjacency`, `routing_boundaries` — Spatial adjacency
 
----
+#### Database Connection
+Default fallback (if env vars not set):
+```
+Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
+```
 
-## 12. TRUCK RESTRICTION LOGIC
+**Important**: When run on Windows host, use `Host=localhost`. When run in Docker, use `Host=postgres` (Docker DNS).
 
-Truck-aware routing must consider OSM-derived restrictions such as:
+#### Processing Pipeline
+1. **PBF Parsing** — OsmSharp reads `.osm.pbf` file; filters by highway tags
+2. **Node Extraction** — All node coordinates stored in memory (Dictionary<long, Coordinate>)
+3. **Way Filtering** — Only routable highways (motorway, trunk, primary, secondary, tertiary, unclassified, residential, service, track, etc.)
+4. **Edge Creation** — For each way, create edges between consecutive nodes
+5. **Attribute Preservation** — Truck constraints (maxheight, maxwidth, maxweight, maxaxleload, maxspeed)
+6. **Restriction Import** — Turn restrictions from relations (via nodes/ways)
+7. **Graph Activation** — Version marked `ready` once all data is imported
 
-* access
-* vehicle
-* motor_vehicle
-* hgv
-* goods
-* hazmat
-* maxheight
-* maxwidth
-* maxlength
-* maxweight
-* maxaxleload
-* maxspeed
-* maxspeed:hgv
-* turn restrictions
+#### Key Functions
+- `Tags()` — Parse OSM tag dictionary (handles duplicate keys)
+- `Direction()` — Determine edge directionality (oneway, access, vehicle)
+- `DefaultSpeed()` — Infer speed from highway type
+- `HierarchyPenalty()` — Assign routing penalty (truck restrictions increase penalty)
+- `Speed()`, `Weight()`, `Num()` — Parse numeric tags (speeds, weights, dimensions)
 
-Relevant components:
-
-* `TruckEdgeEvaluator`
-* `IRestrictionEngine`
-* `PostgresRestrictionEngine`
-* `PostgresRestrictionRepository`
-* `TurnRestrictionMatcher`
-
-Do not bypass the evaluator and manually accept all road edges.
-
-Do not treat every OSM road as truck-routable.
-
----
-
-## 13. POSTGIS GRAPH
-
-The routing graph is versioned.
-
-Important tables include:
-
-* `routing_graph_versions`
-* `osm_nodes`
-* `osm_ways`
-* `osm_way_nodes`
-* `road_edges`
-* `turn_restrictions`
-* `compiled_turn_restrictions`
-* routing partition/cell tables
-
-Relevant SQL:
-
-* `Sql/03-routing-graph.sql`
-* `Sql/04-operational-indexes.sql`
-
-A graph version must only become active after successful import.
-
-The router should select the latest ready/activated graph version.
-
-Never route against an incomplete `building` graph.
-
-Never delete the currently active graph before a replacement graph has successfully imported.
+#### Progress Tracking
+- Console output at each major stage: schema, cleanup, version insert, PBF parse, node/way/restriction copy, finalization
+- Progress every 10,000 ways and 1,000 restrictions
 
 ---
 
-## 14. OSM IMPORTER
+## 5. NAVIGATION PAGE (CRITICAL SYSTEM)
 
-The OSM importer is a separate executable.
+The Navigation page (`Pages/Navigation/Index.cshtml`) is **not a mock**. It is a production feature.
 
-Project:
+### Required Capabilities
+* Start/destination input via geocoding
+* Truck profile selection (dimensions, weight, ADR, axles)
+* Route calculation (PostGIS primary, OSRM fallback)
+* Route alternatives (when available)
+* Route geometry (multi-segment with snap-aware extraction)
+* Route summary (distance, duration, ETA)
+* Truck safety status & warnings
+* Maneuver-by-maneuver turn instructions
+* Live GPS tracking & telemetry via SignalR
+* Off-route detection & automatic rerouting
+* PMTiles-based local map (Leaflet + MapLibre GL)
+* Layer management (roads, traffic, restrictions, hazmat zones)
+* Two-way SignalR comms for dispatch feedback
 
-`Importer/ProMapCargo.OsmImporter.csproj`
+### Core Files
+* **Backend**
+  - `Controllers/RoutingController.cs` — Route endpoint
+  - `Routing/PostGisRoutingService.cs` — Calculation
+  - `Services/OsrmRoutingService.cs` — Fallback
 
-Important files:
+* **Frontend**
+  - `Pages/Navigation/Index.cshtml` — Page markup
+  - `wwwroot/js/navigation.js` — Page orchestration
+  - `wwwroot/js/promap-routing.js` — Routing API client
+  - `wwwroot/js/promap-maneuvers.js` — Maneuver rendering
+  - `wwwroot/js/promap-gps.js` — GPS & telemetry
+  - `wwwroot/js/promap-map-enhancements.js` — Layer management
+  - `wwwroot/js/promap-pmtiles-init.js` — PMTiles init
 
-* `Importer/Program.cs`
-* `Importer/GraphImporter.cs`
-* `Importer/ImportDbContext.cs`
-* `Importer/OsmRestrictionImporter.cs`
-
-The importer reads OSM PBF data and populates the PostGIS routing graph.
-
-Typical source:
-
-`osm/*.osm.pbf`
-
-Do not commit large OSM PBF datasets.
-
-Do not implement map rendering inside the importer.
-
-Do not mix application UI logic into importer code.
-
----
-
-## 15. MAP ARCHITECTURE
-
-The frontend uses a local map architecture.
-
-The application must remain independent of remote CDN-hosted frontend runtime dependencies.
-
-Local frontend runtime assets are under:
-
-* `wwwroot/lib`
-* `wwwroot/fonts`
-* `wwwroot/styles`
-* `wwwroot/maps`
-
-The repository contains local:
-
-* Leaflet
-* MapLibre
-* PMTiles
-* SignalR
-* glyph assets
-
-Do not replace local assets with CDN URLs unless explicitly requested.
-
-Do not introduce remote OSM/CARTO/TomTom/Esri basemap tiles when the existing local PMTiles architecture can provide the required map.
+### Do Not
+- Reduce Navigation to only drawing two markers
+- Use external map providers; stick to local PMTiles + MapLibre
+- Avoid overlapping PMTiles initialization paths
+- Do not implement SPA-style routing; keep Razor Pages
 
 ---
 
-## 16. PMTILES
-
-PMTiles is the local vector map distribution mechanism.
-
-Expected runtime paths:
-
-* `/maps/serbia.pmtiles`
-* `/maps/europe.pmtiles`
-
-The API exposes:
-
-`/maps/{region}.pmtiles`
-
-through `Program.cs`.
-
-The physical files are expected under:
-
-`wwwroot/maps`
-
-Do not hard-code a filesystem path into browser JavaScript.
-
-Browser URLs must be root-relative:
-
-`/maps/serbia.pmtiles`
-
-not:
-
-`wwwroot/maps/serbia.pmtiles`
-
-and not:
-
-`C:\...`
-
----
-
-## 17. LARGE MAP FILES
-
-Large map files are intentionally not stored in Git.
-
-Examples:
-
-* `*.osm.pbf`
-* `*.osm`
-* `*.osrm`
-* `*.osrm.*`
-* `*.pmtiles`
-* generated map datasets
-
-If GitHub does not contain `wwwroot/maps/serbia.pmtiles`, do not conclude that the application is broken.
-
-First inspect:
-
-* `.gitignore`
-* Docker volume mounts
-* local filesystem
-* map generation scripts
-* startup serving code
-* browser request path
-
-A missing large file from GitHub can be intentional.
-
----
-
-## 18. MAP GENERATION
-
-Relevant scripts include:
-
-* `scripts/prepare-local-map-assets.ps1`
-* `scripts/prepare-local-map-assets.sh`
-* `scripts/build-serbia-pmtiles.ps1`
-* `scripts/build-serbia-pmtiles.sh`
-* `scripts/apply-local-map.ps1`
-
-When changing PMTiles generation:
-
-1. preserve the input OSM PBF workflow
-2. preserve output location
-3. preserve `/maps/{region}.pmtiles`
-4. preserve range requests
-5. preserve PMTiles MIME type
-6. preserve local glyph paths
-7. update both Windows PowerShell and shell scripts where applicable
-
-Do not update only one platform script if both are maintained.
-
----
-
-## 19. MAPLIBRE STYLE
-
-Primary style:
-
-`wwwroot/styles/promap-dark.json`
-
-The style must work with:
-
-* local PMTiles
-* local glyphs
-* local MapLibre runtime
-
-Do not replace local glyphs with remote glyph URLs without explicit approval.
-
-Do not hard-code the PMTiles URL in a way that prevents switching between Serbia and Europe.
-
-Use the existing substitution/configuration mechanism.
-
----
-
-## 20. LEAFLET VS MAPLIBRE
-
-The application intentionally uses both technologies.
-
-Leaflet:
-
-* interaction
-* markers
-* map controls
-* navigation overlays where applicable
-
-MapLibre:
-
-* vector basemap
-* local PMTiles rendering
-* labels
-* styled vector map layers
-
-Do not remove one library simply because the other is already present.
-
-Do not create duplicate map engines inside the same page.
-
-Reuse the existing map-layer infrastructure.
-
----
-
-## 21. SHARED MAP HELPER
-
-Primary shared helper:
-
-`wwwroot/js/promap-map-layers.js`
-
-Use it whenever possible.
-
-Do not create a new basemap implementation in:
-
-* Navigation
-* Dispatch
-* Monitoring
-
-unless the existing helper genuinely cannot support the requirement.
-
-If a new map source is needed, first extend the shared infrastructure.
-
----
-
-## 22. MAP INITIALIZATION
-
-When debugging a blank map, inspect the full chain:
-
-1. HTML map container exists.
-2. Map container has non-zero height.
-3. Leaflet/MapLibre scripts loaded.
-4. PMTiles library loaded.
-5. PMTiles archive URL is correct.
-6. Browser requests the archive.
-7. HTTP response is successful.
-8. Range requests work.
-9. style JSON loads.
-10. glyphs load.
-11. PMTiles source initializes.
-12. layers become visible.
-13. map is resized after layout initialization.
-
-Do not assume a blank map means the routing API is broken.
-
-Map rendering and route calculation are separate subsystems.
-
----
-
-## 23. NAVIGATION MAP DEBUGGING
-
-If the Navigation page displays start/end markers but no route line:
-
-Check in this order:
-
-1. browser console
-2. Network request to `/api/routing/route`
-3. request JSON
-4. HTTP status
-5. response JSON
-6. `Routes`
-7. `SelectedRouteIndex`
-8. `Geometry`
-9. GeoJSON coordinate order
-10. route layer creation
-11. map fit operation
-12. map style visibility
-
-Do not immediately rewrite the map.
-
-The routing API and route rendering must be diagnosed independently.
-
----
-
-## 24. ROUTE GEOMETRY CONTRACT
-
-Route geometry is GeoJSON-compatible.
-
-Expected structure:
+## 6. ROUTING ARCHITECTURE
+
+Routing consists of two engines:
+
+### Primary: PostGIS + OSM Graph
+
+**Service**: `PostGisRoutingService.cs`
+
+**Workflow**:
+1. **Edge Snapping** — Snap start/end to nearest road edges (via `EdgeSnapper.cs`)
+   - Input: coordinates, truck profile
+   - Output: nearest edge IDs, snap fractions (0–1 along edge)
+   - Validates truck fit (dimensions, restrictions)
+
+2. **A* Pathfinding** — Find least-cost path (via `PostGisAStarRouter.cs`)
+   - Queries graph: edges, turn restrictions, truck constraints
+   - Cost eval via `TruckEdgeEvaluator.cs` (speed, restrictions, hierarchy penalty)
+   - Turn validation via `TurnRestrictionMatcher.cs`
+
+3. **Route Geometry Assembly** (via `PostGisRoutingService.cs`)
+   - Extract from traversed edges
+   - Trim first edge at snap fraction (start point)
+   - Trim last edge at snap fraction (end point)
+   - Concatenate middle edges
+
+4. **Maneuver Building** — Generate turn instructions (via `ManeuverBuilder.cs`)
+   - Intersection analysis
+   - Direction labels (turn left, turn right, continue)
+   - Speeds, distances, ETAs
+
+**Data Layer**: `PostGisRoutingRepository.cs`
+- `GetActiveGraphVersionAsync()` — Find `status='ready' AND activated_at NOT NULL`
+- `FindNearestEdgesAsync()` — Spatial snapping
+- `GetEdgesByIdsAsync()` — Bulk edge retrieval
+- All queries use PostGIS geometry operators
+
+**Key Requirement**:
+- Always prefer PostGIS when a valid active graph exists
+- Return `Code=NoGraph` if graph is `building` or missing
+- Let controller handle OSRM fallback
+
+### Fallback: OSRM
+
+**Service**: `OsrmRoutingService.cs`
+
+**When Used**:
+- No active PostGIS graph
+- Graph snapping fails
+- A* routing produces no path
+- Recoverable PostGIS errors
+
+**Behavior**:
+- Queries local OSRM instance (Docker service)
+- Returns compatible route structure
+- **Important**: Do NOT claim OSRM is truck-aware; it is standard driving
+
+### Engine Selection Logic (RoutingController.cs)
+
+```csharp
+// Pseudo-code
+var postgisResult = await _postgisService.CalculateAsync(request, ct);
+if (postgisResult.Code == "Success")
+	return Ok(postgisResult);  // Use PostGIS result
+
+if (postgisResult.Code == "NoGraph" || postgisResult.Code == "GraphError" || ...)
 {
-  "type": "LineString",
-  "coordinates": [
-    [20.4573, 44.8178],
-    [20.5, 44.9]
-  ]
+	// Try OSRM fallback
+	var osrmResult = await _osrmService.RouteAsync(request, ct);
+	return Ok(osrmResult);
 }
-The first number is longitude.
 
-The second number is latitude.
-
-Never emit:
-[latitude, longitude]
-
-for GeoJSON.
-
----
-
-## 25. ROUTE RESPONSE
-
-Use the existing:
-
-`Models/RouteResponse.cs`
-
-The response can contain:
-
-* code
-* routes
-* selected route index
-* truck safety
-* violations
-* summary
-* diagnostics
-* maneuvers
-
-Diagnostics must identify:
-
-* routing engine
-* fallback status
-* graph version where available
-* expanded states
-* failure reason where applicable
-
-Never report `Engine = "PostGIS-AStar"` when OSRM actually produced the route.
-
-Never report `UsedFallback = false` for an OSRM fallback.
-
----
-
-## 26. OSRM
-
-OSRM is a fallback/compatibility routing engine.
-
-Configured internally through:
-
-`Routing:OsrmBaseUrl`
-
-Docker normally provides:
-
-`http://osrm:5000`
-
-A public OSRM fallback may exist through:
-
-`Routing:OsrmFallbackBaseUrl`
-
-Do not assume public OSRM has truck restrictions.
-
-Do not expose public OSRM as equivalent to the internal truck-aware PostGIS router.
-
-If public OSRM is used, clearly identify it as fallback behavior.
-
----
-
-## 27. GEOCODING
-
-Geocoding currently uses Nominatim-compatible infrastructure.
-
-Relevant files:
-
-* `Services/NominatimGeocodingService.cs`
-* `Controllers/GeocodingController.cs`
-* `Models/GeocodingResult.cs`
-
-Do not confuse geocoding with routing.
-
-Geocoding converts:
-
-`"Beograd, Srbija"`
-
-into coordinates.
-
-Routing consumes coordinates.
-
-The Navigation UI must preserve this separation.
-
----
-
-## 28. DATABASE
-
-There is one primary PostgreSQL/PostGIS database:
-
-`promapcargo`
-
-The API and OSM importer use the same database.
-
-Do not create a second routing database unless explicitly requested.
-
-Database technologies:
-
-* PostgreSQL
-* PostGIS
-* EF Core
-* Npgsql
-* NetTopologySuite
-* Dapper
-
-Use EF Core for application/domain persistence where appropriate.
-
-Use Dapper/Npgsql where the existing routing graph implementation requires efficient spatial/graph queries.
-
-Do not rewrite the graph repository into EF Core simply for consistency.
-
----
-
-## 29. DATABASE NAMING
-
-The application uses PostgreSQL snake_case naming.
-
-Maintain:
-
-* snake_case table names
-* snake_case columns
-
-Do not introduce mixed naming conventions.
-
-If schema changes are necessary:
-
-1. update SQL
-2. update EF model/configuration
-3. update repository queries
-4. update importer
-5. update seed logic
-6. update documentation
-
----
-
-## 30. DATABASE BOOTSTRAP
-
-`Program.cs` performs startup database bootstrap.
-
-Current behavior includes:
-
-* database connectivity check
-* EF database creation
-* routing graph SQL execution
-* operational index SQL execution
-* role initialization
-
-Do not make startup fail merely because the optional routing graph is not imported.
-
-The application should be able to start without an active routing graph and then use OSRM fallback.
-
-However, do not hide programming/database errors during development.
-
-Log bootstrap failures clearly.
-
----
-
-## 31. SEED DATA
-
-Development seed data may create:
-
-* company
-* administrator
-* roles
-* vehicles
-* drivers
-* transport orders
-* stops
-* trips
-* restrictions
-
-Development administrator defaults must never be treated as production credentials.
-
-Never add real secrets to source control.
-
-Never copy credentials from `appsettings.json` into production documentation.
-
----
-
-## 32. DOCKER
-
-Docker is a first-class supported deployment mode.
-
-Current services include:
-
-* `postgres`
-* `osrm`
-* `api`
-
-Expected internal service names include:
-
-* `postgres`
-* `osrm`
-
-Inside Docker:
-
-* API must connect to `postgres`, not `localhost`
-* API must connect to OSRM using `osrm:5000`
-
-`localhost` inside the API container refers to the API container itself.
-
-Never change Docker internal connection strings to `localhost`.
-
----
-
-## 33. DOCKER MAP MOUNTS
-
-The Docker API service mounts local map assets.
-
-Important locations:
-
-* `./wwwroot/maps:/app/wwwroot/maps`
-* `./wwwroot/styles:/app/wwwroot/styles`
-
-Do not remove these mounts when modifying Docker.
-
-If a map works locally but not in Docker, inspect:
-
-1. mount
-2. host file
-3. container file
-4. API route
-5. MIME type
-6. range requests
-7. browser URL
-
----
-
-## 34. STATIC FILES
-
-`Program.cs` configures custom MIME types for:
-
-* `.pmtiles`
-* `.pbf`
-
-Do not remove these mappings.
-
-PMTiles requires range processing.
-
-The PMTiles endpoint must support HTTP range requests.
-
-Do not replace:
-
-`enableRangeProcessing: true`
-
-with a simple full-file response.
-
----
-
-## 35. CONTENT SECURITY POLICY
-
-The application defines a CSP.
-
-When adding browser functionality:
-
-* prefer local scripts
-* prefer local styles
-* prefer local workers
-* preserve `worker-src`
-* preserve `blob:` where MapLibre requires it
-* do not blindly disable CSP
-
-If a CSP change is necessary, make it narrowly scoped.
-
-Do not solve frontend errors by setting:
-
-`Content-Security-Policy: *`
-
----
-
-## 36. FRONTEND ASSET RULE
-
-Browser-facing paths must be root-relative.
-
-Correct:
-/lib/leaflet/leaflet.js
-/js/navigation.js
-/maps/serbia.pmtiles
-/styles/promap-dark.json
-/fonts/Noto Sans Regular/0-255.pbf
-Incorrect:
-wwwroot/lib/leaflet/leaflet.js
-wwwroot/maps/serbia.pmtiles
-C:\project\wwwroot\maps\serbia.pmtiles
-Server filesystem paths and browser URLs are different concepts.
-
----
-
-## 37. JAVASCRIPT ARCHITECTURE
-
-Frontend JavaScript is modularized.
-
-Important modules:
-
-* `wwwroot/js/app.js`
-* `wwwroot/js/navigation.js`
-* `wwwroot/js/promap-routing.js`
-* `wwwroot/js/promap-gps.js`
-* `wwwroot/js/promap-maneuvers.js`
-* `wwwroot/js/promap-map-enhancements.js`
-* `wwwroot/js/promap-map-layers.js`
-* `wwwroot/js/promap-pmtiles-init.js`
-* `wwwroot/js/core/*`
-* `wwwroot/js/services/*`
-
-Do not put all functionality into `app.js`.
-
-Do not create duplicate global functions with the same name.
-
-Prefer the existing `window.ProMap` namespace where appropriate.
-
----
-
-## 38. JAVASCRIPT INITIALIZATION
-
-Navigation initialization must be idempotent.
-
-The existing application uses initialization guards such as:
-
-`window.__promapNavigationInitialized`
-
-Preserve this behavior.
-
-Do not initialize the same map twice.
-
-Do not attach duplicate click handlers every time a script executes.
-
----
-
-## 39. RAZOR + JAVASCRIPT CONTRACT
-
-IDs and `data-*` attributes in `Pages/Navigation/Index.cshtml` are API-like contracts between Razor and JavaScript.
-
-Before changing an element ID:
-
-1. search all JavaScript
-2. search all CSS
-3. search all Razor files
-4. update all references
-
-Do not rename:
-
-* `navMap`
-* `navStart`
-* `navEnd`
-* route buttons
-* route summary elements
-* maneuver containers
-* GPS elements
-
-without checking all references.
-
----
-
-## 40. UI DESIGN
-
-The application has an established ProMap Cargo dark fleet-operations visual language.
-
-Preserve:
-
-* dark operational UI
-* green/teal accent system
-* high information density
-* clear hierarchy
-* truck/fleet-oriented terminology
-* responsive layout
-* accessible controls
-
-Do not introduce random colors or unrelated design systems.
-
-Do not replace the existing visual system with Bootstrap defaults.
-
----
-
-## 41. RESPONSIVE DESIGN
-
-Navigation and command-center pages must remain usable on:
-
-* desktop
-* laptop
-* tablet
-* mobile
-
-Do not assume a fixed desktop width.
-
-When changing map layouts, ensure the map container receives a valid height.
-
-If the map is inside a hidden/collapsed container, call the appropriate map resize/invalidate mechanism after it becomes visible.
-
----
-
-## 42. SIGNALR
-
-Navigation telemetry uses SignalR.
-
-Important endpoint:
-
-`/hubs/navigation`
-
-Relevant files include:
-
-* `Services/NavigationHub.cs`
-* `Controllers/NavigationTelemetryController.cs`
-* `wwwroot/lib/signalr/signalr.min.js`
-
-Do not replace SignalR with polling unless explicitly requested.
-
-Telemetry must not block basic route calculation.
-
-Live GPS should degrade gracefully if SignalR or browser geolocation is unavailable.
-
----
-
-## 43. GPS
-
-Browser GPS is optional.
-
-The application must still allow:
-
-* manual start location
-* geocoded start location
-* normal routing
-
-if GPS is unavailable.
-
-Never assume `navigator.geolocation` exists.
-
-Handle:
-
-* permission denied
-* unavailable position
-* timeout
-* inaccurate position
-
-without crashing the Navigation page.
-
----
-
-## 44. OFF-ROUTE / REROUTING
-
-Live navigation can detect deviation from the current route.
-
-When modifying rerouting:
-
-* debounce reroutes
-* preserve `lastRerouteAt`
-* avoid routing loops
-* do not issue requests continuously
-* preserve current route until a valid replacement exists
-* distinguish temporary GPS drift from actual off-route movement
-
-Do not reroute on every GPS update.
-
----
-
-## 45. MANEUVERS
-
-Maneuver generation is a backend concern where possible.
-
-Relevant file:
-
-`Routing/ManeuverBuilder.cs`
-
-Frontend maneuver rendering belongs in:
-
-`wwwroot/js/promap-maneuvers.js`
-
-Do not duplicate complicated maneuver inference independently in the browser if the backend already provides maneuvers.
-
----
-
-## 46. API ERROR CONTRACT
-
-API errors should be structured.
-
-Examples include:
-
-* `InvalidStart`
-* `InvalidDestination`
-* `RoutingUnavailable`
-* `NoRoute`
-* `NoGraph`
-* `NoSnap`
-* `OsrmError`
-
-Do not replace structured API errors with plain text.
-
-Frontend code must display useful user-facing messages while preserving diagnostic information in the console/logs.
-
-Do not expose sensitive exception details in production responses.
-
----
-
-## 47. LOGGING
-
-Use structured logging.
-
-Prefer:
-logger.LogInformation(
-    "Routing request: {Profile} {StartLat},{StartLon} -> {EndLat},{EndLon}",
-    profile,
-    start.Lat,
-    start.Lon,
-    end.Lat,
-    end.Lon);
-Do not use large `Console.WriteLine` debugging blocks in production code.
-
-Do not log:
-
-* passwords
-* secrets
-* access tokens
-* private credentials
-* unnecessary personal data
-
----
-
-## 48. PERFORMANCE
-
-Routing is performance-sensitive.
-
-Do not:
-
-* load the entire road graph into memory
-* query every edge without spatial filtering
-* serialize massive datasets unnecessarily
-* perform N+1 database queries
-* parse WKT repeatedly when avoidable
-* calculate routes on every keystroke
-* download entire PMTiles archives when range access is possible
-
-Use:
-
-* spatial indexes
-* graph version filtering
-* edge snapping
-* bounded A* expansion
-* efficient SQL
-* Dapper/Npgsql where appropriate
-* browser caching where safe
-
----
-
-## 49. POSTGIS ROUTING PERFORMANCE
-
-The A* router has an expansion limit.
-
-Configured value:
-
-`Routing:MaxExpandedStates`
-
-Do not silently remove this safety limit.
-
-If the limit is reached:
-
-* return a clear diagnostic
-* allow fallback where appropriate
-* do not hang indefinitely
-
-Snap radius is configurable through:
-
-`Routing:SnapRadiusMeters`
-
-Do not arbitrarily increase it to hide coordinate problems.
-
----
-
-## 50. GRAPH VERSIONING
-
-The graph is protected by versioning.
-
-Never:
-
-* route against an unfinished graph
-* activate a failed graph
-* destroy the active graph during import
-* mutate active graph data destructively
-
-Importer flow should conceptually be:
-
-1. create graph version
-2. status = building
-3. import nodes
-4. import ways
-5. import edges
-6. import restrictions
-7. compile restrictions where applicable
-8. validate
-9. mark ready
-10. activate only after success
-
----
-
-## 51. TURN RESTRICTIONS
-
-Turn restrictions are stateful.
-
-Do not treat routing state as only:
-
-`node`
-
-The router may need:
-
-* current node
-* previous edge/way
-* turn restriction context
-
-Do not remove previous-edge state from the A* search merely to simplify code.
-
----
-
-## 52. DATABASE SQL
-
-SQL files are part of the application architecture.
-
-Important:
-
-* `Sql/01-indexes.sql`
-* `Sql/02-useful-queries.sql`
-* `Sql/03-routing-graph.sql`
-* `Sql/04-operational-indexes.sql`
-
-Do not modify SQL schema without checking:
-
-* importer
-* routing repository
-* EF Core
-* seed
-* tests
-* documentation
-
----
-
-## 53. IMPORTER AND APPLICATION MUST AGREE
-
-The importer and API share the same graph schema.
-
-Any change to:
-
-`road_edges`
-
-must be reviewed against:
-
-* `GraphImporter.cs`
-* `PostGisRoutingRepository.cs`
-* `TruckEdgeEvaluator.cs`
-* `PostGisAStarRouter.cs`
-* SQL schema
-
-Do not modify one side independently.
-
----
-
-## 54. DOCUMENTATION CONSISTENCY
-
-Documentation must describe the actual implementation.
-
-If code says .NET 10, documentation must not say .NET 9.
-
-If maps are local PMTiles, documentation must not describe remote basemap tiles as the primary architecture.
-
-If routing is PostGIS-first with OSRM fallback, documentation must not describe OSRM as the primary truck routing engine.
-
-When architecture changes, update:
-
-* `README.md`
-* relevant scripts
-* Docker documentation
-* Copilot instructions if necessary
-
----
-
-## 55. TESTING REQUIREMENTS
-
-Before declaring a change complete, perform the strongest available validation.
-
-At minimum:
-dotnet restore ProMapCargo.sln
-dotnet build ProMapCargo.sln
-When Docker-related code changes:
-docker compose config
-docker compose build
-When practical:
-docker compose up
-Then verify:
-
-* API starts
-* PostgreSQL connects
-* Razor Pages load
-* Navigation page loads
-* static assets load
-* PMTiles endpoint responds
-* route API responds
-* OSRM fallback works when PostGIS graph is unavailable
-
-Do not claim a build is successful without actually building when the environment allows it.
-
----
-
-## 56. MAP VERIFICATION
-
-When changing map code, verify the actual browser/network chain.
-
-Check:
-GET /maps/serbia.pmtiles
-GET /styles/promap-dark.json
-GET /fonts/Noto Sans Regular/...
-Check for:
-
-* 200 responses
-* 206 range responses where expected
-* no 404
-* no CSP violation
-* no CORS failure
-* no worker failure
-* no invalid style source
-* no missing glyphs
-
-Do not mark a map issue fixed only because the JavaScript has no syntax error.
-
----
-
-## 57. ROUTING VERIFICATION
-
-For a standard test route:
-Beograd -> Novi Sad
-verify:
-
-1. geocoding resolves both locations
-2. coordinates are valid
-3. POST `/api/routing/route` is sent
-4. request contains `start`
-5. request contains `destination`
-6. profile is `truck`
-7. truck parameters are present
-8. API selects PostGIS if a graph is active
-9. otherwise OSRM fallback is used
-10. response contains at least one route
-11. geometry contains valid LineString coordinates
-12. frontend draws the route
-13. map fits the route
-14. summary is updated
-15. diagnostics identify the engine
-
----
-
-## 58. NEVER MASK ROOT CAUSES
-
-Do not solve an error by:
-
-* disabling validation
-* returning fake coordinates
-* drawing a straight line between start and destination
-* hard-coding a demo route
-* swallowing exceptions
-* disabling CSP globally
-* replacing the routing engine with a mock
-* inserting fake PMTiles data
-* returning HTTP 200 for a failed route
-* hiding API failures in JavaScript
-
-A temporary fallback is acceptable only when it is a real configured fallback such as OSRM.
-
----
-
-## 59. NO FAKE FUNCTIONALITY
-
-Do not create UI controls that appear functional but do nothing.
-
-Every visible operational control should either:
-
-* perform its intended operation
-* be clearly disabled with an explanation
-* be explicitly marked as unavailable
-
-Do not leave placeholder buttons in production UI.
-
----
-
-## 60. NO DUPLICATE ARCHITECTURES
-
-Before adding:
-
-* another routing service
-* another map service
-* another database context
-* another geocoder
-* another PMTiles loader
-* another global JS state object
-
-search the repository first.
-
-Prefer extending the existing implementation.
-
----
-
-## 61. SECURITY
-
-Never commit:
-
-* production passwords
-* API keys
-* private tokens
-* credentials
-* certificates
-* private map licenses
-
-Development credentials may exist only as clearly documented development defaults.
-
-Production secrets must come from environment variables, secret stores or deployment configuration.
-
-Do not weaken authentication or authorization to solve a development problem.
-
----
-
-## 62. AUTHENTICATION / IDENTITY
-
-The project uses ASP.NET Identity.
-
-Do not bypass Identity by introducing a custom ad-hoc authentication mechanism.
-
-Respect:
-
-* users
-* roles
-* claims
-* company/tenant context
-
-Relevant infrastructure includes:
-
-* `ProMapCargoDbContext`
-* `IdentityClaimsFactory`
-* `CurrentUserContext`
-
-When adding an operational endpoint, determine whether it should be:
-
-* anonymous
-* authenticated
-* role-restricted
-
-Do not default every endpoint to anonymous access.
-
----
-
-## 63. API COMPATIBILITY
-
-Before changing an API:
-
-Search for:
-
-/api/routing
-/api/geocoding
-/api/navigation
-/hubs/navigation
-and inspect both server and browser consumers.
-
-A backend change is incomplete until the frontend consumer is compatible.
-
----
-
-## 64. JSON CONTRACT
-
-Existing JSON names use explicit `JsonPropertyName` attributes in important request models.
-
-Preserve the established names.
-
-Examples:
-start
-destination
-end
-profile
-avoidRestricted
-truck
-departureAt
-Do not rename them to C# property names unless the API contract is intentionally changed.
-
----
-
-## 65. C# STYLE
-
-Use:
-
-* nullable reference types
-* implicit usings
-* modern C#
-* primary constructors where they improve clarity
-* records for immutable DTOs where appropriate
-* async/await
-* cancellation tokens
-* structured logging
-
-Avoid unnecessary abstractions.
-
-Do not refactor unrelated files during a focused bug fix.
-
----
-
-## 66. ASYNC / CANCELLATION
-
-HTTP/database operations should accept and propagate `CancellationToken`.
-
-Do not use:
-CancellationToken.None
-when a request token is available.
-
-Do not block async operations with:
-
-* `.Result`
-* `.Wait()`
-
----
-
-## 67. SQL SAFETY
-
-Use parameters.
-
-Do not concatenate user-controlled values into SQL.
-
-Dynamic SQL is acceptable only when identifiers/clauses are controlled by the application.
-
-Dapper queries must use parameter objects.
-
----
-
-## 68. JAVASCRIPT STYLE
-
-Use modern browser JavaScript.
-
-Prefer:
-
-* `const`
-* `let`
-* async/await
-* explicit error handling
-* small functions
-* existing helper modules
-
-Avoid:
-
-* unnecessary jQuery
-* new global variables
-* inline duplicated API clients
-* hidden magic coordinates
-
----
-
-## 69. FRONTEND ERROR HANDLING
-
-Frontend errors must distinguish:
-
-* geocoding failure
-* invalid coordinates
-* routing failure
-* no route
-* map loading failure
-* PMTiles failure
-* GPS failure
-* SignalR failure
-
-Do not show:
-
-`Routing API nije dostupan`
-
-when the actual failure is a map asset 404.
-
-Error messages should identify the subsystem.
-
----
-
-## 70. MAP ERROR HANDLING
-
-Map errors should contain enough diagnostics to answer:
-
-* which URL was requested?
-* which asset failed?
-* was the failure HTTP, JavaScript, style or worker related?
-* which map archive was selected?
-
-Do not hide errors behind generic:
-
-`Map failed`
-
-messages.
-
----
-
-## 71. NO EXTERNAL MAP PROVIDER BY DEFAULT
-
-The current architecture intentionally uses local map assets.
-
-Do not introduce:
-
-* Google Maps
-* Bing Maps
-* TomTom
-* Mapbox
-* CARTO
-* remote OSM tile servers
-
-as a replacement for the local basemap unless explicitly requested.
-
-External geocoding/routing services are separate concerns and do not justify replacing the local basemap.
-
----
-
-## 72. LOCAL ASSET SCRIPTS
-
-`prepare-local-map-assets.ps1` currently downloads frontend runtime dependencies into the repository.
-
-This is a build/preparation tool, not runtime application behavior.
-
-Do not add runtime CDN dependencies just because the preparation script downloads from a CDN.
-
-The resulting assets are expected to be served locally.
-
----
-
-## 73. GITIGNORE
-
-Respect `.gitignore`.
-
-Do not force-add large generated assets unless explicitly requested.
-
-In particular:
-
-* OSM PBF
-* OSRM generated files
-* PMTiles
-* generated map data
-* temporary files
-
-should remain outside normal source control.
-
----
-
-## 74. WHEN A FILE IS MISSING
-
-Before concluding that a file is missing:
-
-1. inspect Git tree
-2. inspect `.gitignore`
-3. inspect local filesystem if available
-4. inspect Docker mounts
-5. inspect generation scripts
-6. inspect runtime serving path
-
-For example, absence of:
-
-`wwwroot/maps/serbia.pmtiles`
-
-from Git does not automatically mean the application cannot load it.
-
----
-
-## 75. WHEN A PAGE IS EMPTY
-
-If a Razor page renders only a minimal placeholder:
-
-1. inspect the actual `.cshtml`
-2. inspect `_Layout.cshtml`
-3. inspect route/page mapping
-4. inspect referenced JavaScript
-5. inspect CSS
-6. inspect browser console
-7. inspect network requests
-
-Do not regenerate the entire project immediately.
-
-Do not delete existing pages without proving they are obsolete.
-
----
-
-## 76. WHEN COMPILATION FAILS
-
-Always fix the underlying contract.
-
-For example, if the compiler says:
-'RouteRequest' does not contain a definition for 'Truck'
-do not blindly change all references.
-
-First inspect:
-
-* `RouteRequest.cs`
-* all references to `.Truck`
-* JSON contract
-* controller
-* routing services
-* frontend request builder
-
-Then determine whether:
-
-* the model is stale
-* consumers are stale
-* the wrong branch/file is being built
-* a namespace collision exists
-* a duplicate model exists
-
-The repository must have one authoritative `RouteRequest`.
-
----
-
-## 77. BRANCH / VERSION CONFUSION
-
-If code appears inconsistent:
-
-Check:
-
-* current branch
-* current commit
-* repository tree
-* `.csproj`
-* duplicate files
-* generated output
-* Docker build context
-
-Do not assume the code shown in one file represents the entire repository.
-
----
-
-## 78. BUILD CONTEXT
-
-Docker build context is the repository root.
-
-Important:
-Dockerfile
-ProMapCargo.sln
-ProMapCargo.Api.csproj
-Importer/ProMapCargo.OsmImporter.csproj
-must remain compatible with the Docker build instructions.
-
-Do not move projects without updating:
-
-* solution
-* Dockerfile
-* project references
-* CI
-* scripts
-
----
-
-## 79. GITHUB ACTIONS
-
-The repository has CI/build infrastructure.
-
-Changes should remain compatible with GitHub Actions.
-
-Do not rely exclusively on:
-
-* local Visual Studio configuration
-* user-specific paths
-* Windows-only commands
-
-unless the feature is explicitly Windows-specific.
-
----
-
-## 80. CROSS-PLATFORM SCRIPTS
-
-Where both exist:
-
-* `.ps1`
-* `.sh`
-
-keep them conceptually equivalent.
-
-PowerShell is important for Windows development.
-
-Shell scripts are important for Linux/Docker/CI workflows.
-
----
-
-## 81. FILE PATHS
-
-Use portable paths in C#.
-
-Do not hard-code:
-C:\Users\...
-Use:
-
-* `Path.Combine`
-* `IWebHostEnvironment.WebRootPath`
-* `ContentRootPath`
-
-The browser must never receive server filesystem paths.
-
----
-
-## 82. MAP PATH SECURITY
-
-The dynamic PMTiles endpoint must only serve files from:
-
-`wwwroot/maps`
-
-Do not allow path traversal.
-
-The region parameter must resolve to a controlled filename.
-
-Do not turn it into an arbitrary filesystem path.
-
----
-
-## 83. ROUTING SECURITY
-
-Routing endpoints may be anonymous where currently configured, but they must still validate:
-
-* coordinates
-* profile
-* truck values
-* numeric ranges
-* request size
-
-Do not trust browser-provided truck parameters.
-
----
-
-## 84. TRUCK PARAMETER VALIDATION
-
-When validating truck parameters, reject impossible values such as:
-
-* negative weight
-* zero/negative dimensions
-* negative axle load
-* impossible axle count
-* invalid maximum speed
-
-Validation should protect both the database and routing algorithm.
-
----
-
-## 85. NO SILENT CONTRACT CHANGES
-
-When modifying:
-
-* route request
-* route response
-* GeoJSON
-* PMTiles URLs
-* map style source names
-* database schema
-* SignalR messages
-
-update all consumers.
-
-Use repository-wide search before committing.
-
----
-
-## 86. CHANGE SCOPE
-
-For bug fixes:
-
-* make the smallest coherent change
-* avoid unrelated refactors
-* preserve existing behavior
-* explain architectural consequences
-
-For architectural changes:
-
-* update documentation
-* update tests
-* update Docker
-* update scripts
-* update frontend
-* update backend
-* update schema where required
-
----
-
-## 87. CODE REVIEW PRIORITIES
-
-When reviewing changes, prioritize:
-
-1. correctness
-2. routing correctness
-3. coordinate correctness
-4. database correctness
-5. map asset correctness
-6. API compatibility
-7. security
-8. Docker compatibility
-9. performance
-10. maintainability
-11. visual consistency
-
-Do not prioritize cosmetic refactoring over functional correctness.
-
----
-
-## 88. ROUTING BUG TRIAGE
-
-When route calculation fails, use this decision tree:
-
-### A. API returns InvalidStart/InvalidDestination
-
-Inspect:
-
-* geocoding
-* frontend coordinate extraction
-* request JSON
-* `GeoPoint`
-
-### B. API returns NoGraph
-
-Inspect:
-
-* `routing_graph_versions`
-* importer
-* active graph version
-* graph activation
-
-### C. API returns NoSnap
-
-Inspect:
-
-* graph coverage
-* coordinate order
-* SRID
-* snap radius
-* road edge spatial index
-
-### D. API returns NoRoute
-
-Inspect:
-
-* edge direction
-* truck evaluator
-* turn restrictions
-* graph connectivity
-* A* expansion limit
-
-### E. OSRM fallback fails
-
-Inspect:
-
-* `Routing:OsrmBaseUrl`
-* Docker `osrm` service
-* `/data/serbia-latest.osrm`
-* OSRM container logs
-
-### F. API returns route but map shows no line
-
-Inspect:
-
-* response JSON
-* geometry
-* coordinate order
-* route layer
-* map style
-* map visibility
-* map resize
-
----
-
-## 89. MAP BUG TRIAGE
-
-When the map itself does not render:
-
-### Step 1
-
-Confirm the map container exists.
-
-### Step 2
-
-Confirm its CSS height.
-
-### Step 3
-
-Confirm MapLibre/Leaflet scripts are loaded locally.
-
-### Step 4
-
-Confirm PMTiles library is loaded.
-
-### Step 5
-
-Confirm PMTiles URL.
-
-### Step 6
-
-Confirm archive HTTP response.
-
-### Step 7
-
-Confirm Range support.
-
-### Step 8
-
-Confirm style JSON.
-
-### Step 9
-
-Confirm glyph requests.
-
-### Step 10
-
-Confirm browser console.
-
-Never start by modifying routing code when the basemap itself is not loading.
-
----
-
-## 90. ROUTE LINE BUG TRIAGE
-
-If the basemap is visible but the route line is not:
-
-Do not regenerate PMTiles.
-
-Check:
-
-1. API response
-2. route geometry
-3. `coordinates`
-4. selected route
-5. route layer creation
-6. line source
-7. line layer
-8. coordinate projection
-9. map instance
-10. route visibility
-
-The route line is application overlay logic, not PMTiles basemap data.
-
----
-
-## 91. NO FAKE MAP DATA
-
-Do not generate fake road networks to make the UI look populated.
-
-If the map dataset is missing, report that the dataset is missing.
-
-If routing graph is missing, use the configured OSRM fallback.
-
-Do not fabricate a PostGIS route.
-
----
-
-## 92. NO FAKE ROUTING DIAGNOSTICS
-
-Diagnostics must represent actual execution.
-
-Examples:
-
-If PostGIS succeeded:
-
-```text
-Engine = PostGIS-AStar
-UsedFallback = false
-GraphVersion = actual graph version
+return BadRequest(postgisResult);
 ```
 
-If OSRM fallback succeeded:
+**Critical**: Never silently swap engines; always identify which engine produced the result in the response.
 
-```text
-Engine = OSRM
-UsedFallback = true
-GraphVersion = null
+---
+
+## 7. RESTRICTION ENGINE
+
+Truck routing must validate:
+- **Dimensions**: maxheight, maxwidth, maxlength
+- **Weight**: maxweight, maxaxleload
+- **Access Tags**: access, vehicle, motor_vehicle, hgv, goods, hazmat
+- **Speed Limits**: maxspeed, maxspeed:hgv
+- **Turn Restrictions**: no_entry, only_right_turn, no_left_turn, no_u_turn, etc.
+
+### Services
+- `IRestrictionEngine.cs` — Public interface
+- `PostgresRestrictionEngine.cs` — DB-backed (preferred)
+- `RestrictionEngine.cs` — In-memory fallback
+- `IRestrictionRepository.cs` — Data access abstraction
+- `PostgresRestrictionRepository.cs` — SQL queries
+- `JsonRestrictionRepository.cs` — Local JSON fallback (data/restrictions.json)
+
+**Usage in Routing**:
+- `TruckEdgeEvaluator.cs` checks edge attributes against truck profile
+- Returns infinity cost if truck cannot traverse
+- Matching happens during A* expansion
+
+---
+
+## 8. DATABASE SCHEMA (PostGIS)
+
+### Core Tables
+- `routing_graph_versions` — (graph_version BIGINT, status TEXT, activated_at TIMESTAMP)
+- `osm_nodes` — (id BIGINT, geom GEOMETRY, graph_version BIGINT)
+- `osm_ways` — (way_id BIGINT, highway TEXT, tags JSONB, graph_version BIGINT)
+- `osm_way_nodes` — (way_id BIGINT, seq INT, node_id BIGINT, graph_version BIGINT)
+- `road_edges` — (id BIGINT, source BIGINT, target BIGINT, geom GEOMETRY, length FLOAT, speed_kmh INT, maxheight FLOAT, maxwidth FLOAT, maxweight FLOAT, tags JSONB, graph_version BIGINT)
+- `turn_restrictions` — (osm_relation_id BIGINT, restriction TEXT, from_way_id BIGINT, to_way_id BIGINT, via_node_ids BIGINT[], via_way_ids BIGINT[])
+
+### Indexing
+- Spatial indexes on `road_edges.geom`, `osm_nodes.geom`
+- Primary keys on graph_version, way_id, edge_id
+- JSONB operators for tags
+
+### Graph Versions
+- Version = Unix timestamp (seconds since epoch)
+- Status: `building` → `ready` (set by importer)
+- Only `ready` versions with `activated_at NOT NULL` are routable
+
+---
+
+## 9. DOCKER COMPOSE STACK
+
+Local development stack (`docker-compose.yml`):
+- `promap-postgres` — PostgreSQL 15 + PostGIS
+- `promap-osrm` — OSRM service (pre-built road network)
+- `promap-api` — ASP.NET Core API
+
+**Environment Variables** (`.env`):
+- `ConnectionStrings__Postgres` — API database connection
+- `OSRM_URL` — OSRM service endpoint
+- `NOMINATIM_URL` — Nominatim geocoding
+
+**Important**: 
+- Container-to-container: use service name (`postgres`), not `localhost`
+- Host-to-container: use `localhost` + published port
+- Importer runs on host, so use `Host=localhost` in fallback
+
+---
+
+## 10. NAMING CONVENTIONS
+
+### C# Code
+- **Classes/Methods**: PascalCase
+- **Properties/Fields**: camelCase (private), PascalCase (public)
+- **Async Methods**: Suffix `Async` (e.g., `RouteAsync`, `ImportAsync`)
+- **Interfaces**: Prefix `I` (e.g., `IRoutingService`, `IRestrictionEngine`)
+- **Enums**: PascalCase
+
+### Database
+- **Tables**: snake_case (e.g., `road_edges`, `osm_nodes`)
+- **Columns**: snake_case
+- **Constraints**: {table}_{type}_{column} (e.g., `road_edges_pk_id`)
+
+### File Structure
+- **Controllers**: `{Feature}Controller.cs`
+- **Services**: `{Feature}Service.cs`, `I{Feature}Service.cs`
+- **Repositories**: `{Feature}Repository.cs`, `I{Feature}Repository.cs`
+- **Models**: `{Concept}Model.cs` or just `{Concept}.cs`
+- **Pages**: `{FeatureName}/Index.cshtml`
+- **JavaScript**: kebab-case modules (e.g., `promap-routing.js`)
+
+---
+
+## 11. CODE STANDARDS
+
+### ASP.NET Core / C#
+- **Modern C# 14.0** features (file-scoped namespaces, records for DTOs, switch expressions, raw strings)
+- **Nullable reference types**: Enabled (`<Nullable>enable</Nullable>`)
+- **Async/await**: End-to-end (no sync-over-async); pass `CancellationToken`
+- **Dependency injection**: Constructor injection preferred
+- **Validation**: Input validation at controller/service boundary
+- **Error handling**: Specific exception types; log with context
+
+### Razor Pages
+- **Keep pages thin**: Move logic to page models and services
+- **Progressive enhancement**: JavaScript enhances server rendering; not required for core functionality
+
+### JavaScript
+- **No jQuery**: Use modern ES6+ (fetch, async/await, classes, modules)
+- **Module pattern**: Each file exports one logical unit
+- **Event delegation**: Minimize global script execution
+- **DOM queries**: Cache selectors where possible
+- **Async operations**: Always use `await` for promises
+- **Naming**: camelCase for variables/functions, CONSTANT_CASE for constants
+
+### SQL
+- **Indexes**: Add for frequently queried columns (Graph queries are I/O heavy)
+- **Parameterized queries**: Always use query parameters (prevent SQL injection)
+- **Window functions**: Use for analytics (ROW_NUMBER, RANK, LAG/LEAD)
+
+### Testing
+- **Unit tests**: Xunit framework
+- **Mock external dependencies**: Database, HTTP services, file I/O
+- **Test naming**: `WhenConditionThenBehavior` pattern
+- **No static state**: Each test must be independent
+
+---
+
+## 12. KEY ARCHITECTURAL DECISIONS
+
+1. **PostGIS is the primary map engine** — not OSRM. OSRM is fallback for compatibility.
+2. **Local PMTiles** — Do not switch to external tile providers (Google, Mapbox); data is sovereign.
+3. **No SPA** — Razor Pages + JavaScript. No React, Vue, Blazor unless explicitly requested.
+4. **MAUI, not Forms** — No Xamarin Forms; use MAUI equivalents for mobile.
+5. **Graph versioning** — Support multiple routing graphs; only one can be `ready` at a time.
+6. **Truck awareness** — Routing must consider dimensions, weight, ADR, restricted roads.
+7. **Fallback routing** — Always graceful degradation to OSRM if PostGIS fails.
+8. **Live telemetry** — SignalR for driver-to-dispatch communication; not just passive monitoring.
+
+---
+
+## 13. DEBUGGING & DIAGNOSTICS
+
+### Routing Issues
+1. **"opet se mapa i ruta ne slazu"** (route/map misalignment)
+   - Check `PostGisRoutingService.CalculateAsync()` snap fractions
+   - Verify route geometry extraction logic (first/last edge trimming)
+   - Ensure `EdgeSnapper` correctly maps coordinates to edges
+
+2. **"NoGraph" response**
+   - Check `routing_graph_versions` table: does an active row exist?
+   - Must have `status='ready' AND activated_at IS NOT NULL`
+   - If not, run importer again
+
+3. **Importer hangs or fails**
+   - Check database connection string (host name, port, credentials)
+   - Run from Windows host → use `Host=localhost`
+   - Run from Docker → use `Host=postgres`
+   - Check console output for `[IMPORT]` debug logs
+   - Monitor database: `SELECT * FROM routing_graph_versions ORDER BY graph_version DESC;`
+
+### Map Tile Issues
+- Missing glyphs/fonts → check `/fonts/{fontstack}/{range}.pbf` endpoint
+- Blank map → check PMTiles path and MapLibre initialization
+- Layer visibility → check `promap-map-layers.js` and MapLibre style JSON
+
+### Performance
+- Slow routing → check `road_edges` indexes, `ST_DWithin()` queries
+- Large import time → profile `CopyWays()` binary import, edge creation SQL
+- Memory spike → check `DrawDownAsync()` in import (29M nodes loaded)
+
+---
+
+## 14. COMPLETE PROJECT MAP
+
+### ProMapCargo.Api
+
+```
+ProMapCargo.Api/
+├── Program.cs                           ← Entry point
+├── ProMapCargo.Api.csproj
+├── appsettings.json
+├── NuGet.config
+├── docker-compose.yml
+├── Dockerfile
+│
+├── Controllers/                         ← HTTP endpoints
+│   ├── RoutingController.cs            ← Route calculation
+│   ├── TripRoutingController.cs
+│   ├── GeocodingController.cs
+│   ├── NavigationTelemetryController.cs
+│   ├── RestrictionsController.cs
+│   ├── RestrictionAdminController.cs
+│   ├── OperationsController.cs
+│   ├── BusinessController.cs
+│   ├── DriverController.cs
+│   ├── AlertsController.cs
+│   └── MobileAuthController.cs
+│
+├── Routing/                             ← PostGIS routing engine
+│   ├── PostGisRoutingService.cs         ← Orchestrator
+│   ├── PostGisRoutingRepository.cs      ← Graph queries
+│   ├── PostGisAStarRouter.cs            ← Pathfinding
+│   ├── EdgeSnapper.cs                   ← Coordinate snapping
+│   ├── TruckEdgeEvaluator.cs            ← Cost calculation
+│   ├── TurnRestrictionMatcher.cs        ← Restriction validation
+│   ├── ManeuverBuilder.cs               ← Turn instructions
+│   └── RoutingModels.cs                 ← Domain models
+│
+├── Services/                            ← Business services
+│   ├── IRoutingService.cs, OsrmRoutingService.cs    ← OSRM fallback
+│   ├── IGeocodingService.cs, NominatimGeocodingService.cs
+│   ├── IRestrictionEngine.cs, PostgresRestrictionEngine.cs, RestrictionEngine.cs
+│   ├── IRestrictionRepository.cs, PostgresRestrictionRepository.cs, JsonRestrictionRepository.cs
+│   ├── MobileTokenService.cs, ApiAuthHandler.cs
+│   ├── NavigationHub.cs                 ← SignalR telemetry
+│   ├── CurrentUserContext.cs
+│   ├── IdentityClaimsFactory.cs
+│   └── BusinessServices.cs
+│
+├── Models/                              ← Data contracts
+│   ├── RouteRequest.cs, RouteResponse.cs
+│   ├── TruckProfile.cs, VehicleProfile.cs
+│   ├── RouteOptions.cs
+│   ├── GeoPoint.cs, GeocodingResult.cs
+│   ├── Restriction.cs, RoadRestriction.cs
+│   ├── BusinessModels.cs
+│   ├── MobileAuthModels.cs
+│   └── MobileAuthOptions.cs
+│
+├── Data/                                ← EF Core
+│   ├── ProMapCargoDbContext.cs
+│   └── restrictions.json
+│
+├── Sql/                                 ← Database scripts
+│   ├── 03-routing-graph.sql
+│   ├── 01-indexes.sql
+│   ├── 02-useful-queries.sql
+│   └── 04-operational-indexes.sql
+│
+├── Pages/                               ← Razor Pages UI
+│   ├── Index.cshtml                     ← Dashboard
+│   ├── Navigation/Index.cshtml          ← **Route & live map**
+│   ├── Dispatch/Index.cshtml
+│   ├── Monitoring/Index.cshtml
+│   ├── Orders/Index.cshtml
+│   ├── Trips/Index.cshtml
+│   ├── Vehicles/Index.cshtml
+│   ├── Drivers/Index.cshtml
+│   ├── Driver/Index.cshtml
+│   ├── Alerts/Index.cshtml
+│   ├── Compliance/Index.cshtml
+│   ├── Audit/Index.cshtml
+│   ├── Finance/Index.cshtml
+│   ├── Reports/Index.cshtml
+│   ├── Moderation/Index.cshtml
+│   ├── Settings/Index.cshtml
+│   ├── Profile/Index.cshtml
+│   ├── Admin/Index.cshtml
+│   ├── Login/Index.cshtml
+│   ├── Shared/_Layout.cshtml
+│   ├── _ViewImports.cshtml
+│   └── _ViewStart.cshtml
+│
+└── wwwroot/                             ← Static assets
+	├── css/
+	│   ├── base.css, site.css
+	│   ├── animations.css, compat.css
+	│   ├── components.css, forms.css, tables.css
+	│   ├── tokens.css
+	│   └── pages/                       ← Per-page styles
+	│
+	├── js/
+	│   ├── app.js                       ← Init
+	│   ├── navigation.js                ← Navigation orchestration
+	│   ├── promap-routing.js            ← Routing API client
+	│   ├── promap-maneuvers.js          ← Maneuver rendering
+	│   ├── promap-gps.js                ← GPS tracking
+	│   ├── promap-map-enhancements.js   ← Layer control
+	│   ├── promap-map-layers.js         ← Layer definitions
+	│   ├── promap-pmtiles-init.js       ← PMTiles init
+	│   ├── alerts.js
+	│   ├── core/                        ← Utility modules
+	│   │   ├── dom.js
+	│   │   ├── events.js
+	│   │   ├── http.js
+	│   │   ├── modal.js
+	│   │   ├── toast.js
+	│   │   ├── validation.js
+	│   │   ├── format.js
+	│   │   └── compat.js
+	│   ├── services/
+	│   │   └── alerts.js
+	│   └── pages/                       ← Page-specific JS
+	│       ├── index.js
+	│       ├── dispatch-index.js
+	│       ├── monitoring-index.js
+	│       ├── orders-index.js
+	│       ├── finance-index.js
+	│       ├── drivers-index.js
+	│       └── vehicles-index.js
+	│
+	├── lib/
+	│   ├── leaflet/                     ← Leaflet map library
+	│   ├── maplibre-gl/                 ← MapLibre GL (vector)
+	│   ├── maplibre-gl-leaflet/         ← Bridge layer
+	│   ├── pmtiles/                     ← PMTiles protocol
+	│   └── signalr/                     ← SignalR WebSocket
+	│
+	├── maps/
+	│   ├── serbia.pmtiles               ← Vector tiles
+	│   └── europe.pmtiles
+	│
+	├── fonts/
+	│   └── Noto Sans Regular/
+	│       ├── 0-255.pbf                ← MapLibre glyphs
+	│       ├── 256-511.pbf
+	│       └── 1024-1279.pbf
+	│
+	└── styles/
+		└── promap-dark.json             ← MapLibre style
 ```
 
-Never fabricate a graph version.
+### ProMapCargo.Mobile
+
+```
+ProMapCargo.Mobile/
+├── ProMapCargo.Mobile.csproj            ← MAUI project
+│
+├── App.xaml, App.xaml.cs                ← App root
+├── AppShell.xaml, AppShell.xaml.cs      ← Navigation
+├── MainPage.xaml, MainPage.xaml.cs      ← Landing
+├── MauiProgram.cs                       ← DI setup
+│
+├── Views/                               ← XAML UI
+│   ├── LoginPage.xaml, LoginPage.xaml.cs
+│   └── DashboardPage.xaml, DashboardPage.xaml.cs
+│
+├── ViewModels/                          ← MVVM state
+│   ├── ViewModelBase.cs
+│   ├── LoginViewModel.cs
+│   └── DashboardViewModel.cs
+│
+├── Models/                              ← Data contracts
+│   ├── AuthModels.cs
+│   ├── BusinessModels.cs
+│   └── MobileAppOptions.cs
+│
+├── Services/                            ← Cross-platform services
+│   ├── ApiClient.cs
+│   ├── ApiAuthHandler.cs
+│   ├── MobileSessionService.cs
+│   └── TokenStore.cs
+│
+├── Converters/                          ← XAML converters
+│   └── StringNotEmptyConverter.cs
+│
+├── Resources/                           ← App resources
+│   ├── Styles/
+│   │   ├── Colors.xaml
+│   │   └── Styles.xaml
+│   ├── Fonts/
+│   │   ├── OpenSans-Regular.ttf
+│   │   └── OpenSans-Semibold.ttf
+│   ├── Images/
+│   │   └── dotnet_bot.png
+│   ├── Splash/
+│   │   └── splash.svg
+│   ├── AppIcon/
+│   │   ├── appicon.svg
+│   │   └── appiconfg.svg
+│   └── Raw/
+│       └── AboutAssets.txt
+│
+└── Platforms/                           ← Platform-specific
+	├── Android/
+	│   ├── MainActivity.cs
+	│   ├── MainApplication.cs
+	│   ├── AndroidManifest.xml
+	│   └── Resources/values/colors.xml
+	├── iOS/
+	│   ├── AppDelegate.cs
+	│   ├── Program.cs
+	│   ├── Info.plist
+	│   └── Resources/PrivacyInfo.xcprivacy
+	├── MacCatalyst/
+	│   ├── AppDelegate.cs
+	│   ├── Program.cs
+	│   ├── Entitlements.plist
+	│   └── Info.plist
+	└── Windows/
+		├── App.xaml, App.xaml.cs
+		├── app.manifest
+		└── Package.appxmanifest
+```
+
+### ProMapCargo.OsmImporter
+
+```
+Importer/
+├── ProMapCargo.OsmImporter.csproj       ← Console app
+│
+├── Program.cs                           ← CLI entry
+│   ├── Validates PBF file
+│   ├── Resolves DB connection
+│   ├── Invokes GraphImporter.ImportAsync()
+│   └── Prints summary
+│
+├── GraphImporter.cs                     ← Orchestrator (516 lines)
+│   ├── ImportAsync()
+│   │   ├── Open connection
+│   │   ├── Execute schema (03-routing-graph.sql)
+│   │   ├── Cleanup old version
+│   │   ├── Insert graph_version (status='building')
+│   │   ├── Read PBF
+│   │   ├── CopyNodes()
+│   │   ├── CopyWays()
+│   │   ├── CopyRestrictions()
+│   │   └── Update status to 'ready'
+│   ├── CopyNodes() — Binary import osm_nodes
+│   ├── CopyWays() — Binary import osm_ways, osm_way_nodes; calls WriteEdges
+│   ├── WriteEdges() — SQL INSERT each road_edges row
+│   ├── CopyRestrictions() — Turn restrictions
+│   └── Helpers (Tags(), Direction(), Speed(), Weight(), etc.)
+│
+├── ImportDbContext.cs                   ← Legacy EF
+│
+├── OsmRestrictionImporter.cs            ← Restriction parsing
+│
+└── (Sql/03-routing-graph.sql)           ← Schema (created at runtime)
+```
 
 ---
 
-## 93. DATABASE FAILURE BEHAVIOR
+## 15. MIGRATION & DEPLOYMENT NOTES
 
-If PostgreSQL is unavailable:
+### Development
+1. Ensure `.NET 10 SDK` installed
+2. Run `dotnet build` (all projects)
+3. Start `docker-compose up` (Postgres + OSRM)
+4. Run `dotnet run --project Importer -- osm/serbia-latest.osm.pbf` (populates graph)
+5. Run `dotnet run --project ProMapCargo.Api` (starts API on `http://localhost:5000`)
+6. Navigate to `Pages/Navigation/Index.cshtml`
 
-* application should start where practical
-* database-dependent features should fail clearly
-* logs should identify the dependency
-* routing should fall back only if the configured fallback is available
+### Testing
+- Unit tests: `xunit` framework
+- Integration tests: Real Postgres, PostGIS
+- E2E: Selenium or Playwright on Razor Pages
 
-Do not return fake database records.
-
----
-
-## 94. EXTERNAL DEPENDENCY FAILURE
-
-External services include:
-
-* Nominatim
-* optional public OSRM fallback
-
-They can fail.
-
-Design the application so:
-
-* UI remains usable
-* errors are clear
-* retries are bounded
-* local map does not depend on external basemap availability
+### Production
+- Build Docker image: `docker build -t promapcargo .`
+- Push to registry
+- Deploy via Docker Compose or Kubernetes
+- Ensure PostGIS + OSRM availability
+- Pre-load graph version before rollout
 
 ---
 
-## 95. LOCAL MAP INDEPENDENCE
-
-The local basemap should continue working if:
-
-* Nominatim is unavailable
-* OSRM is unavailable
-* PostgreSQL is unavailable
-
-The map rendering subsystem should not depend on the routing subsystem.
-
----
-
-## 96. DO NOT COUPLE MAP AND ROUTING
-
-A route request must not be responsible for initializing the basemap.
-
-A PMTiles load failure must not be interpreted as a routing failure.
-
-A routing failure must not prevent the base map from rendering.
-
-Keep the subsystems independent.
-
----
-
-## 97. DO NOT COUPLE GEOCODING AND MAP RENDERING
-
-Geocoding failure should not destroy the map.
-
-Map failure should not destroy the geocoding form.
-
-Routing failure should not destroy either.
-
----
-
-## 98. PAGE SCRIPT LOADING
-
-Shared scripts are loaded from `_Layout.cshtml`.
-
-Page-specific scripts should be placed in the Razor `Scripts` section where appropriate.
-
-Do not include the same library twice.
-
-Do not load a CDN copy in one page while loading a local copy in another.
-
----
-
-## 99. CACHE BUSTING
-
-Use ASP.NET Core:
-asp-append-version="true"
-for static assets where already established.
-
-Do not manually append random query strings.
-
----
-
-## 100. CSS ARCHITECTURE
-
-Existing CSS is split across:
-
-* `tokens.css`
-* `base.css`
-* `components.css`
-* `forms.css`
-* `tables.css`
-* `animations.css`
-* `compat.css`
-* `site.css`
-
-Prefer the existing system.
-
-Do not place hundreds of lines of page CSS into JavaScript.
-
-Do not introduce another global CSS framework.
-
----
-
-## 101. ACCESSIBILITY
-
-Controls must have:
-
-* labels
-* accessible names
-* keyboard accessibility
-* visible focus where appropriate
-
-Map controls and navigation buttons must not depend exclusively on color.
-
-Do not remove ARIA labels already present.
-
----
-
-## 102. INTERNATIONALIZATION
-
-The current UI contains Serbian terminology.
-
-Preserve existing Serbian labels unless explicitly asked to translate them.
-
-Backend identifiers should remain English/C# conventions.
-
-Do not randomly translate domain concepts.
-
----
-
-## 103. COMMENTS
-
-Comments should explain:
-
-* why something is necessary
-* architectural constraints
-* non-obvious behavior
-
-Avoid comments that simply restate the code.
-
----
-
-## 104. GENERATED FILES
-
-Do not manually edit generated:
-
-* binaries
-* build outputs
-* generated map archives
-* OSRM datasets
-
-Modify the source/generation script instead.
-
----
-
-## 105. BINARY TOOLS
-
-The repository may contain helper binaries such as PMTiles tooling.
-
-Do not replace them with runtime downloads.
-
-Do not add unnecessary executable binaries.
-
-If a binary is already part of the repository workflow, understand why before removing it.
-
----
-
-## 106. DOCUMENTATION COMMANDS
-
-When documenting commands, ensure commands match the actual project.
-
-Prefer:
-dotnet restore ProMapCargo.sln
-dotnet build ProMapCargo.sln
-docker compose config
-docker compose up --build
-Do not document commands for projects/files that do not exist.
-
----
-
-## 107. CLEAN BUILD PRINCIPLE
-
-Before finalizing a change, check for:
-
-* compile errors
-* stale namespaces
-* stale property names
-* duplicate classes
-* duplicate JavaScript initialization
-* missing static assets
-* missing Docker mounts
-* incorrect environment variable names
-* inconsistent documentation
-
----
-
-## 108. SEARCH BEFORE EDIT
-
-Before modifying an important symbol, search for all usages.
-
-Especially search before changing:
-
-* `RouteRequest`
-* `RouteResponse`
-* `TruckProfile`
-* `GeoPoint`
-* `Target`
-* `Destination`
-* `Profile`
-* `PostGisRoutingService`
-* `OsrmRoutingService`
-* `navigation.js`
-* `/api/routing/route`
-* `/maps/`
-* `serbia.pmtiles`
-* `europe.pmtiles`
-
----
-
-## 109. ONE AUTHORITATIVE IMPLEMENTATION
-
-For every domain concept there should be one authoritative implementation.
-
-Examples:
-
-Routing request:
-
-`Models/RouteRequest.cs`
-
-Truck evaluation:
-
-`Routing/TruckEdgeEvaluator.cs`
-
-PostGIS routing:
-
-`Routing/PostGisRoutingService.cs`
-
-OSRM:
-
-`Services/OsrmRoutingService.cs`
-
-Navigation UI:
-
-`wwwroot/js/navigation.js`
-
-Shared map layers:
-
-`wwwroot/js/promap-map-layers.js`
-
-PMTiles serving:
-
-`Program.cs`
-
-Do not create shadow implementations.
-
----
-
-## 110. WHEN REFACTORING ROUTING
-
-Routing refactors must preserve:
-
-* coordinate contract
-* truck restrictions
-* graph version
-* turn restrictions
-* fallback
-* route geometry
-* diagnostics
-* cancellation
-* performance limits
-
-A routing refactor is not successful if it merely compiles.
-
----
-
-## 111. WHEN REFACTORING MAPS
-
-Map refactors must preserve:
-
-* local assets
-* PMTiles
-* glyphs
-* MapLibre
-* Leaflet
-* route overlays
-* markers
-* map interactions
-* responsive layout
-
-A map refactor is not successful if the page loads but routes disappear.
-
----
-
-## 112. WHEN ADDING NEW MAP REGIONS
-
-If adding a new region:
-
-1. add the generation workflow
-2. define archive naming
-3. add runtime path
-4. verify static serving
-5. verify range processing
-6. update map selector if needed
-7. update documentation
-8. do not commit the huge generated archive unless explicitly requested
-
----
-
-## 113. WHEN ADDING NEW ROUTING PROFILE
-
-If adding a profile:
-
-1. update request contract
-2. validate profile
-3. update PostGIS routing behavior
-4. update OSRM mapping
-5. update UI
-6. update diagnostics
-7. test fallback
-8. document semantics
-
-Do not silently map a new truck profile to generic driving without explicitly identifying the limitation.
-
----
-
-## 114. WHEN ADDING NEW TRUCK RESTRICTION
-
-If adding a restriction:
-
-1. identify OSM source tag
-2. add importer support
-3. store the value in graph schema if necessary
-4. update `RoadEdge`
-5. update `TruckEdgeEvaluator`
-6. test both directions
-7. test fallback behavior
-8. update documentation
-
----
-
-## 115. PULL REQUEST EXPECTATIONS
-
-Every meaningful PR should explain:
-
-* what changed
-* why
-* affected components
-* database impact
-* Docker impact
-* map impact
-* routing impact
-* validation performed
-
-Do not mix unrelated feature work into a routing bug fix.
-
----
-
-## 116. COPILOT RESPONSE BEHAVIOR
-
-When asked to fix something:
-
-1. inspect the relevant files
-2. inspect callers
-3. inspect configuration
-4. inspect related frontend code
-5. inspect schema if database-related
-6. identify the root cause
-7. propose the smallest coherent fix
-8. implement it
-9. build/test
-10. report exactly what was changed
-
-Do not immediately generate replacement files without understanding the current implementation.
-
----
-
-## 117. COPILOT MUST NOT GUESS
-
-If information is missing:
-
-* inspect the repository
-* search for the symbol
-* inspect configuration
-* inspect Docker
-* inspect scripts
-
-Do not invent:
-
-* endpoints
-* table names
-* properties
-* environment variables
-* map URLs
-* file paths
-* package versions
-
----
-
-## 118. COPILOT MUST DISTINGUISH LOCAL VS GITHUB STATE
-
-GitHub may intentionally omit large runtime datasets.
-
-When investigating a map problem, distinguish:
-source-controlled code
-from:
-local generated data
-and:
-Docker-mounted runtime data
-A repository tree is not necessarily the complete runtime filesystem.
-
----
-
-## 119. CURRENT MAP ARCHITECTURE
-
-The intended current architecture is:
-Browser
-  |
-  +-- Razor Pages
-  |
-  +-- Leaflet
-  |
-  +-- MapLibre
-  |
-  +-- PMTiles
-  |      |
-  |      +-- /maps/serbia.pmtiles
-  |      +-- /maps/europe.pmtiles
-  |
-  +-- Local glyphs
-  |
-  +-- /api/geocoding
-  |
-  +-- /api/routing/route
-  |
-  +-- /hubs/navigation
-         |
-         +-- GPS / telemetry
-The basemap is local.
-
-Routing is server-side.
-
-Geocoding is separate.
-
-Telemetry is separate.
-
----
-
-## 120. CURRENT ROUTING ARCHITECTURE
-Navigation UI
-     |
-     v
-/api/routing/route
-     |
-     v
-RoutingController
-     |
-     +--------------------------+
-     |                          |
-     v                          v
-PostGisRoutingService       OSRM fallback
-     |                          |
-     v                          v
-PostGIS graph                osrm:5000
-     |
-     +-- EdgeSnapper
-     +-- TruckEdgeEvaluator
-     +-- PostGisAStarRouter
-     +-- TurnRestrictionMatcher
-     +-- ManeuverBuilder
-     |
-     v
-RouteResponse
-     |
-     v
-Navigation UI
-Do not bypass this architecture without an explicit architectural decision.
-
----
-
-## 121. CURRENT DATABASE ARCHITECTURE
-PostgreSQL/PostGIS
-        |
-        +-- Application/Identity data
-        |
-        +-- Business data
-        |
-        +-- Restrictions
-        |
-        +-- OSM graph
-        |
-        +-- Routing graph versions
-        |
-        +-- Turn restrictions
-There is one primary database.
-
----
-
-## 122. CURRENT OSM IMPORT ARCHITECTURE
-OSM PBF
-  |
-  v
-ProMapCargo.OsmImporter
-  |
-  +-- nodes
-  +-- ways
-  +-- way nodes
-  +-- road edges
-  +-- restrictions
-  |
-  v
-PostGIS versioned graph
-  |
-  v
-ready
-  |
-  v
-active graph
-  |
-  v
-PostGIS routing
----
-
-## 123. CURRENT MAP DATA ARCHITECTURE
-OSM PBF
-   |
-   v
-PMTiles generation scripts
-   |
-   v
-wwwroot/maps/*.pmtiles
-   |
-   v
-Docker volume / local filesystem
-   |
-   v
-Program.cs
-   |
-   v
-/maps/{region}.pmtiles
-   |
-   v
-PMTiles client
-   |
-   v
-MapLibre
-Do not confuse this map pipeline with the PostGIS routing graph pipeline.
-
-They may use the same OSM source but are different generated datasets.
-
----
-
-## 124. FINAL VALIDATION CHECKLIST
-
-Before declaring a feature complete:
-
-## Build
-
-* `dotnet restore` succeeds
-* `dotnet build` succeeds
-* no warnings/errors caused by the change
-
-## Backend
-
-* API starts
-* database connection works
-* routing endpoint works
-* fallback works
-
-## Database
-
-* schema is valid
-* indexes exist
-* graph version behavior is correct
-
-## Maps
-
-* local runtime assets load
-* PMTiles loads
-* glyphs load
-* map renders
-* route overlay renders
-
-## Navigation
-
-* geocoding works
-* start/destination coordinates are valid
-* truck parameters are sent
-* route is calculated
-* summary updates
-* maneuvers update
-* GPS failure is graceful
-
-## Docker
-
-* compose config is valid
-* API image builds
-* PostgreSQL starts
-* OSRM starts
-* API connects to internal services
-* map mounts exist
-
-## Documentation
-
-* README matches actual implementation
-* .NET version is correct
-* routing architecture is correct
-* map architecture is correct
-
----
-
-## 125. GOLDEN RULES
-
-Always remember:
-
-1. Do not break the existing architecture to fix one bug.
-2. Do not invent missing infrastructure.
-3. Do not confuse map rendering with routing.
-4. Do not confuse geocoding with routing.
-5. Do not confuse OSRM fallback with truck-aware routing.
-6. Do not confuse GitHub contents with local generated datasets.
-7. Do not reverse latitude/longitude.
-8. Do not bypass truck restrictions.
-9. Do not route against an inactive graph.
-10. Do not remove range processing from PMTiles.
-11. Do not introduce CDN runtime dependencies.
-12. Do not duplicate existing services.
-13. Do not hide root causes with fake fallbacks.
-14. Do not claim a fix without validation.
-15. Keep backend, frontend, database, Docker and documentation synchronized.
-16. Prefer a small, correct change over a large rewrite.
-17. Search the repository before changing contracts.
-18. Preserve existing API compatibility unless explicitly changing it.
-19. Treat Navigation and truck routing as core production functionality.
-20. If uncertain, inspect the repository before guessing.
+**Last updated**: This document consolidates all three projects (API, Mobile, Importer) with complete file tree, responsibilities, and architecture into one authoritative reference.
