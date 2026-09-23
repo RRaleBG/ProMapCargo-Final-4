@@ -1015,7 +1015,7 @@ window.ProMap = window.ProMap || {};
     //         maxZoom: 22,
     //         zoomSnap: 0.25,
     //         zoomDelta: 0.5,
-    //         wheelPxPerZoomLevel: 70,
+    //         wheelPxPerZoomLevel: 90,
     //         attributionControl: true,
     //         scrollWheelZoom: true,
     //         dragging: true,
@@ -1024,12 +1024,12 @@ window.ProMap = window.ProMap || {};
     //         keyboard: true,
     //         touchZoom: true,
     //         tapHold: true,
-    //         zoomAnimation: true,
-    //         fadeAnimation: true,
-    //         markerZoomAnimation: true,
+    //         zoomAnimation: false,
+    //         fadeAnimation: false,
+    //         markerZoomAnimation: false,
     //     }).setView(
-    //         wideScreen ? [50.65, 8.6] : [50.2, 11.2],
-    //         wideScreen ? 4.3 : 4.1,
+    //         mapElement ? [50.2, 9.75] : [50, 12.5],
+    //         mapElement ? 4.35 : 4.15,
     //     );
 
     //     L.control.scale({
@@ -1119,142 +1119,173 @@ window.ProMap = window.ProMap || {};
     // }
 
 
-    function initializeMap() {
-        const mapElement = $("navMap");
-
-        if (!mapElement) {
-            console.error("[ProMap Navigation] #navMap nije pronađen u DOM-u.");
-
-            return;
-        }
-
-        if (!window.L) {
-            console.error("[ProMap Navigation] Leaflet nije učitan lokalno.");
-
-            showError("Leaflet nije učitan. Proveri _Layout.cshtml.");
-
-            return;
-        }
-
-        if (state.map) {
-            state.map.invalidateSize();
-            return;
-        }
-
-        state.map = L.map(mapElement, {
-            zoomControl: true,
-            preferCanvas: true,
-            minZoom: 3,
-            maxZoom: 22,
-            zoomSnap: 0.25,
-            zoomDelta: 0.5,
-            wheelPxPerZoomLevel: 90,
-            attributionControl: true,
-            scrollWheelZoom: true,
-            dragging: true,
-            doubleClickZoom: true,
-            boxZoom: true,
-            keyboard: true,
-            touchZoom: true,
-            tapHold: true,
-            zoomAnimation: false,
-            fadeAnimation: false,
-            markerZoomAnimation: false,
-        }).setView(
-            mapElement ? [50.2, 9.75] : [50, 12.5],
-            mapElement ? 4.35 : 4.15,
-        );
-
-        L.control.scale({
-            imperial: false,
-            position: "bottomleft",
-        }).addTo(state.map);
-
-        mapElement.style.position = mapElement.style.position || "relative";
-        mapElement.style.overflow = "hidden";
-        mapElement.style.background = "#031712";
-
-        prepareLocalMapHost(mapElement);
-
-        // --------------------------------------------------------
-        // MAP MOVEMENT
-        // --------------------------------------------------------
-
-        state.map.on("move", () => {
-            if (state.localMap.visible) {
-                scheduleLocalMapBackgroundSync();
-            }
-        });
-
-        state.map.on("moveend zoomend viewreset resize", () => {
-            if (state.localMap.visible) {
-                scheduleLocalMapBackgroundSync();
-            }
-        });
-
-        state.map.on("dragstart", () => {
-            if (state.live) {
-                state.liveFollow = false;
-            }
-        });
-
-        // --------------------------------------------------------
-        // MAP CLICK / POINT PICK
-        // --------------------------------------------------------
-
-        state.map.on("click", (event) => {
-            if (!state.picking) {
-                return;
-            }
-
-            const point = {
-                latitude: event.latlng.lat,
-
-                longitude: event.latlng.lng,
-
-                label: `${event.latlng.lat.toFixed(6)}, ${event.latlng.lng.toFixed(6)}`,
-            };
-
-            if (state.picking === "start") {
-                if ($("navStart")) {
-                    $("navStart").value = point.label;
-                }
-
-                setStart(point);
-            } else {
-                if ($("navEnd")) {
-                    $("navEnd").value = point.label;
-                }
-
-                setDestination(point);
-            }
-
-            state.picking = null;
-
-            state.map.getContainer().style.cursor = "";
-
-            showError("");
-        });
-
-        requestAnimationFrame(() => {
-            state.map?.invalidateSize();
-            state.localMap.map?.resize();
-            scheduleLocalMapBackgroundSync();
-        });
-
-        window.setTimeout(() => {
-            state.map?.invalidateSize();
-            state.localMap.map?.resize();
-            scheduleLocalMapBackgroundSync();
-        }, 250);
-
-        void activateLocalBaseMap(mapElement);
-    }
-
-
     // ============================================================
     // START / DESTINATION
     // ============================================================
+
+    async function initializeMap() {
+        const mapElement = $("navMap");
+
+        if (!mapElement) {
+            console.error(
+                "[ProMap Navigation] #navMap nije pronađen u DOM-u.",
+            );
+
+            return false;
+        }
+
+        if (!window.ProMap?.MapLayers?.attach) {
+            console.error(
+                "[ProMap Navigation] MapLayers modul nije učitan.",
+            );
+
+            showError(
+                "MapLibre map modul nije učitan.",
+            );
+
+            return false;
+        }
+
+        if (state.map) {
+            state.map.resize?.();
+
+            return true;
+        }
+
+        try {
+            const record =
+                await window.ProMap.MapLayers.attach(
+                    mapElement,
+                    {
+                        archiveUrl:
+                            PROMAP_PMTILES_ENDPOINT,
+
+                        center: {
+                            lat: 50.2,
+                            lng: 9.75,
+                        },
+
+                        zoom: 4.35,
+                    },
+                );
+
+            if (!record?.maplibreMap) {
+                throw new Error(
+                    "MapLibre mapa nije kreirana.",
+                );
+            }
+
+            state.map = record.maplibreMap;
+
+            state.localMap.host = mapElement;
+            state.localMap.map = state.map;
+            state.localMap.ready = true;
+            state.localMap.failed = false;
+            state.localMap.visible = true;
+            state.localMap.archive =
+                record.archiveUrl ||
+                PROMAP_PMTILES_ENDPOINT;
+
+            if (
+                !state.localMap.enhancements &&
+                window.ProMap.MapEnhancements?.install
+            ) {
+                state.localMap.enhancements =
+                    window.ProMap.MapEnhancements.install(
+                        state.map,
+                        {
+                            visibleGroups: {
+                                route: true,
+                                restrictions: true,
+                                traffic: false,
+                                incidents: false,
+                                fleet: false,
+                                poi: true,
+                                weather: false,
+                                elevation: false,
+                            },
+                        },
+                    );
+            }
+
+            state.map.on("dragstart", () => {
+                if (state.live) {
+                    state.liveFollow = false;
+                }
+            });
+
+            state.map.on("click", (event) => {
+                if (!state.picking) {
+                    return;
+                }
+
+                const point = {
+                    latitude: Number(event.lngLat.lat),
+                    longitude: Number(event.lngLat.lng),
+
+                    label:
+                        `${event.lngLat.lat.toFixed(6)}, ` +
+                        `${event.lngLat.lng.toFixed(6)}`,
+                };
+
+                if (state.picking === "start") {
+                    if ($("navStart")) {
+                        $("navStart").value =
+                            point.label;
+                    }
+
+                    setStart(point);
+                } else {
+                    if ($("navEnd")) {
+                        $("navEnd").value =
+                            point.label;
+                    }
+
+                    setDestination(point);
+                }
+
+                state.picking = null;
+
+                state.map
+                    .getCanvas()
+                    .style.cursor = "";
+
+                showError("");
+            });
+
+            state.map.on("resize", () => {
+                state.map.resize();
+            });
+
+            state.map.on("load", () => {
+                state.map.resize();
+            });
+
+            window.setTimeout(() => {
+                state.map?.resize();
+            }, 250);
+
+            return true;
+        } catch (error) {
+            console.error(
+                "[ProMap Navigation] MapLibre initialization failed:",
+                error,
+            );
+
+            state.localMap.ready = false;
+            state.localMap.failed = true;
+            state.localMap.visible = false;
+            state.localMap.lastError = error;
+
+            showError(
+                error?.message ||
+                "MapLibre mapa nije mogla da se učita.",
+            );
+
+            return false;
+        }
+    }
+
 
     function setStart(point) {
         const normalized = normalizePoint(point);
@@ -1267,26 +1298,81 @@ window.ProMap = window.ProMap || {};
 
         setText(
             "navStartResolved",
-
             normalized.label ||
-            `${normalized.latitude.toFixed(6)}, ${normalized.longitude.toFixed(6)}`,
+            `${normalized.latitude.toFixed(6)}, ` +
+            `${normalized.longitude.toFixed(6)}`,
         );
 
         if (state.map) {
             state.startMarker?.remove();
 
-            state.startMarker = L.marker([normalized.latitude, normalized.longitude])
-                .addTo(state.map)
-                .bindPopup(
-                    `<strong>START</strong><br>${escapeHtml(
-                        normalized.label ||
-                        `${normalized.latitude.toFixed(6)}, ${normalized.longitude.toFixed(6)}`,
-                    )}`,
+            const label =
+                normalized.label ||
+                `${normalized.latitude.toFixed(6)}, ` +
+                `${normalized.longitude.toFixed(6)}`;
+
+            state.startMarker =
+                createMapMarker(
+                    normalized.latitude,
+                    normalized.longitude,
+                    "start",
+                    `<strong>START</strong><br>${escapeHtml(label)}`,
                 );
         }
 
         return true;
     }
+
+
+    function createMapMarker(
+        latitude,
+        longitude,
+        type,
+        html,
+    ) {
+        const maplibregl = window.maplibregl;
+
+        if (
+            !maplibregl ||
+            typeof maplibregl.Marker !== "function" ||
+            !state.map
+        ) {
+            return null;
+        }
+
+        const element =
+            document.createElement("div");
+
+        element.className =
+            `promap-nav-marker promap-nav-marker-${type}`;
+
+        element.innerHTML = html;
+
+        const marker =
+            new maplibregl.Marker({
+                element,
+                anchor: "center",
+            })
+                .setLngLat([
+                    longitude,
+                    latitude,
+                ])
+                .addTo(state.map);
+
+        if (html) {
+            marker
+                .setPopup(
+                    new maplibregl.Popup({
+                        offset: 18,
+                    }).setHTML(html),
+                );
+        }
+
+        return marker;
+    }
+
+
+
 
     function setDestination(point) {
         const normalized = normalizePoint(point);
@@ -1299,24 +1385,25 @@ window.ProMap = window.ProMap || {};
 
         setText(
             "navEndResolved",
-
             normalized.label ||
-            `${normalized.latitude.toFixed(6)}, ${normalized.longitude.toFixed(6)}`,
+            `${normalized.latitude.toFixed(6)}, ` +
+            `${normalized.longitude.toFixed(6)}`,
         );
 
         if (state.map) {
             state.destinationMarker?.remove();
 
-            state.destinationMarker = L.marker([
-                normalized.latitude,
-                normalized.longitude,
-            ])
-                .addTo(state.map)
-                .bindPopup(
-                    `<strong>ODREDIŠTE</strong><br>${escapeHtml(
-                        normalized.label ||
-                        `${normalized.latitude.toFixed(6)}, ${normalized.longitude.toFixed(6)}`,
-                    )}`,
+            const label =
+                normalized.label ||
+                `${normalized.latitude.toFixed(6)}, ` +
+                `${normalized.longitude.toFixed(6)}`;
+
+            state.destinationMarker =
+                createMapMarker(
+                    normalized.latitude,
+                    normalized.longitude,
+                    "destination",
+                    `<strong>ODREDIŠTE</strong><br>${escapeHtml(label)}`,
                 );
         }
 
@@ -1614,21 +1701,21 @@ window.ProMap = window.ProMap || {};
     // ============================================================
 
     function clearRouteLayers() {
-        for (const entry of state.routeLayers) {
-            try {
-                entry.layer.remove();
-            } catch {
-                // ignore
-            }
-        }
-
         state.routeLayers = [];
 
         state.routeCoordinates = [];
 
         state.routeCumulativeDistances = [];
-    }
 
+        if (state.localMap.enhancements) {
+            state.localMap.enhancements.setRoute(
+                {
+                    routes: [],
+                },
+                0,
+            );
+        }
+    }
     function clearRouteResult() {
         clearRouteLayers();
 
@@ -1746,18 +1833,42 @@ window.ProMap = window.ProMap || {};
     }
 
     function updateRouteLayerStyles() {
-        for (const entry of state.routeLayers) {
-            const active = entry.index === state.selectedRouteIndex;
+        if (
+            !state.localMap?.map ||
+            !state.localMap.enhancements
+        ) {
+            return;
+        }
 
-            entry.layer.setStyle({
-                weight: active ? 9 : 4,
-                opacity: active ? 1 : 0.3,
-                color: active ? "#7affc4" : "#64748b",
-            });
+        const map =
+            state.localMap.map;
 
-            if (active) {
-                entry.layer.bringToFront();
-            }
+        if (map.getLayer("route-main")) {
+            map.setPaintProperty(
+                "route-main",
+                "line-opacity",
+                1,
+            );
+        }
+
+        if (map.getLayer("route-alternative")) {
+            map.setPaintProperty(
+                "route-alternative",
+                "line-opacity",
+                0.62,
+            );
+        }
+
+        if (
+            map.getLayer(
+                "route-main-casing",
+            )
+        ) {
+            map.setPaintProperty(
+                "route-main-casing",
+                "line-opacity",
+                0.95,
+            );
         }
     }
 
@@ -2506,23 +2617,36 @@ window.ProMap = window.ProMap || {};
             fitRoute();
         }
     }
-
     function renderRouteResponse(response) {
-        clearRouteLayers();
-
-        console.debug("[ProMap Navigation] Routing response:", response);
+        console.debug(
+            "[ProMap Navigation] Routing response:",
+            response,
+        );
 
         if (
             !response ||
             !Array.isArray(response.routes) ||
             response.routes.length === 0
         ) {
-            throw new Error("Routing servis nije vratio nijednu rutu.");
+            throw new Error(
+                "Routing servis nije vratio nijednu rutu.",
+            );
+        }
+
+        if (
+            !state.localMap.enhancements?.setRoute
+        ) {
+            throw new Error(
+                "MapLibre route layer manager nije spreman.",
+            );
         }
 
         state.routeResponse = response;
 
-        const requestedIndex = Number(response.selectedRouteIndex ?? 0);
+        const requestedIndex =
+            Number(
+                response.selectedRouteIndex ?? 0,
+            );
 
         state.selectedRouteIndex =
             Number.isInteger(requestedIndex) &&
@@ -2531,73 +2655,53 @@ window.ProMap = window.ProMap || {};
                 ? requestedIndex
                 : 0;
 
-        const validRouteIndexes = [];
-        const useMapLibreRoute = Boolean(state.localMap.enhancements?.setRoute);
+        const selected =
+            response.routes[
+            state.selectedRouteIndex
+            ] || response.routes[0];
 
-        for (const [index, route] of response.routes.entries()) {
-            const geometry = route?.geometry;
+        state.routeCoordinates =
+            geometryToLatLngs(
+                selected?.geometry,
+            );
 
-            if (!geometry || !Array.isArray(geometry.coordinates) || geometry.coordinates.length < 2) {
-                console.error(`[ROUTE-RENDER] Route ${index}: geometry is missing or invalid.`, route);
-                continue;
-            }
+        state.routeCumulativeDistances = [];
 
-            const coordinates = geometryToLatLngs(geometry);
+        state.localMap.enhancements.setRoute(
+            response,
+            state.selectedRouteIndex,
+        );
 
-            console.debug(`[ROUTE-RENDER] Route ${index}: geometry has ${geometry.coordinates.length} coordinates`);
-            console.debug(`[ROUTE-RENDER] Route ${index}: converted to ${coordinates.length} lat/lng points`);
+        state.localMap.enhancements.setRestrictions(
+            selected?.analysis?.violations ??
+            response?.violations ??
+            [],
+        );
 
-            if (coordinates.length < 2) {
-                console.error(`[ROUTE-RENDER] Route ${index}: converted geometry produced fewer than 2 points.`, geometry);
-                continue;
-            }
+        setHidden(
+            "mapRouteCard",
+            false,
+        );
 
-            const active = index === state.selectedRouteIndex;
-
-            console.debug(`[ROUTE-RENDER] Route ${index}: ${useMapLibreRoute ? 'using MapLibre route layers' : 'creating Leaflet polyline'} (${active ? 'ACTIVE' : 'ALTERNATIVE'})`);
-            console.debug(`[ROUTE-RENDER] Route ${index}: first point [${coordinates[0][0].toFixed(6)}, ${coordinates[0][1].toFixed(6)}]`);
-            console.debug(`[ROUTE-RENDER] Route ${index}: last point [${coordinates[coordinates.length-1][0].toFixed(6)}, ${coordinates[coordinates.length-1][1].toFixed(6)}]`);
-
-            const layer = L.polyline(coordinates, {
-                weight: active ? 9 : 4,
-                opacity: active ? 1 : 0.3,
-                color: active ? "#7affc4" : "#64748b",
-                lineCap: "round",
-                lineJoin: "round",
-                className: active ? "pm-route-active" : "pm-route-alternative",
-            }).addTo(state.map);
-
-            layer.on("click", () => selectRoute(index, false));
-
-            state.routeLayers.push({
-                index,
-                layer,
-            });
-
-            validRouteIndexes.push(index);
-        }
-
-        if (validRouteIndexes.length === 0) {
-            throw new Error("Route response received but no valid geometry was produced.");
-        }
-
-        if (!validRouteIndexes.includes(state.selectedRouteIndex)) {
-            state.selectedRouteIndex = validRouteIndexes[0];
-        }
-
-        setHidden("mapRouteCard", false);
-
-        setHidden("startLiveNavigation", false);
+        setHidden(
+            "startLiveNavigation",
+            false,
+        );
 
         if ($("startLiveNavigation")) {
-            $("startLiveNavigation").disabled = false;
+            $("startLiveNavigation").disabled =
+                false;
         }
 
         updateDiagnostics();
 
-        selectRoute(state.selectedRouteIndex, true);
-    }
+        updateRouteLayerStyles();
 
+        selectRoute(
+            state.selectedRouteIndex,
+            true,
+        );
+    }
     // ============================================================
     // ROUTING
     // ============================================================
@@ -2932,43 +3036,119 @@ window.ProMap = window.ProMap || {};
         return state.lastHeading;
     }
 
-    function followLivePosition(position, force = false) {
+
+
+    function followLivePosition(
+        position,
+        force = false,
+    ) {
         if (!state.map || !position) {
             return;
         }
 
-        const latitude = Number(position.latitude ?? position.coords?.latitude);
-        const longitude = Number(position.longitude ?? position.coords?.longitude);
+        const latitude = Number(
+            position.latitude ??
+            position.coords?.latitude,
+        );
 
-        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        const longitude = Number(
+            position.longitude ??
+            position.coords?.longitude,
+        );
+
+        if (
+            !Number.isFinite(latitude) ||
+            !Number.isFinite(longitude)
+        ) {
             return;
         }
 
-        const zoom = Math.max(16, state.map.getZoom() || 16);
-        const heading = effectiveHeading(position);
-        const offsetMeters = zoom >= 17 ? 180 : 260;
+        const zoom = Math.max(
+            16,
+            state.map.getZoom() || 16,
+        );
+
+        const heading =
+            effectiveHeading(position);
+
+        const offsetMeters =
+            zoom >= 17 ? 180 : 260;
+
         let targetLatitude = latitude;
         let targetLongitude = longitude;
 
         if (heading != null) {
-            const radians = (heading * Math.PI) / 180;
-            const latitudeOffset = (-Math.cos(radians) * offsetMeters) / 111320;
-            const longitudeOffset = (Math.sin(radians) * offsetMeters) / (111320 * Math.max(Math.cos((latitude * Math.PI) / 180), 0.2));
+            const radians =
+                (heading * Math.PI) / 180;
+
+            const latitudeOffset =
+                (-Math.cos(radians) *
+                    offsetMeters) /
+                111320;
+
+            const longitudeOffset =
+                (Math.sin(radians) *
+                    offsetMeters) /
+                (111320 *
+                    Math.max(
+                        Math.cos(
+                            (latitude * Math.PI) /
+                            180,
+                        ),
+                        0.2,
+                    ));
+
             targetLatitude += latitudeOffset;
             targetLongitude += longitudeOffset;
-        }
-        else {
+        } else {
             targetLatitude -= 0.0012;
         }
 
-        state.map.setView([targetLatitude, targetLongitude], zoom, {
-            animate: !force,
-            pan: {
-                duration: force ? 0 : 0.9,
-                easeLinearity: 0.25,
-            },
+        state.map.easeTo({
+            center: [
+                targetLongitude,
+                targetLatitude,
+            ],
+            zoom,
+            duration: force ? 0 : 900,
+            essential: true,
         });
     }
+
+    function createGpsMarker(
+        latitude,
+        longitude,
+    ) {
+        const maplibregl =
+            window.maplibregl;
+
+        if (
+            !maplibregl ||
+            !state.map
+        ) {
+            return null;
+        }
+
+        const element =
+            document.createElement("div");
+
+        element.className =
+            "promap-gps-marker";
+
+        element.innerHTML =
+            '<span class="promap-gps-marker-core"></span>';
+
+        return new maplibregl.Marker({
+            element,
+            anchor: "center",
+        })
+            .setLngLat([
+                longitude,
+                latitude,
+            ])
+            .addTo(state.map);
+    }
+
 
     function updateGpsMarker(position) {
         if (!state.map) {
@@ -2977,9 +3157,7 @@ window.ProMap = window.ProMap || {};
 
         const latitude = Number(position?.latitude ?? position?.coords?.latitude);
 
-        const longitude = Number(
-            position?.longitude ?? position?.coords?.longitude,
-        );
+        const longitude = Number(position?.longitude ?? position?.coords?.longitude,);
 
         if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
             return;

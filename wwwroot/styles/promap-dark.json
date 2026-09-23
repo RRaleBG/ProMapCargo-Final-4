@@ -336,7 +336,7 @@
         ],
         "line-opacity": 0.34
       }
-    },    
+    },
     {
       "id": "road-secondary-casing",
       "type": "line",
@@ -566,6 +566,144 @@
       }
     },
     {
+      "id": "route-alternative-casing",
+      "type": "line",
+      "source": "route-alternative",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#06120f",
+        "line-width": [
+          "interpolate",
+          [ "linear" ],
+          [ "zoom" ],
+          4,
+          5,
+          8,
+          6,
+          14,
+          10
+        ],
+        "line-opacity": 0.9
+      }
+    },
+    {
+      "id": "route-alternative",
+      "type": "line",
+      "source": "route-alternative",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#64748b",
+        "line-width": [
+          "interpolate",
+          [ "linear" ],
+          [ "zoom" ],
+          4,
+          2,
+          8,
+          3,
+          14,
+          5
+        ],
+        "line-opacity": 0.62
+      }
+    },
+    {
+      "id": "route-main-casing",
+      "type": "line",
+      "source": "route-main",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#031712",
+        "line-width": [
+          "interpolate",
+          [ "linear" ],
+          [ "zoom" ],
+          4,
+          8,
+          8,
+          10,
+          14,
+          16
+        ],
+        "line-opacity": 0.95
+      }
+    },
+    {
+      "id": "route-main",
+      "type": "line",
+      "source": "route-main",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#10b981",
+        "line-width": [
+          "interpolate",
+          [ "linear" ],
+          [ "zoom" ],
+          4,
+          4,
+          8,
+          5,
+          14,
+          8
+        ],
+        "line-opacity": 1
+      }
+    },
+    {
+      "id": "route-restriction",
+      "type": "line",
+      "source": "route-restrictions",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#ef4444",
+        "line-width": [
+          "interpolate",
+          [ "linear" ],
+          [ "zoom" ],
+          7,
+          3,
+          14,
+          6
+        ],
+        "line-opacity": 0.95
+      }
+    },
+    {
+      "id": "route-warning-point",
+      "type": "circle",
+      "source": "route-warnings",
+      "paint": {
+        "circle-radius": [
+          "interpolate",
+          [ "linear" ],
+          [ "zoom" ],
+          6,
+          4,
+          14,
+          7
+        ],
+        "circle-color": "#f59e0b",
+        "circle-stroke-color": "#07110d",
+        "circle-stroke-width": 2,
+        "circle-opacity": 0.95
+      }
+    },
+    {
       "id": "road-construction",
       "type": "line",
       "source": "openmaptiles",
@@ -725,7 +863,11 @@
       "filter": [
         "all",
         [ "has", "name" ],
-        [ "==", [ "get", "kind" ], "tertiary" ]
+        [
+          "==",
+          [ "get", "kind" ],
+          "tertiary"
+        ]
       ],
       "layout": {
         "symbol-placement": "line",
