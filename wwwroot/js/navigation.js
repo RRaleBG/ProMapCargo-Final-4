@@ -1253,13 +1253,13 @@ window.ProMap = window.ProMap || {};
                 showError("");
             });
 
-            state.map.on("resize", () => {
-                state.map.resize();
-            });
+            //state.map.on("resize", () => {
+            //    state.map.resize();
+            //});
 
-            state.map.on("load", () => {
-                state.map.resize();
-            });
+            //state.map.on("load", () => {
+            //    state.map.resize();
+            //});
 
             window.setTimeout(() => {
                 state.map?.resize();
@@ -2965,15 +2965,16 @@ window.ProMap = window.ProMap || {};
     const leftVisualOffset = mobile ? 24 : wideScreen ? 116 : 44;
 
     function fitRoute() {
-        if (!state.map) {
+        if (!state.map || typeof state.map.fitBounds !== "function") {
             return;
         }
 
         const points = state.routeCoordinates.length
             ? state.routeCoordinates
             : [
-                state.start ? [state.start.latitude, state.start.longitude] : null,
-
+                state.start
+                    ? [state.start.latitude, state.start.longitude]
+                    : null,
                 state.destination
                     ? [state.destination.latitude, state.destination.longitude]
                     : null,
@@ -2983,16 +2984,62 @@ window.ProMap = window.ProMap || {};
             return;
         }
 
+        // navigation.js stores route points internally as [lat, lon].
+        // MapLibre fitBounds expects [[minLon, minLat], [maxLon, maxLat]].
+        const coordinates = points
+            .filter(
+                (point) =>
+                    Array.isArray(point) &&
+                    point.length >= 2 &&
+                    Number.isFinite(Number(point[0])) &&
+                    Number.isFinite(Number(point[1])),
+            )
+            .map(([lat, lon]) => [Number(lon), Number(lat)]);
 
+        if (!coordinates.length) {
+            return;
+        }
 
-        state.map.fitBounds(L.latLngBounds(points), {
-            paddingTopLeft: [leftVisualOffset, topOverlayHeight],
-            paddingBottomRight: [sidePanelWidth, bottomOverlayHeight],
-            padding: [36, 36],
-            maxZoom: state.routeCoordinates.length ? undefined : 14,
-        });
+        let minLon = Infinity;
+        let minLat = Infinity;
+        let maxLon = -Infinity;
+        let maxLat = -Infinity;
 
-        if (state.localMap.visible) {
+        for (const [lon, lat] of coordinates) {
+            minLon = Math.min(minLon, lon);
+            minLat = Math.min(minLat, lat);
+            maxLon = Math.max(maxLon, lon);
+            maxLat = Math.max(maxLat, lat);
+        }
+
+        if (
+            !Number.isFinite(minLon) ||
+            !Number.isFinite(minLat) ||
+            !Number.isFinite(maxLon) ||
+            !Number.isFinite(maxLat)
+        ) {
+            return;
+        }
+
+        state.map.fitBounds(
+            [
+                [minLon, minLat],
+                [maxLon, maxLat],
+            ],
+            {
+                padding: {
+                    top: topOverlayHeight + 36,
+                    right: sidePanelWidth + 36,
+                    bottom: bottomOverlayHeight + 36,
+                    left: leftVisualOffset + 36,
+                },
+                maxZoom: state.routeCoordinates.length ? undefined : 14,
+                duration: 700,
+                essential: true,
+            },
+        );
+
+        if (state.localMap?.visible) {
             window.setTimeout(scheduleLocalMapBackgroundSync, 60);
         }
     }
@@ -3164,17 +3211,13 @@ window.ProMap = window.ProMap || {};
         }
 
         if (!state.gpsMarker) {
-            state.gpsMarker = L.circleMarker([latitude, longitude], {
-                radius: 9,
-                weight: 3,
-                color: "#ecfeff",
-                opacity: 0.98,
-                fillColor: "#14f1a0",
-                fillOpacity: 0.95,
-                className: "pm-gps-marker",
-            }).addTo(state.map);
-        } else {
-            state.gpsMarker.setLatLng([latitude, longitude]);
+            state.gpsMarker = createGpsMarker(latitude, longitude);
+        }
+        else if (typeof state.gpsMarker.setLngLat === "function") {
+            state.gpsMarker.setLngLat([
+                longitude,
+                latitude
+            ]);
         }
 
         const speed = Number(position?.speed ?? position?.coords?.speed);
@@ -3383,7 +3426,20 @@ window.ProMap = window.ProMap || {};
 
                 setGpsStatus("READY", "ready");
 
-                state.map?.setView([point.latitude, point.longitude], 14);
+                //state.map?.setView([point.latitude, point.longitude], 14);
+                if (
+                    state.map &&
+                    typeof state.map.flyTo === "function"
+                ) {
+                    state.map.flyTo({
+                        center: [
+                            point.longitude,
+                            point.latitude
+                        ],
+                        zoom: 14,
+                        essential: true
+                    });
+                }
             },
 
             (error) => {
@@ -3533,10 +3589,19 @@ window.ProMap = window.ProMap || {};
         });
 
         window.addEventListener("resize", () => {
-            state.map?.invalidateSize();
-            state.localMap.map?.resize();
+            //if (state.map && typeof state.map.resize === "function") {
+            //    state.map.resize();
+            //}
 
-            if (state.localMap.visible) {
+            if (
+                state.localMap?.map &&
+                state.localMap.map !== state.map &&
+                typeof state.localMap.map.resize === "function"
+            ) {
+                state.localMap.map.resize();
+            }
+
+            if (state.localMap?.visible) {
                 scheduleLocalMapBackgroundSync();
             }
         });
@@ -3601,15 +3666,28 @@ window.ProMap = window.ProMap || {};
 
     function init() {
         initializeMap();
-
         initializeDefaults();
-
         bindEvents();
 
         window.setTimeout(() => {
-            state.map?.invalidateSize();
-            state.localMap.map?.resize();
-            scheduleLocalMapBackgroundSync();
+            if (
+                state.map &&
+                typeof state.map.invalidateSize === "function"
+            ) {
+                state.map.invalidateSize();
+            }
+
+            if (
+                state.localMap?.map &&
+                state.localMap.map !== state.map &&
+                typeof state.localMap.map.resize === "function"
+            ) {
+                state.localMap.map.resize();
+            }
+
+            if (state.localMap?.visible) {
+                scheduleLocalMapBackgroundSync();
+            }       
         }, 250);
     }
 

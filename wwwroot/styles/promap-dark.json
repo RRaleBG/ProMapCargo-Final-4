@@ -1,19 +1,55 @@
 {
   "version": 8,
   "name": "ProMap Cargo Dark Europe 3D",
+
   "sources": {
     "openmaptiles": {
       "type": "vector",
       "url": "pmtiles://__PROMAP_PM_TILES_URL__"
+    },
+
+    "route-main": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    },
+
+    "route-alternative": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    },
+
+    "route-restrictions": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    },
+
+    "route-warnings": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
     }
   },
+
   "light": {
     "anchor": "viewport",
     "color": "#80c3f3",
     "intensity": 0.35,
     "position": [ 1.5, 210, 30 ]
   },
+
   "glyphs": "/fonts/{fontstack}/{range}.pbf",
+
   "layers": [
     {
       "id": "background",
@@ -22,6 +58,7 @@
         "background-color": "#081019"
       }
     },
+
     {
       "id": "landcover",
       "type": "fill",
@@ -58,6 +95,7 @@
         ]
       }
     },
+
     {
       "id": "landuse",
       "type": "fill",
@@ -98,6 +136,7 @@
         ]
       }
     },
+
     {
       "id": "water",
       "type": "fill",
@@ -107,6 +146,7 @@
         "fill-color": "#0c2235"
       }
     },
+
     {
       "id": "waterway",
       "type": "line",
@@ -136,6 +176,7 @@
         "line-opacity": 0.72
       }
     },
+
     {
       "id": "ferry-route",
       "type": "line",
@@ -163,6 +204,7 @@
         "line-opacity": 0.7
       }
     },
+
     {
       "id": "boundary-country",
       "type": "line",
@@ -189,6 +231,7 @@
         "line-opacity": 0.8
       }
     },
+
     {
       "id": "boundary-region",
       "type": "line",
@@ -219,6 +262,7 @@
         "line-opacity": 0.5
       }
     },
+
     {
       "id": "aeroway-runway",
       "type": "line",
@@ -246,6 +290,7 @@
         "line-opacity": 0.85
       }
     },
+
     {
       "id": "tunnel-railway",
       "type": "line",
@@ -274,6 +319,7 @@
         "line-opacity": 0.6
       }
     },
+
     {
       "id": "road-service",
       "type": "line",
@@ -300,8 +346,8 @@
         ],
         "line-opacity": 0.56
       }
-
     },
+
     {
       "id": "road-minor",
       "type": "line",
@@ -313,12 +359,7 @@
         [ "get", "kind" ],
         [
           "literal",
-          [
-            "minor_road",
-            "track",
-            "path",
-            "other"
-          ]
+          [ "minor_road", "track", "path", "other" ]
         ]
       ],
       "paint": {
@@ -337,6 +378,7 @@
         "line-opacity": 0.34
       }
     },
+
     {
       "id": "road-secondary-casing",
       "type": "line",
@@ -364,6 +406,7 @@
         "line-opacity": 0.95
       }
     },
+
     {
       "id": "road-secondary",
       "type": "line",
@@ -391,6 +434,7 @@
         "line-opacity": 1.0
       }
     },
+
     {
       "id": "road-tertiary-casing",
       "type": "line",
@@ -418,6 +462,7 @@
         "line-opacity": 0.93
       }
     },
+
     {
       "id": "road-tertiary",
       "type": "line",
@@ -445,6 +490,7 @@
         "line-opacity": 0.96
       }
     },
+
     {
       "id": "road-primary-casing",
       "type": "line",
@@ -475,6 +521,7 @@
         "line-opacity": 0.98
       }
     },
+
     {
       "id": "road-primary",
       "type": "line",
@@ -505,6 +552,7 @@
         "line-opacity": 1.0
       }
     },
+
     {
       "id": "road-motorway-casing",
       "type": "line",
@@ -535,6 +583,7 @@
         "line-opacity": 1.0
       }
     },
+
     {
       "id": "road-motorway",
       "type": "line",
@@ -565,6 +614,7 @@
         "line-opacity": 1.0
       }
     },
+
     {
       "id": "route-alternative-casing",
       "type": "line",
@@ -589,6 +639,7 @@
         "line-opacity": 0.9
       }
     },
+
     {
       "id": "route-alternative",
       "type": "line",
@@ -613,6 +664,7 @@
         "line-opacity": 0.62
       }
     },
+
     {
       "id": "route-main-casing",
       "type": "line",
@@ -637,6 +689,7 @@
         "line-opacity": 0.95
       }
     },
+
     {
       "id": "route-main",
       "type": "line",
@@ -661,6 +714,7 @@
         "line-opacity": 1
       }
     },
+
     {
       "id": "route-restriction",
       "type": "line",
@@ -683,6 +737,7 @@
         "line-opacity": 0.95
       }
     },
+
     {
       "id": "route-warning-point",
       "type": "circle",
@@ -703,6 +758,7 @@
         "circle-opacity": 0.95
       }
     },
+
     {
       "id": "road-construction",
       "type": "line",
@@ -720,6 +776,7 @@
         "line-opacity": 0.85
       }
     },
+
     {
       "id": "railway",
       "type": "line",
@@ -747,6 +804,7 @@
         "line-opacity": 0.65
       }
     },
+
     {
       "id": "3d-buildings",
       "type": "fill-extrusion",
@@ -768,6 +826,7 @@
         "fill-extrusion-opacity": 0.85
       }
     },
+
     {
       "id": "water-label",
       "type": "symbol",
@@ -804,6 +863,7 @@
         "text-opacity": 0.75
       }
     },
+
     {
       "id": "road-label-major-secondary",
       "type": "symbol",
@@ -854,6 +914,7 @@
         "text-opacity": 0.92
       }
     },
+
     {
       "id": "road-label-tertiary",
       "type": "symbol",
@@ -895,6 +956,7 @@
         "text-opacity": 0.74
       }
     },
+
     {
       "id": "place-label-country",
       "type": "symbol",
@@ -937,6 +999,7 @@
         "text-opacity": 0.82
       }
     },
+
     {
       "id": "place-label-capital",
       "type": "symbol",
@@ -984,6 +1047,7 @@
         "text-opacity": 0.98
       }
     },
+
     {
       "id": "place-label-city",
       "type": "symbol",
