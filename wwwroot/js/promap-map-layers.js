@@ -227,9 +227,9 @@
 
                 settled = true;
                 reject(
-                    new Error("Lokalna PMTiles mapa nije učitana u roku od 20 sekundi."),
+                    new Error("Lokalna PMTiles mapa nije učitana u roku od 30 sekundi."),
                 );
-            }, 20000);
+            }, 30000);
 
             map.once("load", () => {
                 if (settled) {

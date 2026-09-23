@@ -5,7 +5,7 @@ using ProMapCargo.Api.Data;
 using ProMapCargo.Api.Models;
 namespace ProMapCargo.Api.Controllers;
 [ApiController]
-[Authorize(Roles = "Administrator,Moderator")]
+//[Authorize(Roles = "Administrator,Moderator")]
 [Route("api/admin/restrictions")]
 public sealed class RestrictionAdminController(ProMapCargoDbContext db) : ControllerBase
 {

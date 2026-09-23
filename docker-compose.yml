@@ -1,27 +1,4 @@
 services:
-  postgres:
-    image: postgis/postgis:16-3.4
-    container_name: promap-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: promapcargo
-      POSTGRES_USER: promap
-      POSTGRES_PASSWORD: promap_dev_change_me
-    ports:
-      - "5432:5432"
-    volumes:
-      - promap_pgdata:/var/lib/postgresql/data
-      - ./osm:/osm
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U promap -d promapcargo"
-        ]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-
   osrm:
     image: osrm/osrm-backend:latest
     container_name: promap-osrm
@@ -34,14 +11,12 @@ services:
     environment:
       OSRM_DATASET: europe-truck
       OSRM_ALGORITHM: mld
+      OSRM_PORT: 5090
     ports:
-      - "5001:5000"
+      - "5001:5090"
     volumes:
       - ./osm:/data:ro
       - ./scripts/start-osrm.sh:/scripts/start-osrm.sh:ro
-    depends_on:
-      postgres:
-        condition: service_healthy
 
   api:
     build:
@@ -57,22 +32,17 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
-      Routing__OsrmBaseUrl: http://osrm:5000
+      ConnectionStrings__Postgres: ${ConnectionStrings__Postgres}
+      PROMAP_POSTGRES: ${PROMAP_POSTGRES:-}
+      Routing__OsrmBaseUrl: http://osrm:5090
       Routing__OsrmFallbackBaseUrl: https://router.project-osrm.org
       Cors__Origins__0: http://localhost:8080
-      Cors__Origins__1: http://localhost:5090
+      Cors__Origins__1: http://localhost:8090
       MobileAuth__Issuer: ProMapCargo
       MobileAuth__Audience: ProMapCargo.Mobile
       MobileAuth__SigningKey: promapcargo-mobile-change-this-signing-key-2026
     ports:
       - "8080:8080"
-
     depends_on:
-      postgres:
-        condition: service_healthy
       osrm:
         condition: service_started
-
-volumes:
-  promap_pgdata:

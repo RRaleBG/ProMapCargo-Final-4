@@ -4,6 +4,44 @@
     ViewData["Title"] = "Navigacija";
 }
 
+<style>
+    .promap-layer-panel {
+        position: absolute;
+        top: 74px;
+        left: 12px;
+        z-index: 1200;
+        width: 190px;
+        padding: 11px;
+        border: 1px solid rgba(148, 163, 184, .18);
+        border-radius: 14px;
+        background: rgba(4, 18, 15, .92);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: 0 14px 35px rgba(0, 0, 0, .32);
+        color: #dff8ee;
+        font: 600 11px/1.4 Inter, system-ui, sans-serif;
+    }
+
+    .promap-layer-title {
+        margin-bottom: 8px;
+        color: #5eead4;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .12em;
+    }
+
+    .promap-layer-panel label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 4px 0;
+        cursor: pointer;
+    }
+
+    .promap-layer-panel input {
+        accent-color: #10b981;
+    }
+</style>
 
 
 
@@ -23,8 +61,7 @@
                     Truck Navigation
                 </h1>
 
-                <span id="engineBadge"
-                      class="nav-engine-badge ready">
+                <span id="engineBadge" class="nav-engine-badge ready">
 
                     <span></span>
 
@@ -88,17 +125,32 @@
 
             <div class="navigation-map-shell">
 
+                <!-- Add inside .navigation-map-shell, above #navMap -->
+                <div id="promapLayerPanel" class="promap-layer-panel" aria-label="Map layers">
+                    <div class="promap-layer-title">MAP LAYERS</div>
+
+                    <label><input type="checkbox" data-promap-layer="route" checked> Ruta</label>
+                    <label><input type="checkbox" data-promap-layer="restrictions" checked> Truck restrikcije</label>
+                    <label><input type="checkbox" data-promap-layer="fleet"> Flota</label>
+                    <label><input type="checkbox" data-promap-layer="poi"> Truck POI</label>
+                    <label><input type="checkbox" data-promap-layer="traffic"> Traffic</label>
+                    <label><input type="checkbox" data-promap-layer="incidents"> Incidents</label>
+                    <label><input type="checkbox" data-promap-layer="weather"> Weather</label>
+                    <label><input type="checkbox" data-promap-layer="elevation"> Elevation</label>
+                </div>
+
+
                 <div id="navMap" class="pm-map" data-map-archive="/maps/europe.pmtiles" data-map-max-zoom="19">
 
 
                     <!-- ===================================== MAP TOP BAR  ===================================== -->
                     <div class="nav-map-topbar">
                         <div class="nav-map-mode-tabs">
-                            <button type="button" class="nav-map-tab active" id="mapRouteTab">   Ruta  </button>
+                            <button type="button" class="nav-map-tab active" id="mapRouteTab"> Ruta </button>
 
-                            <button type="button" class="nav-map-tab" id="mapRestrictionsTab">  Ograničenja </button>
+                            <button type="button" class="nav-map-tab" id="mapRestrictionsTab"> Ograničenja </button>
 
-                            <button type="button" class="nav-map-tab"   id="mapGpsTab">
+                            <button type="button" class="nav-map-tab" id="mapGpsTab">
                                 GPS
                             </button>
 
@@ -123,12 +175,9 @@
                          OVO JE SADA CENTRALNI TOP OVERLAY
                          ===================================== -->
 
-                    <div class="nav-next-overlay"
-                         id="nextInstruction"
-                         hidden>
+                    <div class="nav-next-overlay" id="nextInstruction" hidden>
 
-                        <div class="nav-next-icon"
-                             id="nextInstructionIcon">
+                        <div class="nav-next-icon" id="nextInstructionIcon">
                             ↰
                         </div>
 
@@ -158,17 +207,11 @@
 
                     <div class="nav-map-controls">
 
-                        <button type="button"
-                                id="fitRoute"
-                                class="nav-map-control"
-                                title="Prikaži celu rutu">
+                        <button type="button" id="fitRoute" class="nav-map-control" title="Prikaži celu rutu">
                             ⤢
                         </button>
 
-                        <button type="button"
-                                id="centerGps"
-                                class="nav-map-control"
-                                title="Centriraj GPS">
+                        <button type="button" id="centerGps" class="nav-map-control" title="Centriraj GPS">
                             ◎
                         </button>
 
@@ -179,9 +222,7 @@
                          ACTIVE ROUTE CARD
                          ===================================== -->
 
-                    <div class="nav-map-route-card"
-                         id="mapRouteCard"
-                         hidden>
+                    <div class="nav-map-route-card" id="mapRouteCard" hidden>
 
                         <div class="nav-map-route-card-head">
 
@@ -197,8 +238,7 @@
 
                             </div>
 
-                            <span id="mapRouteStatus"
-                                  class="pm-badge pm-badge-success">
+                            <span id="mapRouteStatus" class="pm-badge pm-badge-success">
                                 Bezbedna
                             </span>
 
@@ -284,9 +324,7 @@
                     </div>
 
 
-                    <button type="button"
-                            id="swapPoints"
-                            class="nav-icon-button"
+                    <button type="button" id="swapPoints" class="nav-icon-button"
                             title="Zameni polaznu i odredišnu tačku">
                         ⇅
                     </button>
@@ -309,19 +347,13 @@
                                 POLAZNA TAČKA
                             </label>
 
-                            <input id="navStart"
-                                   class="nav-input"
-                                   type="text"
-                                   autocomplete="off"
-                                   value="Beograd, Srbija"
-                                   placeholder="Grad, adresa ili lokacija" />
+                            <input id="navStart" class="nav-input" type="text" autocomplete="off"
+                                   value="Beograd, Srbija" placeholder="Grad, adresa ili lokacija" />
 
-                            <div id="navStartSuggestions"
-                                 class="nav-suggestions">
+                            <div id="navStartSuggestions" class="nav-suggestions">
                             </div>
 
-                            <div id="navStartResolved"
-                                 class="nav-resolved">
+                            <div id="navStartResolved" class="nav-resolved">
 
                                 <span></span>
 
@@ -349,19 +381,13 @@
                                 ODREDIŠTE
                             </label>
 
-                            <input id="navEnd"
-                                   class="nav-input"
-                                   type="text"
-                                   autocomplete="off"
-                                   value="Novi Sad, Srbija"
+                            <input id="navEnd" class="nav-input" type="text" autocomplete="off" value="Novi Sad, Srbija"
                                    placeholder="Grad, adresa ili lokacija" />
 
-                            <div id="navEndSuggestions"
-                                 class="nav-suggestions">
+                            <div id="navEndSuggestions" class="nav-suggestions">
                             </div>
 
-                            <div id="navEndResolved"
-                                 class="nav-resolved">
+                            <div id="navEndResolved" class="nav-resolved">
 
                                 <span></span>
 
@@ -378,9 +404,7 @@
 
                 <div class="nav-map-pick-row">
 
-                    <button type="button"
-                            id="pickStart"
-                            class="nav-small-action">
+                    <button type="button" id="pickStart" class="nav-small-action">
 
                         <span>＋</span>
 
@@ -389,9 +413,7 @@
                     </button>
 
 
-                    <button type="button"
-                            id="pickEnd"
-                            class="nav-small-action">
+                    <button type="button" id="pickEnd" class="nav-small-action">
 
                         <span>＋</span>
 
@@ -424,8 +446,7 @@
 
                     </div>
 
-                    <span id="truckModeBadge"
-                          class="nav-mini-status">
+                    <span id="truckModeBadge" class="nav-mini-status">
                         HGV
                     </span>
 
@@ -434,9 +455,7 @@
 
                 <div class="nav-mode-switch">
 
-                    <button type="button"
-                            id="truckMode"
-                            class="nav-mode-button active">
+                    <button type="button" id="truckMode" class="nav-mode-button active">
 
                         <span class="nav-mode-icon">
                             ▣
@@ -457,9 +476,7 @@
                     </button>
 
 
-                    <button type="button"
-                            id="carMode"
-                            class="nav-mode-button">
+                    <button type="button" id="carMode" class="nav-mode-button">
 
                         <span class="nav-mode-icon">
                             ▱
@@ -488,8 +505,7 @@
                         PRESET
                     </label>
 
-                    <select id="truckPreset"
-                            class="nav-select">
+                    <select id="truckPreset" class="nav-select">
 
                         <option value="40t">
                             40 t · standardni šleper
@@ -512,8 +528,7 @@
                 </div>
 
 
-                <div id="truckFields"
-                     class="nav-truck-fields">
+                <div id="truckFields" class="nav-truck-fields">
 
                     <div class="nav-spec-grid">
 
@@ -526,12 +541,7 @@
 
                             <div class="nav-input-unit">
 
-                                <input id="navWeight"
-                                       type="number"
-                                       class="nav-input"
-                                       value="40"
-                                       min="0.1"
-                                       step="0.1" />
+                                <input id="navWeight" type="number" class="nav-input" value="40" min="0.1" step="0.1" />
 
                                 <span>t</span>
 
@@ -548,12 +558,7 @@
 
                             <div class="nav-input-unit">
 
-                                <input id="navHeight"
-                                       type="number"
-                                       class="nav-input"
-                                       value="4"
-                                       min="0.1"
-                                       step="0.01" />
+                                <input id="navHeight" type="number" class="nav-input" value="4" min="0.1" step="0.01" />
 
                                 <span>m</span>
 
@@ -570,11 +575,7 @@
 
                             <div class="nav-input-unit">
 
-                                <input id="navWidth"
-                                       type="number"
-                                       class="nav-input"
-                                       value="2.55"
-                                       min="0.1"
+                                <input id="navWidth" type="number" class="nav-input" value="2.55" min="0.1"
                                        step="0.01" />
 
                                 <span>m</span>
@@ -592,11 +593,7 @@
 
                             <div class="nav-input-unit">
 
-                                <input id="navLength"
-                                       type="number"
-                                       class="nav-input"
-                                       value="16.5"
-                                       min="0.1"
+                                <input id="navLength" type="number" class="nav-input" value="16.5" min="0.1"
                                        step="0.1" />
 
                                 <span>m</span>
@@ -614,11 +611,7 @@
 
                             <div class="nav-input-unit">
 
-                                <input id="navAxleLoad"
-                                       type="number"
-                                       class="nav-input"
-                                       value="10"
-                                       min="0.1"
+                                <input id="navAxleLoad" type="number" class="nav-input" value="10" min="0.1"
                                        step="0.1" />
 
                                 <span>t</span>
@@ -636,12 +629,7 @@
 
                             <div class="nav-input-unit">
 
-                                <input id="navAxles"
-                                       type="number"
-                                       class="nav-input"
-                                       value="5"
-                                       min="1"
-                                       step="1" />
+                                <input id="navAxles" type="number" class="nav-input" value="5" min="1" step="1" />
 
                                 <span>kom</span>
 
@@ -658,12 +646,7 @@
 
                             <div class="nav-input-unit">
 
-                                <input id="navMaxSpeed"
-                                       type="number"
-                                       class="nav-input"
-                                       value="90"
-                                       min="1"
-                                       step="1" />
+                                <input id="navMaxSpeed" type="number" class="nav-input" value="90" min="1" step="1" />
 
                                 <span>km/h</span>
 
@@ -678,10 +661,7 @@
                                 ADR KLASA
                             </label>
 
-                            <input id="navAdrClass"
-                                   type="text"
-                                   class="nav-input"
-                                   placeholder="npr. 3" />
+                            <input id="navAdrClass" type="text" class="nav-input" placeholder="npr. 3" />
 
                         </div>
 
@@ -692,8 +672,7 @@
 
                         <label class="nav-check">
 
-                            <input id="navHazmat"
-                                   type="checkbox" />
+                            <input id="navHazmat" type="checkbox" />
 
                             <span class="nav-check-box"></span>
 
@@ -706,9 +685,7 @@
 
                         <label class="nav-check">
 
-                            <input id="navAvoid"
-                                   type="checkbox"
-                                   checked />
+                            <input id="navAvoid" type="checkbox" checked />
 
                             <span class="nav-check-box"></span>
 
@@ -731,9 +708,7 @@
 
             <section class="nav-route-action">
 
-                <button type="button"
-                        id="calcRoute"
-                        class="nav-calculate-button">
+                <button type="button" id="calcRoute" class="nav-calculate-button">
 
                     <span class="nav-calculate-icon">
                         ↗
@@ -758,9 +733,7 @@
                 </button>
 
 
-                <button type="button"
-                        id="useCurrentLocation"
-                        class="nav-location-button">
+                <button type="button" id="useCurrentLocation" class="nav-location-button">
 
                     <span>
                         ◎
@@ -773,48 +746,11 @@
                 </button>
 
 
-                <div id="navError"
-                     class="nav-error"
-                     hidden>
+                <div id="navError" class="nav-error" hidden>
                 </div>
 
             </section>
 
-
-            <!-- =============================================
-                 SUMMARY
-                 ============================================= -->
-
-            <section class="nav-control-card nav-kpi-card">
-                <div class="nav-control-card-header compact">
-                    <div>
-                        <span class="nav-section-kicker">
-                            OPERATION STATUS
-                        </span>
-                        <h2>
-                            Navigacioni pregled
-                        </h2>
-                    </div>
-                </div>
-
-                <div class="nav-kpi-grid">
-                    <div class="nav-kpi-item">
-                        <small>Mapa</small>
-                        <strong>Evropa</strong>
-                        <span>Lokalni PMTiles sloj</span>
-                    </div>
-                    <div class="nav-kpi-item">
-                        <small>Rutiranje</small>
-                        <strong id="navKpiEngine">Truck-safe</strong>
-                        <span>PostGIS prioritet</span>
-                    </div>
-                    <div class="nav-kpi-item">
-                        <small>Live GPS</small>
-                        <strong id="navKpiGps">Standby</strong>
-                        <span>Čeka aktivaciju</span>
-                    </div>
-                </div>
-            </section>
 
             <section class="nav-control-card nav-summary-card">
 
@@ -832,8 +768,7 @@
 
                     </div>
 
-                    <span id="summarySafety"
-                          class="pm-badge pm-badge-success">
+                    <span id="summarySafety" class="pm-badge pm-badge-success">
                         READY
                     </span>
 
@@ -919,9 +854,7 @@
                  ALTERNATIVES
                  ============================================= -->
 
-            <section id="alternativesCard"
-                     class="nav-control-card nav-list-card"
-                     hidden>
+            <section id="alternativesCard" class="nav-control-card nav-list-card" hidden>
 
                 <div class="nav-control-card-header compact">
 
@@ -937,15 +870,13 @@
 
                     </div>
 
-                    <span id="alternativeCount"
-                          class="nav-counter">
+                    <span id="alternativeCount" class="nav-counter">
                         0
                     </span>
 
                 </div>
 
-                <div id="routeAlternatives"
-                     class="nav-alternatives">
+                <div id="routeAlternatives" class="nav-alternatives">
                 </div>
 
             </section>
@@ -955,9 +886,7 @@
                  WARNINGS
                  ============================================= -->
 
-            <section id="warningsCard"
-                     class="nav-control-card nav-list-card"
-                     hidden>
+            <section id="warningsCard" class="nav-control-card nav-list-card" hidden>
 
                 <div class="nav-control-card-header compact">
 
@@ -973,15 +902,13 @@
 
                     </div>
 
-                    <span id="warningCount"
-                          class="nav-counter danger">
+                    <span id="warningCount" class="nav-counter danger">
                         0
                     </span>
 
                 </div>
 
-                <div id="routeWarnings"
-                     class="nav-warning-list">
+                <div id="routeWarnings" class="nav-warning-list">
                 </div>
 
             </section>
@@ -991,9 +918,7 @@
                  MANEUVERS
                  ============================================= -->
 
-            <section id="maneuversCard"
-                     class="nav-control-card nav-list-card"
-                     hidden>
+            <section id="maneuversCard" class="nav-control-card nav-list-card" hidden>
 
                 <div class="nav-control-card-header compact">
 
@@ -1009,15 +934,13 @@
 
                     </div>
 
-                    <span id="maneuverCount"
-                          class="nav-counter">
+                    <span id="maneuverCount" class="nav-counter">
                         0
                     </span>
 
                 </div>
 
-                <div id="maneuverList"
-                     class="nav-maneuver-list">
+                <div id="maneuverList" class="nav-maneuver-list">
                 </div>
 
             </section>
@@ -1028,11 +951,8 @@
                  ============================================= -->
 
             <section class="nav-control-card nav-diagnostics-card">
-
                 <div class="nav-control-card-header compact">
-
                     <div>
-
                         <span class="nav-section-kicker">
                             SYSTEM
                         </span>
@@ -1040,7 +960,6 @@
                         <h2>
                             Routing diagnostics
                         </h2>
-
                     </div>
 
                     <span class="nav-diagnostic-led"></span>
@@ -1049,9 +968,7 @@
 
 
                 <div class="nav-diagnostics-grid">
-
                     <div>
-
                         <small>
                             ENGINE
                         </small>
@@ -1059,25 +976,18 @@
                         <strong id="diagnosticEngine">
                             —
                         </strong>
-
                     </div>
 
-
                     <div>
-
                         <small>
                             GRAPH
                         </small>
-
                         <strong id="diagnosticGraph">
                             —
                         </strong>
-
                     </div>
 
-
                     <div>
-
                         <small>
                             STATES
                         </small>
@@ -1085,12 +995,9 @@
                         <strong id="diagnosticStates">
                             —
                         </strong>
-
                     </div>
 
-
                     <div>
-
                         <small>
                             FALLBACK
                         </small>
@@ -1098,15 +1005,11 @@
                         <strong id="diagnosticFallback">
                             —
                         </strong>
-
                     </div>
-
                 </div>
 
                 <div class="nav-diagnostic-summary-row">
-
                     <div class="nav-diagnostic-summary-item">
-
                         <small>
                             SNAP START
                         </small>
@@ -1114,11 +1017,9 @@
                         <strong id="diagnosticStartSnap">
                             —
                         </strong>
-
                     </div>
 
                     <div class="nav-diagnostic-summary-item">
-
                         <small>
                             SNAP END
                         </small>
@@ -1126,15 +1027,11 @@
                         <strong id="diagnosticEndSnap">
                             —
                         </strong>
-
                     </div>
-
                 </div>
 
                 <div class="nav-diagnostic-summary-row compact">
-
                     <div class="nav-diagnostic-summary-item compact">
-
                         <small>
                             TRAVERSALS
                         </small>
@@ -1142,11 +1039,9 @@
                         <strong id="diagnosticTraversalCount">
                             —
                         </strong>
-
                     </div>
 
                     <div class="nav-diagnostic-summary-item compact">
-
                         <small>
                             FAILURE
                         </small>
@@ -1154,15 +1049,11 @@
                         <strong id="diagnosticFailureReason">
                             —
                         </strong>
-
                     </div>
-
                 </div>
 
                 <div class="nav-diagnostic-highlights-card">
-
                     <div class="nav-diagnostic-highlights-head">
-
                         <small>
                             WHY THIS ROUTE
                         </small>
@@ -1170,19 +1061,13 @@
                         <strong id="diagnosticHighlightTitle">
                             Edge / road highlights
                         </strong>
-
                     </div>
 
-                    <div id="diagnosticHighlights"
-                         class="nav-diagnostic-highlights-list">
-                    </div>
+                    <div id="diagnosticHighlights" class="nav-diagnostic-highlights-list"></div>
 
                 </div>
-
             </section>
-
         </aside>
-
     </div>
 
 
@@ -1190,23 +1075,15 @@
          LIVE NAVIGATION
          ===================================================== -->
 
-    <section class="nav-live-panel"
-             id="liveNavigationPanel">
-
+    <section class="nav-live-panel" id="liveNavigationPanel">
         <div class="nav-live-left">
-
             <div class="nav-live-status">
-
-                <span id="liveChip"
-                      class="nav-live-chip">
+                <span id="liveChip" class="nav-live-chip">
                     GPS OFF
                 </span>
-
             </div>
 
-
             <div class="nav-live-position">
-
                 <strong id="livePosition">
                     Lokacija nije aktivna
                 </strong>
@@ -1214,66 +1091,39 @@
                 <small id="liveAccuracy">
                     —
                 </small>
-
             </div>
-
         </div>
 
-
         <div class="nav-live-stats">
-
             <div>
-
                 <small>
                     BRZINA
                 </small>
-
                 <strong id="liveSpeed">
                     0 km/h
                 </strong>
-
             </div>
 
-
             <div>
-
                 <small>
                     OFF ROUTE
                 </small>
-
                 <strong id="liveOffRoute">
                     NE
                 </strong>
-
             </div>
-
         </div>
-
 
         <div class="nav-live-actions">
-
-            <button type="button"
-                    id="startLiveNavigation"
-                    class="pm-btn pm-btn-primary">
-
+            <button type="button" id="startLiveNavigation" class="pm-btn pm-btn-primary">
                 ◎ Pokreni live navigaciju
-
             </button>
 
-
-            <button type="button"
-                    id="stopLiveNavigation"
-                    class="pm-btn pm-btn-danger"
-                    hidden>
-
+            <button type="button" id="stopLiveNavigation" class="pm-btn pm-btn-danger" hidden>
                 ■ Zaustavi
-
             </button>
-
         </div>
-
     </section>
-
 
     <div class="nav-mobile-bottom-space"></div>
 
@@ -1281,11 +1131,34 @@
 
 @section Scripts {
 
-        <script src="~/js/promap-gps.js"></script>
-        <script src="~/js/promap-maneuvers.js"></script>
-        <script src="~/js/promap-routing.js"></script>
-        <script src="~/lib/pmtiles/dist/pmtiles.js"></script>
-        <script src="~/js/promap-map-enhancements.js"></script>
-        <script src="~/js/promap-pmtiles-init.js"></script>
-        <script src="~/js/navigation.js"></script>
+    <script src="~/js/promap-gps.js" asp-append-version="true"></script>
+    <script src="~/js/promap-maneuvers.js" asp-append-version="true"></script>
+    <script src="~/js/promap-routing.js" asp-append-version="true"></script>
+    <script src="~/lib/pmtiles/dist/pmtiles.js"></script>
+    <script src="~/js/promap-map-enhancements.js" asp-append-version="true"></script>
+    <script src="~/js/promap-pmtiles-init.js" asp-append-version="true"></script>
+    <script src="~/js/navigation.js" asp-append-version="true"></script>
+
+    <script>
+        (() => {
+            const panel = document.getElementById("promapLayerPanel");
+            if (!panel || panel.dataset.bound === "1")
+                return;
+
+            panel.dataset.bound = "1";
+
+            panel.querySelectorAll("input[data-promap-layer]").forEach(input => {
+                input.addEventListener("change", () => {
+                    const group = input.dataset.promapLayer;
+                    window.ProMap.MapEnhancementState?.setGroupVisible?.(
+                        group,
+                        input.checked
+                    );
+                });
+            });
+        })();
+    </script>
 }
+
+
+

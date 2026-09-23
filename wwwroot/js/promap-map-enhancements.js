@@ -557,7 +557,13 @@
             throw error;
         }
 
-        return response.json();
+        try {
+            return await response.json();
+        } catch (e) {
+            const text = await response.text();
+            console.error(`[ProMap] JSON parse error for ${url}:`, e.message, `Response: "${text}"`);
+            throw e;
+        }
     }
 
     function clearFleetData(map) {

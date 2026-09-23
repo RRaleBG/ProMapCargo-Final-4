@@ -4,38 +4,825 @@
     ViewData["Title"] = "Moderacija · ProMap Cargo";
 }
 
-<div id="app" style="display:none"></div>
-<div class="pm-page" data-module="moderation">
-  <header class="pm-header">
-    <div>
-      <div class="pm-brand">ProMap <span>Cargo</span></div>
-      <div class="pm-kicker">Moderacija</div>
-      <div class="pm-subtitle">Approval workflow for high-impact operational changes</div>
+<div class="pm-page pm-moderation-page" data-module="moderation">
+
+    <!-- HEADER -->
+    <header class="moderation-header">
+        <div class="moderation-heading">
+            <div class="moderation-kicker">
+                <span class="moderation-kicker-dot"></span>
+                OPERATIONAL MODERATION CENTER
+            </div>
+
+            <h1>Moderacija</h1>
+
+            <p>
+                Kontrolni centar za odobravanje, odbijanje i vraćanje
+                rizičnih operativnih promena uz potpun audit trag.
+            </p>
+        </div>
+
+        <div class="moderation-header-actions">
+            <button
+                class="moderation-btn moderation-btn-secondary"
+                id="refreshModeration"
+                type="button">
+                <span>↻</span>
+                Osveži
+            </button>
+
+            <a
+                class="moderation-btn moderation-btn-primary"
+                href="/audit">
+                Otvori Audit
+            </a>
+        </div>
+    </header>
+
+
+    <!-- CRITICAL BANNER -->
+    <section class="moderation-critical-banner">
+        <div class="moderation-banner-icon">
+            !
+        </div>
+
+        <div class="moderation-banner-copy">
+            <strong id="moderationBannerTitle">
+                3 zahteva čekaju odluku
+            </strong>
+
+            <span>
+                Promene koje utiču na rutu, ograničenja ili ETA
+                ne treba primeniti bez evidentirane odluke.
+            </span>
+        </div>
+
+        <button
+            class="moderation-banner-action"
+            id="showPending"
+            type="button">
+            Prikaži na čekanju
+        </button>
+
+    </section>
+
+
+    <!-- KPI -->
+    <section class="moderation-kpi-grid">
+
+        <article class="moderation-kpi kpi-pending">
+            <span>Čeka odluku</span>
+            <strong id="pendingCount">3</strong>
+            <small>aktivna moderation queue</small>
+        </article>
+
+        <article class="moderation-kpi kpi-risk">
+            <span>Visok rizik</span>
+            <strong>2</strong>
+            <small>zahteva zahtevaju pažnju</small>
+        </article>
+
+        <article class="moderation-kpi kpi-approved">
+            <span>Odobreno</span>
+            <strong>18</strong>
+            <small>ovog meseca</small>
+        </article>
+
+        <article class="moderation-kpi kpi-rejected">
+            <span>Odbijeno</span>
+            <strong>2</strong>
+            <small>ovog meseca</small>
+        </article>
+
+        <article class="moderation-kpi kpi-today">
+            <span>Danas</span>
+            <strong>6</strong>
+            <small>novih zahteva</small>
+        </article>
+
+        <article class="moderation-kpi kpi-time">
+            <span>Prosečno vreme</span>
+            <strong>14m</strong>
+            <small>od prijema do odluke</small>
+        </article>
+
+    </section>
+
+
+    <!-- FILTER TOOLBAR -->
+    <section class="moderation-toolbar">
+
+        <div class="moderation-search">
+            <span>⌕</span>
+
+            <input
+                id="moderationSearch"
+                type="search"
+                placeholder="Pretraži ID, vozilo, turu, operatora..."
+                autocomplete="off" />
+        </div>
+
+        <div class="moderation-filter-group">
+
+            <button
+                class="moderation-filter active"
+                data-status="all"
+                type="button">
+                Svi <b>6</b>
+            </button>
+
+            <button
+                class="moderation-filter"
+                data-status="pending"
+                type="button">
+                Na čekanju <b>3</b>
+            </button>
+
+            <button
+                class="moderation-filter"
+                data-status="approved"
+                type="button">
+                Odobreno <b>1</b>
+            </button>
+
+            <button
+                class="moderation-filter"
+                data-status="rejected"
+                type="button">
+                Odbijeno <b>2</b>
+            </button>
+
+        </div>
+
+        <select id="riskFilter" class="moderation-select">
+            <option value="all">Svi rizici</option>
+            <option value="high">Visok rizik</option>
+            <option value="medium">Srednji rizik</option>
+            <option value="low">Nizak rizik</option>
+        </select>
+
+        <select id="domainFilter" class="moderation-select">
+            <option value="all">Svi domeni</option>
+            <option value="routing">Routing</option>
+            <option value="safety">Safety</option>
+            <option value="dispatch">Dispatch</option>
+            <option value="eta">ETA</option>
+        </select>
+
+    </section>
+
+
+    <!-- MAIN WORKSPACE -->
+    <section class="moderation-workspace">
+
+        <!-- QUEUE -->
+        <div class="moderation-queue-panel">
+
+            <div class="panel-heading">
+
+                <div>
+                    <span class="panel-kicker">
+                        REVIEW QUEUE
+                    </span>
+
+                    <h2>
+                        Zahtevi za odluku
+                    </h2>
+                </div>
+
+                <span
+                    class="queue-count"
+                    id="queueCount">
+                    6 zahteva
+                </span>
+
+            </div>
+
+
+            <div
+                class="moderation-queue"
+                id="moderationQueue">
+
+
+                <!-- REQUEST 1 -->
+                <article
+                    class="moderation-request selected"
+                    data-id="MOD-1001"
+                    data-status="pending"
+                    data-risk="high"
+                    data-domain="routing"
+                    data-search="MOD-1001 BG-241-AA TRP-8843 Marko Petrović route override">
+
+                    <div class="request-top">
+
+                        <div>
+                            <strong>MOD-1001</strong>
+                            <span>
+                                pre 8 min · Marko Petrović
+                            </span>
+                        </div>
+
+                        <span class="risk-badge risk-high">
+                            HIGH
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Route override
+                    </h3>
+
+                    <p>
+                        Ručna izmena truck rute zbog privremenog
+                        ograničenja na koridoru.
+                    </p>
+
+                    <div class="request-meta">
+                        <span>🚛 BG-241-AA</span>
+                        <span>↗ TRP-8843</span>
+                        <span>Routing</span>
+                    </div>
+
+                </article>
+
+
+                <!-- REQUEST 2 -->
+                <article
+                    class="moderation-request"
+                    data-id="MOD-1002"
+                    data-status="pending"
+                    data-risk="high"
+                    data-domain="safety"
+                    data-search="MOD-1002 TRP-8851 Jelena restriction exception safety">
+
+                    <div class="request-top">
+
+                        <div>
+                            <strong>MOD-1002</strong>
+                            <span>
+                                pre 21 min · Jelena Ilić
+                            </span>
+                        </div>
+
+                        <span class="risk-badge risk-high">
+                            HIGH
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Restriction exception
+                    </h3>
+
+                    <p>
+                        Izuzetak od ograničenja za određenu
+                        kombinaciju vozila i tereta.
+                    </p>
+
+                    <div class="request-meta">
+                        <span>↗ TRP-8851</span>
+                        <span>⚠ Safety</span>
+                        <span>ADR</span>
+                    </div>
+
+                </article>
+
+
+                <!-- REQUEST 3 -->
+                <article
+                    class="moderation-request"
+                    data-id="MOD-1003"
+                    data-status="pending"
+                    data-risk="medium"
+                    data-domain="eta"
+                    data-search="MOD-1003 TRP-8854 Milan manual ETA change">
+
+                    <div class="request-top">
+
+                        <div>
+                            <strong>MOD-1003</strong>
+                            <span>
+                                pre 34 min · Milan Jovanović
+                            </span>
+                        </div>
+
+                        <span class="risk-badge risk-medium">
+                            MEDIUM
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Manual ETA change
+                    </h3>
+
+                    <p>
+                        Operater traži ručnu korekciju procenjenog
+                        vremena dolaska.
+                    </p>
+
+                    <div class="request-meta">
+                        <span>↗ TRP-8854</span>
+                        <span>◷ ETA</span>
+                        <span>Customer</span>
+                    </div>
+
+                </article>
+
+
+                <!-- REQUEST 4 -->
+                <article
+                    class="moderation-request"
+                    data-id="MOD-1004"
+                    data-status="approved"
+                    data-risk="medium"
+                    data-domain="dispatch"
+                    data-search="MOD-1004 BG-731-KL dispatch reassignment">
+
+                    <div class="request-top">
+
+                        <div>
+                            <strong>MOD-1004</strong>
+                            <span>
+                                danas 09:41 · Ana Kovač
+                            </span>
+                        </div>
+
+                        <span class="status-badge status-approved">
+                            APPROVED
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Dispatch reassignment
+                    </h3>
+
+                    <p>
+                        Promena dodeljenog vozila zbog servisnog
+                        zastoja.
+                    </p>
+
+                    <div class="request-meta">
+                        <span>🚛 BG-731-KL</span>
+                        <span>Dispatch</span>
+                    </div>
+
+                </article>
+
+
+                <!-- REQUEST 5 -->
+                <article
+                    class="moderation-request"
+                    data-id="MOD-1005"
+                    data-status="rejected"
+                    data-risk="medium"
+                    data-domain="routing"
+                    data-search="MOD-1005 NS-412 route bypass">
+
+                    <div class="request-top">
+
+                        <div>
+                            <strong>MOD-1005</strong>
+                            <span>
+                                juče 16:18 · Petar Savić
+                            </span>
+                        </div>
+
+                        <span class="status-badge status-rejected">
+                            REJECTED
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Route bypass
+                    </h3>
+
+                    <p>
+                        Pokušaj zaobilaženja aktivnog ograničenja
+                        na deonici.
+                    </p>
+
+                    <div class="request-meta">
+                        <span>🚛 NS-412-ZZ</span>
+                        <span>Routing</span>
+                    </div>
+
+                </article>
+
+
+                <!-- REQUEST 6 -->
+                <article
+                    class="moderation-request"
+                    data-id="MOD-1006"
+                    data-status="rejected"
+                    data-risk="low"
+                    data-domain="eta"
+                    data-search="MOD-1006 TRP-8838 ETA correction">
+
+                    <div class="request-top">
+
+                        <div>
+                            <strong>MOD-1006</strong>
+                            <span>
+                                juče 11:05 · Nikola Marković
+                            </span>
+                        </div>
+
+                        <span class="status-badge status-rejected">
+                            REJECTED
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        ETA correction
+                    </h3>
+
+                    <p>
+                        Korekcija ETA bez dovoljnog operativnog
+                        obrazloženja.
+                    </p>
+
+                    <div class="request-meta">
+                        <span>↗ TRP-8838</span>
+                        <span>ETA</span>
+                    </div>
+
+                </article>
+
+            </div>
+
+        </div>
+
+
+        <!-- DETAIL -->
+        <aside
+            class="moderation-detail"
+            id="moderationDetail">
+
+            <div class="detail-header">
+
+                <div>
+
+                    <span class="panel-kicker">
+                        SELECTED REQUEST
+                    </span>
+
+                    <h2 id="detailTitle">
+                        MOD-1001 · Route override
+                    </h2>
+
+                    <span id="detailSubtitle">
+                        BG-241-AA · TRP-8843 · Routing
+                    </span>
+
+                </div>
+
+                <span
+                    class="risk-badge risk-high"
+                    id="detailRisk">
+                    HIGH RISK
+                </span>
+
+            </div>
+
+
+            <!-- WARNING -->
+            <div
+                class="detail-warning"
+                id="detailWarning">
+
+                <span>!</span>
+
+                <div>
+                    <strong>
+                        Promena utiče na routing graph
+                    </strong>
+
+                    <p>
+                        Odobrenje mora biti zasnovano na dokumentovanom
+                        razlogu. Odluka se upisuje u audit trail.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- REQUEST INFO -->
+            <div class="detail-grid">
+
+                <div class="detail-card">
+                    <span>Podnosilac</span>
+                    <strong>Marko Petrović</strong>
+                    <small>Dispatch operator</small>
+                </div>
+
+                <div class="detail-card">
+                    <span>Primljeno</span>
+                    <strong>20:11</strong>
+                    <small>23.09.2026</small>
+                </div>
+
+                <div class="detail-card">
+                    <span>Vozilo</span>
+                    <strong>BG-241-AA</strong>
+                    <small>40t truck preset</small>
+                </div>
+
+                <div class="detail-card">
+                    <span>Tura</span>
+                    <strong>TRP-8843</strong>
+                    <small>Beograd → Novi Sad</small>
+                </div>
+
+            </div>
+
+
+            <!-- CHANGE SET -->
+            <section class="change-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="panel-kicker">
+                            CHANGE SET
+                        </span>
+
+                        <h3>
+                            Šta se menja
+                        </h3>
+                    </div>
+
+                    <span class="change-label">
+                        BEFORE → AFTER
+                    </span>
+
+                </div>
+
+
+                <div class="change-comparison">
+
+                    <div>
+                        <span>Trenutno</span>
+                        <strong>OSRM fallback</strong>
+                        <small>
+                            Ruta bez ručnog override-a
+                        </small>
+                    </div>
+
+                    <div class="change-arrow">
+                        →
+                    </div>
+
+                    <div class="after">
+                        <span>Predloženo</span>
+                        <strong>PostGIS route override</strong>
+                        <small>
+                            Izbegavanje zone 44.92, 20.31
+                        </small>
+                    </div>
+
+                </div>
+
+
+                <div class="reason-box">
+
+                    <span>Obrazloženje</span>
+
+                    <p>
+                        Privremena zabrana prolaza prijavljena od
+                        dispatch operatora; potrebno preusmerenje
+                        dok traje intervencija.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- POLICY -->
+            <section class="policy-checks">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="panel-kicker">
+                            POLICY CHECK
+                        </span>
+
+                        <h3>
+                            Provere pre odluke
+                        </h3>
+                    </div>
+
+                </div>
+
+                <label>
+                    <span class="check-ok">✓</span>
+                    Operator je autentifikovan
+                </label>
+
+                <label>
+                    <span class="check-ok">✓</span>
+                    Vozilo ima aktivan truck profil
+                </label>
+
+                <label>
+                    <span class="check-ok">✓</span>
+                    Zahtev ima audit ID i timestamp
+                </label>
+
+                <label>
+                    <span class="check-warn">!</span>
+                    Potrebna ručna potvrda za route override
+                </label>
+
+            </section>
+
+
+            <!-- DECISION -->
+            <section class="decision-panel">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="panel-kicker">
+                            DECISION
+                        </span>
+
+                        <h3>
+                            Odluka moderatora
+                        </h3>
+                    </div>
+
+                    <span class="decision-identity">
+                        Administrator · Fleet Operations
+                    </span>
+
+                </div>
+
+
+                <textarea
+                    id="decisionReason"
+                    placeholder="Obrazloženje odluke je obavezno za odbijanje ili vraćanje zahteva..."></textarea>
+
+
+                <div class="decision-actions">
+
+                    <button
+                        class="decision-btn decision-approve"
+                        data-decision="approved"
+                        type="button">
+                        ✓ Odobri
+                    </button>
+
+                    <button
+                        class="decision-btn decision-changes"
+                        data-decision="changes"
+                        type="button">
+                        ↺ Traži izmene
+                    </button>
+
+                    <button
+                        class="decision-btn decision-reject"
+                        data-decision="rejected"
+                        type="button">
+                        × Odbij
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <!-- AUDIT -->
+            <section class="audit-preview">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="panel-kicker">
+                            AUDIT TRAIL
+                        </span>
+
+                        <h3>
+                            Istorija zahteva
+                        </h3>
+                    </div>
+
+                    <a href="/audit">
+                        Kompletan audit →
+                    </a>
+
+                </div>
+
+
+                <div class="audit-item">
+                    <i></i>
+
+                    <div>
+                        <strong>Zahtev kreiran</strong>
+                        <span>
+                            Marko Petrović · 20:11
+                        </span>
+                    </div>
+                </div>
+
+                <div class="audit-item">
+                    <i></i>
+
+                    <div>
+                        <strong>Policy check pokrenut</strong>
+                        <span>
+                            System · 20:11
+                        </span>
+                    </div>
+                </div>
+
+                <div class="audit-item">
+                    <i class="audit-current"></i>
+
+                    <div>
+                        <strong>
+                            Čeka odluku moderatora
+                        </strong>
+                        <span>
+                            Queue · 20:11
+                        </span>
+                    </div>
+                </div>
+
+            </section>
+
+        </aside>
+
+    </section>
+
+
+    <!-- POLICY FOOTER -->
+    <section class="moderation-policy">
+
+        <div>
+
+            <span class="policy-icon">
+                ◇
+            </span>
+
+            <div>
+
+                <span class="panel-kicker">
+                    APPROVAL POLICY
+                </span>
+
+                <h2>
+                    Promene visokog uticaja moraju imati
+                    proverljivu odluku.
+                </h2>
+
+                <p>
+                    Manual routing overrides, restriction exceptions
+                    i high-risk operativne promene zahtevaju identitet
+                    moderatora, timestamp, obrazloženje i audit zapis.
+                    Moderacija ne menja routing graph direktno bez
+                    evidentirane odluke.
+                </p>
+
+            </div>
+
+        </div>
+
+        <a
+            href="/compliance"
+            class="moderation-btn moderation-btn-secondary">
+            Compliance centar →
+        </a>
+
+    </section>
+
+
+    <!-- TOAST -->
+    <div
+        class="moderation-toast"
+        id="moderationToast">
+
+        <span>✓</span>
+
+        <div>
+            <strong id="toastTitle">
+                Odluka evidentirana
+            </strong>
+
+            <small id="toastText">
+                Zahtev je ažuriran.
+            </small>
+        </div>
+
     </div>
-    <div class="pm-header-actions">
-      <a class="pm-btn pm-btn-primary" href="/dispatch">Command Center</a>
-      <a class="pm-btn" href="/profile">Profil</a>
-    </div>
-  </header>
-  <div class="pm-layout">
-    <aside class="pm-sidebar">
-      <div class="pm-nav-title">OPERATIONS</div>
-      <nav class="pm-nav"><a class="" href="/dashboard">Dashboard</a><a class="" href="/dispatch">Command Center</a><a class="" href="/orders">Transportni nalozi</a><a class="" href="/trips">Ture</a><a class="" href="/vehicles">Vozila</a><a class="" href="/drivers">Vozači</a><a class="" href="/navigation">Navigacija</a><a class="" href="/alerts">Alerts</a><a class="active" href="/moderation">Moderacija</a><a class="" href="/audit">Audit</a><a class="" href="/compliance">Compliance</a><a class="" href="/monitoring">Monitoring</a><a class="" href="/finance">Finansije</a><a class="" href="/reports">Izveštaji</a><a class="" href="/settings">Podešavanja</a><a class="" href="/profile">Profil</a><a class="" href="/admin">Administracija</a></nav>
-      <div class="pm-sidebar-footer"><b>Routing engine</b><br>PostGIS · OSM · Truck-aware<br><span>Graph protected</span></div>
-    </aside>
-    <main class="pm-content">
-      <div class="pm-title">Moderacija</div><div class="pm-muted" style="margin:5px 0 14px">Approval queue for manual operational changes.</div><div class="pm-grid pm-grid-3"><div class="pm-card pm-stat"><small>Pending</small><div class="pm-value">1</div><div class="pm-muted">approval queue</div></div><div class="pm-card pm-stat"><small>Approved</small><div class="pm-value">18</div><div class="pm-muted">this month</div></div><div class="pm-card pm-stat"><small>Rejected</small><div class="pm-value">2</div><div class="pm-muted">this month</div></div></div><div style="height:14px"></div><div class="pm-card" style="overflow:auto"><table class="pm-table"><thead><tr><th>Request</th><th>Action</th><th>Target</th><th>Domain</th><th>Decision</th></tr></thead><tbody><tr><td>MOD-1001</td><td>Route override</td><td>BG-241-AA</td><td>Dispatch</td><td><span class="pm-badge">Pending</span></td></tr><tr><td>MOD-1002</td><td>Restriction exception</td><td>TRP-8843</td><td>Safety</td><td><span class="pm-badge">Approved</span></td></tr><tr><td>MOD-1003</td><td>Manual ETA change</td><td>TRP-8844</td><td>Dispatch</td><td><span class="pm-badge">Rejected</span></td></tr></tbody></table></div><div style="height:14px"></div><div class="pm-card pm-card-body"><div class="pm-h2">Approval policy</div><p class="pm-muted">Manual routing overrides, restriction exceptions and high-risk changes require an auditable decision with operator identity and timestamp.</p></div>
-    </main>
-  </div>
+
 </div>
 
-
-<script>
-// Pages are server-rendered and must remain independent from the legacy SPA renderer.
-document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('.pm-page a[href]').forEach(a=>a.addEventListener('click',e=>{
-    if(a.origin===location.origin){ e.stopPropagation(); }
-  },true));
-});
-</script>
-
+@section Scripts {
+    <script src="~/js/pages/moderation-index.js"></script>
+}

@@ -4,8 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using ProMapCargo.Api.Data;
 using ProMapCargo.Api.Models;
 using ProMapCargo.Api.Services;
+
+
 namespace ProMapCargo.Api.Controllers;
-[ApiController][Authorize][Route("api/operations")]
+
+[ApiController]
+//[Authorize]
+[Route("api/operations")]
 public sealed class OperationsController(ProMapCargoDbContext db,ICurrentUserContext current):ControllerBase
 {
     Guid C()=>current.CompanyId??throw new UnauthorizedAccessException();

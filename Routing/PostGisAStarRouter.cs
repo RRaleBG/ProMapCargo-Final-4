@@ -1,5 +1,6 @@
 using NetTopologySuite.Geometries;
 using ProMapCargo.Api.Models;
+using System.Diagnostics;
 
 namespace ProMapCargo.Api.Routing;
 
@@ -25,6 +26,8 @@ public sealed class PostGisAStarRouter(
         long version,
         CancellationToken ct)
     {
+        var searchTimeBudget = TimeSpan.FromSeconds(240);
+
         var startEdgeIds =
             start.EdgeId == end.EdgeId
                 ? new[] { start.EdgeId }
@@ -253,7 +256,7 @@ public sealed class PostGisAStarRouter(
 
             AddSeed(
                 state,
-                distance,
+                duration,
                 traversal,
                 dist,
                 seedTraversals);
@@ -288,7 +291,7 @@ public sealed class PostGisAStarRouter(
 
             AddSeed(
                 state,
-                distance,
+                duration,
                 traversal,
                 dist,
                 seedTraversals);
@@ -356,6 +359,10 @@ public sealed class PostGisAStarRouter(
                 long,
                 IReadOnlyList<(RoadEdge Edge, bool Forward)>>();
 
+        var frontierPrefetchNodes = new HashSet<long>();
+
+        var stopwatch = Stopwatch.StartNew();
+
         SearchState? bestGoalState = null;
         RoutedTraversal? bestFinalTraversal = null;
         var bestGoalCost = double.PositiveInfinity;
@@ -372,6 +379,21 @@ public sealed class PostGisAStarRouter(
                expanded < MaxExpandedStates)
         {
             ct.ThrowIfCancellationRequested();
+
+            if (stopwatch.Elapsed >= searchTimeBudget)
+            {
+                return new PostGisRouteResult(
+                    false,
+                    [],
+                    0,
+                    0,
+                    expanded,
+                    "PostGIS-AStar",
+                    $"A* search exceeded the {searchTimeBudget.TotalSeconds:0.#} s budget.",
+                    [],
+                    BuildSnapDebug(start, startEdge),
+                    BuildSnapDebug(end, endEdge));
+            }
 
             queue.TryPeek(
                 out _,
@@ -514,14 +536,35 @@ public sealed class PostGisAStarRouter(
                     state.Node,
                     out var outgoing))
             {
-                outgoing =
-                    await repo.GetOutgoingAsync(
-                        state.Node,
+                frontierPrefetchNodes.Clear();
+                frontierPrefetchNodes.Add(state.Node);
+
+                foreach (var queued in queue.UnorderedItems)
+                {
+                    frontierPrefetchNodes.Add(queued.Element.Node);
+
+                    if (frontierPrefetchNodes.Count >= 64)
+                    {
+                        break;
+                    }
+                }
+
+                var prefetchedOutgoing =
+                    await repo.GetOutgoingBatchAsync(
+                        frontierPrefetchNodes.ToArray(),
                         version,
                         ct);
 
-                outgoingCache[state.Node] =
-                    outgoing;
+                foreach (var pair in prefetchedOutgoing)
+                {
+                    outgoingCache[pair.Key] = pair.Value;
+                }
+
+                outgoingCache.TryGetValue(
+                    state.Node,
+                    out outgoing);
+
+                outgoing ??= [];
             }
 
             foreach (var (edge, forward) in outgoing)
@@ -736,17 +779,17 @@ public sealed class PostGisAStarRouter(
 
     private static void AddSeed(
         SearchState state,
-        double distance,
+        double durationSeconds,
         RoutedTraversal traversal,
         Dictionary<SearchState, double> dist,
         Dictionary<SearchState, RoutedTraversal> seeds)
     {
         if (!dist.TryGetValue(
                 state,
-                out var oldDistance) ||
-            distance < oldDistance)
+                out var oldDuration) ||
+            durationSeconds < oldDuration)
         {
-            dist[state] = distance;
+            dist[state] = durationSeconds;
             seeds[state] = traversal;
         }
     }
@@ -786,17 +829,25 @@ public sealed class PostGisAStarRouter(
         RoadEdge edge,
         Dictionary<long, Coordinate> coordinates)
     {
+        if (edge.SourceCoordinate is not null)
+        {
+            coordinates[edge.SourceNode] = edge.SourceCoordinate;
+        }
+
+        if (edge.TargetCoordinate is not null)
+        {
+            coordinates[edge.TargetNode] = edge.TargetCoordinate;
+            return;
+        }
+
         if (edge.Geometry is not LineString line ||
             line.Coordinates.Length < 2)
         {
             return;
         }
 
-        coordinates[edge.SourceNode] =
-            line.Coordinates[0];
-
-        coordinates[edge.TargetNode] =
-            line.Coordinates[^1];
+        coordinates[edge.SourceNode] = line.Coordinates[0];
+        coordinates[edge.TargetNode] = line.Coordinates[^1];
     }
 
     private static double DurationSeconds(
@@ -860,6 +911,6 @@ public sealed class PostGisAStarRouter(
             Math.Sin(dLon / 2d) *
             Math.Sin(dLon / 2d);
 
-        return EarthRadiusMeters * 2d *  Math.Atan2(Math.Sqrt(a), Math.Sqrt(Math.Max(0d, 1d - a)));
+        return EarthRadiusMeters * 2d * Math.Atan2(Math.Sqrt(a), Math.Sqrt(Math.Max(0d, 1d - a)));
     }
 }

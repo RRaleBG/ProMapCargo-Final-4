@@ -1,28 +1,33 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProMapCargo.Api.Models;
 using ProMapCargo.Api.Routing;
 using ProMapCargo.Api.Services;
+using System.Text.Json;
 
 namespace ProMapCargo.Api.Controllers;
 
 [ApiController]
 [Route("api/routing")]
 public sealed class RoutingController(
-    IPostGisRoutingService postGis,
-    IRoutingService legacy,
-    IRestrictionEngine restrictions,
-    ILogger<RoutingController> logger)
-    : ControllerBase
+                                      IPostGisRoutingService postGis,
+                                      IRoutingService legacy,
+                                      IRestrictionEngine restrictions,
+                                      ILogger<RoutingController> logger)
+                                : ControllerBase
 {
+    private static readonly TimeSpan PostGisRoutingBudget = TimeSpan.FromSeconds(300);
+
+    private static readonly TimeSpan OsrmFallbackBudget = TimeSpan.FromSeconds(30);
+
     [HttpPost("route")]
     [AllowAnonymous]
-    public async Task<ActionResult<RouteResponse>> Route(
-        [FromBody] RouteRequest request,
-        CancellationToken ct)
+    public async Task<ActionResult<RouteResponse>> Route([FromBody] RouteRequest request, CancellationToken ct)
     {
-        if (!IsValidPoint(request.Start))
+        var resolvedStart = request.ResolvedStart;
+        var resolvedTarget = request.Target;
+
+        if (!IsValidPoint(resolvedStart))
         {
             return BadRequest(new
             {
@@ -31,7 +36,7 @@ public sealed class RoutingController(
             });
         }
 
-        if (!IsValidPoint(request.Target))
+        if (!IsValidPoint(resolvedTarget))
         {
             return BadRequest(new
             {
@@ -40,30 +45,33 @@ public sealed class RoutingController(
             });
         }
 
-        var profile =
-            string.IsNullOrWhiteSpace(request.Profile)
-                ? "truck"
-                : request.Profile.Trim().ToLowerInvariant();
+        var profile = string.IsNullOrWhiteSpace(request.Profile) ? "truck" : request.Profile.Trim().ToLowerInvariant();
 
         var normalizedRequest = new RouteRequest
         {
-            Start = request.Start,
-            Destination = request.Target,
+            Start = resolvedStart,
+            Destination = resolvedTarget,
             Profile = profile,
             AvoidRestricted = request.AvoidRestricted,
-            Truck = NormalizeTruckProfile(
-                profile,
-                request.Truck),
+            Truck = NormalizeTruckProfile(profile, request.ResolvedTruck),
             DepartureAt = request.DepartureAt
         };
 
         logger.LogInformation(
-            "Routing request: {Profile} {StartLat},{StartLon} -> {EndLat},{EndLon}",
+            "Routing request: Profile={Profile} Start={StartLat},{StartLon} Destination={EndLat},{EndLon} AvoidRestricted={AvoidRestricted} TruckWeightT={TruckWeightT} TruckHeightM={TruckHeightM} TruckWidthM={TruckWidthM} TruckLengthM={TruckLengthM} TruckAxleLoadT={TruckAxleLoadT} TruckAxles={TruckAxles} TruckMaxSpeedKmh={TruckMaxSpeedKmh}",
             profile,
             normalizedRequest.Start.Lat,
             normalizedRequest.Start.Lon,
             normalizedRequest.Target.Lat,
-            normalizedRequest.Target.Lon
+            normalizedRequest.Target.Lon,
+            normalizedRequest.AvoidRestricted,
+            normalizedRequest.Truck?.GrossWeightTons,
+            normalizedRequest.Truck?.HeightMeters,
+            normalizedRequest.Truck?.WidthMeters,
+            normalizedRequest.Truck?.LengthMeters,
+            normalizedRequest.Truck?.AxleLoadTons,
+            normalizedRequest.Truck?.Axles,
+            normalizedRequest.Truck?.MaxSpeedKmh
         );
 
         /*
@@ -72,34 +80,50 @@ public sealed class RoutingController(
          * ============================================================
          */
 
-        if (profile.Equals(
-                "truck",
-                StringComparison.OrdinalIgnoreCase))
+        RouteResponse? postGisResult = null;
+
         {
+            using var postGisCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            postGisCts.CancelAfter(PostGisRoutingBudget);
+
             try
             {
-                var postGisResult =
-                    await postGis.CalculateAsync(
-                        normalizedRequest,
-                        ct);
+                postGisResult = await postGis.CalculateAsync(normalizedRequest, postGisCts.Token);
 
-                if (postGisResult.Code.Equals(
-                        "Ok",
-                        StringComparison.OrdinalIgnoreCase) &&
-                    postGisResult.Routes.Count > 0)
+                if (postGisResult is null)
                 {
-                    logger.LogInformation(
-                        "PostGIS routing succeeded. Distance={Distance}m Duration={Duration}s",
-                        postGisResult.Routes[0].Distance,
-                        postGisResult.Routes[0].Duration
-                    );
+                    postGisResult = new RouteResponse
+                    {
+                        Code = "GraphError",
+                        IsTruckSafe = false,
+                        Diagnostics = new RouteDiagnostics
+                        {
+                            Engine = "PostGIS-AStar",
+                            UsedFallback = false,
+                            FailureReason = "PostGIS routing service returned null response."
+                        }
+                    };
+                }
 
+                if (postGisResult.Code.Equals("Ok", StringComparison.OrdinalIgnoreCase) && postGisResult.Routes.Count > 0)
+                {
+                    var postGisRoute = postGisResult.Routes[postGisResult.SelectedRouteIndex];
+                    logger.LogInformation(
+                        "Routing response: Engine={Engine} UsedFallback={UsedFallback} GraphVersion={GraphVersion} SelectedRouteIndex={SelectedRouteIndex} TraversalCount={TraversalCount} Distance={Distance} Duration={Duration} FailureReason={FailureReason}",
+                        postGisResult.Diagnostics.Engine,
+                        postGisResult.Diagnostics.UsedFallback,
+                        postGisResult.Diagnostics.GraphVersion,
+                        postGisResult.SelectedRouteIndex,
+                        postGisResult.Diagnostics.TraversalCount,
+                        postGisRoute.Distance,
+                        postGisRoute.Duration,
+                        postGisResult.Diagnostics.FailureReason);
                     return Ok(postGisResult);
                 }
 
-                logger.LogWarning(
-                    "PostGIS routing did not produce a route. Code={Code}. Falling back to OSRM.",
-                    postGisResult.Code
+                logger.LogWarning("PostGIS routing did not produce a route. Code={Code}. FailureReason={FailureReason}.",
+                    postGisResult.Code,
+                    postGisResult.Diagnostics.FailureReason
                 );
             }
             catch (OperationCanceledException)
@@ -107,14 +131,63 @@ public sealed class RoutingController(
             {
                 throw;
             }
+            catch (OperationCanceledException)
+            {
+                postGisResult = new RouteResponse
+                {
+                    Code = "RoutingError",
+                    Message = $"PostGIS routing exceeded the {PostGisRoutingBudget.TotalSeconds:0.#} s budget.",
+                    IsTruckSafe = false,
+                    Diagnostics = new RouteDiagnostics
+                    {
+                        Engine = "PostGIS-AStar",
+                        UsedFallback = false,
+                        FailureReason = $"PostGIS routing exceeded the {PostGisRoutingBudget.TotalSeconds:0.#} s budget."
+                    }
+                };
+
+                logger.LogWarning("PostGIS routing exceeded the {BudgetSeconds}s budget.",
+                    PostGisRoutingBudget.TotalSeconds);
+            }
             catch (Exception ex)
             {
-                logger.LogWarning(
-                    ex,
-                    "PostGIS routing failed. Falling back to OSRM."
-                );
+                logger.LogWarning(ex, "PostGIS routing failed.");
+                postGisResult = new RouteResponse
+                {
+                    Code = "RoutingError",
+                    Message = ex.Message,
+                    IsTruckSafe = false,
+                    Diagnostics = new RouteDiagnostics
+                    {
+                        Engine = "PostGIS-AStar",
+                        UsedFallback = false,
+                        FailureReason = ex.Message
+                    }
+                };
             }
         }
+
+        if (postGisResult is null)
+        {
+            postGisResult = new RouteResponse
+            {
+                Code = "RoutingError",
+                Message = "PostGIS routing service returned null response.",
+                IsTruckSafe = false,
+                Diagnostics = new RouteDiagnostics
+                {
+                    Engine = "PostGIS-AStar",
+                    UsedFallback = false,
+                    FailureReason = "PostGIS routing service returned null response."
+                }
+            };
+        }
+
+        logger.LogWarning(
+            "PostGIS routing did not produce a route. Code={Code}. FailureReason={FailureReason}.",
+            postGisResult.Code,
+            postGisResult.Diagnostics.FailureReason
+        );
 
         /*
          * ============================================================
@@ -124,17 +197,39 @@ public sealed class RoutingController(
 
         OsrmResponse osrm;
 
+        using var osrmCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        osrmCts.CancelAfter(OsrmFallbackBudget);
+
         try
         {
             osrm =
                 await legacy.RouteAsync(
                     normalizedRequest,
-                    ct);
+                    osrmCts.Token);
         }
         catch (OperationCanceledException)
             when (ct.IsCancellationRequested)
         {
             throw;
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogError(
+                "OSRM routing exceeded the {BudgetSeconds}s budget.",
+                OsrmFallbackBudget.TotalSeconds
+            );
+
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                new
+                {
+                    code = "RoutingTimeout",
+                    message = "Routing servis nije odgovorio u zadatom vremenu.",
+                    details = $"OSRM routing exceeded the {OsrmFallbackBudget.TotalSeconds:0.#} s budget.",
+                    postGisCode = postGisResult?.Code,
+                    postGisFailureReason = postGisResult?.Diagnostics.FailureReason,
+                    postGisDiagnostics = postGisResult?.Diagnostics
+                });
         }
         catch (Exception ex)
         {
@@ -149,7 +244,10 @@ public sealed class RoutingController(
                 {
                     code = "RoutingUnavailable",
                     message = "Routing servis trenutno nije dostupan.",
-                    details = ex.Message
+                    details = ex.Message,
+                    postGisCode = postGisResult?.Code,
+                    postGisFailureReason = postGisResult?.Diagnostics.FailureReason,
+                    postGisDiagnostics = postGisResult?.Diagnostics
                 });
         }
 
@@ -336,6 +434,7 @@ public sealed class RoutingController(
             new RouteResponse
             {
                 Code = "Ok",
+                Message = "OSRM fallback route calculated.",
 
                 Routes =
                     routeCandidates,
@@ -373,16 +472,115 @@ public sealed class RoutingController(
             };
 
         logger.LogInformation(
-            "OSRM fallback succeeded. Routes={Routes}, Selected={Selected}, Distance={Distance}m, Duration={Duration}s, TruckSafe={TruckSafe}",
-            routeCandidates.Count,
-            selectedRouteIndex,
+            "Routing response: Engine={Engine} UsedFallback={UsedFallback} GraphVersion={GraphVersion} SelectedRouteIndex={SelectedRouteIndex} TraversalCount={TraversalCount} Distance={Distance} Duration={Duration} FailureReason={FailureReason}",
+            response.Diagnostics.Engine,
+            response.Diagnostics.UsedFallback,
+            response.Diagnostics.GraphVersion,
+            response.SelectedRouteIndex,
+            response.Diagnostics.TraversalCount,
             selectedRoute.Distance,
             selectedRoute.Duration,
-            isTruckSafe
+            response.Diagnostics.FailureReason
         );
 
         return Ok(response);
     }
+
+    private static RouteResponse BuildEmergencyFallbackResponse(
+        RouteRequest request,
+        RouteResponse? postGisResult,
+        string reason)
+    {
+        var start = request.Start;
+        var target = request.Target;
+
+        var distanceMeters = EstimateHaversineMeters(start.Lat, start.Lon, target.Lat, target.Lon);
+        var durationSeconds = Math.Max(60, distanceMeters / 16.6667d);
+
+        var geometry = new Dictionary<string, object?>
+        {
+            ["type"] = "LineString",
+            ["coordinates"] = new[]
+            {
+                new[] { start.Lon, start.Lat },
+                new[] { target.Lon, target.Lat }
+            }
+        };
+
+        var candidate = new RouteCandidate
+        {
+            Distance = distanceMeters,
+            Duration = durationSeconds,
+            Geometry = geometry,
+            Legs = null,
+            Analysis = new RouteAnalysis
+            {
+                Restricted = false,
+                Score = 40,
+                Violations = [],
+                Debug = new RouteDebug
+                {
+                    Summary = "Emergency straight-line fallback route.",
+                    StartSnap = null,
+                    EndSnap = null,
+                    TraversalCount = 0,
+                    Highlights =
+                    [
+                        "PostGIS and OSRM were unavailable or timed out.",
+                        reason
+                    ]
+                }
+            }
+        };
+
+        var departure = request.DepartureAt ?? DateTimeOffset.UtcNow;
+
+        return new RouteResponse
+        {
+            Code = "Ok",
+            Routes = [candidate],
+            SelectedRouteIndex = 0,
+            IsTruckSafe = false,
+            Violations = [],
+            Summary = new RouteSummary(distanceMeters, durationSeconds, departure.AddSeconds(durationSeconds)),
+            Diagnostics = new RouteDiagnostics
+            {
+                Engine = "EmergencyFallback",
+                UsedFallback = true,
+                ExpandedStates = 0,
+                GraphVersion = postGisResult?.Diagnostics?.GraphVersion,
+                FailureReason = reason,
+                StartSnap = postGisResult?.Diagnostics?.StartSnap,
+                EndSnap = postGisResult?.Diagnostics?.EndSnap,
+                TraversalCount = 0,
+                Highlights =
+                [
+                    "Returned straight-line fallback geometry.",
+                    $"PostGIS code: {postGisResult?.Code ?? "n/a"}",
+                    reason
+                ]
+            },
+            Maneuvers = []
+        };
+    }
+
+    private static double EstimateHaversineMeters(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double earthRadiusMeters = 6_371_000d;
+
+        var dLat = ToRadians(lat2 - lat1);
+        var dLon = ToRadians(lon2 - lon1);
+
+        var a = Math.Sin(dLat / 2d) * Math.Sin(dLat / 2d)
+                + Math.Cos(ToRadians(lat1)) * Math.Cos(ToRadians(lat2))
+                * Math.Sin(dLon / 2d) * Math.Sin(dLon / 2d);
+
+        var c = 2d * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1d - a));
+        return earthRadiusMeters * c;
+    }
+
+    private static double ToRadians(double degrees)
+        => degrees * Math.PI / 180d;
 
     private static bool IsValidPoint(
         GeoPoint? point)

@@ -4,6 +4,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>807d07dd-f204-41e9-93fc-fbeb1706f1b6</UserSecretsId>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DocumentFormat.OpenXml" Version="3.5.1" />
@@ -27,12 +29,14 @@
   </ItemGroup>
   <!-- The importer and MAUI app are separate projects nested below this project. -->
   <ItemGroup>
-    <Compile Remove="Importer/**/*.cs" />
-    <Compile Remove="ProMapCargo.Mobile/**/*.cs" />
-    <EmbeddedResource Remove="ProMapCargo.Mobile/**" />
-    <MauiXaml Remove="ProMapCargo.Mobile/**" />
-    <None Remove="Importer/**" />
-    <None Remove="ProMapCargo.Mobile/**" />
+    <Compile Remove="ProMapCargo.Mobile\**\*.cs" />
+    <Compile Remove="Importer\**\*.cs" />
+    <EmbeddedResource Remove="ProMapCargo.Mobile\**" />
+    <EmbeddedResource Remove="Importer\**" />
+    <Content Remove="ProMapCargo.Mobile\**" />
+    <Content Remove="Importer\**" />
+    <None Remove="ProMapCargo.Mobile\**" />
+    <None Remove="Importer\**" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pages\Fleet\" />

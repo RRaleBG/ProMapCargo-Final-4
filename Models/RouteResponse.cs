@@ -4,6 +4,8 @@ public sealed class RouteResponse
 {
     public string Code { get; init; } = "Ok";
 
+    public string? Message { get; init; }
+
     public List<RouteCandidate> Routes { get; init; } = [];
 
     public int SelectedRouteIndex { get; init; }

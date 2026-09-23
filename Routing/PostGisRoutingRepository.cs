@@ -1,15 +1,25 @@
 using Dapper;
 using NetTopologySuite.Geometries;
 using Npgsql;
-using ProMapCargo.Api.Models;
 namespace ProMapCargo.Api.Routing;
 
 
 public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
 {
     private const string EdgeColumns = "id, way_id, source_node, target_node, direction, highway, name, ref, length_m, speed_kmh, routable, ST_AsText(geom) AS wkt, access, vehicle, motor_vehicle, hgv, goods, hazmat, maxheight, maxwidth, maxlength, maxweight, maxaxleload, graph_version, country_code";
-   
-    
+
+    private const string OutgoingEdgeColumns = "id, way_id, source_node, target_node, direction, highway, name, ref, length_m, speed_kmh, routable, ST_AsText(ST_MakeLine(ST_StartPoint(geom), ST_EndPoint(geom))) AS wkt, ST_X(ST_StartPoint(geom)) AS source_x, ST_Y(ST_StartPoint(geom)) AS source_y, ST_X(ST_EndPoint(geom)) AS target_x, ST_Y(ST_EndPoint(geom)) AS target_y, access, vehicle, motor_vehicle, hgv, goods, hazmat, maxheight, maxwidth, maxlength, maxweight, maxaxleload, graph_version, country_code";
+
+
+    public async Task<bool> CanConnectAsync(CancellationToken ct)
+    {
+        await using var connection = await dataSource.OpenConnectionAsync(ct);
+        const string sql = "SELECT 1;";
+        var probe = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, cancellationToken: ct));
+        return probe == 1;
+    }
+
+
     public async Task<long?> GetActiveGraphVersionAsync(CancellationToken ct)
     {
         await using var connection = await dataSource.OpenConnectionAsync(ct);
@@ -35,48 +45,76 @@ public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
         WITH p AS
         (
             SELECT
-                ST_SetSRID(
-                    ST_MakePoint(@lon, @lat),
-                    4326
-                )::geography AS geog
+                ST_SetSRID(ST_MakePoint(@lon, @lat), 4326) AS geom,
+                ST_SetSRID(ST_MakePoint(@lon, @lat), 4326)::geography AS geog,
+                @radius / 111320.0 AS radius_degrees
+        ),
+        candidates AS
+        (
+            SELECT
+                e.id,
+                e.way_id,
+                e.source_node,
+                e.target_node,
+                e.direction,
+                e.highway,
+                e.name,
+                e.ref,
+                e.length_m,
+                e.speed_kmh,
+                e.routable,
+                ST_AsText(e.geom) AS wkt,
+                e.access,
+                e.vehicle,
+                e.motor_vehicle,
+                e.hgv,
+                e.goods,
+                e.hazmat,
+                e.maxheight,
+                e.maxwidth,
+                e.maxlength,
+                e.maxweight,
+                e.maxaxleload,
+                e.graph_version,
+                e.country_code,
+                ST_Distance(e.geom::geography, p.geog) AS distance_m
+            FROM road_edges e
+            CROSS JOIN p
+            WHERE e.graph_version = @version
+              AND e.routable
+              AND e.geom && ST_Expand(p.geom, p.radius_degrees)
+            ORDER BY e.geom <-> p.geom
+            LIMIT 256
         )
         SELECT
-            e.id,
-            e.way_id,
-            e.source_node,
-            e.target_node,
-            e.direction,
-            e.highway,
-            e.name,
-            e.ref,
-            e.length_m,
-            e.speed_kmh,
-            e.routable,
-            ST_AsText(e.geom) AS wkt,
-            e.access,
-            e.vehicle,
-            e.motor_vehicle,
-            e.hgv,
-            e.goods,
-            e.hazmat,
-            e.maxheight,
-            e.maxwidth,
-            e.maxlength,
-            e.maxweight,
-            e.maxaxleload,
-            e.graph_version,
-            e.country_code
-        FROM road_edges e
-        CROSS JOIN p
-        WHERE e.graph_version = @version
-          AND e.routable
-          AND ST_DWithin(
-                e.geom::geography,
-                p.geog,
-                @radius
-          )
-        ORDER BY
-            e.geom::geography <-> p.geog
+            id,
+            way_id,
+            source_node,
+            target_node,
+            direction,
+            highway,
+            name,
+            ref,
+            length_m,
+            speed_kmh,
+            routable,
+            wkt,
+            access,
+            vehicle,
+            motor_vehicle,
+            hgv,
+            goods,
+            hazmat,
+            maxheight,
+            maxwidth,
+            maxlength,
+            maxweight,
+            maxaxleload,
+            graph_version,
+            country_code
+        FROM candidates
+        WHERE distance_m <= @radius
+        ORDER BY distance_m
         LIMIT 24;
         """;
 
@@ -90,6 +128,7 @@ public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
                     version,
                     radius
                 },
+                commandTimeout: 120,
                 cancellationToken: ct));
 
         return rows.Select(Map).ToList();
@@ -114,44 +153,76 @@ public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
         var rows = await connection.QueryAsync<dynamic>(
         new CommandDefinition(
         sql,
-        new {
-            ids = ids.ToArray(), version
+        new
+        {
+            ids = ids.ToArray(),
+            version
         }
         ,
         cancellationToken: ct));
         return rows.Select(Map).ToList();
     }
-    
-    
-    public async Task<IReadOnlyList<(RoadEdge Edge, bool Forward)>> GetOutgoingAsync(long node, long version,  CancellationToken ct)
+
+
+    public async Task<IReadOnlyList<(RoadEdge Edge, bool Forward)>> GetOutgoingAsync(long node, long version, CancellationToken ct)
     {
+        var outgoingByNode = await GetOutgoingBatchAsync([node], version, ct);
+        return outgoingByNode.TryGetValue(node, out var outgoing)
+            ? outgoing
+            : [];
+    }
+
+
+    public async Task<IReadOnlyDictionary<long, IReadOnlyList<(RoadEdge Edge, bool Forward)>>> GetOutgoingBatchAsync(
+        IReadOnlyCollection<long> nodes,
+        long version,
+        CancellationToken ct)
+    {
+        if (nodes.Count == 0)
+        {
+            return new Dictionary<long, IReadOnlyList<(RoadEdge Edge, bool Forward)>>();
+        }
+
         await using var connection = await dataSource.OpenConnectionAsync(ct);
         var sql = $"""
-            SELECT {EdgeColumns}
+            SELECT {OutgoingEdgeColumns}
             FROM road_edges
             WHERE graph_version = @version
               AND routable
-              AND (source_node = @node OR target_node = @node);
+              AND (source_node = ANY(@nodes) OR target_node = ANY(@nodes));
             """;
         var rows = await connection.QueryAsync<dynamic>(
-        new CommandDefinition(sql, new {
-            node, version
-        }
-        , cancellationToken: ct));
-        var result = new List<(RoadEdge Edge, bool Forward)>();
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    nodes = nodes.ToArray(),
+                    version
+                },
+                cancellationToken: ct));
+
+        var result = nodes.ToDictionary<long, long, List<(RoadEdge Edge, bool Forward)>>(
+            node => node,
+            _ => []);
+
         foreach (var row in rows)
         {
-            var edge = Map(row);
-            if (edge.SourceNode == node && edge.Direction >= 0)
+            RoadEdge edge = Map(row);
+
+            if (edge.Direction >= 0 && result.ContainsKey(edge.SourceNode))
             {
-                result.Add((edge, true));
+                result[edge.SourceNode].Add((edge, true));
             }
-            if (edge.TargetNode == node && edge.Direction <= 0)
+
+            if (edge.Direction <= 0 && result.ContainsKey(edge.TargetNode))
             {
-                result.Add((edge, false));
+                result[edge.TargetNode].Add((edge, false));
             }
         }
-        return result;
+
+        return result.ToDictionary(
+            pair => pair.Key,
+            pair => (IReadOnlyList<(RoadEdge Edge, bool Forward)>)pair.Value);
     }
 
 
@@ -159,6 +230,8 @@ public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
     private static RoadEdge Map(dynamic row)
     {
         var geometry = (LineString)new NetTopologySuite.IO.WKTReader().Read((string)row.wkt);
+        var sourceCoordinate = TryCoordinate(row, "source_x", "source_y") ?? geometry.Coordinates.FirstOrDefault();
+        var targetCoordinate = TryCoordinate(row, "target_x", "target_y") ?? geometry.Coordinates.LastOrDefault();
         return new RoadEdge(
         (long)row.id,
         (long)row.way_id,
@@ -172,6 +245,8 @@ public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
         (double)row.speed_kmh,
         (bool)row.routable,
         geometry,
+        sourceCoordinate,
+        targetCoordinate,
         (string?)row.access,
         (string?)row.vehicle,
         (string?)row.motor_vehicle,
@@ -185,5 +260,20 @@ public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
         row.maxaxleload is null ? null : (double?)row.maxaxleload,
         (long)row.graph_version,
         (string?)row.country_code);
+    }
+
+    private static Coordinate? TryCoordinate(dynamic row, string xName, string yName)
+    {
+        var dictionary = row as IDictionary<string, object>;
+        if (dictionary is null ||
+            !dictionary.TryGetValue(xName, out var xValue) ||
+            !dictionary.TryGetValue(yName, out var yValue) ||
+            xValue is null ||
+            yValue is null)
+        {
+            return null;
+        }
+
+        return new Coordinate((double)xValue, (double)yValue);
     }
 }

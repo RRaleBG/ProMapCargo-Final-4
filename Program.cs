@@ -1,4 +1,3 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
@@ -10,7 +9,9 @@ using ProMapCargo.Api.Data;
 using ProMapCargo.Api.Models;
 using ProMapCargo.Api.Routing;
 using ProMapCargo.Api.Services;
+using System.Text;
 
+var dotEnv = LoadDotEnvConfiguration();
 var builder = WebApplication.CreateBuilder(args);
 
 // ============================================================
@@ -31,8 +32,17 @@ builder.Services.AddSignalR();
 
 var connectionString =
     builder.Configuration.GetConnectionString("Postgres")
-    ?? "Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me";
+    ?? builder.Configuration["ConnectionStrings:Postgres"]
+    ?? builder.Configuration["ConnectionStrings__Postgres"]
+    ?? builder.Configuration["PROMAP_POSTGRES"]
+    ?? GetDotEnvValue(dotEnv, "ConnectionStrings__Postgres")
+    ?? GetDotEnvValue(dotEnv, "PROMAP_POSTGRES");
 
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "PostgreSQL connection string is not configured. Configure User Secrets or the .env file.");
+}
 
 // ============================================================
 // NPGSQL DATA SOURCE
@@ -144,7 +154,7 @@ builder.Services.AddHttpClient<IGeocodingService, NominatimGeocodingService>(cli
 
 builder.Services.AddHttpClient<IRoutingService, OsrmRoutingService>(client =>
 {
-    client.Timeout = TimeSpan.FromSeconds(30);
+    client.Timeout = TimeSpan.FromSeconds(40);
     client.DefaultRequestHeaders.UserAgent.ParseAdd("ProMapCargo/1.0");
 });
 
@@ -179,257 +189,166 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        var origins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>();
-
-        if (origins is not null && origins.Length > 0)
-        {
-            policy.WithOrigins(origins)
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
-            return;
-        }
-
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins("http://localhost:3000", "http://localhost:5173");
+        policy.AllowAnyMethod();
+        policy.AllowAnyHeader();
+        policy.AllowCredentials();
     });
 });
 
+
 var app = builder.Build();
 
-
 // ============================================================
-// ERROR HANDLING
+// MIDDLEWARE
 // ============================================================
 
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
-else
-{
-    app.UseExceptionHandler();
-}
 
-
-// ============================================================
-// SECURITY HEADERS (CSP)
-// ============================================================
-
-app.Use(async (context, next) =>
-{
-    // Dozvoljava samohostovane skripte/stilove, MapLibre Web Workers i lokalne font/glyph assete.
-    context.Response.Headers.Append("Content-Security-Policy",
-        "default-src 'self'; " +
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-        "style-src 'self' 'unsafe-inline'; " +
-        "font-src 'self' data:; " +
-        "img-src 'self' data: blob:; " +
-        "connect-src 'self' ws: wss: http: https:; " +
-        "worker-src 'self' blob:; " +
-        "child-src 'self' blob:;");
-
-    await next();
-});
-
+app.UseExceptionHandler("/error");
+app.UseStatusCodePages();
+app.UseHsts();
 
 // ============================================================
-// STATIC FILES & PMTILES MIME TYPE
+// STATIC FILES
 // ============================================================
 
 var provider = new FileExtensionContentTypeProvider();
-provider.Mappings[".pmtiles"] = "application/vnd.pmtiles";
-provider.Mappings[".pbf"] = "application/x-protobuf";
+provider.Mappings[".pmtiles"] = "application/octet-stream";
+provider.Mappings[".pbf"] = "application/octet-stream";
 
 app.UseStaticFiles(new StaticFileOptions
 {
     ContentTypeProvider = provider
 });
 
-app.UseRouting();
+// ============================================================
+// ROUTING, CORS & AUTH
+// ============================================================
+
 app.UseCors("Frontend");
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-
 // ============================================================
-// API CONTROLLERS & ENDPOINTS
+// MIDDLEWARE - Razor Pages & SignalR
 // ============================================================
 
 app.MapControllers();
-app.MapHub<NavigationHub>("/hubs/navigation");
 app.MapRazorPages();
-
+app.MapHub<NavigationHub>("/hubs/navigation-telemetry");
 
 // ============================================================
-// DYNAMIC PMTILES ROUTE (Generičko slanje svih PMTiles mapa)
+// PMTiles Serving
 // ============================================================
 
-app.MapGet("/maps/{region}.pmtiles", (string region, IWebHostEnvironment environment) =>
+app.Map("/pmtiles/{*path}", pmTilesApp =>
 {
-    var webRoot = string.IsNullOrWhiteSpace(environment.WebRootPath)
-        ? Path.Combine(environment.ContentRootPath, "wwwroot")
-        : environment.WebRootPath;
-
-    var fileName = $"{region.ToLowerInvariant()}.pmtiles";
-    var pmtilesPath = Path.Combine(webRoot, "maps", fileName);
-
-    if (!File.Exists(pmtilesPath))
+    pmTilesApp.Run(async (context) =>
     {
-        return Results.NotFound(new
+        var path = context.Request.RouteValues["path"]?.ToString() ?? "";
+        var filePath = Path.Combine(AppContext.BaseDirectory, "map", path);
+
+        if (!System.IO.File.Exists(filePath))
         {
-            error = $"PMTiles fajl '{fileName}' nije pronađen.",
-            searchedPath = pmtilesPath
-        });
-    }
-
-    return Results.File(
-        pmtilesPath,
-        contentType: "application/vnd.pmtiles",
-        enableRangeProcessing: true);
-});
-
-
-// ============================================================
-// FONT PBF ROUTE (Serve Protomaps/MapLibre glyphs)
-// ============================================================
-
-app.MapGet("/fonts/{fontstack}/{range}.pbf", (string fontstack, string range, IWebHostEnvironment environment) =>
-{
-    var webRoot = string.IsNullOrWhiteSpace(environment.WebRootPath)
-        ? Path.Combine(environment.ContentRootPath, "wwwroot")
-        : environment.WebRootPath;
-
-    // Decode URL-encoded fontstack (e.g., "Noto%20Sans%20Regular" becomes "Noto Sans Regular")
-    var decodedFontstack = System.Net.WebUtility.UrlDecode(fontstack);
-
-    var fontPath = Path.Combine(webRoot, "fonts", decodedFontstack, $"{range}.pbf");
-
-    if (!File.Exists(fontPath))
-    {
-        // Try fallback to lib/protomaps-fonts directory structure
-        fontPath = Path.Combine(webRoot, "lib", "protomaps-fonts", decodedFontstack, $"{range}.pbf");
-
-        if (!File.Exists(fontPath))
-        {
-            return Results.NotFound();
-        }
-    }
-
-    return Results.File(
-        fontPath,
-        contentType: "application/x-protobuf",
-        enableRangeProcessing: true);
-});
-
-
-// ============================================================
-// DATABASE BOOTSTRAP & RUN
-// ============================================================
-
-await BootstrapAsync(app);
-await app.RunAsync();
-
-
-// ============================================================
-// HELPER METHODS
-// ============================================================
-
-static async Task BootstrapAsync(WebApplication app)
-{
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-    var db = services.GetRequiredService<ProMapCargoDbContext>();
-
-    try
-    {
-        var canConnect = await db.Database.CanConnectAsync();
-        if (!canConnect)
-        {
-            app.Logger.LogWarning("PostgreSQL database is not available. Database bootstrap will be skipped.");
+            context.Response.StatusCode = 404;
+            await context.Response.WriteAsync("PMTiles file not found");
             return;
         }
 
-        await db.Database.EnsureCreatedAsync();
-        await EnsureMobileRefreshTokenTableAsync(db, app.Logger);
-        await ExecuteSqlFileAsync(app, db, "03-routing-graph.sql");
-        await ExecuteSqlFileAsync(app, db, "04-operational-indexes.sql");
+        context.Response.ContentType = "application/octet-stream";
+        await context.Response.SendFileAsync(filePath);
+    });
+});
 
-        var roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
-        var roles = new[] { "Administrator", "Dispatcher", "Moderator", "Driver", "FleetManager", "Viewer" };
+app.Run();
 
-        foreach (var roleName in roles)
+static Dictionary<string, string> LoadDotEnvConfiguration()
+{
+    foreach (var startPath in new[]
+             {
+                 Directory.GetCurrentDirectory(),
+                 AppContext.BaseDirectory
+             })
+    {
+        var dotEnvPath = FindDotEnvPath(startPath);
+        if (dotEnvPath is null)
         {
-            if (await roleManager.RoleExistsAsync(roleName)) continue;
+            continue;
+        }
 
-            var result = await roleManager.CreateAsync(new ApplicationRole { Name = roleName });
-            if (!result.Succeeded)
+        return ParseDotEnv(dotEnvPath);
+    }
+
+    return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+}
+
+static string? FindDotEnvPath(string startPath)
+{
+    if (string.IsNullOrWhiteSpace(startPath))
+    {
+        return null;
+    }
+
+    var directory = new DirectoryInfo(startPath);
+    while (directory is not null)
+    {
+        var candidate = Path.Combine(directory.FullName, ".env");
+        if (File.Exists(candidate))
+        {
+            return candidate;
+        }
+
+        directory = directory.Parent;
+    }
+
+    return null;
+}
+
+static Dictionary<string, string> ParseDotEnv(string path)
+{
+    var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+    foreach (var rawLine in File.ReadLines(path))
+    {
+        var line = rawLine.Trim();
+        if (line.Length == 0 || line.StartsWith('#'))
+        {
+            continue;
+        }
+
+        var separatorIndex = line.IndexOf('=');
+        if (separatorIndex <= 0)
+        {
+            continue;
+        }
+
+        var key = line[..separatorIndex].Trim();
+        var value = line[(separatorIndex + 1)..].Trim();
+
+        if (value.Length >= 2)
+        {
+            var first = value[0];
+            var last = value[^1];
+            if ((first == '"' && last == '"') || (first == '\'' && last == '\''))
             {
-                var errors = string.Join(", ", result.Errors.Select(e => $"{e.Code}: {e.Description}"));
-                app.Logger.LogWarning("Failed creating role {RoleName}: {Errors}", roleName, errors);
+                value = value[1..^1];
             }
         }
 
-        app.Logger.LogInformation("ProMap Cargo database bootstrap completed.");
+        values[key] = value;
     }
-    catch (Exception ex)
-    {
-        app.Logger.LogWarning(ex, "Database bootstrap failed. API can still start; run SQL/migrations before routing.");
-    }
+
+    return values;
 }
 
-static async Task EnsureMobileRefreshTokenTableAsync(ProMapCargoDbContext db, ILogger logger)
+static string? GetDotEnvValue(IReadOnlyDictionary<string, string> values, string key)
 {
-    const string sql = """
-        CREATE TABLE IF NOT EXISTS mobile_refresh_tokens (
-            id uuid PRIMARY KEY,
-            user_id uuid NOT NULL,
-            token text NOT NULL,
-            expires_at timestamptz NOT NULL,
-            created_at timestamptz NOT NULL,
-            revoked_at timestamptz NULL,
-            CONSTRAINT fk_mobile_refresh_tokens_users FOREIGN KEY (user_id) REFERENCES asp_net_users (id) ON DELETE CASCADE
-        );
-
-        CREATE UNIQUE INDEX IF NOT EXISTS ix_mobile_refresh_tokens_token ON mobile_refresh_tokens (token);
-        CREATE INDEX IF NOT EXISTS ix_mobile_refresh_tokens_user_id_expires_at ON mobile_refresh_tokens (user_id, expires_at);
-        """;
-
-    try
-    {
-        await db.Database.ExecuteSqlRawAsync(sql);
-    }
-    catch (Exception ex)
-    {
-        logger.LogWarning(ex, "Failed creating mobile refresh token table.");
-    }
-}
-
-static async Task ExecuteSqlFileAsync(WebApplication app, ProMapCargoDbContext db, string fileName)
-{
-    var sqlPath = Path.Combine(app.Environment.ContentRootPath, "Sql", fileName);
-
-    if (!File.Exists(sqlPath))
-    {
-        app.Logger.LogWarning("SQL bootstrap file not found: {SqlFile}", sqlPath);
-        return;
-    }
-
-    try
-    {
-        var sql = await File.ReadAllTextAsync(sqlPath);
-        if (string.IsNullOrWhiteSpace(sql))
-        {
-            app.Logger.LogWarning("SQL bootstrap file is empty: {SqlFile}", sqlPath);
-            return;
-        }
-
-        await db.Database.ExecuteSqlRawAsync(sql);
-        app.Logger.LogInformation("Executed SQL bootstrap file: {SqlFile}", fileName);
-    }
-    catch (Exception ex)
-    {
-        app.Logger.LogWarning(ex, "Failed executing SQL bootstrap file: {SqlFile}", sqlPath);
-    }
+    return values.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value)
+        ? value
+        : null;
 }

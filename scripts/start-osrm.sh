@@ -4,6 +4,7 @@ set -e
 OSRM_ALGORITHM="${OSRM_ALGORITHM:-mld}"
 OSRM_DATA_DIR="${OSRM_DATA_DIR:-/data}"
 OSRM_DATASET="${OSRM_DATASET:-europe-truck}"
+OSRM_PORT="${OSRM_PORT:-5090}"
 
 has_bundle() {
 	prefix="$1"
@@ -50,14 +51,14 @@ fallback_prefix="$OSRM_DATA_DIR/serbia-latest"
 
 if has_bundle "$preferred_prefix"; then
 	dataset_prefix="$preferred_prefix"
-	echo "[info] Starting OSRM with dataset: $dataset_prefix"
+	echo "[info] Starting OSRM on port $OSRM_PORT with dataset: $dataset_prefix"
 elif has_bundle "$fallback_prefix"; then
 	dataset_prefix="$fallback_prefix"
-	echo "[warn] Preferred dataset '$preferred_prefix' is incomplete. Falling back to '$dataset_prefix'."
+	echo "[warn] Preferred dataset '$preferred_prefix' is incomplete. Falling back to '$dataset_prefix' on port $OSRM_PORT."
 else
 	echo "[error] No complete OSRM dataset bundle found under $OSRM_DATA_DIR." >&2
 	echo "[error] Build europe-truck with scripts/build-europe-osrm-truck.ps1 or provide a valid fallback bundle." >&2
 	exit 1
 fi
 
-exec osrm-routed --algorithm "$OSRM_ALGORITHM" "$dataset_prefix.osrm"
+exec osrm-routed --algorithm "$OSRM_ALGORITHM" --port "$OSRM_PORT" "$dataset_prefix.osrm"

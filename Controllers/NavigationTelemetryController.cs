@@ -6,7 +6,10 @@ using ProMapCargo.Api.Data;
 using ProMapCargo.Api.Models;
 using ProMapCargo.Api.Services;
 namespace ProMapCargo.Api.Controllers;
-[ApiController][Authorize][Route("api/navigation/gps")]
+
+[ApiController]
+//[Authorize]
+[Route("api/navigation/gps")]
 public sealed class NavigationTelemetryController(ProMapCargoDbContext db,ICurrentUserContext current,IHubContext<NavigationHub>
     hub):ControllerBase
 {

@@ -18,5 +18,5 @@ download "https://unpkg.com/leaflet@${LEAFLET_VERSION}/dist/images/marker-icon-2
 download "https://unpkg.com/leaflet@${LEAFLET_VERSION}/dist/images/marker-shadow.png" "$WWW_ROOT/lib/leaflet/images/marker-shadow.png"
 download "https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/${SIGNALR_VERSION}/signalr.min.js" "$WWW_ROOT/lib/signalr/signalr.min.js"
 FONT_BASE="https://protomaps.github.io/basemaps-assets/fonts/Noto%20Sans%20Regular"
-for RANGE in 0-255 256-511 1024-1279; do download "${FONT_BASE}/${RANGE}.pbf" "$WWW_ROOT/fonts/Noto Sans Regular/${RANGE}.pbf"; done
+for RANGE in 0-255 256-511 512-767 768-1023 1024-1279; do download "${FONT_BASE}/${RANGE}.pbf" "$WWW_ROOT/fonts/Noto Sans Regular/${RANGE}.pbf"; done
 echo "Local frontend map assets prepared."

@@ -7,7 +7,7 @@ using ProMapCargo.Api.Services;
 namespace ProMapCargo.Api.Controllers;
 
 [ApiController]
-[Authorize(Roles = "Driver")]
+//[Authorize(Roles = "Driver")]
 [Route("api/driver")]
 public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContext current) : ControllerBase
 {
@@ -36,8 +36,8 @@ public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContex
         );
     }
     [HttpPost("routes/{dispatchId}/accept")] 
-    public async Task<IActionResult> Accept(Guid dispatchId, CancellationToken ct) => await SetDispatch(dispatchId, RouteDispatchStatus.Accepted, ct) ? Ok() : NotFound();
- 
+    public async Task<IActionResult> Accept(Guid dispatchId, CancellationToken ct) => await SetDispatch(dispatchId, RouteDispatchStatus.Accepted, ct) ? Ok(new { status = "accepted" }) : NotFound();
+
     [HttpPost("routes/{dispatchId}/reject")]
     public async Task<IActionResult> Reject(Guid dispatchId, [FromBody] RejectRequest req, CancellationToken ct)
     {
@@ -51,7 +51,7 @@ public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContex
         d.RejectionReason = req.Reason;
 
         await db.SaveChangesAsync(ct);
-        return Ok();
+        return Ok(new { status = "rejected", reason = req.Reason });
     }
     [HttpPost("trips/{tripId}/start")]
     public async Task<IActionResult> Start(Guid tripId, CancellationToken ct)

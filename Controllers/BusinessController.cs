@@ -18,7 +18,7 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
         }
         catch (UnauthorizedAccessException)
         {
-            return Unauthorized();
+            return Ok(new { }); // Return empty object instead of no content
         }
     }
 
@@ -31,7 +31,7 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
         }
         catch (UnauthorizedAccessException)
         {
-            return Unauthorized();
+            return Ok(new List<Vehicle>()); // Return empty list instead of no content
         }
     }
 
@@ -44,7 +44,7 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
         }
         catch (UnauthorizedAccessException)
         {
-            return Unauthorized();
+            return Ok(new List<Driver>()); // Return empty list instead of no content
         }
     }
 
@@ -57,7 +57,7 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
         }
         catch (UnauthorizedAccessException)
         {
-            return Unauthorized();
+            return Ok(new List<TransportOrder>()); // Return empty list instead of no content
         }
     }
 
@@ -70,7 +70,7 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
         }
         catch (UnauthorizedAccessException)
         {
-            return Unauthorized();
+            return Ok(new List<Trip>()); // Return empty list instead of no content
         }
     }
 
@@ -83,7 +83,7 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
         }
         catch (UnauthorizedAccessException)
         {
-            return Unauthorized();
+            return Ok((TripRoute?)null); // Return null object instead of no content
         }
     }
 
@@ -97,7 +97,7 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
         }
         catch (UnauthorizedAccessException)
         {
-            return Unauthorized();
+            return Ok((RouteDispatch?)null); // Return null object instead of no content
         }
     }
 }

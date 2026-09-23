@@ -4,6 +4,7 @@ window.ProMap = window.ProMap || {};
 
 window.ProMap.Routing = (() => {
     const DEFAULT_ENDPOINT = "/api/routing/route";
+    const DEFAULT_TIMEOUT_MS = 360000;
 
     function numberOrNull(value) {
         const number = Number(value);
@@ -118,22 +119,76 @@ window.ProMap.Routing = (() => {
 
     async function calculate(state = {}, options = {}) {
         const endpoint = options.endpoint || DEFAULT_ENDPOINT;
+        const timeoutMs = Number.isFinite(Number(options.timeoutMs))
+            ? Math.max(1, Number(options.timeoutMs))
+            : DEFAULT_TIMEOUT_MS;
 
         const request = buildRequest(state);
+        const controller = new AbortController();
+        const upstreamSignal = options.signal;
+        const abortRequest = () => controller.abort();
 
-        const response = await fetch(endpoint, {
-            method: "POST",
+        if (upstreamSignal) {
+            if (upstreamSignal.aborted) {
+                abortRequest();
+            } else {
+                upstreamSignal.addEventListener("abort", abortRequest, {
+                    once: true,
+                });
+            }
+        }
 
-            headers: {
-                "Content-Type": "application/json",
+        const timeoutId = window.setTimeout(() => {
+            abortRequest();
+        }, timeoutMs);
 
-                Accept: "application/json",
-            },
+        let response;
 
-            body: JSON.stringify(request),
+        try {
+            response = await fetch(endpoint, {
+                method: "POST",
 
-            signal: options.signal,
-        });
+                headers: {
+                    "Content-Type": "application/json",
+
+                    Accept: "application/json",
+                },
+
+                body: JSON.stringify(request),
+
+                signal: controller.signal,
+            });
+        } catch (error) {
+            if (upstreamSignal) {
+                upstreamSignal.removeEventListener("abort", abortRequest);
+            }
+
+            window.clearTimeout(timeoutId);
+
+            if (error?.name === "AbortError") {
+                const timeoutError = new Error(
+                    `Routing zahtev je prekinut nakon ${Math.round(timeoutMs / 1000)} sekundi.`,
+                );
+
+                timeoutError.code = "RoutingTimeout";
+                timeoutError.payload = {
+                    code: "RoutingTimeout",
+                    message: "Routing servis nije odgovorio u zadatom vremenu.",
+                    details: `Klijentski timeout je dostigao ${timeoutMs} ms.`,
+                };
+                timeoutError.cause = error;
+
+                throw timeoutError;
+            }
+
+            throw error;
+        }
+
+        if (upstreamSignal) {
+            upstreamSignal.removeEventListener("abort", abortRequest);
+        }
+
+        window.clearTimeout(timeoutId);
 
         let payload = null;
 
@@ -152,7 +207,9 @@ window.ProMap.Routing = (() => {
                 try {
                     payload = JSON.parse(text);
                 } catch {
-                    payload = null;
+                    payload = {
+                        rawText: text,
+                    };
                 }
             }
         }

@@ -33,6 +33,7 @@ window.ProMap = window.ProMap || {};
 
         routeLayers: [],
         routeResponse: null,
+        lastRoutingErrorDiagnostics: null,
         selectedRouteIndex: 0,
 
         routeCoordinates: [],
@@ -195,6 +196,26 @@ window.ProMap = window.ProMap || {};
 
         element.textContent = message || "";
         element.hidden = !message;
+    }
+
+    function buildRoutingErrorMessage(error) {
+        const payload = error?.payload || {};
+        const postGisReason = payload?.postGisFailureReason || payload?.postGisDiagnostics?.failureReason;
+        const details = payload?.details || error?.message;
+
+        if (postGisReason && details) {
+            return `${postGisReason} OSRM fallback nije dostupan: ${details}`;
+        }
+
+        if (postGisReason) {
+            return postGisReason;
+        }
+
+        if (payload?.message && details && payload.message !== details) {
+            return `${payload.message} ${details}`;
+        }
+
+        return payload?.message || details || "Došlo je do greške prilikom računanja rute.";
     }
 
     function setGpsStatus(text, kind = "") {
@@ -384,6 +405,7 @@ window.ProMap = window.ProMap || {};
 
     function geometryToLatLngs(geometry) {
         if (!geometry) {
+            console.debug("[GEOMETRY] No geometry provided");
             return [];
         }
 
@@ -392,39 +414,59 @@ window.ProMap = window.ProMap || {};
         if (typeof value === "string") {
             try {
                 value = JSON.parse(value);
+                console.debug("[GEOMETRY] Parsed geometry from string");
             } catch {
+                console.error("[GEOMETRY] Failed to parse geometry string");
                 return [];
             }
         }
 
         if (Array.isArray(value)) {
-            return value
+            const result = value
                 .filter((point) => Array.isArray(point) && point.length >= 2)
                 .map((point) => [Number(point[1]), Number(point[0])])
                 .filter(
                     (point) => Number.isFinite(point[0]) && Number.isFinite(point[1]),
                 );
+            console.debug(`[GEOMETRY] Array geometry: converted ${value.length} → ${result.length} points`);
+            if (result.length > 0) {
+                console.debug(`[GEOMETRY] First point (array): [${result[0][0].toFixed(6)}, ${result[0][1].toFixed(6)}]`);
+                console.debug(`[GEOMETRY] Last point (array): [${result[result.length-1][0].toFixed(6)}, ${result[result.length-1][1].toFixed(6)}]`);
+            }
+            return result;
         }
 
         if (value?.type === "Feature") {
             value = value.geometry;
+            console.debug("[GEOMETRY] Extracted geometry from Feature");
         }
 
         if (!value || !value.type || !Array.isArray(value.coordinates)) {
+            console.warn("[GEOMETRY] Invalid geometry: missing type or coordinates");
             return [];
         }
 
         if (value.type === "LineString") {
-            return value.coordinates
+            const result = value.coordinates
                 .filter((point) => Array.isArray(point) && point.length >= 2)
                 .map((point) => [Number(point[1]), Number(point[0])])
                 .filter(
                     (point) => Number.isFinite(point[0]) && Number.isFinite(point[1]),
                 );
+            console.debug(`[GEOMETRY] LineString: converted ${value.coordinates.length} → ${result.length} points`);
+            if (result.length > 0) {
+                console.debug(`[GEOMETRY] First point (LineString): [${result[0][0].toFixed(6)}, ${result[0][1].toFixed(6)}]`);
+                console.debug(`[GEOMETRY] Last point (LineString): [${result[result.length-1][0].toFixed(6)}, ${result[result.length-1][1].toFixed(6)}]`);
+            }
+            if (value.coordinates.length > 0) {
+                console.debug(`[GEOMETRY] Original [lon,lat]: [${value.coordinates[0][0]}, ${value.coordinates[0][1]}]`);
+                console.debug(`[GEOMETRY] Converted [lat,lon]: [${result[0][0]}, ${result[0][1]}]`);
+            }
+            return result;
         }
 
         if (value.type === "MultiLineString") {
-            return value.coordinates
+            const result = value.coordinates
                 .flatMap((line) =>
                     Array.isArray(line)
                         ? line
@@ -435,8 +477,11 @@ window.ProMap = window.ProMap || {};
                 .filter(
                     (point) => Number.isFinite(point[0]) && Number.isFinite(point[1]),
                 );
+            console.debug(`[GEOMETRY] MultiLineString: converted to ${result.length} points`);
+            return result;
         }
 
+        console.warn(`[GEOMETRY] Unsupported geometry type: ${value.type}`);
         return [];
     }
 
@@ -843,10 +888,10 @@ window.ProMap = window.ProMap || {};
 
                     reject(
                         new Error(
-                            "Local OSM / PMTiles mapa nije učitana u roku od 20 sekundi.",
+                            "Local OSM / PMTiles mapa nije učitana u roku od 30 sekundi.",
                         ),
                     );
-                }, 20000);
+                }, 30000);
 
                 map.once("load", () => {
                     if (settled) {
@@ -2285,7 +2330,7 @@ window.ProMap = window.ProMap || {};
     }
 
     function updateDiagnostics(route = selectedRoute()) {
-        const diagnostics = state.routeResponse?.diagnostics || {};
+        const diagnostics = state.routeResponse?.diagnostics || state.lastRoutingErrorDiagnostics || {};
         const routeDebug = route?.analysis?.debug || {};
         const highlights = Array.isArray(routeDebug.highlights) && routeDebug.highlights.length
             ? routeDebug.highlights
@@ -2465,6 +2510,8 @@ window.ProMap = window.ProMap || {};
     function renderRouteResponse(response) {
         clearRouteLayers();
 
+        console.debug("[ProMap Navigation] Routing response:", response);
+
         if (
             !response ||
             !Array.isArray(response.routes) ||
@@ -2484,14 +2531,32 @@ window.ProMap = window.ProMap || {};
                 ? requestedIndex
                 : 0;
 
+        const validRouteIndexes = [];
+        const useMapLibreRoute = Boolean(state.localMap.enhancements?.setRoute);
+
         for (const [index, route] of response.routes.entries()) {
-            const coordinates = geometryToLatLngs(route.geometry);
+            const geometry = route?.geometry;
+
+            if (!geometry || !Array.isArray(geometry.coordinates) || geometry.coordinates.length < 2) {
+                console.error(`[ROUTE-RENDER] Route ${index}: geometry is missing or invalid.`, route);
+                continue;
+            }
+
+            const coordinates = geometryToLatLngs(geometry);
+
+            console.debug(`[ROUTE-RENDER] Route ${index}: geometry has ${geometry.coordinates.length} coordinates`);
+            console.debug(`[ROUTE-RENDER] Route ${index}: converted to ${coordinates.length} lat/lng points`);
 
             if (coordinates.length < 2) {
+                console.error(`[ROUTE-RENDER] Route ${index}: converted geometry produced fewer than 2 points.`, geometry);
                 continue;
             }
 
             const active = index === state.selectedRouteIndex;
+
+            console.debug(`[ROUTE-RENDER] Route ${index}: ${useMapLibreRoute ? 'using MapLibre route layers' : 'creating Leaflet polyline'} (${active ? 'ACTIVE' : 'ALTERNATIVE'})`);
+            console.debug(`[ROUTE-RENDER] Route ${index}: first point [${coordinates[0][0].toFixed(6)}, ${coordinates[0][1].toFixed(6)}]`);
+            console.debug(`[ROUTE-RENDER] Route ${index}: last point [${coordinates[coordinates.length-1][0].toFixed(6)}, ${coordinates[coordinates.length-1][1].toFixed(6)}]`);
 
             const layer = L.polyline(coordinates, {
                 weight: active ? 9 : 4,
@@ -2508,6 +2573,16 @@ window.ProMap = window.ProMap || {};
                 index,
                 layer,
             });
+
+            validRouteIndexes.push(index);
+        }
+
+        if (validRouteIndexes.length === 0) {
+            throw new Error("Route response received but no valid geometry was produced.");
+        }
+
+        if (!validRouteIndexes.includes(state.selectedRouteIndex)) {
+            state.selectedRouteIndex = validRouteIndexes[0];
         }
 
         setHidden("mapRouteCard", false);
@@ -2591,7 +2666,26 @@ window.ProMap = window.ProMap || {};
         setRoutingUi(true);
 
         try {
+            state.lastRoutingErrorDiagnostics = null;
             const response = await window.ProMap.Routing.calculate(requestState());
+
+            console.debug(`[ROUTING-RESPONSE] Received response with ${response.routes?.length || 0} routes`);
+
+            if (response.routes && response.routes.length > 0) {
+                response.routes.forEach((route, idx) => {
+                    const geom = route.geometry;
+                    console.debug(`[ROUTING-RESPONSE] Route ${idx}: 
+                        - type: ${geom?.type}
+                        - coordinateCount: ${geom?.coordinates?.length || 0}
+                        - distance: ${route.distance}m
+                        - duration: ${route.duration}s`);
+
+                    if (geom?.coordinates && geom.coordinates.length > 0) {
+                        console.debug(`[ROUTING-RESPONSE] Route ${idx} first [lon,lat]: [${geom.coordinates[0][0]}, ${geom.coordinates[0][1]}]`);
+                        console.debug(`[ROUTING-RESPONSE] Route ${idx} last [lon,lat]: [${geom.coordinates[geom.coordinates.length-1][0]}, ${geom.coordinates[geom.coordinates.length-1][1]}]`);
+                    }
+                });
+            }
 
             renderRouteResponse(response);
 
@@ -2622,8 +2716,14 @@ window.ProMap = window.ProMap || {};
 
             return true;
         } catch (error) {
-            console.error("[ProMap Navigation] Route calculation failed:", error);
-            showError("Došlo je do greške prilikom računanja rute.");
+            console.error("[ProMap Navigation] Route calculation failed:", error, error?.payload || error?.responseText || null);
+            state.lastRoutingErrorDiagnostics = error?.payload?.postGisDiagnostics || null;
+            updateDiagnostics();
+            setEngine(
+                error?.payload?.postGisDiagnostics?.engine || error?.payload?.postGisCode || "POSTGIS",
+                true,
+            );
+            showError(error?.message || buildRoutingErrorMessage(error));
             return false;
         } finally {
             setRoutingUi(false);

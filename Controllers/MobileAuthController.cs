@@ -8,10 +8,7 @@ namespace ProMapCargo.Api.Controllers;
 
 [ApiController]
 [Route("api/mobile-auth")]
-public sealed class MobileAuthController(
-    UserManager<ApplicationUser> userManager,
-    SignInManager<ApplicationUser> signInManager,
-    MobileTokenService tokenService) : ControllerBase
+public sealed class MobileAuthController( UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, MobileTokenService tokenService) : ControllerBase
 {
     [HttpPost("login")]
     [AllowAnonymous]

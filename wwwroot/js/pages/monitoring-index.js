@@ -12,9 +12,13 @@
 
     const $ = (id) => document.getElementById(id);
 
+    // Čitaj inicijalni PMTiles archive iz HTML atributa ako postoji
+    const mapElement = document.getElementById("monitoringMap");
+    const initialArchive = mapElement?.getAttribute("data-map-archive") || "/maps/europe.pmtiles";
+
     const state = {
         map: null,
-        currentBasemapArchive: "/maps/europe.pmtiles",
+        currentBasemapArchive: initialArchive,
         markers: new Map(),
         vehicles: [],
         selectedVehicleId: null,

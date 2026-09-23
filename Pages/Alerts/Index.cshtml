@@ -26,11 +26,8 @@
         </div>
 
         <div class="pm-alerts-header-actions">
-
             <div class="pm-alerts-live">
-
                 <span class="pm-alerts-live-dot"></span>
-
                 <span>
                     Alert engine
                 </span>
@@ -41,20 +38,14 @@
 
             </div>
 
-            <button
-                type="button"
-                class="pm-alerts-btn"
-                id="alertsRefresh">
+            <button type="button" class="pm-alerts-btn" id="alertsRefresh">
 
                 <span>↻</span>
                 Osveži
 
             </button>
 
-            <button
-                type="button"
-                class="pm-alerts-btn pm-alerts-btn-primary"
-                id="alertsClearResolved">
+            <button type="button" class="pm-alerts-btn pm-alerts-btn-primary" id="alertsClearResolved">
 
                 Očisti rešene
 
@@ -65,9 +56,7 @@
     </header>
 
 
-    <section
-        class="pm-alerts-kpis"
-        aria-label="Alert statistika">
+    <section class="pm-alerts-kpis" aria-label="Alert statistika">
 
         <article class="pm-alert-kpi pm-alert-kpi-open">
 
@@ -223,9 +212,7 @@
 
                     </div>
 
-                    <div
-                        class="pm-alerts-result-count"
-                        id="alertsResultCount">
+                    <div class="pm-alerts-result-count" id="alertsResultCount">
                         —
                     </div>
 
@@ -242,17 +229,16 @@
                         </span>
 
                         <input
-                            id="alertsSearch"
-                            type="search"
-                            autocomplete="off"
-                            placeholder="Pretraži alert, vozilo, vozača, turu..." />
+                        id="alertsSearch"
+                        type="search"
+                        autocomplete="off"
+                        placeholder="Pretraži alert, vozilo, vozača, turu..."
+                        />
 
                     </div>
 
 
-                    <select
-                        id="alertsSeverity"
-                        class="pm-alerts-select">
+                    <select id="alertsSeverity" class="pm-alerts-select">
 
                         <option value="">
                             Sve severity
@@ -281,9 +267,7 @@
                     </select>
 
 
-                    <select
-                        id="alertsCategory"
-                        class="pm-alerts-select">
+                    <select id="alertsCategory" class="pm-alerts-select">
 
                         <option value="">
                             Sve kategorije
@@ -344,9 +328,7 @@
                     </select>
 
 
-                    <select
-                        id="alertsStatus"
-                        class="pm-alerts-select">
+                    <select id="alertsStatus" class="pm-alerts-select">
 
                         <option value="open">
                             Otvoreni
@@ -373,16 +355,11 @@
                 </div>
 
 
-                <div
-                    class="pm-alerts-list"
-                    id="alertsList">
+                <div class="pm-alerts-list" id="alertsList">
                 </div>
 
 
-                <div
-                    class="pm-alerts-empty"
-                    id="alertsEmpty"
-                    hidden>
+                <div class="pm-alerts-empty" id="alertsEmpty" hidden>
 
                     <div class="pm-alerts-empty-icon">
                         ✓
@@ -426,9 +403,7 @@
                 </div>
 
 
-                <div
-                    id="alertDetails"
-                    class="pm-alerts-details">
+                <div id="alertDetails" class="pm-alerts-details">
 
                     <div class="pm-alerts-detail-empty">
 
@@ -550,14 +525,11 @@
                         </span>
 
                         <div>
-                            <i
-                                id="severityCriticalBar"
-                                style="width:0%">
+                            <i id="severityCriticalBar" style="width:0%">
                             </i>
                         </div>
 
-                        <strong
-                            id="severityCriticalValue">
+                        <strong id="severityCriticalValue">
                             0
                         </strong>
 
@@ -571,14 +543,11 @@
                         </span>
 
                         <div>
-                            <i
-                                id="severityHighBar"
-                                style="width:0%">
+                            <i id="severityHighBar" style="width:0%">
                             </i>
                         </div>
 
-                        <strong
-                            id="severityHighValue">
+                        <strong id="severityHighValue">
                             0
                         </strong>
 
@@ -592,14 +561,11 @@
                         </span>
 
                         <div>
-                            <i
-                                id="severityMediumBar"
-                                style="width:0%">
+                            <i id="severityMediumBar" style="width:0%">
                             </i>
                         </div>
 
-                        <strong
-                            id="severityMediumValue">
+                        <strong id="severityMediumValue">
                             0
                         </strong>
 
@@ -621,278 +587,214 @@
 
 @section Scripts
 {
-<script src="~/js/alerts.js"></script>
+    <script src="~/js/alerts.js"></script>
 }
 <script>
+    (function () {
+        "use strict";
 
-(function ()
-{
-    "use strict";
-
-    function escapeHtml(value)
-    {
-        return String(value ?? "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-    }
-
-
-    function $(id)
-    {
-        return document.getElementById(id);
-    }
-
-
-    function formatDate(value)
-    {
-        if (!value)
-        {
-            return "—";
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
         }
 
-        const date = new Date(value);
-
-        if (Number.isNaN(date.getTime()))
-        {
-            return String(value);
+        function $(id) {
+            return document.getElementById(id);
         }
 
-        return new Intl.DateTimeFormat(
-            "sr-Latn-RS",
-            {
+        function formatDate(value) {
+            if (!value) {
+                return "—";
+            }
+
+            const date = new Date(value);
+
+            if (Number.isNaN(date.getTime())) {
+                return String(value);
+            }
+
+            return new Intl.DateTimeFormat("sr-Latn-RS", {
                 dateStyle: "short",
                 timeStyle: "short"
+            }).format(date);
+        }
+
+        function severityLabel(value) {
+            return window.ProMap.Alerts.severityLabel(value);
+        }
+
+        function categoryLabel(value) {
+            return window.ProMap.Alerts.categoryLabel(value);
+        }
+
+        function statusLabel(value) {
+            switch (value) {
+                case "open":
+                    return "OPEN";
+
+                case "acknowledged":
+                    return "ACKNOWLEDGED";
+
+                case "snoozed":
+                    return "SNOOZED";
+
+                case "resolved":
+                    return "RESOLVED";
+
+                default:
+                    return String(value || "").toUpperCase();
             }
-        ).format(date);
-    }
-
-
-    function severityLabel(value)
-    {
-        return window.ProMap.Alerts.severityLabel(value);
-    }
-
-
-    function categoryLabel(value)
-    {
-        return window.ProMap.Alerts.categoryLabel(value);
-    }
-
-
-    function statusLabel(value)
-    {
-        switch (value)
-        {
-            case "open":
-                return "OPEN";
-
-            case "acknowledged":
-                return "ACKNOWLEDGED";
-
-            case "snoozed":
-                return "SNOOZED";
-
-            case "resolved":
-                return "RESOLVED";
-
-            default:
-                return String(value || "").toUpperCase();
-        }
-    }
-
-
-    function alertIcon(alert)
-    {
-        switch (alert.category)
-        {
-            case "navigation":
-                return "◎";
-
-            case "gps":
-                return "◉";
-
-            case "compliance":
-                return "▣";
-
-            case "maintenance":
-                return "🔧";
-
-            case "fuel":
-                return "⛽";
-
-            case "tachograph":
-                return "◷";
-
-            case "border":
-                return "⌂";
-
-            case "finance":
-                return "₿";
-
-            case "driver":
-                return "♙";
-
-            case "vehicle":
-                return "▣";
-
-            case "orders":
-                return "▤";
-
-            case "trips":
-                return "↗";
-
-            default:
-                return "!";
-        }
-    }
-
-
-    function getContextMain(alert)
-    {
-        return (
-            alert.vehicle ||
-            alert.driver ||
-            alert.trip ||
-            alert.location ||
-            "Sistem"
-        );
-    }
-
-
-    function getContextSub(alert)
-    {
-        const values = [];
-
-        if (alert.vehicle)
-        {
-            values.push(alert.vehicle);
         }
 
-        if (alert.driver)
-        {
-            values.push(alert.driver);
+        function alertIcon(alert) {
+            switch (alert.category) {
+                case "navigation":
+                    return "◎";
+
+                case "gps":
+                    return "◉";
+
+                case "compliance":
+                    return "▣";
+
+                case "maintenance":
+                    return "🔧";
+
+                case "fuel":
+                    return "⛽";
+
+                case "tachograph":
+                    return "◷";
+
+                case "border":
+                    return "⌂";
+
+                case "finance":
+                    return "₿";
+
+                case "driver":
+                    return "♙";
+
+                case "vehicle":
+                    return "▣";
+
+                case "orders":
+                    return "▤";
+
+                case "trips":
+                    return "↗";
+
+                default:
+                    return "!";
+            }
         }
 
-        if (alert.trip)
-        {
-            values.push(alert.trip);
-        }
-
-        return values
-            .filter(Boolean)
-            .join(" · ");
-    }
-
-
-    const state =
-    {
-        alerts: [],
-        filtered: [],
-        selectedId: null
-    };
-
-
-    const elements =
-    {
-        list: $("alertsList"),
-        empty: $("alertsEmpty"),
-        resultCount: $("alertsResultCount"),
-
-        search: $("alertsSearch"),
-        severity: $("alertsSeverity"),
-        category: $("alertsCategory"),
-        status: $("alertsStatus"),
-
-        detail: $("alertDetails"),
-
-        open: $("alertsOpenCount"),
-        critical: $("alertsCriticalCount"),
-        high: $("alertsHighCount"),
-        today: $("alertsTodayCount"),
-        resolved: $("alertsResolvedCount"),
-
-        sourceNavigation: $("sourceNavigation"),
-        sourceCompliance: $("sourceCompliance"),
-        sourceGps: $("sourceGps"),
-        sourceFleet: $("sourceFleet"),
-        sourceDriver: $("sourceDriver"),
-        sourceFinance: $("sourceFinance"),
-        sourceOperations: $("sourceOperations"),
-
-        criticalBar: $("severityCriticalBar"),
-        highBar: $("severityHighBar"),
-        mediumBar: $("severityMediumBar"),
-
-        criticalValue: $("severityCriticalValue"),
-        highValue: $("severityHighValue"),
-        mediumValue: $("severityMediumValue")
-    };
-
-
-    function updateKpis()
-    {
-        const alerts = state.alerts;
-
-        const open =
-            alerts.filter(
-                alert =>
-                    alert.status === "open"
+        function getContextMain(alert) {
+            return (
+                alert.vehicle ||
+                alert.driver ||
+                alert.trip ||
+                alert.location ||
+                "Sistem"
             );
+        }
 
-        const critical =
-            open.filter(
-                alert =>
-                    alert.severity === "critical"
-            );
+        function getContextSub(alert) {
+            const values = [];
 
-        const high =
-            open.filter(
-                alert =>
-                    alert.severity === "high"
-            );
+            if (alert.vehicle) {
+                values.push(alert.vehicle);
+            }
 
-        const resolved =
-            alerts.filter(
-                alert =>
-                    alert.status === "resolved"
-            );
+            if (alert.driver) {
+                values.push(alert.driver);
+            }
 
-        elements.open.textContent =
-            open.length;
+            if (alert.trip) {
+                values.push(alert.trip);
+            }
 
-        elements.critical.textContent =
-            critical.length;
+            return values.filter(Boolean).join(" · ");
+        }
 
-        elements.high.textContent =
-            high.length;
-
-        elements.today.textContent =
-            window.ProMap.Alerts.getTodayCount();
-
-        elements.resolved.textContent =
-            resolved.length;
-
-
-        const sourceCounts =
-        {
-            navigation: 0,
-            compliance: 0,
-            gps: 0,
-            fleet: 0,
-            driver: 0,
-            finance: 0,
-            operations: 0
+        const state = {
+            alerts: [],
+            filtered: [],
+            selectedId: null
         };
 
+        const elements = {
+            list: $("alertsList"),
+            empty: $("alertsEmpty"),
+            resultCount: $("alertsResultCount"),
 
-        open.forEach(
-            function (alert)
-            {
-                switch (alert.category)
-                {
+            search: $("alertsSearch"),
+            severity: $("alertsSeverity"),
+            category: $("alertsCategory"),
+            status: $("alertsStatus"),
+
+            detail: $("alertDetails"),
+
+            open: $("alertsOpenCount"),
+            critical: $("alertsCriticalCount"),
+            high: $("alertsHighCount"),
+            today: $("alertsTodayCount"),
+            resolved: $("alertsResolvedCount"),
+
+            sourceNavigation: $("sourceNavigation"),
+            sourceCompliance: $("sourceCompliance"),
+            sourceGps: $("sourceGps"),
+            sourceFleet: $("sourceFleet"),
+            sourceDriver: $("sourceDriver"),
+            sourceFinance: $("sourceFinance"),
+            sourceOperations: $("sourceOperations"),
+
+            criticalBar: $("severityCriticalBar"),
+            highBar: $("severityHighBar"),
+            mediumBar: $("severityMediumBar"),
+
+            criticalValue: $("severityCriticalValue"),
+            highValue: $("severityHighValue"),
+            mediumValue: $("severityMediumValue")
+        };
+
+        function updateKpis() {
+            const alerts = state.alerts;
+
+            const open = alerts.filter(alert => alert.status === "open");
+
+            const critical = open.filter(alert => alert.severity === "critical");
+
+            const high = open.filter(alert => alert.severity === "high");
+
+            const resolved = alerts.filter(alert => alert.status === "resolved");
+
+            elements.open.textContent = open.length;
+
+            elements.critical.textContent = critical.length;
+
+            elements.high.textContent = high.length;
+
+            elements.today.textContent = window.ProMap.Alerts.getTodayCount();
+
+            elements.resolved.textContent = resolved.length;
+
+            const sourceCounts = {
+                navigation: 0,
+                compliance: 0,
+                gps: 0,
+                fleet: 0,
+                driver: 0,
+                finance: 0,
+                operations: 0
+            };
+
+            open.forEach(function (alert) {
+                switch (alert.category) {
                     case "navigation":
                         sourceCounts.navigation++;
                         break;
@@ -924,215 +826,119 @@
                         sourceCounts.operations++;
                         break;
                 }
-            }
-        );
+            });
 
+            elements.sourceNavigation.textContent = sourceCounts.navigation;
 
-        elements.sourceNavigation.textContent =
-            sourceCounts.navigation;
+            elements.sourceCompliance.textContent = sourceCounts.compliance;
 
-        elements.sourceCompliance.textContent =
-            sourceCounts.compliance;
+            elements.sourceGps.textContent = sourceCounts.gps;
 
-        elements.sourceGps.textContent =
-            sourceCounts.gps;
+            elements.sourceFleet.textContent = sourceCounts.fleet;
 
-        elements.sourceFleet.textContent =
-            sourceCounts.fleet;
+            elements.sourceDriver.textContent = sourceCounts.driver;
 
-        elements.sourceDriver.textContent =
-            sourceCounts.driver;
+            elements.sourceFinance.textContent = sourceCounts.finance;
 
-        elements.sourceFinance.textContent =
-            sourceCounts.finance;
+            elements.sourceOperations.textContent = sourceCounts.operations;
 
-        elements.sourceOperations.textContent =
-            sourceCounts.operations;
+            const severityTotal = Math.max(1, open.length);
 
-
-        const severityTotal =
-            Math.max(
-                1,
-                open.length
-            );
-
-
-        const criticalCount =
-            open.filter(
-                a => a.severity === "critical"
+            const criticalCount = open.filter(
+                    a => a.severity === "critical"
             ).length;
 
-        const highCount =
-            open.filter(
-                a => a.severity === "high"
-            ).length;
+            const highCount = open.filter(a => a.severity === "high").length;
 
-        const mediumCount =
-            open.filter(
-                a => a.severity === "medium"
-            ).length;
+            const mediumCount = open.filter(a => a.severity === "medium").length;
 
+            elements.criticalValue.textContent = criticalCount;
 
-        elements.criticalValue.textContent =
-            criticalCount;
+            elements.highValue.textContent = highCount;
 
-        elements.highValue.textContent =
-            highCount;
+            elements.mediumValue.textContent = mediumCount;
 
-        elements.mediumValue.textContent =
-            mediumCount;
+            elements.criticalBar.style.width =
+                (criticalCount / severityTotal * 100  ) + "%";
 
+            elements.highBar.style.width = (highCount / severityTotal * 100    ) + "%";
 
-        elements.criticalBar.style.width =
-            (
-                criticalCount /
-                severityTotal *
-                100
-            ) + "%";
-
-        elements.highBar.style.width =
-            (
-                highCount /
-                severityTotal *
-                100
-            ) + "%";
-
-        elements.mediumBar.style.width =
-            (
-                mediumCount /
-                severityTotal *
-                100
-            ) + "%";
-    }
-
-
-    function applyFilters()
-    {
-        const search =
-            String(
-                elements.search.value || ""
-            )
-            .trim()
-            .toLowerCase();
-
-
-        const severity =
-            elements.severity.value;
-
-        const category =
-            elements.category.value;
-
-        const status =
-            elements.status.value;
-
-
-        state.filtered =
-            state.alerts.filter(
-                function (alert)
-                {
-                    if (
-                        severity &&
-                        alert.severity !== severity
-                    )
-                    {
-                        return false;
-                    }
-
-                    if (
-                        category &&
-                        alert.category !== category
-                    )
-                    {
-                        return false;
-                    }
-
-                    if (
-                        status &&
-                        alert.status !== status
-                    )
-                    {
-                        return false;
-                    }
-
-
-                    if (!search)
-                    {
-                        return true;
-                    }
-
-
-                    const haystack =
-                        [
-                            alert.id,
-                            alert.title,
-                            alert.message,
-                            alert.type,
-                            alert.vehicle,
-                            alert.driver,
-                            alert.trip,
-                            alert.location,
-                            alert.source,
-                            categoryLabel(alert.category)
-                        ]
-                        .filter(Boolean)
-                        .join(" ")
-                        .toLowerCase();
-
-
-                    return haystack.includes(
-                        search
-                    );
-                }
-            );
-
-
-        renderList();
-    }
-
-
-    function renderList()
-    {
-        elements.resultCount.textContent =
-            state.filtered.length +
-            " rezultata";
-
-
-        elements.empty.hidden =
-            state.filtered.length !== 0;
-
-
-        elements.list.innerHTML = "";
-
-
-        if (!state.filtered.length)
-        {
-            return;
+            elements.mediumBar.style.width =
+                (mediumCount / severityTotal * 100  ) + "%";
         }
 
+        function applyFilters() {
+            const search = String(elements.search.value || "")
+                .trim()
+                .toLowerCase();
 
-        state.filtered.forEach(
-            function (alert)
-            {
-                const row =
-                    document.createElement("div");
+            const severity = elements.severity.value;
 
+            const category = elements.category.value;
+
+            const status = elements.status.value;
+
+            state.filtered = state.alerts.filter(function (alert) {
+                if (severity && alert.severity !== severity) {
+                    return false;
+                }
+
+                if (category && alert.category !== category) {
+                    return false;
+                }
+
+                if (status && alert.status !== status) {
+                    return false;
+                }
+
+                if (!search) {
+                    return true;
+                }
+
+                const haystack = [
+                    alert.id,
+                    alert.title,
+                    alert.message,
+                    alert.type,
+                    alert.vehicle,
+                    alert.driver,
+                    alert.trip,
+                    alert.location,
+                    alert.source,
+                    categoryLabel(alert.category)
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                return haystack.includes(search);
+            });
+
+            renderList();
+        }
+
+        function renderList() {
+            elements.resultCount.textContent = state.filtered.length + " rezultata";
+
+            elements.empty.hidden = state.filtered.length !== 0;
+
+            elements.list.innerHTML = "";
+
+            if (!state.filtered.length) {
+                return;
+            }
+
+            state.filtered.forEach(function (alert) {
+                const row = document.createElement("div");
 
                 row.className =
                     "pm-alert-row " +
                     alert.severity +
-                    (
-                        state.selectedId === alert.id
-                            ? " selected"
-                            : ""
-                    );
+                    (state.selectedId === alert.id ? " selected" : "");
 
+                row.dataset.alertId = alert.id;
 
-                row.dataset.alertId =
-                    alert.id;
-
-
-                row.innerHTML =
-                    `
+                row.innerHTML = `
                     <div class="pm-alert-severity-line"></div>
 
                     <div class="pm-alert-row-icon">
@@ -1194,37 +1000,21 @@
                     </div>
                     `;
 
+                row.addEventListener("click", function () {
+                    state.selectedId = alert.id;
 
-                row.addEventListener(
-                    "click",
-                    function ()
-                    {
-                        state.selectedId =
-                            alert.id;
+                    renderList();
 
-                        renderList();
+                    renderDetails(alert);
+                });
 
-                        renderDetails(
-                            alert
-                        );
-                    }
-                );
+                elements.list.appendChild(row);
+            });
+        }
 
-
-                elements.list.appendChild(
-                    row
-                );
-            }
-        );
-    }
-
-
-    function renderDetails(alert)
-    {
-        if (!alert)
-        {
-            elements.detail.innerHTML =
-                `
+        function renderDetails(alert) {
+            if (!alert) {
+                elements.detail.innerHTML = `
                 <div class="pm-alert-detail-empty">
 
                     <div>
@@ -1243,12 +1033,10 @@
                 </div>
                 `;
 
-            return;
-        }
+                return;
+            }
 
-
-        elements.detail.innerHTML =
-            `
+            elements.detail.innerHTML = `
             <div class="pm-alert-detail">
 
                 <div class="pm-alert-detail-top">
@@ -1354,8 +1142,8 @@
                 <div class="pm-alert-detail-actions">
 
                     ${
-                        alert.status === "resolved"
-                            ? `
+                            alert.status === "resolved"
+                                ? `
                                 <button
                                     type="button"
                                     class="pm-alert-detail-btn"
@@ -1363,7 +1151,7 @@
                                     Ponovo otvori
                                 </button>
                             `
-                            : `
+                                : `
                                 <button
                                     type="button"
                                     class="pm-alert-detail-btn primary"
@@ -1371,12 +1159,12 @@
                                     Reši alert
                                 </button>
                             `
-                    }
+                        }
 
 
                     ${
-                        alert.status === "open"
-                            ? `
+                            alert.status === "open"
+                                ? `
                                 <button
                                     type="button"
                                     class="pm-alert-detail-btn"
@@ -1384,7 +1172,7 @@
                                     Preuzmi
                                 </button>
                             `
-                            : `
+                                : `
                                 <button
                                     type="button"
                                     class="pm-alert-detail-btn"
@@ -1392,12 +1180,12 @@
                                     Odloži 30 min
                                 </button>
                             `
-                    }
+                        }
 
 
                     ${
-                        alert.actionUrl
-                            ? `
+                            alert.actionUrl
+                                ? `
                                 <button
                                     type="button"
                                     class="pm-alert-detail-btn"
@@ -1405,242 +1193,123 @@
                                     Otvori modul
                                 </button>
                             `
-                            : ""
-                    }
+                                : ""
+                        }
 
                 </div>
 
             </div>
             `;
 
+            elements.detail
+                .querySelectorAll("[data-alert-action]")
+                .forEach(function (button) {
+                    button.addEventListener("click", function () {
+                        const action = button.dataset.alertAction;
 
-        elements.detail
-            .querySelectorAll(
-                "[data-alert-action]"
-            )
-            .forEach(
-                function (button)
-                {
-                    button.addEventListener(
-                        "click",
-                        function ()
-                        {
-                            const action =
-                                button.dataset.alertAction;
-
-
-                            if (
-                                action ===
-                                "resolve"
-                            )
-                            {
-                                window.ProMap.Alerts.resolve(
-                                    alert.id
-                                );
-                            }
-
-
-                            if (
-                                action ===
-                                "reopen"
-                            )
-                            {
-                                window.ProMap.Alerts.reopen(
-                                    alert.id
-                                );
-                            }
-
-
-                            if (
-                                action ===
-                                "acknowledge"
-                            )
-                            {
-                                window.ProMap.Alerts.acknowledge(
-                                    alert.id
-                                );
-                            }
-
-
-                            if (
-                                action ===
-                                "snooze"
-                            )
-                            {
-                                window.ProMap.Alerts.snooze(
-                                    alert.id,
-                                    30
-                                );
-                            }
-
-
-                            if (
-                                action ===
-                                "open-source"
-                            )
-                            {
-                                window.location.href =
-                                    alert.actionUrl;
-                                return;
-                            }
-
-
-                            reload();
+                        if (action === "resolve") {
+                            window.ProMap.Alerts.resolve(alert.id);
                         }
-                    );
-                }
-            );
-    }
 
+                        if (action === "reopen") {
+                            window.ProMap.Alerts.reopen(alert.id);
+                        }
 
-    function reload()
-    {
-        state.alerts =
-            window.ProMap.Alerts.get();
+                        if (action === "acknowledge") {
+                            window.ProMap.Alerts.acknowledge(alert.id);
+                        }
 
+                        if (action === "snooze") {
+                            window.ProMap.Alerts.snooze(alert.id, 30);
+                        }
 
-        updateKpis();
+                        if (action === "open-source") {
+                            window.location.href = alert.actionUrl;
+                            return;
+                        }
 
-        applyFilters();
-
-
-        if (state.selectedId)
-        {
-            const selected =
-                state.alerts.find(
-                    alert =>
-                        alert.id ===
-                        state.selectedId
-                );
-
-            renderDetails(
-                selected || null
-            );
+                        reload();
+                    });
+                });
         }
-    }
 
+        function reload() {
+            state.alerts = window.ProMap.Alerts.get();
 
-    function clearResolved()
-    {
-        const remaining =
-            window.ProMap.Alerts
-                .get()
-                .filter(
-                    alert =>
-                        alert.status !==
-                        "resolved"
+            updateKpis();
+
+            applyFilters();
+
+            if (state.selectedId) {
+                const selected = state.alerts.find(
+                        alert => alert.id === state.selectedId
                 );
 
+                renderDetails(selected || null);
+            }
+        }
 
-        localStorage.setItem(
-            window.ProMap.Alerts.storageKey,
-            JSON.stringify(remaining)
-        );
+        function clearResolved() {
+            const remaining = window.ProMap.Alerts.get().filter(
+                        alert => alert.status !== "resolved"
+            );
 
+            localStorage.setItem(
+                window.ProMap.Alerts.storageKey,
+                JSON.stringify(remaining)
+            );
 
-        window.dispatchEvent(
-            new CustomEvent(
-                "promap:alerts-changed",
-                {
-                    detail:
-                    {
+            window.dispatchEvent(
+                new CustomEvent("promap:alerts-changed", {
+                    detail: {
                         alerts: remaining
                     }
-                }
-            )
-        );
-
-
-        state.selectedId = null;
-
-        reload();
-
-        renderDetails(null);
-    }
-
-
-    function bind()
-    {
-        [
-            elements.search,
-            elements.severity,
-            elements.category,
-            elements.status
-        ]
-        .forEach(
-            function (element)
-            {
-                element.addEventListener(
-                    "input",
-                    applyFilters
-                );
-
-                element.addEventListener(
-                    "change",
-                    applyFilters
-                );
-            }
-        );
-
-
-        $("alertsRefresh")
-            .addEventListener(
-                "click",
-                reload
+                })
             );
 
+            state.selectedId = null;
 
-        $("alertsClearResolved")
-            .addEventListener(
-                "click",
-                clearResolved
-            );
+            reload();
 
-
-        window.addEventListener(
-            "promap:alerts-changed",
-            reload
-        );
-    }
-
-
-    function init()
-    {
-        if (
-            !window.ProMap ||
-            !window.ProMap.Alerts
-        )
-        {
-            console.error(
-                "ProMap Alerts module nije učitan."
-            );
-
-            return;
+            renderDetails(null);
         }
 
+        function bind() {
+            [
+                elements.search,
+                elements.severity,
+                elements.category,
+                elements.status
+            ].forEach(function (element) {
+                element.addEventListener("input", applyFilters);
 
-        bind();
+                element.addEventListener("change", applyFilters);
+            });
 
-        reload();
-    }
+            $("alertsRefresh").addEventListener("click", reload);
 
+            $("alertsClearResolved").addEventListener("click", clearResolved);
 
-    if (
-        document.readyState ===
-        "loading"
-    )
-    {
-        document.addEventListener(
-            "DOMContentLoaded",
-            init
-        );
-    }
-    else
-    {
-        init();
-    }
+            window.addEventListener("promap:alerts-changed", reload);
+        }
 
-})();
+        function init() {
+            if (!window.ProMap || !window.ProMap.Alerts) {
+                console.error("ProMap Alerts module nije učitan.");
 
+                return;
+            }
+
+            bind();
+
+            reload();
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", init);
+        } else {
+            init();
+        }
+    })();
 </script>
 

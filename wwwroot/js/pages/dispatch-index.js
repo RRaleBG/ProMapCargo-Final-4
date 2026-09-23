@@ -98,8 +98,12 @@
             })
             .addTo(state.map);
 
+        // Čitaj inicijalni PMTiles archive iz HTML atributa ako postoji
+        const dispatchMapElement = document.getElementById("dispatchMap");
+        const customArchive = dispatchMapElement?.getAttribute("data-map-archive") || "/maps/europe.pmtiles";
+
         void window.ProMap.MapLayers.attach(state.map, {
-            archiveUrl: "/maps/europe.pmtiles",
+            archiveUrl: customArchive,
         }).catch(console.error);
 
         fleet.forEach(addFleetMarker);

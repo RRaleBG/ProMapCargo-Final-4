@@ -27,5 +27,5 @@ Download-Asset "https://unpkg.com/leaflet@$LeafletVersion/dist/images/marker-ico
 Download-Asset "https://unpkg.com/leaflet@$LeafletVersion/dist/images/marker-shadow.png" (Join-Path $Www "lib/leaflet/images/marker-shadow.png")
 Download-Asset "https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/$SignalRVersion/signalr.min.js" (Join-Path $Www "lib/signalr/signalr.min.js")
 $FontBase = "https://protomaps.github.io/basemaps-assets/fonts/Noto%20Sans%20Regular"
-foreach ($Range in @("0-255","256-511","1024-1279")) { Download-Asset "$FontBase/$Range.pbf" (Join-Path $Www "fonts/Noto Sans Regular/$Range.pbf") }
+foreach ($Range in @("0-255","256-511","512-767","768-1023","1024-1279")) { Download-Asset "$FontBase/$Range.pbf" (Join-Path $Www "fonts/Noto Sans Regular/$Range.pbf") }
 Write-Host "Local frontend map assets prepared."
