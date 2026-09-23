@@ -1140,42 +1140,28 @@ window.ProMap = window.ProMap || {};
             );
 
             showError(
-                "MapLibre map modul nije učitan.",
+                "MapLibre MapLayers modul nije učitan. Proveri layout i promap-map-layers.js.",
             );
 
             return false;
         }
 
-        if (state.map) {
-            state.map.resize?.();
-
-            return true;
-        }
-
         try {
-            const record =
-                await window.ProMap.MapLayers.attach(
-                    mapElement,
-                    {
-                        archiveUrl:
-                            PROMAP_PMTILES_ENDPOINT,
+            const record = await window.ProMap.MapLayers.attach(
+                mapElement,
+                {
+                    styleUrl: LOCAL_MAP_STYLE,
+                    pmtilesUrl: PROMAP_PMTILES_ENDPOINT,
+                },
+            );
 
-                        center: {
-                            lat: 50.2,
-                            lng: 9.75,
-                        },
-
-                        zoom: 4.35,
-                    },
-                );
-
-            if (!record?.maplibreMap) {
+            if (!record?.map) {
                 throw new Error(
-                    "MapLibre mapa nije kreirana.",
+                    "MapLayers.attach nije vratio validnu MapLibre mapu.",
                 );
             }
 
-            state.map = record.maplibreMap;
+            state.map = record.map;
 
             state.localMap.host = mapElement;
             state.localMap.map = state.map;
@@ -1230,15 +1216,13 @@ window.ProMap = window.ProMap || {};
 
                 if (state.picking === "start") {
                     if ($("navStart")) {
-                        $("navStart").value =
-                            point.label;
+                        $("navStart").value = point.label;
                     }
 
                     setStart(point);
                 } else {
                     if ($("navEnd")) {
-                        $("navEnd").value =
-                            point.label;
+                        $("navEnd").value = point.label;
                     }
 
                     setDestination(point);
@@ -1253,16 +1237,39 @@ window.ProMap = window.ProMap || {};
                 showError("");
             });
 
-            //state.map.on("resize", () => {
-            //    state.map.resize();
-            //});
-
-            //state.map.on("load", () => {
-            //    state.map.resize();
-            //});
+            /*
+             * IMPORTANT:
+             * Never do:
+             *
+             * state.map.on("resize", () => {
+             *     state.map.resize();
+             * });
+             *
+             * That causes:
+             *
+             * resize -> resize -> resize -> ...
+             *
+             * and eventually:
+             * RangeError: Maximum call stack size exceeded
+             */
 
             window.setTimeout(() => {
-                state.map?.resize();
+                if (
+                    state.map &&
+                    typeof state.map.resize === "function"
+                ) {
+                    state.map.resize();
+                }
+
+                if (
+                    state.localMap?.map &&
+                    state.localMap.map !== state.map &&
+                    typeof state.localMap.map.resize === "function"
+                ) {
+                    state.localMap.map.resize();
+                }
+
+                scheduleLocalMapBackgroundSync();
             }, 250);
 
             return true;
@@ -1279,13 +1286,12 @@ window.ProMap = window.ProMap || {};
 
             showError(
                 error?.message ||
-                "MapLibre mapa nije mogla da se učita.",
+                "MapLibre mapa nije mogla da se inicijalizuje.",
             );
 
             return false;
         }
     }
-
 
     function setStart(point) {
         const normalized = normalizePoint(point);
@@ -2965,7 +2971,10 @@ window.ProMap = window.ProMap || {};
     const leftVisualOffset = mobile ? 24 : wideScreen ? 116 : 44;
 
     function fitRoute() {
-        if (!state.map || typeof state.map.fitBounds !== "function") {
+        if (
+            !state.map ||
+            typeof state.map.fitBounds !== "function"
+        ) {
             return;
         }
 
@@ -2973,10 +2982,17 @@ window.ProMap = window.ProMap || {};
             ? state.routeCoordinates
             : [
                 state.start
-                    ? [state.start.latitude, state.start.longitude]
+                    ? [
+                        state.start.latitude,
+                        state.start.longitude,
+                    ]
                     : null,
+
                 state.destination
-                    ? [state.destination.latitude, state.destination.longitude]
+                    ? [
+                        state.destination.latitude,
+                        state.destination.longitude,
+                    ]
                     : null,
             ].filter(Boolean);
 
@@ -2984,8 +3000,23 @@ window.ProMap = window.ProMap || {};
             return;
         }
 
-        // navigation.js stores route points internally as [lat, lon].
-        // MapLibre fitBounds expects [[minLon, minLat], [maxLon, maxLat]].
+        /*
+         * navigation.js internally stores route points as:
+         *
+         * [latitude, longitude]
+         *
+         * MapLibre requires:
+         *
+         * [longitude, latitude]
+         *
+         * fitBounds requires:
+         *
+         * [
+         *   [minLon, minLat],
+         *   [maxLon, maxLat]
+         * ]
+         */
+
         const coordinates = points
             .filter(
                 (point) =>
@@ -2994,7 +3025,12 @@ window.ProMap = window.ProMap || {};
                     Number.isFinite(Number(point[0])) &&
                     Number.isFinite(Number(point[1])),
             )
-            .map(([lat, lon]) => [Number(lon), Number(lat)]);
+            .map(
+                ([lat, lon]) => [
+                    Number(lon),
+                    Number(lat),
+                ],
+            );
 
         if (!coordinates.length) {
             return;
@@ -3033,14 +3069,22 @@ window.ProMap = window.ProMap || {};
                     bottom: bottomOverlayHeight + 36,
                     left: leftVisualOffset + 36,
                 },
-                maxZoom: state.routeCoordinates.length ? undefined : 14,
+
+                maxZoom:
+                    state.routeCoordinates.length
+                        ? undefined
+                        : 14,
+
                 duration: 700,
                 essential: true,
             },
         );
 
         if (state.localMap?.visible) {
-            window.setTimeout(scheduleLocalMapBackgroundSync, 60);
+            window.setTimeout(
+                scheduleLocalMapBackgroundSync,
+                60,
+            );
         }
     }
 
@@ -3202,40 +3246,67 @@ window.ProMap = window.ProMap || {};
             return;
         }
 
-        const latitude = Number(position?.latitude ?? position?.coords?.latitude);
+        const latitude = Number(
+            position?.latitude ??
+            position?.coords?.latitude,
+        );
 
-        const longitude = Number(position?.longitude ?? position?.coords?.longitude,);
+        const longitude = Number(
+            position?.longitude ??
+            position?.coords?.longitude,
+        );
 
-        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        if (
+            !Number.isFinite(latitude) ||
+            !Number.isFinite(longitude)
+        ) {
             return;
         }
 
         if (!state.gpsMarker) {
-            state.gpsMarker = createGpsMarker(latitude, longitude);
-        }
-        else if (typeof state.gpsMarker.setLngLat === "function") {
+            state.gpsMarker =
+                createGpsMarker(
+                    latitude,
+                    longitude,
+                );
+        } else if (
+            typeof state.gpsMarker.setLngLat === "function"
+        ) {
             state.gpsMarker.setLngLat([
                 longitude,
-                latitude
+                latitude,
             ]);
         }
 
-        const speed = Number(position?.speed ?? position?.coords?.speed);
+        const speed = Number(
+            position?.speed ??
+            position?.coords?.speed,
+        );
 
-        const accuracy = Number(position?.accuracy ?? position?.coords?.accuracy);
+        const accuracy = Number(
+            position?.accuracy ??
+            position?.coords?.accuracy,
+        );
 
         setGpsStatus("ON", "ready");
 
-        setText("liveChip", "GPS ON");
+        setText(
+            "liveChip",
+            "GPS ON",
+        );
 
         setText(
             "liveSpeed",
-            Number.isFinite(speed) ? `${Math.round(speed * 3.6)} km/h` : "—",
+            Number.isFinite(speed)
+                ? `${Math.round(speed * 3.6)} km/h`
+                : "—",
         );
 
         setText(
             "liveAccuracy",
-            Number.isFinite(accuracy) ? `±${Math.round(accuracy)} m` : "—",
+            Number.isFinite(accuracy)
+                ? `±${Math.round(accuracy)} m`
+                : "—",
         );
 
         setText(
@@ -3243,7 +3314,11 @@ window.ProMap = window.ProMap || {};
             `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
         );
 
-        const offRoute = distanceToRouteMeters(latitude, longitude);
+        const offRoute =
+            distanceToRouteMeters(
+                latitude,
+                longitude,
+            );
 
         setText(
             "liveOffRoute",
@@ -3260,16 +3335,27 @@ window.ProMap = window.ProMap || {};
             accuracy,
             speed,
 
-            heading: Number(position?.heading ?? position?.coords?.heading),
+            heading: Number(
+                position?.heading ??
+                position?.coords?.heading,
+            ),
 
-            timestamp: position?.timestamp ?? position?.coords?.timestamp,
+            timestamp:
+                position?.timestamp ??
+                position?.coords?.timestamp,
         });
 
-        if (state.live && state.liveFollow) {
+        if (
+            state.live &&
+            state.liveFollow
+        ) {
             followLivePosition({
                 latitude,
                 longitude,
-                heading: Number(position?.heading ?? position?.coords?.heading),
+                heading: Number(
+                    position?.heading ??
+                    position?.coords?.heading,
+                ),
             });
         }
 
@@ -3278,21 +3364,29 @@ window.ProMap = window.ProMap || {};
             state.routeResponse &&
             offRoute != null &&
             offRoute > 100 &&
-            Date.now() - state.lastRerouteAt > 30000
+            Date.now() -
+            state.lastRerouteAt >
+            30000
         ) {
-            state.lastRerouteAt = Date.now();
+            state.lastRerouteAt =
+                Date.now();
 
             state.start = {
                 latitude,
                 longitude,
-                label: "Trenutna GPS lokacija",
+                label:
+                    "Trenutna GPS lokacija",
             };
 
             if ($("navStart")) {
-                $("navStart").value = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+                $("navStart").value =
+                    `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
             }
 
-            setText("navStartResolved", "Trenutna GPS lokacija");
+            setText(
+                "navStartResolved",
+                "Trenutna GPS lokacija",
+            );
 
             void calculateRoute({
                 silent: true,
@@ -3399,34 +3493,43 @@ window.ProMap = window.ProMap || {};
 
     function useCurrentLocation() {
         if (!navigator.geolocation) {
-            showError("Browser ne podržava GPS geolokaciju.");
+            showError(
+                "Browser ne podržava GPS geolokaciju.",
+            );
 
             return;
         }
 
-        setGpsStatus("LOCATING", "warning");
+        setGpsStatus(
+            "LOCATING",
+            "warning",
+        );
 
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const point = {
-                    latitude: position.coords.latitude,
+                    latitude:
+                        position.coords.latitude,
 
-                    longitude: position.coords.longitude,
+                    longitude:
+                        position.coords.longitude,
 
-                    label: "Moja trenutna lokacija",
+                    label:
+                        "Moja trenutna lokacija",
                 };
 
                 if ($("navStart")) {
-                    $("navStart").value = `${point.latitude.toFixed(
-                        6,
-                    )}, ${point.longitude.toFixed(6)}`;
+                    $("navStart").value =
+                        `${point.latitude.toFixed(6)}, ${point.longitude.toFixed(6)}`;
                 }
 
                 setStart(point);
 
-                setGpsStatus("READY", "ready");
+                setGpsStatus(
+                    "READY",
+                    "ready",
+                );
 
-                //state.map?.setView([point.latitude, point.longitude], 14);
                 if (
                     state.map &&
                     typeof state.map.flyTo === "function"
@@ -3434,25 +3537,32 @@ window.ProMap = window.ProMap || {};
                     state.map.flyTo({
                         center: [
                             point.longitude,
-                            point.latitude
+                            point.latitude,
                         ],
+
                         zoom: 14,
-                        essential: true
+
+                        duration: 700,
+
+                        essential: true,
                     });
                 }
             },
 
             (error) => {
-                showError(gpsErrorMessage(error));
+                showError(
+                    gpsErrorMessage(error),
+                );
 
-                setGpsStatus("ERROR", "danger");
+                setGpsStatus(
+                    "ERROR",
+                    "danger",
+                );
             },
 
             {
                 enableHighAccuracy: true,
-
                 maximumAge: 0,
-
                 timeout: 15000,
             },
         );
@@ -3589,9 +3699,12 @@ window.ProMap = window.ProMap || {};
         });
 
         window.addEventListener("resize", () => {
-            //if (state.map && typeof state.map.resize === "function") {
-            //    state.map.resize();
-            //}
+            if (
+                state.map &&
+                typeof state.map.resize === "function"
+            ) {
+                state.map.resize();
+            }
 
             if (
                 state.localMap?.map &&
@@ -3666,15 +3779,17 @@ window.ProMap = window.ProMap || {};
 
     function init() {
         initializeMap();
+
         initializeDefaults();
+
         bindEvents();
 
         window.setTimeout(() => {
             if (
                 state.map &&
-                typeof state.map.invalidateSize === "function"
+                typeof state.map.resize === "function"
             ) {
-                state.map.invalidateSize();
+                state.map.resize();
             }
 
             if (
@@ -3687,7 +3802,7 @@ window.ProMap = window.ProMap || {};
 
             if (state.localMap?.visible) {
                 scheduleLocalMapBackgroundSync();
-            }       
+            }
         }, 250);
     }
 
