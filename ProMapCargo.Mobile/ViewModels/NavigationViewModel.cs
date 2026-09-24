@@ -1,10 +1,8 @@
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Devices.Sensors;
-using Microsoft.Maui.Media;
 using ProMapCargo.Mobile.Models;
 using ProMapCargo.Mobile.Services;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Text.Json;
 using System.Windows.Input;
 
 namespace ProMapCargo.Mobile.ViewModels;
@@ -663,7 +661,13 @@ public class NavigationViewModel : ViewModelBase
         ReplaceItems(RouteViolations, violations);
         RaisePropertyChanged(nameof(NextManeuverStepText));
 
-        var routePoints = BuildRoutePoints(startLat, startLon, destinationLat, destinationLon, route?.Maneuvers ?? []);
+        var routePoints = BuildRoutePoints(
+            startLat,
+            startLon,
+            destinationLat,
+            destinationLon,
+            selectedRoute?.Geometry,
+            route?.Maneuvers ?? []);
         ReplaceItems(RoutePolylinePoints, routePoints);
 
         RouteStartPoint = routePoints.Count > 0 ? routePoints[0] : new GeoPoint(startLat, startLon);
@@ -827,8 +831,8 @@ public class NavigationViewModel : ViewModelBase
         OffRouteDistanceMeters = distanceMeters;
         IsOffRoute = distanceMeters > OffRouteThresholdMeters;
         OffRouteStatusText = IsOffRoute
-            ? $"Off route by {distanceMeters:0} m"
-            : $"On route · deviation {distanceMeters:0} m";
+            ? $"OFF ROUTE · {distanceMeters:0} m"
+            : $"ON ROUTE · dev {distanceMeters:0} m";
 
         if (!IsOffRoute || !AutoRerouteEnabled || IsBusy || CurrentLocation is null)
         {
@@ -1034,27 +1038,84 @@ public class NavigationViewModel : ViewModelBase
         double startLon,
         double destinationLat,
         double destinationLon,
+        JsonElement? geometry,
         IReadOnlyList<RouteManeuver> maneuvers)
     {
-        var points = new List<GeoPoint>
-        {
-            new(startLat, startLon)
-        };
+        var points = ExtractGeometryPoints(geometry);
 
-        foreach (var maneuver in maneuvers)
+        if (points.Count == 0)
         {
-            points.Add(new GeoPoint(maneuver.Latitude, maneuver.Longitude));
+            points.Add(new GeoPoint(startLat, startLon));
+
+            foreach (var maneuver in maneuvers)
+            {
+                points.Add(new GeoPoint(maneuver.Latitude, maneuver.Longitude));
+            }
+
+            points.Add(new GeoPoint(destinationLat, destinationLon));
         }
 
-        points.Add(new GeoPoint(destinationLat, destinationLon));
+        return NormalizeRoutePoints(points);
+    }
 
+    private static List<GeoPoint> ExtractGeometryPoints(JsonElement? geometry)
+    {
+        if (geometry is null)
+        {
+            return [];
+        }
+
+        var root = geometry.Value;
+        if (root.ValueKind != JsonValueKind.Object)
+        {
+            return [];
+        }
+
+        if (root.TryGetProperty("geometry", out var featureGeometry) && featureGeometry.ValueKind == JsonValueKind.Object)
+        {
+            root = featureGeometry;
+        }
+
+        if (!root.TryGetProperty("coordinates", out var coordinates) || coordinates.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        var result = new List<GeoPoint>(coordinates.GetArrayLength());
+
+        foreach (var coordinate in coordinates.EnumerateArray())
+        {
+            if (coordinate.ValueKind != JsonValueKind.Array || coordinate.GetArrayLength() < 2)
+            {
+                continue;
+            }
+
+            if (!coordinate[1].TryGetDouble(out var lat) || !coordinate[0].TryGetDouble(out var lon))
+            {
+                continue;
+            }
+
+            if (!double.IsFinite(lat) || !double.IsFinite(lon))
+            {
+                continue;
+            }
+
+            result.Add(new GeoPoint(lat, lon));
+        }
+
+        return result;
+    }
+
+    private static List<GeoPoint> NormalizeRoutePoints(List<GeoPoint> points)
+    {
         var normalized = new List<GeoPoint>(points.Count);
         GeoPoint? previous = null;
+
         foreach (var point in points)
         {
-            if (previous is not null &&
-                Math.Abs(previous.Lat - point.Lat) < 0.000001 &&
-                Math.Abs(previous.Lon - point.Lon) < 0.000001)
+            if (previous is not null
+                && Math.Abs(previous.Lat - point.Lat) < 0.000001
+                && Math.Abs(previous.Lon - point.Lon) < 0.000001)
             {
                 continue;
             }

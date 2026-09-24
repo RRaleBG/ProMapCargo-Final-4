@@ -63,10 +63,10 @@
                         TextColor="#031712" />
 
                     <ActivityIndicator
+                        HorizontalOptions="Center"
                         IsRunning="{Binding IsBusy}"
                         IsVisible="{Binding IsBusy}"
-                        Color="#5EEAD4"
-                        HorizontalOptions="Center" />
+                        Color="#5EEAD4" />
                 </VerticalStackLayout>
             </Border>
         </VerticalStackLayout>

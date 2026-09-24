@@ -20,11 +20,6 @@
         : System.IO.Path.Combine(webRootPath, "js", "pages", $"{pageAssetKey}.js");
     var includePageCss = !string.IsNullOrWhiteSpace(pageCssPhysicalPath) && System.IO.File.Exists(pageCssPhysicalPath);
     var includePageJs = !string.IsNullOrWhiteSpace(pageJsPhysicalPath) && System.IO.File.Exists(pageJsPhysicalPath);
-    var request = ViewContext.HttpContext.Request;
-    var isEmbeddedNavigationShell =
-        string.Equals(currentPage, "/Navigation/Index", StringComparison.OrdinalIgnoreCase) &&
-        (string.Equals(request.Query["mobile"], "1", StringComparison.Ordinal) ||
-         string.Equals(request.Query["embedded"], "1", StringComparison.Ordinal));
 }
 
 <!DOCTYPE html>
@@ -54,7 +49,7 @@
     @await RenderSectionAsync("Head", required: false)
 </head>
 
-<body class="pm-body@(isEmbeddedNavigationShell ? " pm-embedded-mobile-shell" : string.Empty)">
+<body class="pm-body">
 
     <input type="checkbox" id="pm-sidebar-toggle" class="pm-sidebar-toggle-input" aria-hidden="true" />
 
@@ -107,15 +102,8 @@
 
                     <div class="pm-nav-section">
                         <div class="pm-nav-section-title">ANALITIKA</div>
-                        <a asp-page="/Finance/Index" class="pm-nav-item @(currentPage == "/Finance/Index" ? "active" : "")"><span class="pm-nav-icon">₿</span><span class="pm-nav-label">Finansije</span></a>
                         <a asp-page="/Reports/Index" class="pm-nav-item @(currentPage == "/Reports/Index" ? "active" : "")"><span class="pm-nav-icon">▥</span><span class="pm-nav-label">Izveštaji</span></a>
-                    </div>
-
-                    <div class="pm-nav-section">
-                        <div class="pm-nav-section-title">SISTEM</div>
-                        <a asp-page="/Settings/Index" class="pm-nav-item @(currentPage == "/Settings/Index" ? "active" : "")"><span class="pm-nav-icon">⚙</span><span class="pm-nav-label">Podešavanja</span></a>
-                        <a asp-page="/Profile/Index" class="pm-nav-item @(currentPage == "/Profile/Index" ? "active" : "")"><span class="pm-nav-icon">◯</span><span class="pm-nav-label">Profil</span></a>
-                        <a asp-page="/Admin/Index" class="pm-nav-item @(currentPage == "/Admin/Index" ? "active" : "")"><span class="pm-nav-icon">⚙</span><span class="pm-nav-label">Administracija</span></a>
+                        <a asp-page="/Finance/Index" class="pm-nav-item @(currentPage == "/Finance/Index" ? "active" : "")"><span class="pm-nav-icon">◍</span><span class="pm-nav-label">Finansije</span></a>
                     </div>
                 </nav>
 
@@ -145,7 +133,27 @@
                 </div>
 
                 <div class="pm-topbar-right">
-                    <div class="pm-system-indicator"><span class="pm-status-dot"></span><span>Sistem online</span></div>
+
+                           <button
+          id="toggleRightPanelBtn"
+          class="md:hidden p-2 rounded-xl bg-emeraldDark-800 border border-emeraldDark-accent/40 text-emeraldDark-glow flex items-center gap-1 text-xs font-semibold"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 20l-5-4V4l5 4m0 0l6-4m-6 4v16m6-20l5 4v16l-5-4m0 0L9 20"
+            ></path>
+          </svg>
+        </button>
+
+
                     <a asp-page="/Alerts/Index" class="pm-topbar-action pm-notification" aria-label="Obaveštenja">
                         <span class="pm-notification-icon">♢</span>
                         <span class="pm-notification-badge" data-alert-count hidden>0</span>
@@ -159,7 +167,7 @@
             </header>
 
             <main class="pm-content">
-                <div class="pm-content-inner">@RenderBody()</div>
+                <div class="pm-content-inner pm-content-inner-trips">@RenderBody()</div>
             </main>
 
         </div>
@@ -178,12 +186,14 @@
     <script src="~/js/core/modal.js" asp-append-version="true" defer></script>
     <script src="~/js/core/compat.js" asp-append-version="true" defer></script>
     <script src="~/js/services/alerts.js" asp-append-version="true" defer></script>
-    <script src="~/js/app.js" asp-append-version="true"  defer></script>
+    <script src="~/js/app.js" asp-append-version="true" defer></script>
     @if (includePageJs)
     {
         <script src="@pageJsVirtualPath" asp-append-version="true" defer></script>
     }
 
-@await RenderSectionAsync("Scripts", required: false)
+
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

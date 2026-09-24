@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     x:Class="ProMapCargo.Mobile.Views.MobileNavigationPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -5,42 +6,15 @@
     Title="Navigacija"
     BackgroundColor="#031712"
     Shell.NavBarIsVisible="False">
-
-    <Grid
-        BackgroundColor="#031712"
-        RowDefinitions="*">
-
-        <!--
-            MAUI je samo native host.
-
-            Kompletan navigation UI:
-            - mapa
-            - truck routing
-            - route planning
-            - maneuvers
-            - GPS
-            - KRENI
-            - ETA
-            - rerouting
-            - PMTiles
-            - Web navigation UI
-
-            nalazi se u WebView / web aplikaciji.
-        -->
-
+    <Grid BackgroundColor="#031712" RowDefinitions="*">
+        <!--  ProMap Cargo navigation is rendered by the web application. MAUI: - hosts WebView - handles native lifecycle - provides GPS / permissions - provides native bridge / TTS when required WEB: - map - route planning - truck profile - route calculation - navigation - maneuvers - ETA - KRENI - rerouting - PMTiles / OSM / PostGIS / OSRM  -->
         <WebView
             x:Name="NavigationWebView"
             Grid.Row="0"
-            HorizontalOptions="Fill"
-            VerticalOptions="Fill"
             BackgroundColor="#031712"
-            IsVisible="True" />
-
-        <!--
-            Native loading overlay.
-            Ostaje iznad WebView-a samo dok se stranica učitava.
-        -->
-
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill" />
+        <!--  Native loading screen shown only while WebView initializes.  -->
         <Grid
             x:Name="LoadingOverlay"
             Grid.Row="0"
@@ -48,35 +22,32 @@
             InputTransparent="False"
             IsVisible="True"
             ZIndex="100">
-
             <VerticalStackLayout
                 HorizontalOptions="Center"
-                Spacing="14"
+                Spacing="12"
                 VerticalOptions="Center">
-
-                <ActivityIndicator
-                    HeightRequest="42"
-                    IsRunning="True"
-                    WidthRequest="42"
-                    Color="#10B981" />
-
+                <Border
+                    Padding="14"
+                    BackgroundColor="#061F19"
+                    HeightRequest="64"
+                    Stroke="#10B981"
+                    StrokeShape="RoundRectangle 18"
+                    StrokeThickness="1"
+                    WidthRequest="64">
+                    <ActivityIndicator IsRunning="True" Color="#10B981" />
+                </Border>
                 <Label
                     FontAttributes="Bold"
-                    FontSize="15"
+                    FontSize="17"
                     HorizontalTextAlignment="Center"
                     Text="ProMap Cargo"
-                    TextColor="#ECFDF5" />
-
+                    TextColor="#F8FAFC" />
                 <Label
                     FontSize="11"
                     HorizontalTextAlignment="Center"
-                    Text="Učitavanje navigacije..."
-                    TextColor="#6EE7B7" />
-
+                    Text="Pokretanje truck navigacije..."
+                    TextColor="#94A3B8" />
             </VerticalStackLayout>
-
         </Grid>
-
     </Grid>
-
 </ContentPage>

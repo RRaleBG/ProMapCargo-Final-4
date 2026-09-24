@@ -1,40 +1,1394 @@
 @page "/settings"
 @{
+    Layout = "_TripsLayout";
     ViewData["Title"] = "Podešavanja · ProMap Cargo";
 }
 
-<div id="app" style="display:none"></div>
-<div class="pm-page" data-module="settings">
-  <header class="pm-header">
-    <div>
-      <div class="pm-brand">ProMap <span>Cargo</span></div>
-      <div class="pm-kicker">Podešavanja</div>
-      <div class="pm-subtitle">Application, routing and tenant configuration</div>
+
+<div class="pm-page pm-navigation-page" data-module="navigation">
+    <div class="nav-page-header">
+        <div class="nav-page-heading">
+            <div class="pm-eyebrow"> FLEET NAVIGATION </div>
+
+            <div class="nav-title-row">
+
+                <h6 class="pm-page-title">
+                    Truck Navigation
+                </h6>
+
+                <span id="engineBadge" class="nav-engine-badge ready">
+
+                    <span></span>
+
+                    ROUTING READY
+
+                </span>
+
+            </div>
+
+            <p class="pm-page-subtitle">
+                Routing preko PostGIS / OSM graph-a sa OSRM fallback-om, GPS praćenjem i kontrolom vozila.
+            </p>
+
+        </div>
+
+
+        <div class="nav-header-status">
+            <button
+                id="toggleRightPanelBtn"
+                class="md:hidden p-2 rounded-xl bg-emeraldDark-800 border border-emeraldDark-accent/40 text-emeraldDark-glow flex items-center gap-1 text-xs font-semibold"
+                type="button"
+                aria-controls="navigationControlPanel"
+                aria-expanded="false"
+                title="Prikaži/sakrij desni panel"
+            >
+                <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 20l-5-4V4l5 4m0 0l6-4m-6 4v16m6-20l5 4v16l-5-4m0 0L9 20"
+                    ></path>
+                </svg>
+            </button>
+
+            <div class="nav-status-card">
+                <span class="nav-status-light"></span>
+
+                <div>
+                    <small>GPS STATUS</small>
+                    <strong id="gpsStatus">OFF</strong>
+                </div>
+
+            </div>
+
+
+            <div class="nav-status-card">
+
+                <span class="nav-status-light emerald"></span>
+
+                <div>
+                    <small>ROUTING ENGINE</small>
+                    <strong id="engineHeader">POSTGIS</strong>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
-    <div class="pm-header-actions">
-      <a class="pm-btn pm-btn-primary" href="/dispatch">Command Center</a>
-      <a class="pm-btn" href="/profile">Profil</a>
+
+
+    <!-- =====================================================
+         MAIN WORKSPACE
+         ===================================================== -->
+
+    <div class="navigation-workspace">
+
+
+        <!-- =================================================
+             MAP
+             ================================================= -->
+
+        <section class="navigation-map-section">
+
+            <div class="navigation-map-shell">
+
+                <!-- Add inside .navigation-map-shell, above #navMap -->
+                <div id="promapLayerPanel" class="promap-layer-panel" aria-label="Map layers">
+                    <div class="promap-layer-title">MAP LAYERS</div>
+
+                    <label><input type="checkbox" data-promap-layer="route" checked> Route</label>
+                    <label><input type="checkbox" data-promap-layer="restrictions" checked> Truck restrictions</label>
+                    <label><input type="checkbox" data-promap-layer="fleet"> Fleet</label>
+                    <label><input type="checkbox" data-promap-layer="poi"> POI</label>
+                    <label><input type="checkbox" data-promap-layer="elevation"> Elevation</label>
+                </div>
+
+
+                <div id="navMap" class="pm-map" data-map-archive="/maps/europe.pmtiles" data-map-max-zoom="19">
+
+
+                    <!-- ===================================== MAP TOP BAR  ===================================== -->
+                    <div class="nav-map-topbar">
+                        <div class="nav-map-mode-tabs">
+                            <button type="button" class="nav-map-tab active" id="mapRouteTab"> Ruta </button>
+
+                            <button type="button" class="nav-map-tab" id="mapRestrictionsTab"> Ograničenja </button>
+
+                            <button type="button" class="nav-map-tab" id="mapGpsTab">
+                                GPS
+                            </button>
+
+                        </div>
+
+
+                        <div class="nav-map-engine">
+
+                            <span></span>
+
+                            <strong id="routeSafeBadge">
+                                TRUCK SAFE
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================================
+                         NEXT MANEUVER
+                         OVO JE SADA CENTRALNI TOP OVERLAY
+                         ===================================== -->
+
+                    <div class="nav-next-overlay" id="nextInstruction" hidden>
+
+                        <div class="nav-next-icon" id="nextInstructionIcon">
+                            ↰
+                        </div>
+
+
+                        <div class="nav-next-copy">
+
+                            <small>
+                                NAREDNI MANEVAR
+                            </small>
+
+                            <strong id="nextInstructionText">
+                                —
+                            </strong>
+
+                            <span id="nextInstructionDistance">
+                                —
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================================
+                         MAP CONTROLS
+                         ===================================== -->
+
+                    <div class="nav-map-controls">
+
+                        <button type="button" id="fitRoute" class="nav-map-control" title="Prikaži celu rutu">
+                            ⤢
+                        </button>
+
+                        <button type="button" id="centerGps" class="nav-map-control" title="Centriraj GPS">
+                            ◎
+                        </button>
+
+                    </div>
+
+
+                    <!-- =====================================
+                         ACTIVE ROUTE CARD
+                         ===================================== -->
+
+                    <div class="nav-map-route-card" id="mapRouteCard" hidden>
+
+                        <div class="nav-map-route-card-head">
+
+                            <div>
+
+                                <small>
+                                    AKTIVNA RUTA
+                                </small>
+
+                                <strong id="mapRouteTitle">
+                                    Beograd → Novi Sad
+                                </strong>
+
+                            </div>
+
+                            <span id="mapRouteStatus" class="pm-badge pm-badge-success">
+                                Bezbedna
+                            </span>
+
+                        </div>
+
+
+                        <div class="nav-map-route-stats">
+
+                            <div>
+
+                                <span>
+                                    Udaljenost
+                                </span>
+
+                                <strong id="mapDistance">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    Trajanje
+                                </span>
+
+                                <strong id="mapDuration">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    ETA
+                                </span>
+
+                                <strong id="mapEta">
+                                    —
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CONTROL PANEL
+             ================================================= -->
+
+        <aside class="navigation-control-panel" id="navigationControlPanel">
+
+
+            <!-- =============================================
+                 ROUTE PLANNER
+                 ============================================= -->
+
+            <section class="nav-control-card nav-route-control">
+
+                <div class="nav-control-card-header">
+
+                    <div>
+
+                        <span class="nav-section-kicker">
+                            ROUTE PLANNER
+                        </span>
+
+                        <h2>
+                            Planiranje rute
+                        </h2>
+
+                    </div>
+
+
+                    <button type="button" id="swapPoints" class="nav-icon-button"
+                            title="Zameni polaznu i odredišnu tačku">
+                        ⇅
+                    </button>
+
+                </div>
+
+
+                <div class="nav-route-inputs">
+
+
+                    <!-- START -->
+
+                    <div class="nav-route-input-row">
+
+                        <div class="nav-point-marker start"></div>
+
+                        <div class="nav-input-wrapper">
+
+                            <label for="navStart">
+                                POLAZNA TAČKA
+                            </label>
+
+                            <input id="navStart" class="nav-input" type="text" autocomplete="off"
+                                   value="Beograd, Srbija" placeholder="Grad, adresa ili lokacija" />
+
+                            <div id="navStartSuggestions" class="nav-suggestions">
+                            </div>
+
+                            <div id="navStartResolved" class="nav-resolved">
+
+                                <span></span>
+
+                                Nije još potvrđeno
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="nav-route-connector"></div>
+
+
+                    <!-- DESTINATION -->
+
+                    <div class="nav-route-input-row">
+
+                        <div class="nav-point-marker destination"></div>
+
+                        <div class="nav-input-wrapper">
+
+                            <label for="navEnd">
+                                ODREDIŠTE
+                            </label>
+
+                            <input id="navEnd" class="nav-input" type="text" autocomplete="off" value="Novi Sad, Srbija"
+                                   placeholder="Grad, adresa ili lokacija" />
+
+                            <div id="navEndSuggestions" class="nav-suggestions">
+                            </div>
+
+                            <div id="navEndResolved" class="nav-resolved">
+
+                                <span></span>
+
+                                Nije još potvrđeno
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="nav-map-pick-row">
+
+                    <button type="button" id="pickStart" class="nav-small-action">
+
+                        <span>＋</span>
+
+                        Izaberi start na mapi
+
+                    </button>
+
+
+                    <button type="button" id="pickEnd" class="nav-small-action">
+
+                        <span>＋</span>
+
+                        Izaberi cilj na mapi
+
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 VEHICLE MODE
+                 ============================================= -->
+
+            <section class="nav-control-card">
+
+                <div class="nav-control-card-header compact">
+
+                    <div>
+
+                        <span class="nav-section-kicker">
+                            VEHICLE
+                        </span>
+
+                        <h2>
+                            Profil vozila
+                        </h2>
+
+                    </div>
+
+                    <span id="truckModeBadge" class="nav-mini-status">
+                        HGV
+                    </span>
+
+                </div>
+
+
+                <div class="nav-mode-switch">
+
+                    <button type="button" id="truckMode" class="nav-mode-button active">
+
+                        <span class="nav-mode-icon">
+                            ▣
+                        </span>
+
+                        <span>
+
+                            <strong>
+                                Kamion
+                            </strong>
+
+                            <small>
+                                Truck-aware
+                            </small>
+
+                        </span>
+
+                    </button>
+
+
+                    <button type="button" id="carMode" class="nav-mode-button">
+
+                        <span class="nav-mode-icon">
+                            ▱
+                        </span>
+
+                        <span>
+
+                            <strong>
+                                Auto
+                            </strong>
+
+                            <small>
+                                Standard routing
+                            </small>
+
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+                <div class="nav-preset-row">
+
+                    <label for="truckPreset">
+                        PRESET
+                    </label>
+
+                    <select id="truckPreset" class="nav-select">
+
+                        <option value="40t">
+                            40 t · standardni šleper
+                        </option>
+
+                        <option value="12t">
+                            12 t · srednji kamion
+                        </option>
+
+                        <option value="7.5t">
+                            7.5 t · laki kamion
+                        </option>
+
+                        <option value="3.5t">
+                            3.5 t · dostavno vozilo
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div id="truckFields" class="nav-truck-fields">
+
+                    <div class="nav-spec-grid">
+
+
+                        <div class="nav-field">
+
+                            <label for="navWeight">
+                                MASA
+                            </label>
+
+                            <div class="nav-input-unit">
+
+                                <input id="navWeight" type="number" class="nav-input" value="40" min="0.1" step="0.1" />
+
+                                <span>t</span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="nav-field">
+
+                            <label for="navHeight">
+                                VISINA
+                            </label>
+
+                            <div class="nav-input-unit">
+
+                                <input id="navHeight" type="number" class="nav-input" value="4" min="0.1" step="0.01" />
+
+                                <span>m</span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="nav-field">
+
+                            <label for="navWidth">
+                                ŠIRINA
+                            </label>
+
+                            <div class="nav-input-unit">
+
+                                <input id="navWidth" type="number" class="nav-input" value="2.55" min="0.1"
+                                       step="0.01" />
+
+                                <span>m</span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="nav-field">
+
+                            <label for="navLength">
+                                DUŽINA
+                            </label>
+
+                            <div class="nav-input-unit">
+
+                                <input id="navLength" type="number" class="nav-input" value="16.5" min="0.1"
+                                       step="0.1" />
+
+                                <span>m</span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="nav-field">
+
+                            <label for="navAxleLoad">
+                                OSOVINSKO OPTEREĆENJE
+                            </label>
+
+                            <div class="nav-input-unit">
+
+                                <input id="navAxleLoad" type="number" class="nav-input" value="10" min="0.1"
+                                       step="0.1" />
+
+                                <span>t</span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="nav-field">
+
+                            <label for="navAxles">
+                                OSOVINE
+                            </label>
+
+                            <div class="nav-input-unit">
+
+                                <input id="navAxles" type="number" class="nav-input" value="5" min="1" step="1" />
+
+                                <span>kom</span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="nav-field">
+
+                            <label for="navMaxSpeed">
+                                MAKS. BRZINA
+                            </label>
+
+                            <div class="nav-input-unit">
+
+                                <input id="navMaxSpeed" type="number" class="nav-input" value="90" min="1" step="1" />
+
+                                <span>km/h</span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="nav-field">
+
+                            <label for="navAdrClass">
+                                ADR KLASA
+                            </label>
+
+                            <input id="navAdrClass" type="text" class="nav-input" placeholder="npr. 3" />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="nav-check-grid">
+
+                        <label class="nav-check">
+
+                            <input id="navHazmat" type="checkbox" />
+
+                            <span class="nav-check-box"></span>
+
+                            <span>
+                                ADR / opasna roba
+                            </span>
+
+                        </label>
+
+
+                        <label class="nav-check">
+
+                            <input id="navAvoid" type="checkbox" checked />
+
+                            <span class="nav-check-box"></span>
+
+                            <span>
+                                Automatski izbegavaj restrikcije
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 ROUTE ACTION
+                 ============================================= -->
+
+            <section class="nav-route-action">
+
+                <button type="button" id="togglePlanner" class="nav-location-button nav-mobile-sheet-toggle" hidden>
+
+                    <span>
+                        ▤
+                    </span>
+
+                    <span>
+                        Planiranje rute
+                    </span>
+
+                </button>
+
+                <button type="button" id="calcRoute" class="nav-calculate-button">
+
+                    <span class="nav-calculate-icon">
+                        ↗
+                    </span>
+
+                    <span>
+
+                        <strong>
+                            KRENI
+                        </strong>
+
+                        <small>
+                            PostGIS · OSM · OSRM fallback
+                        </small>
+
+                    </span>
+
+                    <span class="nav-button-arrow">
+                        →
+                    </span>
+
+                </button>
+
+
+                <button type="button" id="useCurrentLocation" class="nav-location-button">
+
+                    <span>
+                        ◎
+                    </span>
+
+                    <span>
+                        Koristi moju trenutnu lokaciju
+                    </span>
+
+                </button>
+
+
+                <div id="navError" class="nav-error" hidden>
+                </div>
+
+            </section>
+
+
+            <section class="nav-control-card nav-summary-card">
+
+                <div class="nav-control-card-header compact">
+
+                    <div>
+
+                        <span class="nav-section-kicker">
+                            ROUTE RESULT
+                        </span>
+
+                        <h2>
+                            Pregled rute
+                        </h2>
+
+                    </div>
+
+                    <span id="summarySafety" class="pm-badge pm-badge-success">
+                        READY
+                    </span>
+
+                </div>
+
+
+                <div class="nav-result-main">
+
+                    <div class="nav-result-distance">
+
+                        <span>
+                            UKUPNA UDALJENOST
+                        </span>
+
+                        <strong id="summaryDistance">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="nav-result-duration">
+
+                        <span>
+                            TRAJANJE
+                        </span>
+
+                        <strong id="summaryDuration">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="nav-summary-grid">
+
+                    <div>
+
+                        <small>
+                            ETA
+                        </small>
+
+                        <strong id="summaryEta">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <small>
+                            ENGINE
+                        </small>
+
+                        <strong id="summaryEngine">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <small>
+                            RESTRIKCIJE
+                        </small>
+
+                        <strong id="summaryDiagnostics">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 ALTERNATIVES
+                 ============================================= -->
+
+            <section id="alternativesCard" class="nav-control-card nav-list-card" hidden>
+
+                <div class="nav-control-card-header compact">
+
+                    <div>
+
+                        <span class="nav-section-kicker">
+                            ROUTES
+                        </span>
+
+                        <h2>
+                            Alternativne rute
+                        </h2>
+
+                    </div>
+
+                    <span id="alternativeCount" class="nav-counter">
+                        0
+                    </span>
+
+                </div>
+
+                <div id="routeAlternatives" class="nav-alternatives">
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 WARNINGS
+                 ============================================= -->
+
+            <section id="warningsCard" class="nav-control-card nav-list-card" hidden>
+
+                <div class="nav-control-card-header compact">
+
+                    <div>
+
+                        <span class="nav-section-kicker">
+                            SAFETY
+                        </span>
+
+                        <h2>
+                            Upozorenja
+                        </h2>
+
+                    </div>
+
+                    <span id="warningCount" class="nav-counter danger">
+                        0
+                    </span>
+
+                </div>
+
+                <div id="routeWarnings" class="nav-warning-list">
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 MANEUVERS
+                 ============================================= -->
+
+            <section id="maneuversCard" class="nav-control-card nav-list-card" hidden>
+
+                <div class="nav-control-card-header compact">
+
+                    <div>
+
+                        <span class="nav-section-kicker">
+                            DIRECTIONS
+                        </span>
+
+                        <h2>
+                            Koraci navigacije
+                        </h2>
+
+                    </div>
+
+                    <span id="maneuverCount" class="nav-counter">
+                        0
+                    </span>
+
+                </div>
+
+                <div id="maneuverList" class="nav-maneuver-list">
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 DIAGNOSTICS
+                 ============================================= -->
+
+            <section class="nav-control-card nav-diagnostics-card">
+                <div class="nav-control-card-header compact">
+                    <div>
+                        <span class="nav-section-kicker">
+                            SYSTEM
+                        </span>
+
+                        <h2>
+                            Routing diagnostics
+                        </h2>
+                    </div>
+
+                    <span class="nav-diagnostic-led"></span>
+
+                </div>
+
+
+                <div class="nav-diagnostics-grid">
+                    <div>
+                        <small>
+                            ENGINE
+                        </small>
+
+                        <strong id="diagnosticEngine">
+                            —
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>
+                            GRAPH
+                        </small>
+                        <strong id="diagnosticGraph">
+                            —
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>
+                            STATES
+                        </small>
+
+                        <strong id="diagnosticStates">
+                            —
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>
+                            FALLBACK
+                        </small>
+
+                        <strong id="diagnosticFallback">
+                            —
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="nav-diagnostic-summary-row">
+                    <div class="nav-diagnostic-summary-item">
+                        <small>
+                            SNAP START
+                        </small>
+
+                        <strong id="diagnosticStartSnap">
+                            —
+                        </strong>
+                    </div>
+
+                    <div class="nav-diagnostic-summary-item">
+                        <small>
+                            SNAP END
+                        </small>
+
+                        <strong id="diagnosticEndSnap">
+                            —
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="nav-diagnostic-summary-row compact">
+                    <div class="nav-diagnostic-summary-item compact">
+                        <small>
+                            TRAVERSALS
+                        </small>
+
+                        <strong id="diagnosticTraversalCount">
+                            —
+                        </strong>
+                    </div>
+
+                    <div class="nav-diagnostic-summary-item compact">
+                        <small>
+                            FAILURE
+                        </small>
+
+                        <strong id="diagnosticFailureReason">
+                            —
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="nav-diagnostic-highlights-card">
+                    <div class="nav-diagnostic-highlights-head">
+                        <small>
+                            WHY THIS ROUTE
+                        </small>
+
+                        <strong id="diagnosticHighlightTitle">
+                            Edge / road highlights
+                        </strong>
+                    </div>
+
+                    <div id="diagnosticHighlights" class="nav-diagnostic-highlights-list"></div>
+
+                </div>
+            </section>
+        </aside>
     </div>
-  </header>
-  <div class="pm-layout">
-    <aside class="pm-sidebar">
-      <div class="pm-nav-title">OPERATIONS</div>
-      <nav class="pm-nav"><a class="" href="/dashboard">Dashboard</a><a class="" href="/dispatch">Command Center</a><a class="" href="/orders">Transportni nalozi</a><a class="" href="/trips">Ture</a><a class="" href="/vehicles">Vozila</a><a class="" href="/drivers">Vozači</a><a class="" href="/navigation">Navigacija</a><a class="" href="/alerts">Alerts</a><a class="" href="/moderation">Moderacija</a><a class="" href="/audit">Audit</a><a class="" href="/compliance">Compliance</a><a class="" href="/monitoring">Monitoring</a><a class="" href="/finance">Finansije</a><a class="" href="/reports">Izveštaji</a><a class="active" href="/settings">Podešavanja</a><a class="" href="/profile">Profil</a><a class="" href="/admin">Administracija</a></nav>
-      <div class="pm-sidebar-footer"><b>Routing engine</b><br>PostGIS · OSM · Truck-aware<br><span>Graph protected</span></div>
-    </aside>
-    <main class="pm-content">
-      <div class="pm-title">Podešavanja</div><div class="pm-muted" style="margin:5px 0 14px">Tenant, routing and notification configuration.</div><div class="pm-grid pm-grid-2"><div class="pm-card pm-card-body"><div class="pm-h2">Routing</div><div class="pm-list" style="margin-top:12px"><label class="pm-label">Default profile</label><select class="pm-field"><option>Truck</option><option>Car</option></select><label class="pm-label">Fallback engine</label><select class="pm-field"><option>OSRM</option><option>Disabled</option></select><label class="pm-label">Avoid active restrictions</label><select class="pm-field"><option>Yes</option><option>No</option></select></div></div><div class="pm-card pm-card-body"><div class="pm-h2">Notifications</div><div class="pm-list" style="margin-top:12px"><label class="pm-item"><input type="checkbox" checked> Off-route alerts</label><label class="pm-item"><input type="checkbox" checked> GPS lost alerts</label><label class="pm-item"><input type="checkbox" checked> Border waiting alerts</label><label class="pm-item"><input type="checkbox"> Daily finance digest</label></div></div></div><div style="height:14px"></div><div class="pm-card pm-card-body"><button class="pm-btn pm-btn-primary">Sačuvaj podešavanja</button></div>
-    </main>
-  </div>
+
+
+    <!-- =====================================================
+         LIVE NAVIGATION
+         ===================================================== -->
+
+    <section class="nav-live-panel" id="liveNavigationPanel">
+        <div class="nav-live-left">
+            <div class="nav-live-status">
+                <span id="liveChip" class="nav-live-chip">
+                    GPS OFF
+                </span>
+            </div>
+
+            <div class="nav-live-position">
+                <strong id="livePosition">
+                    Lokacija nije aktivna
+                </strong>
+
+                <small id="liveAccuracy">
+                    —
+                </small>
+            </div>
+        </div>
+
+        <div class="nav-live-stats">
+            <div>
+                <small>
+                    BRZINA
+                </small>
+                <strong id="liveSpeed">
+                    0 km/h
+                </strong>
+            </div>
+
+            <div>
+                <small>
+                    OFF ROUTE
+                </small>
+                <strong id="liveOffRoute">
+                    NE
+                </strong>
+            </div>
+        </div>
+
+        <div class="nav-live-actions">
+            <button type="button" id="startLiveNavigation" class="pm-btn pm-btn-primary">
+                ◎ Pokreni live navigaciju
+            </button>
+
+            <button type="button" id="stopLiveNavigation" class="pm-btn pm-btn-danger" hidden>
+                ■ Zaustavi
+            </button>
+        </div>
+    </section>
+
+    <div class="nav-mobile-bottom-space"></div>
+
 </div>
 
 
-<script>
-// Pages are server-rendered and must remain independent from the legacy SPA renderer.
-document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('.pm-page a[href]').forEach(a=>a.addEventListener('click',e=>{
-    if(a.origin===location.origin){ e.stopPropagation(); }
-  },true));
-});
-</script>
+@section Scripts {
+
+    <script src="~/js/promap-gps.js" asp-append-version="true"></script>
+    <script src="~/js/promap-maneuvers.js" asp-append-version="true"></script>
+    <script src="~/js/promap-routing.js" asp-append-version="true"></script>
+
+    <!-- PMTiles runtime -->
+    <script src="~/lib/pmtiles/dist/pmtiles.js" asp-append-version="true"></script>
+
+    <!-- Icons -->
+    <script src="~/js/promap-map-icons.js" asp-append-version="true"></script>
+
+
+    <!-- Operational map layers -->
+    <script src="~/js/promap-map-enhancements.js" asp-append-version="true"></script>
+
+    <!-- PMTiles / MapLibre initialization -->
+    <script src="~/js/promap-pmtiles-init.js" asp-append-version="true"></script>
+
+    <!-- Navigation -->
+    <script src="~/js/navigation.js" asp-append-version="true"></script>
+
+    <script>
+
+        (() => {
+            "use strict";
+
+            document.documentElement.classList.add("pm-navigation-html");
+            document.body.classList.add("pm-navigation-app");
+
+            const workspace = document.querySelector(".navigation-workspace");
+            const sidebar = document.getElementById("navigationControlPanel");
+            const toggle = document.getElementById("toggleRightPanelBtn");
+            const breakpoint = window.matchMedia("(max-width: 1180px)");
+
+            if (!workspace || !sidebar || !toggle) {
+                return;
+            }
+
+            const setSidebarState = (open) => {
+                workspace.classList.toggle("nav-right-sidebar-open", open);
+                workspace.classList.toggle("nav-right-sidebar-collapsed", !open);
+
+                toggle.setAttribute("aria-expanded", String(open));
+                toggle.title = open
+                    ? "Sakrij panel za planiranje rute"
+                    : "Prikaži panel za planiranje rute";
+            };
+
+            setSidebarState(!breakpoint.matches);
+
+            toggle.addEventListener("click", () => {
+                const isOpen =
+                    workspace.classList.contains("nav-right-sidebar-open") ||
+                    !workspace.classList.contains("nav-right-sidebar-collapsed");
+
+                setSidebarState(!isOpen);
+            });
+
+            breakpoint.addEventListener?.("change", () => {
+                setSidebarState(!breakpoint.matches);
+            });
+        })();
+    </script>
+
+    <script>
+
+        (() => {
+            "use strict";
+
+            const query = new URLSearchParams(window.location.search);
+            const isEmbeddedNavigation =
+                query.get("embedded") === "1" ||
+                query.get("mobile") === "1";
+
+            if (isEmbeddedNavigation) {
+                document.body.classList.add("pm-embedded-navigation");
+                document.body.classList.add("pm-embedded-mobile");
+            }
+
+            function bindMobileSheetToggle() {
+                if (!isEmbeddedNavigation) {
+                    return;
+                }
+
+                const panel = document.querySelector(".navigation-control-panel");
+                const toggle = document.getElementById("togglePlanner");
+
+                if (!panel || !toggle) {
+                    return;
+                }
+
+                toggle.hidden = false;
+
+                toggle.addEventListener("click", () => {
+                    panel.classList.toggle("sheet-open");
+                });
+            }
+
+            bindMobileSheetToggle();
+
+            let panelBound = false;
+
+            function bindProMapLayerPanel() {
+                const panel =
+                    document.getElementById("promapLayerPanel");
+
+                if (!panel) {
+                    console.warn(
+                        "[ProMap Layers] #promapLayerPanel nije pronađen."
+                    );
+
+                    return false;
+                }
+
+                /*
+                 * Ne bindujemo isti panel više puta.
+                 */
+                if (
+                    panelBound ||
+                    panel.dataset.bound === "1"
+                ) {
+                    return true;
+                }
+
+                /*
+                 * MapEnhancementState nastaje u:
+                 *
+                 * ProMap.MapEnhancements.install(...)
+                 *
+                 * Zato panel mora da sačeka da mapa
+                 * i operational layers budu spremni.
+                 */
+                const state =
+                    window.ProMap?.MapEnhancementState;
+
+                if (
+                    !state ||
+                    typeof state.setGroupVisible !== "function"
+                ) {
+                    console.info(
+                        "[ProMap Layers] Čekam MapEnhancementState..."
+                    );
+
+                    return false;
+                }
+
+                const inputs =
+                    panel.querySelectorAll(
+                        "input[data-promap-layer]"
+                    );
+
+                if (!inputs.length) {
+                    console.warn(
+                        "[ProMap Layers] Nema layer checkboxova u panelu."
+                    );
+
+                    return false;
+                }
+
+                /*
+                 * Sada je panel stvarno povezan.
+                 */
+                panelBound = true;
+                panel.dataset.bound = "1";
+
+                inputs.forEach((input) => {
+
+                    input.addEventListener(
+                        "change",
+                        () => {
+                            const group =
+                                input.dataset.promapLayer;
+
+                            if (!group) {
+                                return;
+                            }
+
+                            const visible =
+                                input.checked;
+
+                            console.info(
+                                `[ProMap Layers] ${group}: ${
+                                    visible
+                                        ? "ON"
+                                        : "OFF"
+                                }`
+                            );
+
+                            state.setGroupVisible(
+                                group,
+                                visible
+                            );
+                        }
+                    );
+                });
+
+                /*
+                 * Sinhronizuj početno stanje checkboxova
+                 * sa trenutnim MapEnhancementState stanjem.
+                 */
+                let currentGroups = {};
+
+                if (
+                    typeof state.getVisibleGroups ===
+                    "function"
+                ) {
+                    currentGroups =
+                        state.getVisibleGroups() || {};
+                }
+
+                inputs.forEach((input) => {
+                    const group =
+                        input.dataset.promapLayer;
+
+                    if (!group) {
+                        return;
+                    }
+
+                    /*
+                     * Ako state već zna stanje grupe,
+                     * checkbox prati state.
+                     */
+                    if (
+                        Object.prototype.hasOwnProperty.call(
+                            currentGroups,
+                            group
+                        )
+                    ) {
+                        input.checked =
+                            currentGroups[group] !== false;
+                    }
+
+                    /*
+                     * Primeni stanje na MapLibre.
+                     */
+                    state.setGroupVisible(
+                        group,
+                        input.checked
+                    );
+                });
+
+                console.info(
+                    `[ProMap Layers] Panel povezan: ${inputs.length} layer grupa.`
+                );
+
+                return true;
+            }
+
+            /*
+             * Pokušaj odmah.
+             *
+             * Ako navigation.js još nije napravio mapu,
+             * funkcija samo vraća false.
+             */
+            bindProMapLayerPanel();
+
+            /*
+             * navigation.js šalje ovaj event odmah nakon:
+             *
+             * MapEnhancements.install(...)
+             *
+             */
+            window.addEventListener(
+                "promap:map-enhancements-ready",
+                () => {
+                    console.info(
+                        "[ProMap Layers] MapEnhancements ready — binding panel."
+                    );
+
+                    bindProMapLayerPanel();
+                },
+                { once: true }
+            );
+
+        })();
+    </script>
+}
 

@@ -58,7 +58,8 @@ window.ProMap = window.ProMap || {};
         lastRerouteAt: 0,
 
         embeddedMode:
-            new URLSearchParams(window.location.search).get("embedded") === "1",
+            new URLSearchParams(window.location.search).get("embedded") === "1" ||
+            new URLSearchParams(window.location.search).get("mobile") === "1", 
 
         pendingMobilePayload: null,
 

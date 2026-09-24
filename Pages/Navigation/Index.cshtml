@@ -4,94 +4,16 @@
     ViewData["Title"] = "Navigacija";
 }
 
-<style>
-    .promap-layer-panel {
-        position: absolute;
-        top: 74px;
-        left: 12px;
-        z-index: 1200;
-        width: 190px;
-        padding: 11px;
-        border: 1px solid rgba(148, 163, 184, .18);
-        border-radius: 14px;
-        background: rgba(4, 18, 15, .92);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        box-shadow: 0 14px 35px rgba(0, 0, 0, .32);
-        color: #dff8ee;
-        font: 600 11px/1.4 Inter, system-ui, sans-serif;
-    }
-
-    .promap-layer-title {
-        margin-bottom: 8px;
-        color: #5eead4;
-        font-size: 9px;
-        font-weight: 900;
-        letter-spacing: .12em;
-    }
-
-    .promap-layer-panel label {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        padding: 4px 0;
-        cursor: pointer;
-    }
-
-    .promap-layer-panel input {
-        accent-color: #10b981;
-    }
-
-    body.pm-embedded-navigation .nav-page-header,
-    body.pm-embedded-navigation .navigation-control-panel,
-    body.pm-embedded-navigation .nav-live-panel,
-    body.pm-embedded-navigation .nav-mobile-bottom-space,
-    body.pm-embedded-navigation .nav-map-topbar,
-    body.pm-embedded-navigation .nav-map-controls,
-    body.pm-embedded-navigation .nav-map-route-card,
-    body.pm-embedded-navigation .promap-layer-panel,
-    body.pm-embedded-navigation #nextInstruction {
-        display: none !important;
-    }
-
-    body.pm-embedded-navigation .pm-page.pm-navigation-page {
-        padding: 0;
-    }
-
-    body.pm-embedded-navigation .navigation-workspace,
-    body.pm-embedded-navigation .navigation-map-section,
-    body.pm-embedded-navigation .navigation-map-shell {
-        display: block;
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-    }
-
-    body.pm-embedded-navigation #navMap {
-        height: 100vh;
-        min-height: 100vh;
-        border-radius: 0;
-        margin: 0;
-    }
-</style>
-
-
-
 <div class="pm-page pm-navigation-page" data-module="navigation">
-
     <div class="nav-page-header">
-
         <div class="nav-page-heading">
-
-            <div class="pm-eyebrow">
-                FLEET NAVIGATION
-            </div>
+            <div class="pm-eyebrow"> FLEET NAVIGATION </div>
 
             <div class="nav-title-row">
 
-                <h1 class="pm-page-title">
+                <h6 class="pm-page-title">
                     Truck Navigation
-                </h1>
+                </h6>
 
                 <span id="engineBadge" class="nav-engine-badge ready">
 
@@ -104,18 +26,14 @@
             </div>
 
             <p class="pm-page-subtitle">
-                Truck-aware routing preko PostGIS / OSM graph-a sa
-                OSRM fallback-om, GPS praćenjem i kontrolom
-                ograničenja vozila.
+                Routing preko PostGIS / OSM graph-a sa OSRM fallback-om, GPS praćenjem i kontrolom vozila.
             </p>
 
         </div>
 
 
         <div class="nav-header-status">
-
             <div class="nav-status-card">
-
                 <span class="nav-status-light"></span>
 
                 <div>
@@ -737,6 +655,18 @@
 
             <section class="nav-route-action">
 
+                <button type="button" id="togglePlanner" class="nav-location-button nav-mobile-sheet-toggle" hidden>
+
+                    <span>
+                        ▤
+                    </span>
+
+                    <span>
+                        Planiranje rute
+                    </span>
+
+                </button>
+
                 <button type="button" id="calcRoute" class="nav-calculate-button">
 
                     <span class="nav-calculate-icon">
@@ -746,7 +676,7 @@
                     <span>
 
                         <strong>
-                            Izračunaj truck rutu
+                            KRENI
                         </strong>
 
                         <small>
@@ -1185,12 +1115,36 @@
         (() => {
             "use strict";
 
+            const query = new URLSearchParams(window.location.search);
             const isEmbeddedNavigation =
-                new URLSearchParams(window.location.search).get("embedded") === "1";
+                query.get("embedded") === "1" ||
+                query.get("mobile") === "1";
 
             if (isEmbeddedNavigation) {
                 document.body.classList.add("pm-embedded-navigation");
+                document.body.classList.add("pm-embedded-mobile");
             }
+
+            function bindMobileSheetToggle() {
+                if (!isEmbeddedNavigation) {
+                    return;
+                }
+
+                const panel = document.querySelector(".navigation-control-panel");
+                const toggle = document.getElementById("togglePlanner");
+
+                if (!panel || !toggle) {
+                    return;
+                }
+
+                toggle.hidden = false;
+
+                toggle.addEventListener("click", () => {
+                    panel.classList.toggle("sheet-open");
+                });
+            }
+
+            bindMobileSheetToggle();
 
             let panelBound = false;
 

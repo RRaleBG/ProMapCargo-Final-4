@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
-    "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg
     width="456"
     height="456"
@@ -11,9 +9,277 @@
     xml:space="preserve"
     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
 
-    <!-- ProMap Cargo foreground mark -->
+    <!-- ========================================================= -->
+    <!-- PROMAP CARGO · TRUCK NAVIGATION FOREGROUND               -->
+    <!-- Transparent foreground for Android / MAUI AppIcon        -->
+    <!-- ========================================================= -->
+
+
+    <!-- ========================================================= -->
+    <!-- NAVIGATION ROUTE                                         -->
+    <!-- ========================================================= -->
+
+    <g
+      fill="none"
+      stroke-linecap="round"
+      stroke-linejoin="round">
+
+        <!-- Soft route glow -->
+        <path
+        d="M 86 332
+               C 116 348
+                 147 354
+                 178 351
+               C 210 348
+                 229 331
+                 249 310
+               C 270 288
+                 282 267
+                 294 245
+               C 308 220
+                 329 205
+                 351 193
+               C 367 184
+                 379 174
+                 389 158"
+        stroke="#10B981"
+        stroke-width="15"
+        opacity="0.10"/>
+
+        <!-- Main route -->
+        <path
+        d="M 86 332
+               C 116 348
+                 147 354
+                 178 351
+               C 210 348
+                 229 331
+                 249 310
+               C 270 288
+                 282 267
+                 294 245
+               C 308 220
+                 329 205
+                 351 193
+               C 367 184
+                 379 174
+                 389 158"
+        stroke="#10B981"
+        stroke-width="7"
+        opacity="0.95"/>
+
+        <!-- Teal destination section -->
+        <path
+        d="M 349 194
+               C 366 184
+                 379 174
+                 389 158"
+        stroke="#2DD4BF"
+        stroke-width="7"
+        opacity="0.98"/>
+
+    </g>
+
+
+    <!-- ========================================================= -->
+    <!-- START / CURRENT POSITION                                 -->
+    <!-- ========================================================= -->
+
+    <circle
+      cx="86"
+      cy="332"
+      r="12"
+      fill="#031712"
+      stroke="#10B981"
+      stroke-width="4"/>
+
+    <circle
+      cx="86"
+      cy="332"
+      r="4"
+      fill="#5EEAD4"/>
+
+
+    <!-- ========================================================= -->
+    <!-- DESTINATION GPS MARKER                                   -->
+    <!-- ========================================================= -->
+
+    <!-- outer navigation halo -->
+    <circle
+      cx="389"
+      cy="158"
+      r="23"
+      fill="none"
+      stroke="#2DD4BF"
+      stroke-width="3"
+      opacity="0.18"/>
+
+    <!-- destination -->
+    <circle
+      cx="389"
+      cy="158"
+      r="14"
+      fill="#031712"
+      stroke="#2DD4BF"
+      stroke-width="4"/>
+
+    <circle
+      cx="389"
+      cy="158"
+      r="5"
+      fill="#5EEAD4"/>
+
+
+    <!-- ========================================================= -->
+    <!-- TRUCK SILHOUETTE                                        -->
+    <!-- ========================================================= -->
+
+    <!-- Truck is intentionally compact so the original PROMAP    -->
+    <!-- wordmark remains the dominant foreground element.        -->
+
+    <g transform="translate(0 4)">
+
+        <!-- cargo body -->
+        <path
+        d="M 126 298
+               H 255
+               C 260 298 264 294 264 289
+               V 218
+               C 264 213 260 209 255 209
+               H 126
+               C 121 209 117 213 117 218
+               V 289
+               C 117 294 121 298 126 298 Z"
+        fill="#F8FAFC"
+        opacity="0.98"/>
+
+        <!-- cargo accent -->
+        <rect
+        x="121"
+        y="218"
+        width="139"
+        height="6"
+        rx="3"
+        fill="#10B981"/>
+
+        <!-- cabin -->
+        <path
+        d="M 264 239
+               H 294
+               C 301 239 306 243 311 249
+               L 330 271
+               C 334 276 336 282 336 288
+               V 298
+               H 264
+               Z"
+        fill="#F8FAFC"
+        opacity="0.98"/>
+
+        <!-- windshield -->
+        <path
+        d="M 276 247
+               H 292
+               C 296 247 299 249 302 252
+               L 315 267
+               H 276
+               Z"
+        fill="#0F766E"/>
+
+        <!-- windshield highlight -->
+        <path
+        d="M 282 250
+               L 293 251
+               C 296 252 298 254 300 257"
+        fill="none"
+        stroke="#99F6E4"
+        stroke-width="3"
+        stroke-linecap="round"
+        opacity="0.65"/>
+
+        <!-- cabin door -->
+        <path
+        d="M 276 270
+               V 298"
+        fill="none"
+        stroke="#94A3B8"
+        stroke-width="2"/>
+
+        <!-- door handle -->
+        <rect
+        x="285"
+        y="276"
+        width="13"
+        height="3"
+        rx="1.5"
+        fill="#64748B"/>
+
+        <!-- front bumper -->
+        <rect
+        x="326"
+        y="291"
+        width="14"
+        height="8"
+        rx="3"
+        fill="#94A3B8"/>
+
+        <!-- headlight -->
+        <rect
+        x="326"
+        y="273"
+        width="7"
+        height="8"
+        rx="2"
+        fill="#F8FAFC"/>
+
+        <!-- wheels -->
+        <g>
+            <circle
+          cx="155"
+          cy="299"
+          r="18"
+          fill="#031712"/>
+
+            <circle
+          cx="155"
+          cy="299"
+          r="10"
+          fill="#334155"/>
+
+            <circle
+          cx="155"
+          cy="299"
+          r="4"
+          fill="#10B981"/>
+
+            <circle
+          cx="298"
+          cy="299"
+          r="18"
+          fill="#031712"/>
+
+            <circle
+          cx="298"
+          cy="299"
+          r="10"
+          fill="#334155"/>
+
+            <circle
+          cx="298"
+          cy="299"
+          r="4"
+          fill="#10B981"/>
+        </g>
+
+    </g>
+
+
+    <!-- ========================================================= -->
+    <!-- ORIGINAL PROMAP MARK                                     -->
+    <!-- ========================================================= -->
+
     <g>
-        <!-- First mark -->
+
+        <!-- P -->
         <path
         d="m 105.50037,281.60863
                c -2.70293,0 -5.00091,-0.90042 -6.893127,-2.70209
@@ -24,7 +290,9 @@
                c 1.93749,1.84778 2.90581,4.06445 2.90581,6.65167
                c 0,2.54028 -0.96832,4.73431 -2.90581,6.58209
                c -1.89221,1.80167 -4.212,2.70209 -6.96019,2.70209 z"
-        fill="#FFFFFF" />
+        fill="#FFFFFF"/>
+
+
         <!-- N -->
         <path
         d="M 213.56111,280.08446
@@ -44,7 +312,9 @@
                v -64.02256
                h 15.47557
                z"
-        fill="#FFFFFF" />
+        fill="#FFFFFF"/>
+
+
         <!-- E -->
         <path
         d="m 289.25134,280.08446
@@ -60,7 +330,9 @@
                v 29.37835
                h 38.31628
                z"
-        fill="#FFFFFF" />
+        fill="#FFFFFF"/>
+
+
         <!-- T -->
         <path
         d="M 366.56466,194.72106
@@ -72,8 +344,54 @@
                v -13.99669
                h 71.70124
                z"
-        fill="#FFFFFF" />
+        fill="#FFFFFF"/>
 
     </g>
+
+
+    <!-- ========================================================= -->
+    <!-- NAVIGATION / COMPASS INDICATOR                            -->
+    <!-- ========================================================= -->
+
+    <g transform="translate(228 72)">
+
+        <!-- subtle halo -->
+        <circle
+        cx="0"
+        cy="0"
+        r="25"
+        fill="none"
+        stroke="#10B981"
+        stroke-width="2"
+        opacity="0.18"/>
+
+        <!-- compass ring -->
+        <circle
+        cx="0"
+        cy="0"
+        r="17"
+        fill="none"
+        stroke="#2DD4BF"
+        stroke-width="3"
+        opacity="0.9"/>
+
+        <!-- navigation arrow -->
+        <path
+        d="M 0 -12
+               L 7 8
+               L 0 4
+               L -7 8
+               Z"
+        fill="#10B981"/>
+
+        <!-- center -->
+        <circle
+        cx="0"
+        cy="0"
+        r="3"
+        fill="#5EEAD4"/>
+
+    </g>
+
 
 </svg>

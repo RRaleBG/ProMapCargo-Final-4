@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace ProMapCargo.Mobile.Models;
@@ -66,6 +67,7 @@ public sealed record RouteResponse(
 public sealed record RouteCandidate(
     [property: JsonPropertyName("distance")] double Distance,
     [property: JsonPropertyName("duration")] double Duration,
+    [property: JsonPropertyName("geometry")] JsonElement? Geometry,
     [property: JsonPropertyName("analysis")] RouteAnalysis? Analysis);
 
 public sealed record RouteAnalysis(

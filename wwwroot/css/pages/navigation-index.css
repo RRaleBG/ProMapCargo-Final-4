@@ -33,6 +33,50 @@
     --nav-safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+
+.promap-layer-panel
+{
+    position: absolute;
+    top: 74px;
+    left: 12px;
+    z-index: 1200;
+    width: 190px;
+    padding: 11px;
+    border: 1px solid rgba(148, 163, 184, .18);
+    border-radius: 14px;
+    background: rgba(4, 18, 15, .92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, .32);
+    color: #dff8ee;
+    font: 600 11px/1.4 Inter, system-ui, sans-serif;
+}
+
+.promap-layer-title
+{
+    margin-bottom: 8px;
+    color: #5eead4;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .12em;
+}
+
+.promap-layer-panel label
+{
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 0;
+    cursor: pointer;
+}
+
+.promap-layer-panel input
+{
+    accent-color: #10b981;
+}
+
+
+
 /* ============================================================
    PAGE
    ============================================================ */
@@ -144,7 +188,7 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 24px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .nav-page-heading {
@@ -289,8 +333,9 @@
     width: 100%;
     min-width: 0;
 
-    height: min(760px, calc(100dvh - 180px));
-    min-height: 540px;
+    /*height: min(760px, calc(100dvh - 180px));*/
+  
+    /*min-height: 540px;*/
 
     overflow: hidden;
 
