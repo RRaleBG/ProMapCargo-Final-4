@@ -1,33 +1,33 @@
 using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls;
 using ProMapCargo.Mobile.ViewModels;
 
 namespace ProMapCargo.Mobile.Views;
 
-public partial class LoginPage : ContentPage
+public partial class MapInstallPage : ContentPage
 {
-    private readonly LoginViewModel viewModel;
+    private readonly MapInstallViewModel viewModel;
 
-    public LoginPage(LoginViewModel viewModel)
+    public MapInstallPage(MapInstallViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;
         this.viewModel = viewModel;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        viewModel.LoginSucceeded += HandleLoginSucceeded;
+        viewModel.ContinueRequested += HandleContinueRequested;
+        await viewModel.LoadAsync(CancellationToken.None);
     }
 
     protected override void OnDisappearing()
     {
-        viewModel.LoginSucceeded -= HandleLoginSucceeded;
+        viewModel.ContinueRequested -= HandleContinueRequested;
         base.OnDisappearing();
     }
 
-    private async void HandleLoginSucceeded(object? sender, EventArgs e)
+    private async void HandleContinueRequested(object? sender, EventArgs e)
     {
         await MainThread.InvokeOnMainThreadAsync(async () =>
         {
@@ -37,7 +37,7 @@ public partial class LoginPage : ContentPage
                 return;
             }
 
-            await shell.GoToAsync("//dashboard");
+            await shell.GoToAsync("//login");
         });
     }
 }

@@ -48,4 +48,8 @@ public sealed class ApiClient(HttpClient httpClient)
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<RouteResponse>(SerializerOptions, cancellationToken).ConfigureAwait(false);
     }
+
+    public async Task<IReadOnlyList<MapPackageCatalogItem>> GetMapPackagesAsync(CancellationToken cancellationToken)
+        => await httpClient.GetFromJsonAsync<List<MapPackageCatalogItem>>("api/map-packages", SerializerOptions, cancellationToken).ConfigureAwait(false)
+           ?? [];
 }

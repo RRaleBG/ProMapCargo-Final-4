@@ -1,44 +1,74 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="ProMapCargo.Mobile.Views.DashboardPage"
-             Title="Operations"
-             BackgroundColor="#061B17">
-    <Grid RowDefinitions="Auto,*" Padding="18,24">
+<ContentPage
+    x:Class="ProMapCargo.Mobile.Views.DashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Operations"
+    BackgroundColor="#061B17">
+    <Grid Padding="18,24" RowDefinitions="Auto,*">
         <VerticalStackLayout Spacing="4">
-            <Label Text="{Binding WelcomeText}"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="#ECFDF5" />
-            <Label Text="{Binding StatusText}"
-                   FontSize="13"
-                   TextColor="#94A3B8" />
-            <Label Text="{Binding RouteSummary}"
-                   FontSize="13"
-                   TextColor="#5EEAD4" />
+            <Label
+                FontAttributes="Bold"
+                FontSize="24"
+                Text="{Binding WelcomeText}"
+                TextColor="#ECFDF5" />
+            <Label
+                FontSize="13"
+                Text="{Binding StatusText}"
+                TextColor="#94A3B8" />
+            <Label
+                FontSize="13"
+                Text="{Binding RouteSummary}"
+                TextColor="#5EEAD4" />
         </VerticalStackLayout>
 
         <ScrollView Grid.Row="1">
-            <VerticalStackLayout Spacing="18" Padding="0,20,0,20">
-                <Button Text="Refresh"
-                        Command="{Binding RefreshCommand}"
-                        BackgroundColor="#10B981"
-                        TextColor="#031712"
-                        CornerRadius="14"
-                        HeightRequest="50" />
+            <VerticalStackLayout Padding="0,20,0,20" Spacing="18">
+                <Button
+                    BackgroundColor="#10B981"
+                    Command="{Binding RefreshCommand}"
+                    CornerRadius="14"
+                    HeightRequest="50"
+                    Text="Refresh"
+                    TextColor="#031712" />
 
-                <Border BackgroundColor="#0B2D26" Stroke="#1C5448" StrokeShape="RoundRectangle 18" Padding="16">
+                <Border
+                    Padding="16"
+                    BackgroundColor="#0B2D26"
+                    Stroke="#1C5448"
+                    StrokeShape="RoundRectangle 18">
                     <VerticalStackLayout Spacing="10">
-                        <Label Text="Monitoring" FontAttributes="Bold" FontSize="18" TextColor="#F8FAFC" />
-                        <CollectionView ItemsSource="{Binding Vehicles}" SelectionMode="None" HeightRequest="220">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            Text="ProMapCargo Quick Links"
+                            TextColor="#F8FAFC" />
+                        <CollectionView
+                            HeightRequest="300"
+                            ItemsSource="{Binding QuickLinks}"
+                            SelectionMode="None">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                    <Grid Padding="0,8" ColumnDefinitions="*,Auto">
                                         <VerticalStackLayout Spacing="2">
-                                            <Label Text="{Binding Registration}" FontAttributes="Bold" TextColor="#ECFDF5" />
-                                            <Label Text="{Binding Status}" FontSize="12" TextColor="#94A3B8" />
+                                            <Label
+                                                FontAttributes="Bold"
+                                                Text="{Binding Title}"
+                                                TextColor="#ECFDF5" />
+                                            <Label
+                                                FontSize="12"
+                                                Text="{Binding Description}"
+                                                TextColor="#94A3B8" />
                                         </VerticalStackLayout>
-                                        <Label Grid.Column="1" Text="{Binding LastGpsAt}" FontSize="12" TextColor="#5EEAD4" />
+                                        <Button
+                                            Grid.Column="1"
+                                            Padding="16,6"
+                                            BackgroundColor="#145C4F"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenLinkCommand}"
+                                            CommandParameter="{Binding .}"
+                                            CornerRadius="10"
+                                            Text="Open"
+                                            TextColor="#ECFDF5" />
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
@@ -46,18 +76,39 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <Border BackgroundColor="#0B2D26" Stroke="#1C5448" StrokeShape="RoundRectangle 18" Padding="16">
+                <Border
+                    Padding="16"
+                    BackgroundColor="#0B2D26"
+                    Stroke="#1C5448"
+                    StrokeShape="RoundRectangle 18">
                     <VerticalStackLayout Spacing="10">
-                        <Label Text="Dispatch" FontAttributes="Bold" FontSize="18" TextColor="#F8FAFC" />
-                        <CollectionView ItemsSource="{Binding Orders}" SelectionMode="None" HeightRequest="220">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            Text="Monitoring"
+                            TextColor="#F8FAFC" />
+                        <CollectionView
+                            HeightRequest="220"
+                            ItemsSource="{Binding Vehicles}"
+                            SelectionMode="None">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                    <Grid Padding="0,8" ColumnDefinitions="*,Auto">
                                         <VerticalStackLayout Spacing="2">
-                                            <Label Text="{Binding OrderNumber}" FontAttributes="Bold" TextColor="#ECFDF5" />
-                                            <Label Text="{Binding CustomerName}" FontSize="12" TextColor="#94A3B8" />
+                                            <Label
+                                                FontAttributes="Bold"
+                                                Text="{Binding Registration}"
+                                                TextColor="#ECFDF5" />
+                                            <Label
+                                                FontSize="12"
+                                                Text="{Binding Status}"
+                                                TextColor="#94A3B8" />
                                         </VerticalStackLayout>
-                                        <Label Grid.Column="1" Text="{Binding Status}" FontSize="12" TextColor="#5EEAD4" />
+                                        <Label
+                                            Grid.Column="1"
+                                            FontSize="12"
+                                            Text="{Binding LastGpsAt}"
+                                            TextColor="#5EEAD4" />
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
@@ -65,48 +116,165 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <Border BackgroundColor="#0B2D26" Stroke="#1C5448" StrokeShape="RoundRectangle 18" Padding="16">
+                <Border
+                    Padding="16"
+                    BackgroundColor="#0B2D26"
+                    Stroke="#1C5448"
+                    StrokeShape="RoundRectangle 18">
+                    <VerticalStackLayout Spacing="10">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            Text="Dispatch"
+                            TextColor="#F8FAFC" />
+                        <CollectionView
+                            HeightRequest="220"
+                            ItemsSource="{Binding Orders}"
+                            SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="0,8" ColumnDefinitions="*,Auto">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label
+                                                FontAttributes="Bold"
+                                                Text="{Binding OrderNumber}"
+                                                TextColor="#ECFDF5" />
+                                            <Label
+                                                FontSize="12"
+                                                Text="{Binding CustomerName}"
+                                                TextColor="#94A3B8" />
+                                        </VerticalStackLayout>
+                                        <Label
+                                            Grid.Column="1"
+                                            FontSize="12"
+                                            Text="{Binding Status}"
+                                            TextColor="#5EEAD4" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border
+                    Padding="16"
+                    BackgroundColor="#0B2D26"
+                    Stroke="#1C5448"
+                    StrokeShape="RoundRectangle 18">
                     <VerticalStackLayout Spacing="14">
-                        <Label Text="Navigation" FontAttributes="Bold" FontSize="18" TextColor="#F8FAFC" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            Text="Navigation"
+                            TextColor="#F8FAFC" />
 
-                        <Border BackgroundColor="#10382F" Stroke="#145C4F" StrokeShape="RoundRectangle 16" Padding="14">
+                        <Border
+                            Padding="14"
+                            BackgroundColor="#10382F"
+                            Stroke="#145C4F"
+                            StrokeShape="RoundRectangle 16">
                             <VerticalStackLayout Spacing="10">
-                                <Label Text="{Binding RouteSummary}" FontSize="15" FontAttributes="Bold" TextColor="#ECFDF5" LineBreakMode="WordWrap" />
-                                <Label Text="{Binding RouteEngine}" FontSize="12" TextColor="#5EEAD4" />
-                                <Label Text="{Binding RouteSafety}" FontSize="12" TextColor="#F8FAFC" />
-                                <Label Text="{Binding RouteDiagnosticsSummary}" FontSize="12" TextColor="#94A3B8" LineBreakMode="WordWrap" />
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="15"
+                                    LineBreakMode="WordWrap"
+                                    Text="{Binding RouteSummary}"
+                                    TextColor="#ECFDF5" />
+                                <Label
+                                    FontSize="12"
+                                    Text="{Binding RouteEngine}"
+                                    TextColor="#5EEAD4" />
+                                <Label
+                                    FontSize="12"
+                                    Text="{Binding RouteSafety}"
+                                    TextColor="#F8FAFC" />
+                                <Label
+                                    FontSize="12"
+                                    LineBreakMode="WordWrap"
+                                    Text="{Binding RouteDiagnosticsSummary}"
+                                    TextColor="#94A3B8" />
                             </VerticalStackLayout>
                         </Border>
 
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                            <Border BackgroundColor="#0E332B" Stroke="#1C5448" StrokeShape="RoundRectangle 14" Padding="12">
+                            <Border
+                                Padding="12"
+                                BackgroundColor="#0E332B"
+                                Stroke="#1C5448"
+                                StrokeShape="RoundRectangle 14">
                                 <VerticalStackLayout Spacing="6">
-                                    <Label Text="START SNAP" FontSize="10" TextColor="#7DD3FC" />
-                                    <Label Text="{Binding RouteStartSnap}" FontSize="12" TextColor="#E2E8F0" LineBreakMode="WordWrap" />
+                                    <Label
+                                        FontSize="10"
+                                        Text="START SNAP"
+                                        TextColor="#7DD3FC" />
+                                    <Label
+                                        FontSize="12"
+                                        LineBreakMode="WordWrap"
+                                        Text="{Binding RouteStartSnap}"
+                                        TextColor="#E2E8F0" />
                                 </VerticalStackLayout>
                             </Border>
-                            <Border Grid.Column="1" BackgroundColor="#0E332B" Stroke="#1C5448" StrokeShape="RoundRectangle 14" Padding="12">
+                            <Border
+                                Grid.Column="1"
+                                Padding="12"
+                                BackgroundColor="#0E332B"
+                                Stroke="#1C5448"
+                                StrokeShape="RoundRectangle 14">
                                 <VerticalStackLayout Spacing="6">
-                                    <Label Text="END SNAP" FontSize="10" TextColor="#7DD3FC" />
-                                    <Label Text="{Binding RouteEndSnap}" FontSize="12" TextColor="#E2E8F0" LineBreakMode="WordWrap" />
+                                    <Label
+                                        FontSize="10"
+                                        Text="END SNAP"
+                                        TextColor="#7DD3FC" />
+                                    <Label
+                                        FontSize="12"
+                                        LineBreakMode="WordWrap"
+                                        Text="{Binding RouteEndSnap}"
+                                        TextColor="#E2E8F0" />
                                 </VerticalStackLayout>
                             </Border>
                         </Grid>
 
-                        <Border BackgroundColor="#0E332B" Stroke="#1C5448" StrokeShape="RoundRectangle 14" Padding="12">
+                        <Border
+                            Padding="12"
+                            BackgroundColor="#0E332B"
+                            Stroke="#1C5448"
+                            StrokeShape="RoundRectangle 14">
                             <VerticalStackLayout Spacing="6">
-                                <Label Text="FAILURE / REVIEW" FontSize="10" TextColor="#FBBF24" />
-                                <Label Text="{Binding RouteFailureReason}" FontSize="12" TextColor="#F8FAFC" LineBreakMode="WordWrap" />
+                                <Label
+                                    FontSize="10"
+                                    Text="FAILURE / REVIEW"
+                                    TextColor="#FBBF24" />
+                                <Label
+                                    FontSize="12"
+                                    LineBreakMode="WordWrap"
+                                    Text="{Binding RouteFailureReason}"
+                                    TextColor="#F8FAFC" />
                             </VerticalStackLayout>
                         </Border>
 
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Route Highlights" FontAttributes="Bold" FontSize="15" TextColor="#F8FAFC" />
-                            <CollectionView ItemsSource="{Binding RouteHighlights}" SelectionMode="None" HeightRequest="180">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                Text="Route Highlights"
+                                TextColor="#F8FAFC" />
+                            <CollectionView
+                                HeightRequest="180"
+                                ItemsSource="{Binding RouteHighlights}"
+                                SelectionMode="None">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BackgroundColor="#0E332B" Stroke="#1C5448" StrokeShape="RoundRectangle 12" Padding="10" Margin="0,0,0,8">
-                                            <Label Text="{Binding .}" FontSize="12" TextColor="#E2E8F0" LineBreakMode="WordWrap" />
+                                        <Border
+                                            Margin="0,0,0,8"
+                                            Padding="10"
+                                            BackgroundColor="#0E332B"
+                                            Stroke="#1C5448"
+                                            StrokeShape="RoundRectangle 12">
+                                            <Label
+                                                FontSize="12"
+                                                LineBreakMode="WordWrap"
+                                                Text="{Binding .}"
+                                                TextColor="#E2E8F0" />
                                         </Border>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
@@ -114,15 +282,38 @@
                         </VerticalStackLayout>
 
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Next Maneuvers" FontAttributes="Bold" FontSize="15" TextColor="#F8FAFC" />
-                            <CollectionView ItemsSource="{Binding RouteManeuvers}" SelectionMode="None" HeightRequest="220">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                Text="Next Maneuvers"
+                                TextColor="#F8FAFC" />
+                            <CollectionView
+                                HeightRequest="220"
+                                ItemsSource="{Binding RouteManeuvers}"
+                                SelectionMode="None">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BackgroundColor="#0E332B" Stroke="#1C5448" StrokeShape="RoundRectangle 12" Padding="10" Margin="0,0,0,8">
+                                        <Border
+                                            Margin="0,0,0,8"
+                                            Padding="10"
+                                            BackgroundColor="#0E332B"
+                                            Stroke="#1C5448"
+                                            StrokeShape="RoundRectangle 12">
                                             <VerticalStackLayout Spacing="4">
-                                                <Label Text="{Binding Instruction}" FontSize="13" FontAttributes="Bold" TextColor="#ECFDF5" LineBreakMode="WordWrap" />
-                                                <Label Text="{Binding RoadName}" FontSize="12" TextColor="#5EEAD4" />
-                                                <Label Text="{Binding DistanceFromPreviousMeters, StringFormat='After {0:0} m'}" FontSize="11" TextColor="#94A3B8" />
+                                                <Label
+                                                    FontAttributes="Bold"
+                                                    FontSize="13"
+                                                    LineBreakMode="WordWrap"
+                                                    Text="{Binding Instruction}"
+                                                    TextColor="#ECFDF5" />
+                                                <Label
+                                                    FontSize="12"
+                                                    Text="{Binding RoadName}"
+                                                    TextColor="#5EEAD4" />
+                                                <Label
+                                                    FontSize="11"
+                                                    Text="{Binding DistanceFromPreviousMeters, StringFormat='After {0:0} m'}"
+                                                    TextColor="#94A3B8" />
                                             </VerticalStackLayout>
                                         </Border>
                                     </DataTemplate>
@@ -131,16 +322,33 @@
                         </VerticalStackLayout>
 
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Trip Progress" FontAttributes="Bold" FontSize="15" TextColor="#F8FAFC" />
-                            <CollectionView ItemsSource="{Binding Trips}" SelectionMode="None" HeightRequest="220">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                Text="Trip Progress"
+                                TextColor="#F8FAFC" />
+                            <CollectionView
+                                HeightRequest="220"
+                                ItemsSource="{Binding Trips}"
+                                SelectionMode="None">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                        <Grid Padding="0,8" ColumnDefinitions="*,Auto">
                                             <VerticalStackLayout Spacing="2">
-                                                <Label Text="{Binding ExecutionState}" FontAttributes="Bold" TextColor="#ECFDF5" />
-                                                <Label Text="{Binding Status}" FontSize="12" TextColor="#94A3B8" />
+                                                <Label
+                                                    FontAttributes="Bold"
+                                                    Text="{Binding ExecutionState}"
+                                                    TextColor="#ECFDF5" />
+                                                <Label
+                                                    FontSize="12"
+                                                    Text="{Binding Status}"
+                                                    TextColor="#94A3B8" />
                                             </VerticalStackLayout>
-                                            <Label Grid.Column="1" Text="{Binding RouteProgressPercent, StringFormat='{0:0}%'}" FontSize="12" TextColor="#5EEAD4" />
+                                            <Label
+                                                Grid.Column="1"
+                                                FontSize="12"
+                                                Text="{Binding RouteProgressPercent, StringFormat='{0:0}%'}"
+                                                TextColor="#5EEAD4" />
                                         </Grid>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>

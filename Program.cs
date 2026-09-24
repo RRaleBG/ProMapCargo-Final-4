@@ -198,6 +198,7 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+await SeedDefaultMobileUserAsync(app);
 
 // ============================================================
 // MIDDLEWARE
@@ -266,6 +267,90 @@ app.Map("/pmtiles/{*path}", pmTilesApp =>
 });
 
 app.Run();
+
+static async Task SeedDefaultMobileUserAsync(WebApplication app)
+{
+    const string email = "user@user.com";
+    const string password = "Abcd1234!";
+
+    using var scope = app.Services.CreateScope();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    var user = await userManager.FindByEmailAsync(email).ConfigureAwait(false)
+               ?? await userManager.FindByNameAsync(email).ConfigureAwait(false);
+
+    if (user is null)
+    {
+        user = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true,
+            DisplayName = "ProMapCargo Mobile User",
+            IsActive = true
+        };
+
+        var createResult = await userManager.CreateAsync(user, password).ConfigureAwait(false);
+        if (!createResult.Succeeded)
+        {
+            var errors = string.Join("; ", createResult.Errors.Select(x => x.Description));
+            throw new InvalidOperationException($"Failed to seed default mobile user '{email}': {errors}");
+        }
+
+        return;
+    }
+
+    var shouldUpdateUser = false;
+
+    if (!string.Equals(user.UserName, email, StringComparison.OrdinalIgnoreCase))
+    {
+        user.UserName = email;
+        shouldUpdateUser = true;
+    }
+
+    if (!string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase))
+    {
+        user.Email = email;
+        shouldUpdateUser = true;
+    }
+
+    if (!user.EmailConfirmed)
+    {
+        user.EmailConfirmed = true;
+        shouldUpdateUser = true;
+    }
+
+    if (!user.IsActive)
+    {
+        user.IsActive = true;
+        shouldUpdateUser = true;
+    }
+
+    if (shouldUpdateUser)
+    {
+        var updateResult = await userManager.UpdateAsync(user).ConfigureAwait(false);
+        if (!updateResult.Succeeded)
+        {
+            var errors = string.Join("; ", updateResult.Errors.Select(x => x.Description));
+            throw new InvalidOperationException($"Failed to update seeded mobile user '{email}': {errors}");
+        }
+    }
+
+    var passwordValid = await userManager.CheckPasswordAsync(user, password).ConfigureAwait(false);
+    if (passwordValid)
+    {
+        return;
+    }
+
+    var token = await userManager.GeneratePasswordResetTokenAsync(user).ConfigureAwait(false);
+    var resetResult = await userManager.ResetPasswordAsync(user, token, password).ConfigureAwait(false);
+    if (!resetResult.Succeeded)
+    {
+        var errors = string.Join("; ", resetResult.Errors.Select(x => x.Description));
+        throw new InvalidOperationException($"Failed to reset password for seeded mobile user '{email}': {errors}");
+    }
+}
 
 static Dictionary<string, string> LoadDotEnvConfiguration()
 {

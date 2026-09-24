@@ -17,6 +17,10 @@
                     FontSize="14"
                     Text="Native operations access for Navigation, Monitoring, and Dispatch."
                     TextColor="#94A3B8" />
+                <Label
+                    FontSize="12"
+                    Text="Use a valid ProMapCargo account from the API system (no default seeded mobile user)."
+                    TextColor="#7DD3FC" />
             </VerticalStackLayout>
 
             <Border
@@ -57,6 +61,12 @@
                         HeightRequest="52"
                         Text="Sign in"
                         TextColor="#031712" />
+
+                    <ActivityIndicator
+                        IsRunning="{Binding IsBusy}"
+                        IsVisible="{Binding IsBusy}"
+                        Color="#5EEAD4"
+                        HorizontalOptions="Center" />
                 </VerticalStackLayout>
             </Border>
         </VerticalStackLayout>

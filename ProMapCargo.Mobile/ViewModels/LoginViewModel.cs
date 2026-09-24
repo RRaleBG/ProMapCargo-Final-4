@@ -1,14 +1,13 @@
-using System.Windows.Input;
-using Microsoft.Maui.Controls;
 using ProMapCargo.Mobile.Services;
+using System.Windows.Input;
 
 namespace ProMapCargo.Mobile.ViewModels;
 
 public sealed class LoginViewModel : ViewModelBase
 {
     private readonly MobileSessionService sessionService;
-    private string email = "operator@promap.local";
-    private string password = "Password123";
+    private string email = string.Empty;
+    private string password = string.Empty;
     private string? errorMessage;
     private bool isBusy;
 
@@ -65,12 +64,20 @@ public sealed class LoginViewModel : ViewModelBase
         try
         {
             IsBusy = true;
-            await sessionService.LoginAsync(Email.Trim(), Password, CancellationToken.None).ConfigureAwait(false);
+            await sessionService.LoginAsync(Email.Trim(), Password, CancellationToken.None);
             LoginSucceeded?.Invoke(this, EventArgs.Empty);
+        }
+        catch (HttpRequestException ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        catch (InvalidOperationException ex)
+        {
+            ErrorMessage = ex.Message;
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            ErrorMessage = ex.InnerException?.Message ?? ex.Message;
         }
         finally
         {

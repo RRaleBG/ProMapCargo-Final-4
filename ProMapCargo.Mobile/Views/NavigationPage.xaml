@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ProMapCargo.Mobile.Views.MobileNavigationPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Navigation"
+    BackgroundColor="#031712">
+    <Grid
+        Padding="12,10,12,0"
+        RowDefinitions="Auto,430,Auto,Auto,*"
+        RowSpacing="10">
+        <Grid Grid.Row="1">
+            <Grid x:Name="MapHost" />
+            <Border
+                Margin="12,0,12,12"
+                Padding="10,8"
+                BackgroundColor="#B5092822"
+                HorizontalOptions="Center"
+                Stroke="#195747"
+                StrokeShape="RoundRectangle 12"
+                VerticalOptions="End">
+                <HorizontalStackLayout Spacing="10">
+                    <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
+                        <CheckBox IsChecked="{Binding ShowRouteLayer}" Color="#10B981" Scale="0.85" />
+                        <Label FontSize="11" Text="Route" TextColor="#ECFDF5" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
+                        <CheckBox IsChecked="{Binding ShowRestrictionsLayer}" Color="#10B981" Scale="0.85" />
+                        <Label FontSize="11" Text="Rest" TextColor="#ECFDF5" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
+                        <CheckBox IsChecked="{Binding ShowFleetLayer}" Color="#10B981" Scale="0.85" />
+                        <Label FontSize="11" Text="Fleet" TextColor="#ECFDF5" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
+                        <CheckBox IsChecked="{Binding ShowPoiLayer}" Color="#10B981" Scale="0.85" />
+                        <Label FontSize="11" Text="POI" TextColor="#ECFDF5" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </HorizontalStackLayout>
+            </Border>
+
+            <VerticalStackLayout
+                Margin="12,12,12,10"
+                HorizontalOptions="Fill"
+                Spacing="10"
+                VerticalOptions="Start">
+                <Border
+                    Padding="12"
+                    BackgroundColor="#E00C2F28"
+                    Stroke="#1F6153"
+                    StrokeShape="RoundRectangle 16">
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                            <Border
+                                BackgroundColor="#10382F"
+                                HeightRequest="44"
+                                Stroke="#1C5448"
+                                StrokeShape="RoundRectangle 10"
+                                VerticalOptions="Center"
+                                WidthRequest="44">
+                                <Label
+                                    FontSize="24"
+                                    HorizontalOptions="Center"
+                                    Text="{Binding NextManeuverSymbol}"
+                                    TextColor="#10B981"
+                                    VerticalOptions="Center" />
+                            </Border>
+
+                            <VerticalStackLayout
+                                Grid.Column="1"
+                                Spacing="1"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontSize="10"
+                                    Text="LANE GUIDANCE"
+                                    TextColor="#7DD3FC" />
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="13"
+                                    Text="{Binding NextManeuverType}"
+                                    TextColor="#ECFDF5" />
+                                <Label
+                                    FontSize="12"
+                                    LineBreakMode="TailTruncation"
+                                    Text="{Binding NextManeuverInstruction}"
+                                    TextColor="#F8FAFC" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout
+                                Grid.Column="2"
+                                HorizontalOptions="End"
+                                Spacing="1"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="13"
+                                    HorizontalTextAlignment="End"
+                                    Text="{Binding NextManeuverDistanceText}"
+                                    TextColor="#5EEAD4" />
+                                <Label
+                                    FontSize="10"
+                                    HorizontalTextAlignment="End"
+                                    Text="{Binding NextManeuverStepText}"
+                                    TextColor="#94A3B8" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <HorizontalStackLayout
+                            BindableLayout.ItemsSource="{Binding LaneRibbon}"
+                            HorizontalOptions="Fill"
+                            Spacing="6">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Border
+                                        Padding="8,4"
+                                        BackgroundColor="{Binding FillColor}"
+                                        HorizontalOptions="FillAndExpand"
+                                        Stroke="{Binding StrokeColor}"
+                                        StrokeShape="RoundRectangle 8">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Symbol}"
+                                            TextColor="{Binding TextColor}"
+                                            VerticalOptions="Center" />
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
+
+                        <ProgressBar
+                            BackgroundColor="#10382F"
+                            HeightRequest="6"
+                            Progress="{Binding NextManeuverProgress}"
+                            ProgressColor="#10B981" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border
+                    Padding="10,8"
+                    BackgroundColor="#D40A2C25"
+                    Stroke="#1F6153"
+                    StrokeShape="RoundRectangle 14">
+                    <Grid
+                        ColumnDefinitions="*,Auto,Auto,Auto,Auto"
+                        ColumnSpacing="10"
+                        VerticalOptions="Center">
+                        <VerticalStackLayout Spacing="0">
+                            <Label
+                                FontSize="11"
+                                LineBreakMode="TailTruncation"
+                                Text="{Binding CurrentLocationText}"
+                                TextColor="#94A3B8" />
+                            <Label
+                                FontSize="11"
+                                Text="{Binding OffRouteStatusText}"
+                                TextColor="#FBBF24" />
+                        </VerticalStackLayout>
+                        <HorizontalStackLayout
+                            Grid.Column="1"
+                            Spacing="4"
+                            VerticalOptions="Center">
+                            <CheckBox IsChecked="{Binding AutoRerouteEnabled}" Color="#10B981" />
+                            <Label
+                                FontSize="11"
+                                Text="Auto"
+                                TextColor="#ECFDF5"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout
+                            Grid.Column="2"
+                            Spacing="4"
+                            VerticalOptions="Center">
+                            <CheckBox IsChecked="{Binding VoiceGuidanceEnabled}" Color="#10B981" />
+                            <Label
+                                FontSize="11"
+                                Text="Voice"
+                                TextColor="#ECFDF5"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Button
+                            Grid.Column="3"
+                            Padding="14,6"
+                            BackgroundColor="#0F766E"
+                            Command="{Binding SpeakNextPromptCommand}"
+                            CornerRadius="10"
+                            HeightRequest="36"
+                            Text="Speak"
+                            TextColor="#ECFDF5" />
+                        <Button
+                            Grid.Column="4"
+                            Padding="14,6"
+                            BackgroundColor="#0284C7"
+                            Command="{Binding RerouteCommand}"
+                            CornerRadius="10"
+                            HeightRequest="36"
+                            Text="Reroute"
+                            TextColor="White" />
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout
+                Margin="12"
+                HorizontalOptions="Fill"
+                Spacing="8"
+                VerticalOptions="End">
+                <Button
+                    BackgroundColor="#14B884"
+                    Command="{Binding ToggleRouteInputCommand}"
+                    CornerRadius="14"
+                    FontAttributes="Bold"
+                    HeightRequest="52"
+                    Text="{Binding RouteInputButtonText}"
+                    TextColor="#02211B" />
+
+                <Border
+                    Padding="12"
+                    BackgroundColor="#E60B2D26"
+                    IsVisible="{Binding IsRouteInputVisible}"
+                    Stroke="#1C5448"
+                    StrokeShape="RoundRectangle 14">
+                    <VerticalStackLayout Spacing="10">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            Text="Route Input"
+                            TextColor="#F8FAFC" />
+
+                        <Grid
+                            ColumnDefinitions="*,*"
+                            ColumnSpacing="10"
+                            RowDefinitions="Auto,Auto">
+                            <Entry
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Keyboard="Numeric"
+                                Placeholder="Start latitude"
+                                PlaceholderColor="#94A3B8"
+                                Text="{Binding StartLatitude}"
+                                TextColor="#F8FAFC" />
+                            <Entry
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Keyboard="Numeric"
+                                Placeholder="Start longitude"
+                                PlaceholderColor="#94A3B8"
+                                Text="{Binding StartLongitude}"
+                                TextColor="#F8FAFC" />
+                            <Entry
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Keyboard="Numeric"
+                                Placeholder="Destination latitude"
+                                PlaceholderColor="#94A3B8"
+                                Text="{Binding DestinationLatitude}"
+                                TextColor="#F8FAFC" />
+                            <Entry
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Keyboard="Numeric"
+                                Placeholder="Destination longitude"
+                                PlaceholderColor="#94A3B8"
+                                Text="{Binding DestinationLongitude}"
+                                TextColor="#F8FAFC" />
+                        </Grid>
+
+                        <Entry
+                            Placeholder="Profile (truck, car...)"
+                            PlaceholderColor="#94A3B8"
+                            Text="{Binding Profile}"
+                            TextColor="#F8FAFC" />
+
+                        <HorizontalStackLayout Spacing="8">
+                            <CheckBox IsChecked="{Binding AvoidRestricted}" Color="#10B981" />
+                            <Label
+                                Text="Avoid restricted roads"
+                                TextColor="#ECFDF5"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <Label
+                            IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                            Text="{Binding ErrorMessage}"
+                            TextColor="#FB7185" />
+
+                        <Button
+                            BackgroundColor="#0EA5E9"
+                            Command="{Binding CalculateRouteCommand}"
+                            CornerRadius="12"
+                            HeightRequest="44"
+                            Text="Calculate Route"
+                            TextColor="White" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </Grid>
+
+        <ActivityIndicator
+            Grid.Row="2"
+            HorizontalOptions="Center"
+            IsRunning="{Binding IsBusy}"
+            IsVisible="{Binding IsBusy}"
+            Color="#5EEAD4" />
+
+        <Grid Grid.Row="3" ColumnDefinitions="*,*" ColumnSpacing="8">
+            <Button
+                Grid.Column="0"
+                BackgroundColor="#0F766E"
+                Command="{Binding SpeakNextPromptCommand}"
+                CornerRadius="12"
+                HeightRequest="42"
+                Text="Speak"
+                TextColor="#ECFDF5" />
+            <Button
+                Grid.Column="1"
+                BackgroundColor="#0284C7"
+                Command="{Binding RerouteCommand}"
+                CornerRadius="12"
+                HeightRequest="42"
+                Text="Reroute"
+                TextColor="White" />
+        </Grid>
+
+        <ScrollView Grid.Row="4">
+            <VerticalStackLayout Padding="0,0,0,20" Spacing="12">
+                <Border
+                    Padding="16"
+                    BackgroundColor="#0A2C25"
+                    Stroke="#1F6153"
+                    StrokeShape="RoundRectangle 18">
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            Text="Route Overview"
+                            TextColor="#F8FAFC" />
+                        <Label Text="{Binding RouteCode, StringFormat='Code: {0}'}" TextColor="#5EEAD4" />
+                        <Label Text="{Binding RouteSummary}" TextColor="#ECFDF5" />
+                        <Label Text="{Binding RouteEngine}" TextColor="#ECFDF5" />
+                        <Label Text="{Binding RouteSafety}" TextColor="#ECFDF5" />
+                        <Label Text="{Binding RouteEstimatedArrival, StringFormat='ETA: {0}'}" TextColor="#94A3B8" />
+                        <Label Text="{Binding RouteDiagnosticsSummary}" TextColor="#94A3B8" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Border
+                        Padding="10"
+                        BackgroundColor="#0E332B"
+                        Stroke="#1C5448"
+                        StrokeShape="RoundRectangle 12">
+                        <VerticalStackLayout Spacing="2">
+                            <Label
+                                FontSize="10"
+                                Text="START SNAP"
+                                TextColor="#7DD3FC" />
+                            <Label
+                                FontSize="12"
+                                LineBreakMode="WordWrap"
+                                Text="{Binding RouteStartSnap}"
+                                TextColor="#ECFDF5" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border
+                        Grid.Column="1"
+                        Padding="10"
+                        BackgroundColor="#0E332B"
+                        Stroke="#1C5448"
+                        StrokeShape="RoundRectangle 12">
+                        <VerticalStackLayout Spacing="2">
+                            <Label
+                                FontSize="10"
+                                Text="END SNAP"
+                                TextColor="#7DD3FC" />
+                            <Label
+                                FontSize="12"
+                                LineBreakMode="WordWrap"
+                                Text="{Binding RouteEndSnap}"
+                                TextColor="#ECFDF5" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <CollectionView
+                    HeightRequest="220"
+                    ItemsSource="{Binding RouteManeuvers}"
+                    SelectionMode="None">
+                    <CollectionView.Header>
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            Text="Maneuvers"
+                            TextColor="#F8FAFC" />
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Margin="0,0,0,8"
+                                Padding="10"
+                                BackgroundColor="#0E332B"
+                                Stroke="#1C5448"
+                                StrokeShape="RoundRectangle 12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        LineBreakMode="WordWrap"
+                                        Text="{Binding Instruction}"
+                                        TextColor="#ECFDF5" />
+                                    <Label
+                                        FontSize="12"
+                                        Text="{Binding RoadName}"
+                                        TextColor="#5EEAD4" />
+                                    <Label
+                                        FontSize="11"
+                                        Text="{Binding DistanceFromPreviousMeters, StringFormat='After {0:0} m'}"
+                                        TextColor="#94A3B8" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

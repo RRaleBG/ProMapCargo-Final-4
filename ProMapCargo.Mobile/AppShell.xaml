@@ -12,7 +12,16 @@
             Title="Operations"
             ContentTemplate="{DataTemplate views:DashboardPage}"
             Route="dashboard-home" />
+        <ShellContent
+            Title="Navigation"
+            ContentTemplate="{DataTemplate views:MobileNavigationPage}"
+            Route="mobile-navigation" />
     </TabBar>
+
+    <ShellContent
+        Title="Install maps"
+        ContentTemplate="{DataTemplate views:MapInstallPage}"
+        Route="install-maps" />
 
     <ShellContent
         Title="Login"

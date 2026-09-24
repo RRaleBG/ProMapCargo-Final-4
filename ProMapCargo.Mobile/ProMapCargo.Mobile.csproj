@@ -65,6 +65,10 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-android'">
+		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
@@ -78,6 +82,15 @@
 	  <MauiXaml Update="Views\LoginPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\MapInstallPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+		<MauiXaml Update="Views\NavigationPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\MapInstallPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 	</ItemGroup>
 
 </Project>

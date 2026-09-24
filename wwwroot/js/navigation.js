@@ -57,6 +57,11 @@ window.ProMap = window.ProMap || {};
         live: false,
         lastRerouteAt: 0,
 
+        embeddedMode:
+            new URLSearchParams(window.location.search).get("embedded") === "1",
+
+        pendingMobilePayload: null,
+
         localMap: {
             host: null,
             map: null,
@@ -145,6 +150,171 @@ window.ProMap = window.ProMap || {};
     const LOCAL_MAPLIBRE_CSS_ID = "promap-local-maplibre-css";
 
     const PROMAP_PMTILES_ENDPOINT = "/maps/europe.pmtiles";
+
+    function toBoolean(value, fallback = false) {
+        if (typeof value === "boolean") {
+            return value;
+        }
+
+        if (typeof value === "string") {
+            const normalized = value.trim().toLowerCase();
+
+            if (normalized === "true" || normalized === "1") {
+                return true;
+            }
+
+            if (normalized === "false" || normalized === "0") {
+                return false;
+            }
+        }
+
+        return fallback;
+    }
+
+    function applyLayerStates(layers) {
+        if (!layers || typeof layers !== "object") {
+            return;
+        }
+
+        const mapping = {
+            route: "route",
+            restrictions: "restrictions",
+            fleet: "fleet",
+            poi: "poi",
+        };
+
+        for (const [source, group] of Object.entries(mapping)) {
+            if (!(source in layers)) {
+                continue;
+            }
+
+            const visible = toBoolean(layers[source], group === "route" || group === "restrictions");
+
+            if (state.localMap?.enhancements?.setGroupVisible) {
+                state.localMap.enhancements.setGroupVisible(group, visible);
+            }
+
+            const checkbox = document.querySelector(`[data-promap-layer="${group}"]`);
+            if (checkbox && "checked" in checkbox) {
+                checkbox.checked = visible;
+            }
+        }
+    }
+
+    function buildMobileRouteResponse(payload) {
+        const routePoints = Array.isArray(payload?.route)
+            ? payload.route.map(normalizePoint).filter(Boolean)
+            : [];
+
+        if (routePoints.length < 2) {
+            return null;
+        }
+
+        const coordinates = routePoints.map((point) => [point.longitude, point.latitude]);
+
+        const maneuvers = Array.isArray(payload?.maneuvers)
+            ? payload.maneuvers
+                .map((item) => {
+                    const point = normalizePoint(item);
+
+                    if (!point) {
+                        return null;
+                    }
+
+                    return {
+                        type: item.type || "continue",
+                        modifier: item.modifier || null,
+                        instruction: item.instruction || "Nastavi pravo",
+                        distanceMeters: Number(item.distanceMeters) || 0,
+                        latitude: point.latitude,
+                        longitude: point.longitude,
+                    };
+                })
+                .filter(Boolean)
+            : [];
+
+        return {
+            engine: "PostGIS",
+            usedFallback: false,
+            selectedRouteIndex: 0,
+            maneuvers,
+            violations: [],
+            routes: [
+                {
+                    id: "mobile-live",
+                    distance: Number(payload?.distanceMeters) || 0,
+                    duration: Number(payload?.durationSeconds) || 0,
+                    geometry: {
+                        type: "LineString",
+                        coordinates,
+                    },
+                    analysis: {
+                        restricted: Number(payload?.restrictionCount) > 0,
+                        violations: [],
+                    },
+                },
+            ],
+        };
+    }
+
+    function applyPendingMobilePayload() {
+        const payload = state.pendingMobilePayload;
+
+        if (!payload || typeof payload !== "object") {
+            return false;
+        }
+
+        const start = normalizePoint(payload.start);
+        const destination = normalizePoint(payload.destination);
+        const current = normalizePoint(payload.current);
+
+        if (start) {
+            setStart(start);
+        }
+
+        if (destination) {
+            setDestination(destination);
+        }
+
+        if (current && state.map) {
+            updateGpsMarker({
+                latitude: current.latitude,
+                longitude: current.longitude,
+                accuracy: Number(payload?.current?.accuracy) || undefined,
+                speed: Number(payload?.current?.speed) || undefined,
+                timestamp: Date.now(),
+            });
+        }
+
+        applyLayerStates(payload.layers);
+
+        if (state.localMap?.enhancements?.setRoute) {
+            const response = buildMobileRouteResponse(payload);
+
+            if (response) {
+                renderRouteResponse(response);
+                selectRoute(0, true);
+            }
+        }
+
+        state.pendingMobilePayload = null;
+
+        return true;
+    }
+
+    function ensureMobileBridge() {
+        window.proMapMobile = window.proMapMobile || {};
+
+        window.proMapMobile.applyState = (payload) => {
+            state.pendingMobilePayload = payload || {};
+
+            if (state.localMap?.enhancements?.setRoute) {
+                applyPendingMobilePayload();
+            }
+
+            return true;
+        };
+    }
 
     // ============================================================
     // GENERIC HELPERS
@@ -1335,6 +1505,8 @@ window.ProMap = window.ProMap || {};
                         },
                     ),
                 );
+
+                applyPendingMobilePayload();
             }
 
             /*
@@ -4147,6 +4319,8 @@ window.ProMap = window.ProMap || {};
     }
 
 
+
+    ensureMobileBridge();
 
     if (document.readyState === "loading") {
         document.addEventListener(

@@ -21,17 +21,33 @@ public sealed class DashboardViewModel : ViewModelBase
     private string routeEndSnap = "—";
     private string routeFailureReason = "—";
 
-    public DashboardViewModel(ApiClient apiClient, MobileSessionService sessionService)
+    public DashboardViewModel(
+        ApiClient apiClient,
+        MobileSessionService sessionService)
     {
         this.apiClient = apiClient;
         this.sessionService = sessionService;
+
         Vehicles = [];
         Drivers = [];
         Orders = [];
         Trips = [];
         RouteHighlights = [];
         RouteManeuvers = [];
+        QuickLinks =
+        [
+            new DashboardLink("Navigation", "Truck-aware route planning and maneuver guidance", "//dashboard/mobile-navigation"),
+            new DashboardLink("Dispatch", "Order assignment and fleet dispatch", null),
+            new DashboardLink("Monitoring", "Live telemetry and vehicle status", null),
+            new DashboardLink("Trips", "Trip execution status and progress", null),
+            new DashboardLink("Orders", "Active and pending customer orders", null),
+            new DashboardLink("Vehicles", "Vehicle availability and health", null),
+            new DashboardLink("Drivers", "Driver roster and compliance", null),
+            new DashboardLink("Alerts", "Operational alerts and incidents", null)
+        ];
+
         RefreshCommand = new Command(async () => await LoadAsync(), () => !IsBusy);
+        OpenLinkCommand = new Command<DashboardLink>(async link => await OpenLinkAsync(link));
     }
 
     public ObservableCollection<VehicleItem> Vehicles { get; }
@@ -46,7 +62,11 @@ public sealed class DashboardViewModel : ViewModelBase
 
     public ObservableCollection<RouteManeuver> RouteManeuvers { get; }
 
+    public IReadOnlyList<DashboardLink> QuickLinks { get; }
+
     public ICommand RefreshCommand { get; }
+
+    public ICommand OpenLinkCommand { get; }
 
     public string StatusText
     {
@@ -116,7 +136,7 @@ public sealed class DashboardViewModel : ViewModelBase
     {
         try
         {
-            IsBusy = true;
+            await SetBusyAsync(true);
             StatusText = "Loading operations data...";
 
             var vehicles = await apiClient.GetVehiclesAsync(CancellationToken.None).ConfigureAwait(false);
@@ -149,9 +169,12 @@ public sealed class DashboardViewModel : ViewModelBase
         }
         finally
         {
-            IsBusy = false;
+            await SetBusyAsync(false);
         }
     }
+
+    private Task SetBusyAsync(bool value)
+        => MainThread.InvokeOnMainThreadAsync(() => IsBusy = value);
 
     private void ApplyRoute(RouteResponse? route)
     {
@@ -221,6 +244,31 @@ public sealed class DashboardViewModel : ViewModelBase
         ReplaceItems(RouteManeuvers, route?.Maneuvers ?? []);
     }
 
+    private async Task OpenLinkAsync(DashboardLink? link)
+    {
+        if (link is null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(link.ShellRoute))
+        {
+            StatusText = $"{link.Title} is available on the web portal. Native mobile screen is coming soon.";
+            return;
+        }
+
+        await MainThread.InvokeOnMainThreadAsync(async () =>
+        {
+            var shell = Shell.Current;
+            if (shell is null)
+            {
+                return;
+            }
+
+            await shell.GoToAsync(link.ShellRoute);
+        });
+    }
+
     private static void ReplaceItems<T>(ObservableCollection<T> target, IEnumerable<T> source)
     {
         target.Clear();
@@ -229,4 +277,6 @@ public sealed class DashboardViewModel : ViewModelBase
             target.Add(item);
         }
     }
+
+    public sealed record DashboardLink(string Title, string Description, string? ShellRoute);
 }
