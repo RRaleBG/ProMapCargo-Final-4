@@ -1,40 +1,251 @@
 @page "/login"
 @{
+
     ViewData["Title"] = "Login · ProMap Cargo";
 }
 
-<div id="app" style="display:none"></div>
-<div class="pm-page" data-module="login">
-  <header class="pm-header">
-    <div>
-      <div class="pm-brand">ProMap <span>Cargo</span></div>
-      <div class="pm-kicker">Login</div>
-      <div class="pm-subtitle">Secure authentication</div>
+
+    <div>        
+
+        <div class="pm-login-route route-a"></div>
+        <div class="pm-login-route route-b"></div>
+
+        <div class="pm-login-node node-a"></div>
+        <div class="pm-login-node node-b"></div>
+        <div class="pm-login-node node-c"></div>
     </div>
-    <div class="pm-header-actions">
-      <a class="pm-btn pm-btn-primary" href="/dispatch">Command Center</a>
-      <a class="pm-btn" href="/profile">Profil</a>
-    </div>
-  </header>
-  <div class="pm-layout">
-    <aside class="pm-sidebar">
-      <div class="pm-nav-title">OPERATIONS</div>
-      <nav class="pm-nav"><a class="" href="/dashboard">Dashboard</a><a class="" href="/dispatch">Command Center</a><a class="" href="/orders">Transportni nalozi</a><a class="" href="/trips">Ture</a><a class="" href="/vehicles">Vozila</a><a class="" href="/drivers">Vozači</a><a class="" href="/navigation">Navigacija</a><a class="" href="/alerts">Alerts</a><a class="" href="/moderation">Moderacija</a><a class="" href="/audit">Audit</a><a class="" href="/compliance">Compliance</a><a class="" href="/monitoring">Monitoring</a><a class="" href="/finance">Finansije</a><a class="" href="/reports">Izveštaji</a><a class="" href="/settings">Podešavanja</a><a class="" href="/profile">Profil</a><a class="" href="/admin">Administracija</a></nav>
-      <div class="pm-sidebar-footer"><b>Routing engine</b><br>PostGIS · OSM · Truck-aware<br><span>Graph protected</span></div>
-    </aside>
-    <main class="pm-content">
-      <div style="max-width:440px;margin:60px auto"><div class="pm-card pm-card-body"><div class="pm-brand" style="font-size:28px">ProMap <span>Cargo</span></div><div class="pm-muted" style="margin:6px 0 20px">Secure operations login</div><div class="pm-grid"><div><label class="pm-label">Email</label><input class="pm-field" type="email" value="operator@promap.local"></div><div><label class="pm-label">Password</label><input class="pm-field" type="password" value="password"></div><label class="pm-muted"><input type="checkbox" checked> Remember me</label><button class="pm-btn pm-btn-primary">Sign in</button></div></div></div>
+
+
+  
+
+
+    <main class="pm-login-main">
+
+        <section class="pm-login-shell">
+
+
+            <!-- =====================================================
+                 RIGHT / LOGIN
+                 ===================================================== -->
+
+            <section class="pm-login-card">
+
+                <div class="pm-login-card-glow"></div>
+
+
+                <div class="pm-login-card-header">
+
+                    <div>
+
+                        <div class="pm-login-card-eyebrow">
+                            ACCOUNT · ACCESS
+                        </div>
+
+                        <h2>
+                            Prijava
+                        </h2>
+
+                        <p>
+                            Unesite podatke za pristup vašem nalogu.
+                        </p>
+
+                    </div>
+
+                    <div class="pm-login-lock">
+                        ◈
+                    </div>
+
+                </div>
+
+
+                <form method="post"
+                      class="pm-login-form">
+
+
+                    <div class="pm-login-field">
+
+                        <label for="email">
+                            Email adresa
+                        </label>
+
+                        <div class="pm-login-input-wrap">
+
+                            <span class="pm-login-input-icon">
+                                @@
+                            </span>
+
+                            <input id="email"
+                                   name="Email"
+                                   type="email"
+                                   autocomplete="username"
+                                   placeholder="operator@promapcargo.com"
+                                   required />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pm-login-field">
+
+                        <div class="pm-login-label-row">
+
+                            <label for="password">
+                                Lozinka
+                            </label>
+
+                            <a href="/Account/ForgotPassword"
+                               class="pm-login-link">
+                                Zaboravljena lozinka?
+                            </a>
+
+                        </div>
+
+
+                        <div class="pm-login-input-wrap">
+
+                            <span class="pm-login-input-icon">
+                                ●
+                            </span>
+
+                            <input id="password"
+                                   name="Password"
+                                   type="password"
+                                   autocomplete="current-password"
+                                   placeholder="Unesite lozinku"
+                                   required />
+
+                            <button type="button"
+                                    class="pm-login-password-toggle"
+                                    id="togglePassword"
+                                    aria-label="Prikaži lozinku">
+                                ◉
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <label class="pm-login-remember">
+
+                        <input type="checkbox"
+                               name="RememberMe"
+                               value="true" />
+
+                        <span class="pm-login-check"></span>
+
+                        <span>
+                            Zapamti me na ovom uređaju
+                        </span>
+
+                    </label>
+
+
+                    <button type="submit"
+                            class="pm-login-submit">
+
+                        <span>
+                            Prijavi se
+                        </span>
+
+                        <span class="pm-login-submit-arrow">
+                            →
+                        </span>
+
+                    </button>
+
+
+                    <div class="pm-login-divider">
+
+                        <span>
+                            SECURE IDENTITY ACCESS
+                        </span>
+
+                    </div>
+
+
+                    <div class="pm-login-security">
+
+                        <div class="pm-login-security-icon">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Zaštićen pristup
+                            </strong>
+
+                            <span>
+                                ASP.NET Core Identity · Secure session
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pm-login-register">
+
+                        <span>
+                            Nemate nalog?
+                        </span>
+
+                        <a href="/Account/Register">
+                            Kreirajte nalog
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </section>
+
     </main>
-  </div>
-</div>
 
 
-<script>
-// Pages are server-rendered and must remain independent from the legacy SPA renderer.
-document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('.pm-page a[href]').forEach(a=>a.addEventListener('click',e=>{
-    if(a.origin===location.origin){ e.stopPropagation(); }
-  },true));
-});
-</script>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const password =
+                document.getElementById("password");
+
+            const toggle =
+                document.getElementById("togglePassword");
+
+            if (password && toggle) {
+
+                toggle.addEventListener("click", function () {
+
+                    const visible =
+                        password.type === "text";
+
+                    password.type =
+                        visible ? "password" : "text";
+
+                    toggle.textContent =
+                        visible ? "◉" : "◎";
+
+                    toggle.setAttribute(
+                        "aria-label",
+                        visible
+                            ? "Prikaži lozinku"
+                            : "Sakrij lozinku"
+                    );
+
+                });
+
+            }
+
+        });
+
+    </script>
+  
+}
 

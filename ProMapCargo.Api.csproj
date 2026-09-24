@@ -39,9 +39,14 @@
     <None Remove="Importer\**" />
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="wwwroot\maps\pmtiles.exe" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="Pages\Fleet\" />
+    <Folder Include="wwwroot\icons\" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".github\copilot-instructions.md" />
+    <None Include="wwwroot\maps\pmtiles.exe" />
   </ItemGroup>
 </Project>

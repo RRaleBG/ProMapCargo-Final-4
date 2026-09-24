@@ -129,13 +129,10 @@
                 <div id="promapLayerPanel" class="promap-layer-panel" aria-label="Map layers">
                     <div class="promap-layer-title">MAP LAYERS</div>
 
-                    <label><input type="checkbox" data-promap-layer="route" checked> Ruta</label>
-                    <label><input type="checkbox" data-promap-layer="restrictions" checked> Truck restrikcije</label>
-                    <label><input type="checkbox" data-promap-layer="fleet"> Flota</label>
-                    <label><input type="checkbox" data-promap-layer="poi"> Truck POI</label>
-                    <label><input type="checkbox" data-promap-layer="traffic"> Traffic</label>
-                    <label><input type="checkbox" data-promap-layer="incidents"> Incidents</label>
-                    <label><input type="checkbox" data-promap-layer="weather"> Weather</label>
+                    <label><input type="checkbox" data-promap-layer="route" checked> Route</label>
+                    <label><input type="checkbox" data-promap-layer="restrictions" checked> Truck restrictions</label>
+                    <label><input type="checkbox" data-promap-layer="fleet"> Fleet</label>
+                    <label><input type="checkbox" data-promap-layer="poi"> POI</label>
                     <label><input type="checkbox" data-promap-layer="elevation"> Elevation</label>
                 </div>
 
@@ -1129,36 +1126,208 @@
 
 </div>
 
+
 @section Scripts {
 
     <script src="~/js/promap-gps.js" asp-append-version="true"></script>
     <script src="~/js/promap-maneuvers.js" asp-append-version="true"></script>
     <script src="~/js/promap-routing.js" asp-append-version="true"></script>
-    <script src="~/lib/pmtiles/dist/pmtiles.js"></script>
+
+    <!-- PMTiles runtime -->
+    <script src="~/lib/pmtiles/dist/pmtiles.js" asp-append-version="true"></script>
+
+    <!-- Icons -->
+    <script src="~/js/promap-map-icons.js" asp-append-version="true"></script>
+
+
+    <!-- Operational map layers -->
     <script src="~/js/promap-map-enhancements.js" asp-append-version="true"></script>
+
+    <!-- PMTiles / MapLibre initialization -->
     <script src="~/js/promap-pmtiles-init.js" asp-append-version="true"></script>
+
+    <!-- Navigation -->
     <script src="~/js/navigation.js" asp-append-version="true"></script>
 
     <script>
         (() => {
-            const panel = document.getElementById("promapLayerPanel");
-            if (!panel || panel.dataset.bound === "1")
-                return;
+            "use strict";
 
-            panel.dataset.bound = "1";
+            let panelBound = false;
 
-            panel.querySelectorAll("input[data-promap-layer]").forEach(input => {
-                input.addEventListener("change", () => {
-                    const group = input.dataset.promapLayer;
-                    window.ProMap.MapEnhancementState?.setGroupVisible?.(
+            function bindProMapLayerPanel() {
+                const panel =
+                    document.getElementById("promapLayerPanel");
+
+                if (!panel) {
+                    console.warn(
+                        "[ProMap Layers] #promapLayerPanel nije pronađen."
+                    );
+
+                    return false;
+                }
+
+                /*
+                 * Ne bindujemo isti panel više puta.
+                 */
+                if (
+                    panelBound ||
+                    panel.dataset.bound === "1"
+                ) {
+                    return true;
+                }
+
+                /*
+                 * MapEnhancementState nastaje u:
+                 *
+                 * ProMap.MapEnhancements.install(...)
+                 *
+                 * Zato panel mora da sačeka da mapa
+                 * i operational layers budu spremni.
+                 */
+                const state =
+                    window.ProMap?.MapEnhancementState;
+
+                if (
+                    !state ||
+                    typeof state.setGroupVisible !== "function"
+                ) {
+                    console.info(
+                        "[ProMap Layers] Čekam MapEnhancementState..."
+                    );
+
+                    return false;
+                }
+
+                const inputs =
+                    panel.querySelectorAll(
+                        "input[data-promap-layer]"
+                    );
+
+                if (!inputs.length) {
+                    console.warn(
+                        "[ProMap Layers] Nema layer checkboxova u panelu."
+                    );
+
+                    return false;
+                }
+
+                /*
+                 * Sada je panel stvarno povezan.
+                 */
+                panelBound = true;
+                panel.dataset.bound = "1";
+
+                inputs.forEach((input) => {
+
+                    input.addEventListener(
+                        "change",
+                        () => {
+                            const group =
+                                input.dataset.promapLayer;
+
+                            if (!group) {
+                                return;
+                            }
+
+                            const visible =
+                                input.checked;
+
+                            console.info(
+                                `[ProMap Layers] ${group}: ${
+                                    visible
+                                        ? "ON"
+                                        : "OFF"
+                                }`
+                            );
+
+                            state.setGroupVisible(
+                                group,
+                                visible
+                            );
+                        }
+                    );
+                });
+
+                /*
+                 * Sinhronizuj početno stanje checkboxova
+                 * sa trenutnim MapEnhancementState stanjem.
+                 */
+                let currentGroups = {};
+
+                if (
+                    typeof state.getVisibleGroups ===
+                    "function"
+                ) {
+                    currentGroups =
+                        state.getVisibleGroups() || {};
+                }
+
+                inputs.forEach((input) => {
+                    const group =
+                        input.dataset.promapLayer;
+
+                    if (!group) {
+                        return;
+                    }
+
+                    /*
+                     * Ako state već zna stanje grupe,
+                     * checkbox prati state.
+                     */
+                    if (
+                        Object.prototype.hasOwnProperty.call(
+                            currentGroups,
+                            group
+                        )
+                    ) {
+                        input.checked =
+                            currentGroups[group] !== false;
+                    }
+
+                    /*
+                     * Primeni stanje na MapLibre.
+                     */
+                    state.setGroupVisible(
                         group,
                         input.checked
                     );
                 });
-            });
+
+                console.info(
+                    `[ProMap Layers] Panel povezan: ${inputs.length} layer grupa.`
+                );
+
+                return true;
+            }
+
+            /*
+             * Pokušaj odmah.
+             *
+             * Ako navigation.js još nije napravio mapu,
+             * funkcija samo vraća false.
+             */
+            bindProMapLayerPanel();
+
+            /*
+             * navigation.js šalje ovaj event odmah nakon:
+             *
+             * MapEnhancements.install(...)
+             *
+             */
+            window.addEventListener(
+                "promap:map-enhancements-ready",
+                () => {
+                    console.info(
+                        "[ProMap Layers] MapEnhancements ready — binding panel."
+                    );
+
+                    bindProMapLayerPanel();
+                },
+                { once: true }
+            );
+
         })();
     </script>
 }
-
-
 

@@ -23,6 +23,7 @@ public partial class App : Application
 	{
 		base.OnStart();
 		var hasSession = await mobileSessionService.RestoreAsync(CancellationToken.None);
-		await Shell.Current.GoToAsync(hasSession ? "//dashboard" : "//login");
-	}
+        //await Shell.Current.GoToAsync(hasSession ? "//dashboard" : "//login");
+        await Shell.Current.GoToAsync(hasSession ? "//dashboard" : "//navigation");
+    }
 }

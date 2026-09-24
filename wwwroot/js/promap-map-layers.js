@@ -10,7 +10,7 @@
     const LOCAL_MAPLIBRE_CSS = "/lib/maplibre-gl/dist/maplibre-gl.css";
     const LOCAL_PMTILES_JS = "/lib/pmtiles/dist/pmtiles.js";
     const LOCAL_MAP_STYLE =
-        "/styles/promap-dark.json?v=20260923-maplibre-single-renderer";
+        "/styles/promap-dark.json?v=20260924-promap-dark-v10";
     const DEFAULT_ARCHIVE_URL = "/maps/europe.pmtiles";
     const LOCAL_MAPLIBRE_CSS_ID = "promap-shared-maplibre-css";
 
@@ -277,6 +277,7 @@
         return map;
     }
 
+
     async function attach(container, options = {}) {
         if (!container) {
             return null;
@@ -285,7 +286,9 @@
         prepareContainer(container);
 
         const archiveUrl =
-            options.archiveUrl || DEFAULT_ARCHIVE_URL;
+            options.archiveUrl ??
+            options.pmtilesUrl ??
+            DEFAULT_ARCHIVE_URL;
 
         let record = maps.get(container);
 
@@ -318,6 +321,7 @@
         };
 
         const center = options.center || fallbackCenter;
+
         const zoom = Number.isFinite(options.zoom)
             ? options.zoom
             : 4.35;
@@ -329,10 +333,20 @@
             zoom,
         );
 
+        /*
+         * IMPORTANT:
+         *
+         * navigation.js historically očekuje record.map,
+         * dok ovaj modul interno koristi record.maplibreMap.
+         *
+         * Vraćamo oba aliasa da svi postojeći pozivaoci
+         * koriste istu MapLibre instancu.
+         */
         record = {
             container,
             archiveUrl,
             maplibreMap,
+            map: maplibreMap,
         };
 
         maps.set(container, record);
@@ -341,6 +355,7 @@
 
         return record;
     }
+
 
     async function setArchive(container, archiveUrl) {
         return attach(container, {

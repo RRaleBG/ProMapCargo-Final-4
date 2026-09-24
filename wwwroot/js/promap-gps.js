@@ -18,6 +18,60 @@ window.ProMap.Gps = (() => {
         );
     }
 
+
+    function getCurrentPosition(options = {}) {
+        return new Promise((resolve, reject) => {
+            if (!isSupported()) {
+                const error = new Error(
+                    "Browser ne podržava GPS/geolocation.",
+                );
+
+                state.error = error;
+                reject(error);
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const normalized = normalizePosition(position);
+
+                    if (!normalized) {
+                        const error = new Error(
+                            "GPS je vratio nevalidne geografske koordinate.",
+                        );
+
+                        state.error = error;
+                        reject(error);
+                        return;
+                    }
+
+                    state.position = normalized;
+                    state.error = null;
+
+                    resolve(normalized);
+                },
+
+                (error) => {
+                    state.error = error;
+                    reject(error);
+                },
+
+                {
+                    enableHighAccuracy:
+                        options.enableHighAccuracy ?? true,
+
+                    maximumAge:
+                        options.maximumAge ?? 0,
+
+                    timeout:
+                        options.timeout ?? 15000,
+                },
+            );
+        });
+    }
+
+
+
     function normalizePosition(position) {
         if (!position) {
             return null;
@@ -174,6 +228,7 @@ window.ProMap.Gps = (() => {
         stop,
         getPosition,
         getState,
+        getCurrentPosition,
         isSupported,
     };
 })();
