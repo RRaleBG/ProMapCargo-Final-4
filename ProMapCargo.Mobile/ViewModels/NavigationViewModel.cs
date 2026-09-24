@@ -15,8 +15,8 @@ public class NavigationViewModel : ViewModelBase
     private const double ManeuverArrivalThresholdMeters = 35;
     private static readonly TimeSpan GpsPollInterval = TimeSpan.FromSeconds(4);
     private static readonly TimeSpan AutoRerouteCooldown = TimeSpan.FromSeconds(20);
-
     private readonly ApiClient apiClient;
+    private readonly OfflineRoutingBundleService offlineRoutingBundleService;
     private CancellationTokenSource? gpsTrackingCts;
     private DateTimeOffset lastAutoRerouteAt = DateTimeOffset.MinValue;
     private string startLatitude = "44.8176";
@@ -53,6 +53,9 @@ public class NavigationViewModel : ViewModelBase
     private string routeFailureReason = "—";
     private string routeEstimatedArrival = "—";
     private string currentLocationText = "GPS: waiting for fix";
+    private string selectedRoutingMode = "Auto";
+    private string activeRoutingModeText = "Routing mode: online";
+    private bool offlineRoutingAvailable;
     private string offRouteStatusText = "Off-route monitoring inactive";
     private string nextManeuverInstruction = "Calculate route to start guidance";
     private string nextManeuverDistanceText = "—";
@@ -62,9 +65,10 @@ public class NavigationViewModel : ViewModelBase
     private GeoPoint? routeDestinationPoint;
     private GeoPoint? currentLocation;
 
-    public NavigationViewModel(ApiClient apiClient)
+    public NavigationViewModel(ApiClient apiClient, OfflineRoutingBundleService offlineRoutingBundleService)
     {
         this.apiClient = apiClient;
+        this.offlineRoutingBundleService = offlineRoutingBundleService;
 
         RouteHighlights = [];
         RouteManeuvers = [];
@@ -76,6 +80,8 @@ public class NavigationViewModel : ViewModelBase
         ToggleRouteInputCommand = new Command(ToggleRouteInput);
         RerouteCommand = new Command(async () => await RerouteFromCurrentLocationAsync(), () => !IsBusy);
         SpeakNextPromptCommand = new Command(async () => await SpeakNextPromptAsync(force: true));
+
+        RoutingModes = ["Auto", "Online", "Offline"];
     }
 
     public event EventHandler? RouteVisualizationChanged;
@@ -89,6 +95,8 @@ public class NavigationViewModel : ViewModelBase
     public ObservableCollection<GeoPoint> RoutePolylinePoints { get; }
 
     public ObservableCollection<LaneCue> LaneRibbon { get; }
+
+    public IReadOnlyList<string> RoutingModes { get; }
 
     public ICommand CalculateRouteCommand { get; }
 
@@ -174,6 +182,33 @@ public class NavigationViewModel : ViewModelBase
     {
         get => autoRerouteEnabled;
         set => SetProperty(ref autoRerouteEnabled, value);
+    }
+
+    public string SelectedRoutingMode
+    {
+        get => selectedRoutingMode;
+        set
+        {
+            if (SetProperty(ref selectedRoutingMode, value))
+            {
+                var effectiveMode = ResolveEffectiveRoutingMode();
+                ActiveRoutingModeText = OfflineRoutingAvailable
+                    ? $"Routing mode: {effectiveMode} (offline bundle ready)"
+                    : $"Routing mode: {effectiveMode} (offline bundle not installed)";
+            }
+        }
+    }
+
+    public string ActiveRoutingModeText
+    {
+        get => activeRoutingModeText;
+        private set => SetProperty(ref activeRoutingModeText, value);
+    }
+
+    public bool OfflineRoutingAvailable
+    {
+        get => offlineRoutingAvailable;
+        private set => SetProperty(ref offlineRoutingAvailable, value);
     }
 
     public bool VoiceGuidanceEnabled
@@ -386,6 +421,7 @@ public class NavigationViewModel : ViewModelBase
 
     public async Task LoadInitialRouteAsync()
     {
+        await RefreshRoutingModeAsync();
         await StartGpsTrackingAsync();
 
         if (!RouteManeuvers.Any() && !IsBusy)
@@ -487,11 +523,21 @@ public class NavigationViewModel : ViewModelBase
         }
 
         var requestStart = overrideStart ?? new GeoPoint(startLat, startLon);
+        var effectiveMode = ResolveEffectiveRoutingMode();
+
+        if (string.Equals(effectiveMode, "offline", StringComparison.OrdinalIgnoreCase) && !OfflineRoutingAvailable)
+        {
+            ErrorMessage = "Offline mode is selected but no installed routing bundle is available.";
+            return;
+        }
 
         try
         {
             await SetBusyAsync(true);
-            await MainThread.InvokeOnMainThreadAsync(() => StatusText = autoReroute ? "Auto reroute in progress..." : "Calculating route...");
+            await MainThread.InvokeOnMainThreadAsync(() =>
+                StatusText = autoReroute
+                    ? $"Auto reroute in progress ({effectiveMode})..."
+                    : $"Calculating route ({effectiveMode})...");
 
             var response = await apiClient.GetRouteAsync(
                 new RouteRequest(
@@ -533,6 +579,7 @@ public class NavigationViewModel : ViewModelBase
             return;
         }
 
+        await RefreshRoutingModeAsync();
         await CalculateRouteAsync(CurrentLocation);
     }
 
@@ -628,6 +675,48 @@ public class NavigationViewModel : ViewModelBase
         RouteVisualizationChanged?.Invoke(this, EventArgs.Empty);
         StatusText = $"Route updated {DateTime.Now:t}";
     }
+
+    private async Task RefreshRoutingModeAsync()
+    {
+        try
+        {
+            var hasBundle = await offlineRoutingBundleService.HasAnyBundleAsync(CancellationToken.None).ConfigureAwait(false);
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                OfflineRoutingAvailable = hasBundle;
+                var effectiveMode = ResolveEffectiveRoutingMode();
+                ActiveRoutingModeText = hasBundle
+                    ? $"Routing mode: {effectiveMode} (offline bundle ready)"
+                    : $"Routing mode: {effectiveMode} (offline bundle not installed)";
+            });
+        }
+        catch
+        {
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                OfflineRoutingAvailable = false;
+                ActiveRoutingModeText = "Routing mode: online (offline bundle status unavailable)";
+            });
+        }
+    }
+
+    private string ResolveEffectiveRoutingMode()
+    {
+        var mode = SelectedRoutingMode?.Trim();
+
+        if (string.Equals(mode, "offline", StringComparison.OrdinalIgnoreCase))
+        {
+            return "offline";
+        }
+
+        if (string.Equals(mode, "online", StringComparison.OrdinalIgnoreCase))
+        {
+            return "online";
+        }
+
+        return OfflineRoutingAvailable ? "offline" : "online";
+    }
+
     private Task SetBusyAsync(bool value)
         => MainThread.InvokeOnMainThreadAsync(() => IsBusy = value);
 

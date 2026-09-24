@@ -6,31 +6,109 @@
     xmlns:models="clr-namespace:ProMapCargo.Mobile.Models"
     Title="Install maps"
     BackgroundColor="#061B17">
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="18,22" RowSpacing="12">
+    <Grid
+        Padding="18,22"
+        RowDefinitions="Auto,Auto,*,Auto"
+        RowSpacing="12">
         <VerticalStackLayout Grid.Row="0" Spacing="4">
-            <Label Text="Install maps" FontAttributes="Bold" FontSize="28" TextColor="#ECFDF5" />
-            <Label Text="Download self-hosted country PMTiles packages for offline map usage." FontSize="13" TextColor="#94A3B8" />
+            <Label
+                FontAttributes="Bold"
+                FontSize="28"
+                Text="Install maps"
+                TextColor="#ECFDF5" />
+            <Label
+                FontSize="13"
+                Text="Download maps for offline usage."
+                TextColor="#94A3B8" />
         </VerticalStackLayout>
 
-        <Border Grid.Row="1" Padding="10" BackgroundColor="#0B2D26" Stroke="#1C5448" StrokeShape="RoundRectangle 12">
-            <HorizontalStackLayout Spacing="10">
-                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#5EEAD4" />
-                <Label Text="{Binding StatusText}" TextColor="#F8FAFC" VerticalOptions="Center" />
-            </HorizontalStackLayout>
-        </Border>
+        <VerticalStackLayout Grid.Row="1" Spacing="8">
+            <Border
+                Padding="10"
+                BackgroundColor="#0B2D26"
+                Stroke="#1C5448"
+                StrokeShape="RoundRectangle 12">
+                <HorizontalStackLayout Spacing="10">
+                    <ActivityIndicator
+                        IsRunning="{Binding IsBusy}"
+                        IsVisible="{Binding IsBusy}"
+                        Color="#5EEAD4" />
+                    <Label
+                        Text="{Binding StatusText}"
+                        TextColor="#F8FAFC"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
 
-        <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="12">
-            <Border Padding="10" BackgroundColor="#0B2D26" Stroke="#1C5448" StrokeShape="RoundRectangle 12">
+            <Border
+                Padding="10"
+                BackgroundColor="#0E332B"
+                Stroke="#1C5448"
+                StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Spacing="4">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Text="Offline routing readiness"
+                        TextColor="#7DD3FC" />
+                    <Label Text="{Binding BundleStatusText}" TextColor="#ECFDF5" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+
+        <Grid
+            Grid.Row="2"
+            ColumnDefinitions="*,*"
+            ColumnSpacing="12">
+            <Border
+                Padding="10"
+                BackgroundColor="#0B2D26"
+                Stroke="#1C5448"
+                StrokeShape="RoundRectangle 12">
                 <VerticalStackLayout>
-                    <Label Text="Available packages" FontAttributes="Bold" FontSize="15" TextColor="#ECFDF5" Margin="0,0,0,8" />
+                    <Label
+                        Margin="0,0,0,8"
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        Text="Available packages"
+                        TextColor="#ECFDF5" />
                     <CollectionView ItemsSource="{Binding AvailablePackages}">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:MapPackageCatalogItem">
-                                <Border Padding="8" Margin="0,0,0,8" BackgroundColor="#0D3A31" Stroke="#155E52" StrokeShape="RoundRectangle 10">
-                                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="8" RowSpacing="4">
-                                        <Label Grid.Row="0" Grid.Column="0" Text="{Binding DisplayName}" FontAttributes="Bold" TextColor="#ECFDF5" />
-                                        <Button Grid.Row="0" Grid.Column="1" Text="Install" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.InstallCommand}" CommandParameter="{Binding .}" BackgroundColor="#10B981" TextColor="#031712" CornerRadius="10" HeightRequest="36" />
-                                        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding FileName}" FontSize="11" TextColor="#94A3B8" />
+                                <Border
+                                    Margin="0,0,0,8"
+                                    Padding="8"
+                                    BackgroundColor="#0D3A31"
+                                    Stroke="#155E52"
+                                    StrokeShape="RoundRectangle 10">
+                                    <Grid
+                                        ColumnDefinitions="*,Auto"
+                                        ColumnSpacing="8"
+                                        RowDefinitions="Auto,Auto"
+                                        RowSpacing="4">
+                                        <Label
+                                            Grid.Row="0"
+                                            Grid.Column="0"
+                                            FontAttributes="Bold"
+                                            Text="{Binding DisplayName}"
+                                            TextColor="#ECFDF5" />
+                                        <Button
+                                            Grid.Row="0"
+                                            Grid.Column="1"
+                                            BackgroundColor="#10B981"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.InstallCommand}"
+                                            CommandParameter="{Binding .}"
+                                            CornerRadius="10"
+                                            HeightRequest="36"
+                                            Text="Install"
+                                            TextColor="#031712" />
+                                        <Label
+                                            Grid.Row="1"
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="2"
+                                            FontSize="11"
+                                            Text="{Binding FileName}"
+                                            TextColor="#94A3B8" />
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -39,28 +117,121 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Border Grid.Column="1" Padding="10" BackgroundColor="#0B2D26" Stroke="#1C5448" StrokeShape="RoundRectangle 12">
-                <VerticalStackLayout>
-                    <Label Text="Installed packages" FontAttributes="Bold" FontSize="15" TextColor="#ECFDF5" Margin="0,0,0,8" />
-                    <CollectionView ItemsSource="{Binding InstalledPackages}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:InstalledMapPackage">
-                                <Border Padding="8" Margin="0,0,0,8" BackgroundColor="#0D3A31" Stroke="#155E52" StrokeShape="RoundRectangle 10">
-                                    <VerticalStackLayout Spacing="2">
-                                        <Label Text="{Binding DisplayName}" FontAttributes="Bold" TextColor="#ECFDF5" />
-                                        <Label Text="{Binding FileName}" FontSize="11" TextColor="#94A3B8" />
-                                    </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-            </Border>
+            <VerticalStackLayout Grid.Column="1" Spacing="10">
+                <Border
+                    Padding="10"
+                    BackgroundColor="#0B2D26"
+                    Stroke="#1C5448"
+                    StrokeShape="RoundRectangle 12">
+                    <VerticalStackLayout>
+                        <Label
+                            Margin="0,0,0,8"
+                            FontAttributes="Bold"
+                            FontSize="15"
+                            Text="Installed packages"
+                            TextColor="#ECFDF5" />
+                        <CollectionView HeightRequest="150" ItemsSource="{Binding InstalledPackages}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:InstalledMapPackage">
+                                    <Border
+                                        Margin="0,0,0,8"
+                                        Padding="8"
+                                        BackgroundColor="#0D3A31"
+                                        Stroke="#155E52"
+                                        StrokeShape="RoundRectangle 10">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label
+                                                FontAttributes="Bold"
+                                                Text="{Binding DisplayName}"
+                                                TextColor="#ECFDF5" />
+                                            <Label
+                                                FontSize="11"
+                                                Text="{Binding FileName}"
+                                                TextColor="#94A3B8" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border
+                    Padding="10"
+                    BackgroundColor="#0B2D26"
+                    Stroke="#1C5448"
+                    StrokeShape="RoundRectangle 12">
+                    <VerticalStackLayout>
+                        <Label
+                            Margin="0,0,0,8"
+                            FontAttributes="Bold"
+                            FontSize="15"
+                            Text="Routing bundles"
+                            TextColor="#ECFDF5" />
+                        <CollectionView HeightRequest="150" ItemsSource="{Binding AvailableBundles}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:OfflineRoutingBundleCatalogItem">
+                                    <Border
+                                        Margin="0,0,0,8"
+                                        Padding="8"
+                                        BackgroundColor="#0D3A31"
+                                        Stroke="#155E52"
+                                        StrokeShape="RoundRectangle 10">
+                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                            <VerticalStackLayout Spacing="2">
+                                                <Label
+                                                    FontAttributes="Bold"
+                                                    Text="{Binding DisplayName}"
+                                                    TextColor="#ECFDF5" />
+                                                <Label
+                                                    FontSize="11"
+                                                    Text="{Binding Version, StringFormat='v{0}'}"
+                                                    TextColor="#94A3B8" />
+                                            </VerticalStackLayout>
+                                            <Button
+                                                Grid.Column="1"
+                                                BackgroundColor="#0EA5E9"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.InstallBundleCommand}"
+                                                CommandParameter="{Binding .}"
+                                                CornerRadius="10"
+                                                HeightRequest="34"
+                                                Text="Install"
+                                                TextColor="White" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
         </Grid>
 
-        <HorizontalStackLayout Grid.Row="3" Spacing="12" HorizontalOptions="End">
-            <Button Text="Refresh" Command="{Binding RefreshCommand}" BackgroundColor="#1F2937" TextColor="#E2E8F0" CornerRadius="12" HeightRequest="44" />
-            <Button Text="Continue" Command="{Binding ContinueCommand}" BackgroundColor="#10B981" TextColor="#031712" CornerRadius="12" HeightRequest="44" />
+        <HorizontalStackLayout
+            Grid.Row="3"
+            HorizontalOptions="End"
+            Spacing="12">
+            <Button
+                BackgroundColor="#1F2937"
+                Command="{Binding RefreshCommand}"
+                CornerRadius="12"
+                HeightRequest="44"
+                Text="Refresh"
+                TextColor="#E2E8F0" />
+            <Button
+                BackgroundColor="#0F766E"
+                Command="{Binding OpenSettingsCommand}"
+                CornerRadius="12"
+                HeightRequest="44"
+                Text="Back to Settings"
+                TextColor="#ECFDF5" />
+            <Button
+                BackgroundColor="#10B981"
+                Command="{Binding ContinueCommand}"
+                CornerRadius="12"
+                HeightRequest="44"
+                Text="Continue"
+                TextColor="#031712" />
         </HorizontalStackLayout>
     </Grid>
 </ContentPage>

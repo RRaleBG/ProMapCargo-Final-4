@@ -1,5 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
 using ProMapCargo.Mobile.Models;
 using ProMapCargo.Mobile.ViewModels;
@@ -9,89 +10,238 @@ namespace ProMapCargo.Mobile.Views;
 public partial class MobileNavigationPage : ContentPage
 {
     private readonly NavigationViewModel viewModel;
-    private readonly WebView mapWebView;
+    private readonly string navigationUrl;
 
-    public MobileNavigationPage(NavigationViewModel viewModel, IOptions<MobileAppOptions> appOptions)
+    private bool webViewReady;
+    private bool isAppearing;
+
+    public MobileNavigationPage(
+        NavigationViewModel viewModel,
+        IOptions<MobileAppOptions> appOptions)
     {
         InitializeComponent();
+
         BindingContext = viewModel;
         this.viewModel = viewModel;
 
         var apiBaseUrl = appOptions.Value.ApiBaseUrl;
+
         if (string.IsNullOrWhiteSpace(apiBaseUrl))
         {
-            throw new ArgumentException("API base URL is not configured.", nameof(appOptions));
+            throw new ArgumentException(
+                "API base URL is not configured.",
+                nameof(appOptions));
         }
 
         var normalizedBaseUrl = apiBaseUrl.TrimEnd('/');
 
-        mapWebView = new WebView
-        {
-            Source = new UrlWebViewSource
-            {
-                Url = $"{normalizedBaseUrl}/Navigation?embedded=1"
-            }
-        };
+        navigationUrl =
+            $"{normalizedBaseUrl}/Navigation?embedded=1&mobile=1";
 
-        MapHost.Children.Add(mapWebView);
+        NavigationWebView.Navigated += NavigationWebView_Navigated;
+        NavigationWebView.Navigating += NavigationWebView_Navigating;
+
+        NavigationWebView.Source = new UrlWebViewSource
+        {
+            Url = navigationUrl
+        };
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        isAppearing = true;
+
+        viewModel.RouteVisualizationChanged -= HandleRouteVisualizationChanged;
         viewModel.RouteVisualizationChanged += HandleRouteVisualizationChanged;
-        await viewModel.LoadInitialRouteAsync();
-        await PushNavigationStateToWebMapAsync();
+
+        try
+        {
+            await viewModel.LoadInitialRouteAsync();
+
+            if (webViewReady)
+            {
+                await PushNavigationStateToWebMapAsync();
+            }
+        }
+        catch
+        {
+            // Nemoj rušiti navigacionu stranicu ako početni route/state
+            // trenutno nije dostupan.
+        }
     }
 
     protected override void OnDisappearing()
     {
+        isAppearing = false;
+
         viewModel.RouteVisualizationChanged -= HandleRouteVisualizationChanged;
         viewModel.StopGpsTracking();
+
         base.OnDisappearing();
     }
 
-    private async void HandleRouteVisualizationChanged(object? sender, EventArgs e)
+    private async void NavigationWebView_Navigated(
+        object? sender,
+        WebNavigatedEventArgs e)
     {
+        if (e.Result != WebNavigationResult.Success)
+        {
+            LoadingOverlay.IsVisible = false;
+            return;
+        }
+
+        webViewReady = true;
+
+        LoadingOverlay.IsVisible = false;
+
+        // Daj stranici jedan UI frame da registruje
+        // window.proMapMobile pre slanja state-a.
+        await Task.Delay(50);
+
+        if (isAppearing)
+        {
+            await PushNavigationStateToWebMapAsync();
+        }
+    }
+
+    private void NavigationWebView_Navigating(
+        object? sender,
+        WebNavigatingEventArgs e)
+    {
+        // Za sada dozvoljavamo navigaciju unutar web aplikacije.
+        // Kasnije ovde možemo dodati native URL interception
+        // za tel:, mailto:, geo: itd.
+    }
+
+    private async void HandleRouteVisualizationChanged(
+        object? sender,
+        EventArgs e)
+    {
+        if (!webViewReady || !isAppearing)
+        {
+            return;
+        }
+
         await PushNavigationStateToWebMapAsync();
     }
 
     private async Task PushNavigationStateToWebMapAsync()
     {
-        var payload = new
+        if (!webViewReady)
         {
-            route = viewModel.RoutePolylinePoints.Select(point => new { lat = point.Lat, lon = point.Lon }).ToArray(),
-            start = viewModel.RouteStartPoint is null ? null : new { lat = viewModel.RouteStartPoint.Lat, lon = viewModel.RouteStartPoint.Lon },
-            destination = viewModel.RouteDestinationPoint is null ? null : new { lat = viewModel.RouteDestinationPoint.Lat, lon = viewModel.RouteDestinationPoint.Lon },
-            current = viewModel.CurrentLocation is null ? null : new { lat = viewModel.CurrentLocation.Lat, lon = viewModel.CurrentLocation.Lon },
-            layers = new
-            {
-                route = viewModel.ShowRouteLayer,
-                restrictions = viewModel.ShowRestrictionsLayer,
-                fleet = viewModel.ShowFleetLayer,
-                poi = viewModel.ShowPoiLayer
-            },
-            maneuvers = viewModel.RouteManeuvers.Take(20).Select(maneuver => new
-            {
-                type = maneuver.Type,
-                instruction = maneuver.Instruction,
-                lat = maneuver.Latitude,
-                lon = maneuver.Longitude
-            }).ToArray(),
-            restrictionCount = viewModel.RouteViolations.Count
-        };
+            return;
+        }
 
-        var json = JsonSerializer.Serialize(payload);
+        var payload = BuildWebPayloadJson();
+
+        var json = payload.ToJsonString(
+            new JsonSerializerOptions
+            {
+                WriteIndented = false
+            });
+
         var encodedJson = JavaScriptEncoder.Default.Encode(json);
 
-        var script = $"window.proMapMobile && window.proMapMobile.applyState && window.proMapMobile.applyState(JSON.parse('{encodedJson}'));";
+        var script =
+            $"window.proMapMobile?.applyState?.(" +
+            $"JSON.parse('{encodedJson}')" +
+            $");";
 
         try
         {
-            await mapWebView.EvaluateJavaScriptAsync(script);
+            await NavigationWebView.EvaluateJavaScriptAsync(script);
         }
         catch
         {
+            // WebView može biti u procesu reload-a/dispose-a.
         }
+    }
+
+    private JsonObject BuildWebPayloadJson()
+    {
+        var route = new JsonArray();
+
+        foreach (var point in viewModel.RoutePolylinePoints)
+        {
+            route.Add(new JsonObject
+            {
+                ["lat"] = point.Lat,
+                ["lon"] = point.Lon
+            });
+        }
+
+        var maneuvers = new JsonArray();
+
+        foreach (var maneuver in viewModel.RouteManeuvers.Take(20))
+        {
+            maneuvers.Add(new JsonObject
+            {
+                ["type"] = maneuver.Type,
+                ["instruction"] = maneuver.Instruction,
+                ["lat"] = maneuver.Latitude,
+                ["lon"] = maneuver.Longitude,
+                ["distanceFromPreviousMeters"] = maneuver.DistanceFromPreviousMeters,
+                ["distanceFromRouteStartMeters"] = maneuver.DistanceFromRouteStartMeters,
+                ["roadName"] = maneuver.RoadName,
+                ["roadRef"] = maneuver.RoadRef,
+                ["roundaboutExit"] = maneuver.RoundaboutExit
+            });
+        }
+
+        JsonNode? start = null;
+
+        if (viewModel.RouteStartPoint is { } startPoint)
+        {
+            start = new JsonObject
+            {
+                ["lat"] = startPoint.Lat,
+                ["lon"] = startPoint.Lon
+            };
+        }
+
+        JsonNode? destination = null;
+
+        if (viewModel.RouteDestinationPoint is { } destinationPoint)
+        {
+            destination = new JsonObject
+            {
+                ["lat"] = destinationPoint.Lat,
+                ["lon"] = destinationPoint.Lon
+            };
+        }
+
+        JsonNode? current = null;
+
+        if (viewModel.CurrentLocation is { } currentPoint)
+        {
+            current = new JsonObject
+            {
+                ["lat"] = currentPoint.Lat,
+                ["lon"] = currentPoint.Lon
+            };
+        }
+
+        return new JsonObject
+        {
+            ["route"] = route,
+            ["start"] = start,
+            ["destination"] = destination,
+            ["current"] = current,
+
+            ["layers"] = new JsonObject
+            {
+                ["route"] = viewModel.ShowRouteLayer,
+                ["restrictions"] = viewModel.ShowRestrictionsLayer,
+                ["fleet"] = viewModel.ShowFleetLayer,
+                ["poi"] = viewModel.ShowPoiLayer
+            },
+
+            ["maneuvers"] = maneuvers,
+
+            ["restrictionCount"] =
+                viewModel.RouteViolations.Count
+        };
     }
 }

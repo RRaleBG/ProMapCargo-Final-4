@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ProMapCargo.Mobile.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Settings"
+    BackgroundColor="#061B17">
+    <ScrollView>
+        <VerticalStackLayout Padding="18,22" Spacing="14">
+            <Label
+                FontAttributes="Bold"
+                FontSize="28"
+                Text="Settings"
+                TextColor="#ECFDF5" />
+
+            <Border
+                Padding="14"
+                BackgroundColor="#0B2D26"
+                Stroke="#1C5448"
+                StrokeShape="RoundRectangle 14">
+                <VerticalStackLayout Spacing="10">
+                    <Label FontAttributes="Bold" FontSize="16" Text="Appearance" TextColor="#ECFDF5" />
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="Dark theme" TextColor="#ECFDF5" VerticalOptions="Center" />
+                        <Switch IsToggled="{Binding UseDarkTheme}" HorizontalOptions="EndAndExpand" OnColor="#10B981" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="Compact navigation layout" TextColor="#ECFDF5" VerticalOptions="Center" />
+                        <Switch IsToggled="{Binding CompactNavigationLayout}" HorizontalOptions="EndAndExpand" OnColor="#10B981" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border
+                Padding="14"
+                BackgroundColor="#0B2D26"
+                Stroke="#1C5448"
+                StrokeShape="RoundRectangle 14">
+                <VerticalStackLayout Spacing="10">
+                    <Label FontAttributes="Bold" FontSize="16" Text="Capabilities" TextColor="#ECFDF5" />
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="Enable offline routing features" TextColor="#ECFDF5" VerticalOptions="Center" />
+                        <Switch IsToggled="{Binding EnableOfflineRoutingFeatures}" HorizontalOptions="EndAndExpand" OnColor="#10B981" />
+                    </HorizontalStackLayout>
+                    <Button
+                        BackgroundColor="#0EA5E9"
+                        Command="{Binding OpenMapManagementCommand}"
+                        CornerRadius="12"
+                        HeightRequest="42"
+                        Text="Open map &amp; bundle manager"
+                        TextColor="White" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border
+                Padding="14"
+                BackgroundColor="#0B2D26"
+                Stroke="#1C5448"
+                StrokeShape="RoundRectangle 14">
+                <VerticalStackLayout Spacing="8">
+                    <Label FontAttributes="Bold" FontSize="16" Text="Account" TextColor="#ECFDF5" />
+                    <Label Text="{Binding AccountStatusText}" TextColor="#94A3B8" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net10.0-android</TargetFrameworks>
@@ -85,11 +85,11 @@
 	  <MauiXaml Update="Views\MapInstallPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-		<MauiXaml Update="Views\NavigationPage.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</MauiXaml>
-		<MauiXaml Update="Views\MapInstallPage.xaml">
-			<Generator>MSBuild:Compile</Generator>
+	  <MauiXaml Update="Views\NavigationPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+		<MauiXaml Update="Views\SettingsPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 	</ItemGroup>
 

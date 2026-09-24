@@ -41,6 +41,38 @@
     .promap-layer-panel input {
         accent-color: #10b981;
     }
+
+    body.pm-embedded-navigation .nav-page-header,
+    body.pm-embedded-navigation .navigation-control-panel,
+    body.pm-embedded-navigation .nav-live-panel,
+    body.pm-embedded-navigation .nav-mobile-bottom-space,
+    body.pm-embedded-navigation .nav-map-topbar,
+    body.pm-embedded-navigation .nav-map-controls,
+    body.pm-embedded-navigation .nav-map-route-card,
+    body.pm-embedded-navigation .promap-layer-panel,
+    body.pm-embedded-navigation #nextInstruction {
+        display: none !important;
+    }
+
+    body.pm-embedded-navigation .pm-page.pm-navigation-page {
+        padding: 0;
+    }
+
+    body.pm-embedded-navigation .navigation-workspace,
+    body.pm-embedded-navigation .navigation-map-section,
+    body.pm-embedded-navigation .navigation-map-shell {
+        display: block;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+    }
+
+    body.pm-embedded-navigation #navMap {
+        height: 100vh;
+        min-height: 100vh;
+        border-radius: 0;
+        margin: 0;
+    }
 </style>
 
 
@@ -1152,6 +1184,13 @@
     <script>
         (() => {
             "use strict";
+
+            const isEmbeddedNavigation =
+                new URLSearchParams(window.location.search).get("embedded") === "1";
+
+            if (isEmbeddedNavigation) {
+                document.body.classList.add("pm-embedded-navigation");
+            }
 
             let panelBound = false;
 

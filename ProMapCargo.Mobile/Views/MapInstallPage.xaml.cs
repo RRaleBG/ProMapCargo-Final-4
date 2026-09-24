@@ -1,4 +1,3 @@
-using Microsoft.Maui.ApplicationModel;
 using ProMapCargo.Mobile.ViewModels;
 
 namespace ProMapCargo.Mobile.Views;
@@ -37,7 +36,7 @@ public partial class MapInstallPage : ContentPage
                 return;
             }
 
-            await shell.GoToAsync("//login");
+            await shell.GoToAsync("//dashboard");
         });
     }
 }

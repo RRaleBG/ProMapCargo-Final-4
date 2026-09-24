@@ -46,15 +46,24 @@ public static class MauiProgram
             client.Timeout = TimeSpan.FromMinutes(10);
         });
 
+        builder.Services.AddHttpClient<OfflineRoutingBundleService>((services, client) =>
+        {
+            var options = services.GetRequiredService<IOptions<MobileAppOptions>>().Value;
+            client.BaseAddress = new Uri(options.ApiBaseUrl);
+            client.Timeout = TimeSpan.FromMinutes(10);
+        });
+
         builder.Services.AddSingleton<AppShell>();
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<DashboardViewModel>();
         builder.Services.AddTransient<NavigationViewModel>();
         builder.Services.AddTransient<MapInstallViewModel>();
+        builder.Services.AddTransient<SettingsViewModel>();
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<DashboardPage>();
         builder.Services.AddTransient<MapInstallPage>();
         builder.Services.AddTransient<MobileNavigationPage>();
+        builder.Services.AddTransient<SettingsPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

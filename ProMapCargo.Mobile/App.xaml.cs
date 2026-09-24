@@ -5,15 +5,13 @@ namespace ProMapCargo.Mobile;
 
 public partial class App : Application
 {
-	private readonly MobileSessionService mobileSessionService;
 	private readonly OfflineMapService offlineMapService;
 	private readonly AppShell appShell;
 	private bool initialNavigationApplied;
 
-	public App(MobileSessionService mobileSessionService, OfflineMapService offlineMapService, AppShell appShell)
+	public App(OfflineMapService offlineMapService, AppShell appShell)
 	{
 		InitializeComponent();
-		this.mobileSessionService = mobileSessionService;
 		this.offlineMapService = offlineMapService;
 		this.appShell = appShell;
 	}
@@ -43,8 +41,7 @@ public partial class App : Application
 				return;
 			}
 
-			var hasSession = await mobileSessionService.RestoreAsync(CancellationToken.None).ConfigureAwait(false);
-			await MainThread.InvokeOnMainThreadAsync(() => appShell.GoToAsync(hasSession ? "//dashboard" : "//login"));
+			await MainThread.InvokeOnMainThreadAsync(() => appShell.GoToAsync("//dashboard"));
 		}
 		catch
 		{

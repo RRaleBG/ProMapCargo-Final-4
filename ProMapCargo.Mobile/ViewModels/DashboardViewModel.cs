@@ -37,6 +37,7 @@ public sealed class DashboardViewModel : ViewModelBase
         QuickLinks =
         [
             new DashboardLink("Navigation", "Truck-aware route planning and maneuver guidance", "//dashboard/mobile-navigation"),
+            new DashboardLink("Settings", "Theme, appearance, account, and map bundle controls", "//dashboard/settings"),
             new DashboardLink("Dispatch", "Order assignment and fleet dispatch", null),
             new DashboardLink("Monitoring", "Live telemetry and vehicle status", null),
             new DashboardLink("Trips", "Trip execution status and progress", null),
