@@ -89,7 +89,7 @@
             keyboard: true,
             touchZoom: true,
             tapHold: true,
-        }).setView([15, 50], 4);
+        }).setView([44.9, 20.5], 7);
 
         L.control
             .scale({

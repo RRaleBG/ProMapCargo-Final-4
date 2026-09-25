@@ -9,7 +9,7 @@
     const LOCAL_MAPLIBRE_JS = "/lib/maplibre-gl/dist/maplibre-gl.js";
     const LOCAL_MAPLIBRE_CSS = "/lib/maplibre-gl/dist/maplibre-gl.css";
     const LOCAL_PMTILES_JS = "/lib/pmtiles/dist/pmtiles.js";
-    const LOCAL_MAP_STYLE = "/styles/promap-dark2.json?v=20260924-promap-dark-v11";
+    const LOCAL_MAP_STYLE = "/styles/promap-dark3.json?v=20260924-promap-dark-v12";
     const DEFAULT_ARCHIVE_URL = "/maps/europe.pmtiles";
     const LOCAL_MAPLIBRE_CSS_ID = "promap-shared-maplibre-css";
 
@@ -184,19 +184,18 @@
     }
 
     function prepareContainer(container) {
-        container.style.position =
-            container.style.position || "relative";
 
+        container.style.position = container.style.position || "relative";
         container.style.overflow = "hidden";
         container.style.background = "#031712";
     }
 
     async function createMaplibreMap(
-        container,
-        archiveUrl,
-        center,
-        zoom,
-    ) {
+                                container,
+                                archiveUrl,
+                                center,
+                                zoom)
+    {
         const maplibregl = await ensureLibraries();
         const style = await buildStyle(archiveUrl);
 
