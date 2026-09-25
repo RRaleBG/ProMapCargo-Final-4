@@ -146,7 +146,7 @@ window.ProMap = window.ProMap || {};
 
     const LOCAL_PMTILES_JS = "/lib/pmtiles/dist/pmtiles.js";
 
-    const LOCAL_MAP_STYLE = "/styles/promap-dark.json?v=20260922-road-style-fix";
+    const LOCAL_MAP_STYLE = "/styles/promap-dark2.json?v=20260922-road-style-fix";
 
     const LOCAL_MAPLIBRE_CSS_ID = "promap-local-maplibre-css";
 
