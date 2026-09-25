@@ -9,7 +9,7 @@
     const LOCAL_MAPLIBRE_JS = "/lib/maplibre-gl/dist/maplibre-gl.js";
     const LOCAL_MAPLIBRE_CSS = "/lib/maplibre-gl/dist/maplibre-gl.css";
     const LOCAL_PMTILES_JS = "/lib/pmtiles/dist/pmtiles.js";
-    const LOCAL_MAP_STYLE = "/styles/promap-dark.json?v=20260924-promap-dark-v10";
+    const LOCAL_MAP_STYLE = "/styles/promap-dark2.json?v=20260924-promap-dark-v11";
     const DEFAULT_ARCHIVE_URL = "/maps/europe.pmtiles";
     const LOCAL_MAPLIBRE_CSS_ID = "promap-shared-maplibre-css";
 
