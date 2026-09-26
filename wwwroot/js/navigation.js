@@ -172,36 +172,6 @@ window.ProMap = window.ProMap || {};
         return fallback;
     }
 
-    function applyLayerStates(layers) {
-        if (!layers || typeof layers !== "object") {
-            return;
-        }
-
-        const mapping = {
-            route: "route",
-            restrictions: "restrictions",
-            fleet: "fleet",
-            poi: "poi",
-        };
-
-        for (const [source, group] of Object.entries(mapping)) {
-            if (!(source in layers)) {
-                continue;
-            }
-
-            const visible = toBoolean(layers[source], group === "route" || group === "restrictions");
-
-            if (state.localMap?.enhancements?.setGroupVisible) {
-                state.localMap.enhancements.setGroupVisible(group, visible);
-            }
-
-            const checkbox = document.querySelector(`[data-promap-layer="${group}"]`);
-            if (checkbox && "checked" in checkbox) {
-                checkbox.checked = visible;
-            }
-        }
-    }
-
     function buildMobileRouteResponse(payload) {
         const routePoints = Array.isArray(payload?.route)
             ? payload.route.map(normalizePoint).filter(Boolean)
