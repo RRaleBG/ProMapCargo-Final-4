@@ -723,7 +723,7 @@
         }).addTo(state.map);
 
         void window.ProMap.MapLayers
-            .attach(
+            .attachToLeaflet(
                 state.map,
                 {
                     archiveUrl:
@@ -752,7 +752,7 @@
                 : "/maps/europe.pmtiles";
 
         try {
-            await window.ProMap.MapLayers.setArchive(
+            await window.ProMap.MapLayers.setLeafletArchive(
                 state.map,
                 state.currentBasemapArchive
             );
@@ -949,7 +949,7 @@
                                 ),
                             zIndexOffset:
                                 vehicle.id ===
-                                state.selectedVehicleId
+                                    state.selectedVehicleId
                                     ? 1000
                                     : 100
                         }
@@ -989,7 +989,7 @@
 
                 marker.setZIndexOffset(
                     vehicle.id ===
-                    state.selectedVehicleId
+                        state.selectedVehicleId
                         ? 1000
                         : 100
                 );
@@ -1092,11 +1092,10 @@
                     );
 
                 row.className =
-                    `monitoring-vehicle ${statusClass(vehicle.status)} ${
-                        vehicle.id ===
+                    `monitoring-vehicle ${statusClass(vehicle.status)} ${vehicle.id ===
                         state.selectedVehicleId
-                            ? "selected"
-                            : ""
+                        ? "selected"
+                        : ""
                     }`;
 
                 row.style.animationDelay =
@@ -1615,8 +1614,7 @@
     async function loadFleetFromApi() {
 
         const urls = [
-            "/api/business/vehicles",
-            "/api/vehicles"
+            "/api/business/vehicles"
         ];
 
         let lastError =
@@ -1704,7 +1702,7 @@
                                         ...vehicle,
                                         lastGpsAt:
                                             vehicle.status ===
-                                            "idle"
+                                                "idle"
                                                 ? new Date(now).toISOString()
                                                 : vehicle.lastGpsAt
                                     };
@@ -2102,7 +2100,7 @@
             const connection =
                 new signalR.HubConnectionBuilder()
                     .withUrl(
-                        "/hubs/navigation"
+                        "/hubs/navigation-telemetry"
                     )
                     .withAutomaticReconnect()
                     .configureLogging(

@@ -102,7 +102,7 @@
         const dispatchMapElement = document.getElementById("dispatchMap");
         const customArchive = dispatchMapElement?.getAttribute("data-map-archive") || "/maps/europe.pmtiles";
 
-        void window.ProMap.MapLayers.attach(state.map, {
+        void window.ProMap.MapLayers.attachToLeaflet(state.map, {
             archiveUrl: customArchive,
         }).catch(console.error);
 

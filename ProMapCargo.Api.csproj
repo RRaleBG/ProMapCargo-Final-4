@@ -29,12 +29,16 @@
   </ItemGroup>
   <!-- The importer and MAUI app are separate projects nested below this project. -->
   <ItemGroup>
+    <Compile Remove="Pages\Fleet\**" />
     <Compile Remove="ProMapCargo.Mobile\**\*.cs" />
     <Compile Remove="Importer\**\*.cs" />
+    <EmbeddedResource Remove="Pages\Fleet\**" />
     <EmbeddedResource Remove="ProMapCargo.Mobile\**" />
     <EmbeddedResource Remove="Importer\**" />
+    <Content Remove="Pages\Fleet\**" />
     <Content Remove="ProMapCargo.Mobile\**" />
     <Content Remove="Importer\**" />
+    <None Remove="Pages\Fleet\**" />
     <None Remove="ProMapCargo.Mobile\**" />
     <None Remove="Importer\**" />
   </ItemGroup>
@@ -42,7 +46,6 @@
     <Content Remove="wwwroot\maps\pmtiles.exe" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Pages\Fleet\" />
     <Folder Include="wwwroot\icons\" />
   </ItemGroup>
   <ItemGroup>

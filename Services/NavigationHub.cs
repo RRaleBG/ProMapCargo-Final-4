@@ -5,16 +5,17 @@ using ProMapCargo.Api.Data;
 
 namespace ProMapCargo.Api.Services;
 
-[Authorize]
+// [Authorize]
 public sealed class NavigationHub(
     ICurrentUserContext current,
     ProMapCargoDbContext db) : Hub
 {
     public Task JoinCompany()
     {
+        // Best-effort: clients call this on every connect, so skip silently when there's no company context.
         if (!current.CompanyId.HasValue)
         {
-            throw new HubException("Company context missing.");
+            return Task.CompletedTask;
         }
 
         return Groups.AddToGroupAsync(

@@ -1,911 +1,139 @@
 @page "/trips"
 @{
-    Layout = "_TripsLayout";
-    ViewData["Title"] = "Trips";
+    Layout = "_Layout";
+    ViewData["Title"] = "Ture";
 }
 
-<div class="pm-page pm-navigation-page" data-module="navigation">
-    <div class="navigation-workspace">
-
-        <section class="navigation-map-section">
-            <div class="navigation-map-shell">
-                <div id="navMap" class="pm-map" data-map-archive="/maps/europe.pmtiles" data-map-max-zoom="19">
-
-                    <!-- ===================================== MAP TOP BAR  ===================================== -->
-                    <div class="nav-map-topbar">
-                        <div class="nav-map-mode-tabs">
-                            <button type="button" class="nav-map-tab active" id="mapRouteTab"> Ruta </button>
-
-                            <button type="button" class="nav-map-tab" id="mapRestrictionsTab"> Ograničenja </button>
-
-                            <button type="button" class="nav-map-tab" id="mapGpsTab"> GPS  </button>
-                        </div>
-
-
-                        <div class="nav-map-engine">
-                            <span></span>
-                            <strong id="routeSafeBadge">  TRUCK SAFE </strong>
-
-                            <button type="button" id="plannerCollapse" class="nav-map-control nav-panel-toggle" title="Sakrij/desni panel" aria-expanded="true">
-                                ⇤
-                            </button>
-                        </div>
-
-                    </div>
-
-                    <div class="nav-next-overlay" id="nextInstruction" hidden>
-                        <div class="nav-next-icon" id="nextInstructionIcon">  ↰  </div>
-                        <div class="nav-next-copy">
-                            <small> NAREDNI MANEVAR </small>
-                            <strong id="nextInstructionText"> —  </strong>
-                            <span id="nextInstructionDistance"> — </span>   
-                        </div>
-                    </div>
-
-                    <div class="nav-map-controls">
-                        <button type="button" id="fitRoute" class="nav-map-control" title="Prikaži celu rutu">  ⤢  </button>
-                        <button type="button" id="centerGps" class="nav-map-control" title="Centriraj GPS">  ◎  </button>
-                    </div>
-
-
-                    <div class="nav-map-route-card" id="mapRouteCard" hidden>
-
-                        <div class="nav-map-route-card-head">
-                            <div>
-                                <small>  AKTIVNA RUTA  </small>
-                                <strong id="mapRouteTitle">  Beograd → Novi Sad  </strong>
-                            </div>
-                            <span id="mapRouteStatus" class="pm-badge pm-badge-success"> Bezbedna </span>
-                        </div>
-
-
-                        <div class="nav-map-route-stats">
-                            <div>
-                                <span> Udaljenost </span>
-                                <strong id="mapDistance"> — </strong>
-                            </div>
-                            <div>
-                                <span> Trajanje </span>
-                                <strong id="mapDuration"> — </strong>
-                            </div>
-                            <div>
-                                <span> ETA </span>
-                                <strong id="mapEta"> — </strong>
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
+<div id="tripsPage" data-module="trips"
+     class="tw-flex tw-h-full tw-min-h-0 tw-flex-col tw-gap-4 tw-overflow-hidden tw-bg-pm-bg tw-text-pm-text tw-p-5 max-[1000px]:tw-h-auto max-[1000px]:tw-min-h-full max-[1000px]:tw-overflow-visible max-[1000px]:tw-p-3">
+    <header class="tw-flex tw-shrink-0 tw-flex-wrap tw-items-center tw-justify-between tw-gap-4">
+        <div class="tw-min-w-0">
+            <div class="tw-mb-1 tw-text-xs tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-pm-teal">Operacije
+                flote</div>
+                <h1 class="tw-m-0 tw-text-3xl tw-font-bold tw-tracking-tight tw-text-pm-text">Sve ture</h1>
+                <p class="tw-mt-1 tw-text-sm tw-text-pm-muted">Pregled statusa, dodela, napretka i poslednje GPS aktivnosti.
+                </p>
             </div>
+            <button id="refreshTrips" type="button"
+                    class="tw-inline-flex tw-min-h-11 tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border tw-border-pm-border tw-bg-pm-surface tw-px-4 tw-text-sm tw-font-semibold tw-text-pm-text hover:tw-border-pm-teal hover:tw-bg-pm-elevated focus-visible:tw-outline focus-visible:tw-outline-2 focus-visible:tw-outline-offset-2 focus-visible:tw-outline-pm-teal">
+                <span aria-hidden="true">↻</span> Osveži ture
+            </button>
+        </header>
+
+        <section aria-label="Sažetak tura"
+                 class="tw-grid tw-shrink-0 tw-grid-cols-4 tw-gap-3 max-[1100px]:tw-grid-cols-2 max-[520px]:tw-grid-cols-1">
+            <article class="tw-rounded-2xl tw-border tw-border-pm-border tw-bg-pm-surface tw-p-4 tw-shadow-panel">
+                <div class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wider tw-text-pm-muted">Ukupno tura</div>
+                <strong data-trip-kpi="total" class="tw-mt-2 tw-block tw-text-3xl tw-font-bold tw-text-pm-text">—</strong>
+            </article>
+            <article class="tw-rounded-2xl tw-border tw-border-emerald-400/20 tw-bg-emerald-500/5 tw-p-4 tw-shadow-panel">
+                <div class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wider tw-text-pm-muted">Aktivne</div>
+                <strong data-trip-kpi="active"
+                        class="tw-mt-2 tw-block tw-text-3xl tw-font-bold tw-text-emerald-300">—</strong>
+            </article>
+            <article class="tw-rounded-2xl tw-border tw-border-sky-400/20 tw-bg-sky-500/5 tw-p-4 tw-shadow-panel">
+                <div class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wider tw-text-pm-muted">Planirane</div>
+                <strong data-trip-kpi="planned" class="tw-mt-2 tw-block tw-text-3xl tw-font-bold tw-text-sky-300">—</strong>
+            </article>
+            <article class="tw-rounded-2xl tw-border tw-border-pm-border tw-bg-pm-surface tw-p-4 tw-shadow-panel">
+                <div class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wider tw-text-pm-muted">Završene</div>
+                <strong data-trip-kpi="completed"
+                        class="tw-mt-2 tw-block tw-text-3xl tw-font-bold tw-text-pm-text">—</strong>
+            </article>
         </section>
 
-        
-        <aside class="navigation-control-panel" id="navigationControlPanel">
-
-            <section class="nav-control-card nav-route-control">
-                <div class="nav-control-card-header">
-                    <div>
-                        <span class="nav-section-kicker"> ROUTE PLANNER </span>
-                        <h2>  Planiranje rute  </h2>
-                    </div>
-                    <button type="button" id="swapPoints" class="nav-icon-button" title="Zameni polaznu i odredišnu tačku">  ⇅ </button>
+        <div
+            class="tw-grid tw-min-h-0 tw-flex-1 tw-grid-cols-[250px_minmax(0,1fr)] tw-gap-4 max-[1000px]:tw-min-h-full max-[1000px]:tw-grid-cols-1">
+            <aside aria-label="Filteri tura"
+                   class="tw-flex tw-min-h-0 tw-flex-col tw-gap-5 tw-overflow-y-auto tw-rounded-2xl tw-border tw-border-pm-border tw-bg-pm-surface tw-p-4 max-[1000px]:tw-gap-3 max-[1000px]:tw-overflow-visible">
+                <div>
+                    <h2 class="tw-m-0 tw-text-sm tw-font-bold tw-uppercase tw-tracking-wider tw-text-pm-muted">Status ture
+                    </h2>
+                    <nav class="tw-mt-3 tw-flex tw-flex-col tw-gap-1 max-[1000px]:tw-flex-row max-[1000px]:tw-flex-wrap"
+                         aria-label="Filtriraj po statusu">
+                        <button type="button" data-trip-filter="all" aria-pressed="true"
+                                class="tw-flex tw-min-h-10 tw-items-center tw-justify-between tw-rounded-lg tw-border tw-border-pm-teal/30 tw-bg-pm-elevated tw-px-3 tw-text-left tw-text-sm tw-font-semibold tw-text-pm-text">
+                            Sve ture <span data-trip-filter-count="all"
+                                           class="tw-rounded-full tw-bg-pm-bg tw-px-2 tw-py-0.5 tw-text-xs tw-text-pm-muted">—</span>
+                        </button>
+                        <button type="button" data-trip-filter="active" aria-pressed="false"
+                                class="tw-flex tw-min-h-10 tw-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-border tw-border-transparent tw-bg-transparent tw-px-3 tw-text-left tw-text-sm tw-font-medium tw-text-pm-muted hover:tw-bg-pm-elevated hover:tw-text-pm-text">
+                            Aktivne <span data-trip-filter-count="active"
+                                          class="tw-rounded-full tw-bg-pm-bg tw-px-2 tw-py-0.5 tw-text-xs">—</span>
+                        </button>
+                        <button type="button" data-trip-filter="planned" aria-pressed="false"
+                                class="tw-flex tw-min-h-10 tw-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-border tw-border-transparent tw-bg-transparent tw-px-3 tw-text-left tw-text-sm tw-font-medium tw-text-pm-muted hover:tw-bg-pm-elevated hover:tw-text-pm-text">
+                            Planirane <span data-trip-filter-count="planned"
+                                            class="tw-rounded-full tw-bg-pm-bg tw-px-2 tw-py-0.5 tw-text-xs">—</span>
+                        </button>
+                        <button type="button" data-trip-filter="paused" aria-pressed="false"
+                                class="tw-flex tw-min-h-10 tw-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-border tw-border-transparent tw-bg-transparent tw-px-3 tw-text-left tw-text-sm tw-font-medium tw-text-pm-muted hover:tw-bg-pm-elevated hover:tw-text-pm-text">
+                            Pauzirane <span data-trip-filter-count="paused"
+                                            class="tw-rounded-full tw-bg-pm-bg tw-px-2 tw-py-0.5 tw-text-xs">—</span>
+                        </button>
+                        <button type="button" data-trip-filter="completed" aria-pressed="false"
+                                class="tw-flex tw-min-h-10 tw-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-border tw-border-transparent tw-bg-transparent tw-px-3 tw-text-left tw-text-sm tw-font-medium tw-text-pm-muted hover:tw-bg-pm-elevated hover:tw-text-pm-text">
+                            Završene <span data-trip-filter-count="completed"
+                                           class="tw-rounded-full tw-bg-pm-bg tw-px-2 tw-py-0.5 tw-text-xs">—</span>
+                        </button>
+                        <button type="button" data-trip-filter="cancelled" aria-pressed="false"
+                                class="tw-flex tw-min-h-10 tw-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-border tw-border-transparent tw-bg-transparent tw-px-3 tw-text-left tw-text-sm tw-font-medium tw-text-pm-muted hover:tw-bg-pm-elevated hover:tw-text-pm-text">
+                            Otkazane <span data-trip-filter-count="cancelled"
+                                           class="tw-rounded-full tw-bg-pm-bg tw-px-2 tw-py-0.5 tw-text-xs">—</span>
+                        </button>
+                    </nav>
                 </div>
-
-
-                <div class="nav-route-inputs">      
-                    <div class="nav-route-input-row">
-                        <div class="nav-point-marker start"></div>
-                        <div class="nav-input-wrapper">
-                            <label for="navStart"> POLAZNA TAČKA </label>
-                            <input id="navStart" class="nav-input" type="text" autocomplete="off" value="Beograd, Srbija" placeholder="Grad, adresa ili lokacija" />
-                            <div id="navStartSuggestions" class="nav-suggestions"></div>
-                            <div id="navStartResolved" class="nav-resolved"><span></span>  Nije još potvrđeno </div>
-                        </div>
+                <div
+                    class="tw-mt-auto tw-rounded-xl tw-border tw-border-pm-border tw-bg-pm-bg/70 tw-p-3 max-[1000px]:tw-hidden">
+                    <div class="tw-text-xs tw-font-semibold tw-text-pm-text">Podaci u realnom vremenu</div>
+                    <p class="tw-mb-0 tw-mt-1 tw-text-xs tw-leading-relaxed tw-text-pm-muted">Prikaz koristi ture i dodele
+                        iz sistema. GPS status se računa prema poslednjem primljenom signalu.</p>
                     </div>
+                </aside>
 
-                    <div class="nav-route-connector"></div>
-
-
-                    <div class="nav-route-input-row">
-                        <div class="nav-point-marker destination"></div>
-                        <div class="nav-input-wrapper">
-                            <label for="navEnd">  ODREDIŠTE </label>
-                            <input id="navEnd" class="nav-input" type="text" autocomplete="off" value="Novi Sad, Srbija" placeholder="Grad, adresa ili lokacija" />
-                            <div id="navEndSuggestions" class="nav-suggestions"></div>
-                            <div id="navEndResolved" class="nav-resolved"><span></span> Nije još potvrđeno </div>
-                        </div>
-                    </div>
-
-                </div>
-
-
-                <div class="nav-map-pick-row">
-                    <button type="button" id="pickStart" class="nav-small-action">
-                        <span>＋</span>
-                        Izaberi start na mapi
-                    </button>
-
-                    <button type="button" id="pickEnd" class="nav-small-action">
-                        <span>＋</span>
-                        Izaberi cilj na mapi
-                    </button>
-                </div>
-
-            </section>
-
-
-            <section class="nav-route-action">
-                <button type="button" id="togglePlanner" class="nav-location-button nav-mobile-sheet-toggle" hidden>
-                    <span> ▤ </span>
-                    <span> Planiranje rute </span>
-                </button>
-                <button type="button" id="calcRoute" class="nav-calculate-button">
-                    <span class="nav-calculate-icon"> ↗  </span>
-                    <span>
-                        <strong>
-                            Izračunaj truck rutu
-                        </strong>
-                        <small>
-                            PostGIS · OSM · OSRM fallback
-                        </small>
-                    </span>
-                    <span class="nav-button-arrow"> →  </span>
-                </button>
-                <button type="button" id="useCurrentLocation" class="nav-location-button">
-                    <span> ◎  </span>
-                    <span> Koristi moju trenutnu lokaciju  </span>
-                </button>
-                <div id="navError" class="nav-error" hidden> </div>
-            </section>
-
-
-
-            <section class="nav-control-card nav-collapsible-card" id="vehicleCard">
-                <div class="nav-control-card-header compact">
-                    <div>
-                        <span class="nav-section-kicker">  VEHICLE </span> 
-                        <h2> Profil vozila </h2>
-                    </div>
-                    <span id="truckModeBadge" class="nav-mini-status"> HGV </span>
-                </div>
-
-                <div class="nav-mode-switch">
-                    <button type="button" id="truckMode" class="nav-mode-button active">
-                        <span class="nav-mode-icon"> ▣ </span>
-                        <span>
-                            <strong> Kamion </strong>                           
-                        </span>
-                    </button>
-
-                    <button type="button" id="carMode" class="nav-mode-button">
-
-                        <span class="nav-mode-icon">
-                            ▱
-                        </span>
-                        <span>
-                            <strong> Auto </strong>  
-                        </span>
-                    </button>
-
-                    <button type="button" class="nav-collapse-toggle" data-collapse-target="vehicleDetails" aria-expanded="true" title="Sakrij/prikaži profil vozila">▾</button>
-                </div>
-
-                <div id="vehicleDetails" class="nav-collapsible-content is-open">
-                    <div class="nav-preset-row">
-
-                        <label for="truckPreset">
-                            PRESET
-                        </label>
-
-                        <select id="truckPreset" class="nav-select">
-
-                            <option value="40t">
-                                40 t · standardni šleper
-                            </option>
-
-                            <option value="12t">
-                                12 t · srednji kamion
-                            </option>
-
-                            <option value="7.5t">
-                                7.5 t · laki kamion
-                            </option>
-
-                            <option value="3.5t">
-                                3.5 t · dostavno vozilo
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div id="truckFields" class="nav-truck-fields">
-
-                    <div class="nav-spec-grid">
-
-
-                        <div class="nav-field">
-
-                            <label for="navWeight">
-                                MASA
-                            </label>
-
-                            <div class="nav-input-unit">
-
-                                <input id="navWeight" type="number" class="nav-input" value="40" min="0.1" step="0.1" />
-
-                                <span>t</span>
-
+                <section aria-label="Lista svih tura"
+                         class="tw-flex tw-min-h-0 tw-flex-col tw-overflow-hidden tw-rounded-2xl tw-border tw-border-pm-border tw-bg-pm-surface">
+                    <header
+                        class="tw-flex tw-shrink-0 tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-border-b tw-border-pm-border tw-p-4">
+                        <div>
+                            <h2 class="tw-m-0 tw-text-base tw-font-bold tw-text-pm-text">Evidencija tura</h2>
+                            <p class="tw-mb-0 tw-mt-1 tw-text-xs tw-text-pm-muted"><span
+                                id="tripsResultCount">Učitavanje…</span> · poslednjih do 500 tura</p>
                             </div>
-
-                        </div>
-
-
-                        <div class="nav-field">
-
-                            <label for="navHeight">
-                                VISINA
+                            <label
+                                class="tw-flex tw-min-h-10 tw-w-full tw-max-w-sm tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-pm-border tw-bg-pm-bg tw-px-3 focus-within:tw-border-pm-teal">
+                                <span aria-hidden="true" class="tw-text-pm-muted">⌕</span>
+                                <span class="tw-sr-only">Pretraži ture</span>
+                                <input id="tripsSearch" type="search" autocomplete="off"
+                                       placeholder="Tura, nalog, vozač ili vozilo…"
+                                       class="tw-min-w-0 tw-flex-1 tw-bg-transparent tw-text-sm tw-text-pm-text tw-outline-none placeholder:tw-text-pm-dim" />
                             </label>
+                        </header>
 
-                            <div class="nav-input-unit">
-
-                                <input id="navHeight" type="number" class="nav-input" value="4" min="0.1" step="0.01" />
-
-                                <span>m</span>
-
-                            </div>
-
+                        <div id="tripsError" role="alert" hidden
+                             class="tw-m-4 tw-rounded-xl tw-border tw-border-rose-400/30 tw-bg-rose-500/10 tw-p-3 tw-text-sm tw-text-rose-200">
                         </div>
-
-
-                        <div class="nav-field">
-
-                            <label for="navWidth">
-                                ŠIRINA
-                            </label>
-
-                            <div class="nav-input-unit">
-
-                                <input id="navWidth" type="number" class="nav-input" value="2.55" min="0.1"
-                                       step="0.01" />
-
-                                <span>m</span>
-
-                            </div>
-
+                        <div class="tw-min-h-0 tw-flex-1 tw-overflow-auto">
+                            <table class="tw-w-full tw-min-w-[900px] tw-border-collapse tw-text-left">
+                                <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-pm-surface">
+                                    <tr
+                                        class="tw-border-b tw-border-pm-border tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-wider tw-text-pm-muted">
+                                        <th scope="col" class="tw-px-4 tw-py-3">Tura / nalog</th>
+                                        <th scope="col" class="tw-px-4 tw-py-3">Status</th>
+                                        <th scope="col" class="tw-px-4 tw-py-3">Vozač / vozilo</th>
+                                        <th scope="col" class="tw-px-4 tw-py-3">Napredak</th>
+                                        <th scope="col" class="tw-px-4 tw-py-3">Ruta</th>
+                                        <th scope="col" class="tw-px-4 tw-py-3">Poslednji GPS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tripsRows" class="tw-divide-y tw-divide-pm-border">
+                                    <tr>
+                                        <td colspan="6" class="tw-p-8 tw-text-center tw-text-sm tw-text-pm-muted">Učitavanje tura…
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-
-
-                        <div class="nav-field">
-
-                            <label for="navLength">
-                                DUŽINA
-                            </label>
-
-                            <div class="nav-input-unit">
-
-                                <input id="navLength" type="number" class="nav-input" value="16.5" min="0.1"
-                                       step="0.1" />
-
-                                <span>m</span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="nav-field">
-
-                            <label for="navAxleLoad">
-                                OSOVINSKO OPTEREĆENJE
-                            </label>
-
-                            <div class="nav-input-unit">
-
-                                <input id="navAxleLoad" type="number" class="nav-input" value="10" min="0.1"
-                                       step="0.1" />
-
-                                <span>t</span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="nav-field">
-
-                            <label for="navAxles">
-                                OSOVINE
-                            </label>
-
-                            <div class="nav-input-unit">
-
-                                <input id="navAxles" type="number" class="nav-input" value="5" min="1" step="1" />
-
-                                <span>kom</span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="nav-field">
-
-                            <label for="navMaxSpeed">
-                                MAKS. BRZINA
-                            </label>
-
-                            <div class="nav-input-unit">
-
-                                <input id="navMaxSpeed" type="number" class="nav-input" value="90" min="1" step="1" />
-
-                                <span>km/h</span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="nav-field">
-
-                            <label for="navAdrClass">
-                                ADR KLASA
-                            </label>
-
-                            <input id="navAdrClass" type="text" class="nav-input" placeholder="npr. 3" />
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="nav-check-grid">
-
-                        <label class="nav-check">
-
-                            <input id="navHazmat" type="checkbox" />
-
-                            <span class="nav-check-box"></span>
-
-                            <span>
-                                ADR / opasna roba
-                            </span>
-
-                        </label>
-
-
-                        <label class="nav-check">
-
-                            <input id="navAvoid" type="checkbox" checked />
-
-                            <span class="nav-check-box"></span>
-
-                            <span>
-                                Automatski izbegavaj restrikcije
-                            </span>
-
-                        </label>
-
-                    </div>
-
-                        </div>
-                    </div>
-
-                </section>
-
-
-            <section class="nav-control-card nav-summary-card nav-collapsible-card" id="routeSummaryCard">
-
-                <div class="nav-control-card-header compact">
-
-                    <div>
-
-                        <span class="nav-section-kicker">
-                            ROUTE RESULT
-                        </span>
-
-                        <h2>
-                            Pregled rute
-                        </h2>
-
-                    </div>
-
-                    <div class="nav-collapsible-head-actions">
-                        <span id="summarySafety" class="pm-badge pm-badge-success">
-                            READY
-                        </span>
-                        <button type="button" class="nav-collapse-toggle" data-collapse-target="routeSummaryContent" aria-expanded="true" title="Sakrij/prikaži pregled rute">▾</button>
-                    </div>
-
+                    </section>
                 </div>
-
-                <div id="routeSummaryContent" class="nav-collapsible-content is-open">
-                    <div class="nav-result-main">
-
-                    <div class="nav-result-distance">
-
-                        <span>
-                            UKUPNA UDALJENOST
-                        </span>
-
-                        <strong id="summaryDistance">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <div class="nav-result-duration">
-
-                        <span>
-                            TRAJANJE
-                        </span>
-
-                        <strong id="summaryDuration">
-                            —
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <div class="nav-summary-grid">
-
-                    <div>
-
-                        <small>
-                            ETA
-                        </small>
-
-                        <strong id="summaryEta">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <small>
-                            ENGINE
-                        </small>
-
-                        <strong id="summaryEngine">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <small>
-                            RESTRIKCIJE
-                        </small>
-
-                        <strong id="summaryDiagnostics">
-                            —
-                        </strong>
-
-                    </div>
-
-                </div>
-                
             </div>
-
-            
-        </section>
-
-
-            <!-- =============================================
-                 ALTERNATIVES
-                 ============================================= -->
-
-            <section id="alternativesCard" class="nav-control-card nav-list-card" hidden>
-
-                <div class="nav-control-card-header compact">
-
-                    <div>
-
-                        <span class="nav-section-kicker">
-                            ROUTES
-                        </span>
-
-                        <h2>
-                            Alternativne rute
-                        </h2>
-
-                    </div>
-
-                    <span id="alternativeCount" class="nav-counter">
-                        0
-                    </span>
-
-                </div>
-
-                <div id="routeAlternatives" class="nav-alternatives">
-                </div>
-
-            </section>
-
-
-            <!-- =============================================
-                 WARNINGS
-                 ============================================= -->
-
-            <section id="warningsCard" class="nav-control-card nav-list-card" hidden>
-
-                <div class="nav-control-card-header compact">
-
-                    <div>
-
-                        <span class="nav-section-kicker">
-                            SAFETY
-                        </span>
-
-                        <h2>
-                            Upozorenja
-                        </h2>
-
-                    </div>
-
-                    <span id="warningCount" class="nav-counter danger">
-                        0
-                    </span>
-
-                </div>
-
-                <div id="routeWarnings" class="nav-warning-list">
-                </div>
-
-            </section>
-
-
-            <!-- =============================================
-                 MANEUVERS
-                 ============================================= -->
-
-            <section id="maneuversCard" class="nav-control-card nav-list-card" hidden>
-
-                <div class="nav-control-card-header compact">
-
-                    <div>
-
-                        <span class="nav-section-kicker">
-                            DIRECTIONS
-                        </span>
-
-                        <h2>
-                            Koraci navigacije
-                        </h2>
-
-                    </div>
-
-                    <span id="maneuverCount" class="nav-counter">
-                        0
-                    </span>
-
-                </div>
-
-                <div id="maneuverList" class="nav-maneuver-list">
-                </div>
-
-            </section>
-
-
-            <!-- =============================================
-                 DIAGNOSTICS
-                 ============================================= -->
-
-            <section class="nav-control-card nav-diagnostics-card nav-collapsible-card" id="routingDiagnosticsCard">
-                <div class="nav-control-card-header compact">
-                    <div>
-                        <span class="nav-section-kicker">
-                            SYSTEM
-                        </span>
-
-                        <h2>
-                            Routing diagnostics
-                        </h2>
-                    </div>
-
-                    <div class="nav-collapsible-head-actions">
-                        <span class="nav-diagnostic-led"></span>
-                        <button type="button" class="nav-collapse-toggle" data-collapse-target="routingDiagnosticsContent" aria-expanded="true" title="Sakrij/prikaži routing diagnostics">▾</button>
-                    </div>
-
-                </div>
-
-                <div id="routingDiagnosticsContent" class="nav-collapsible-content is-open">
-                    <div class="nav-diagnostics-grid">
-                    <div>
-                        <small>
-                            ENGINE
-                        </small>
-
-                        <strong id="diagnosticEngine">
-                            —
-                        </strong>
-                    </div>
-
-                    <div>
-                        <small>
-                            GRAPH
-                        </small>
-                        <strong id="diagnosticGraph">
-                            —
-                        </strong>
-                    </div>
-
-                    <div>
-                        <small>
-                            STATES
-                        </small>
-
-                        <strong id="diagnosticStates">
-                            —
-                        </strong>
-                    </div>
-
-                    <div>
-                        <small>
-                            FALLBACK
-                        </small>
-
-                        <strong id="diagnosticFallback">
-                            —
-                        </strong>
-                    </div>
-                </div>
-
-                <div class="nav-diagnostic-summary-row">
-                    <div class="nav-diagnostic-summary-item">
-                        <small>
-                            SNAP START
-                        </small>
-
-                        <strong id="diagnosticStartSnap">
-                            —
-                        </strong>
-                    </div>
-
-                    <div class="nav-diagnostic-summary-item">
-                        <small>
-                            SNAP END
-                        </small>
-
-                        <strong id="diagnosticEndSnap">
-                            —
-                        </strong>
-                    </div>
-                </div>
-
-                <div class="nav-diagnostic-summary-row compact">
-                    <div class="nav-diagnostic-summary-item compact">
-                        <small>
-                            TRAVERSALS
-                        </small>
-
-                        <strong id="diagnosticTraversalCount">
-                            —
-                        </strong>
-                    </div>
-
-                    <div class="nav-diagnostic-summary-item compact">
-                        <small>
-                            FAILURE
-                        </small>
-
-                        <strong id="diagnosticFailureReason">
-                            —
-                        </strong>
-                    </div>
-                </div>
-
-                <div class="nav-diagnostic-highlights-card">
-                    <div class="nav-diagnostic-highlights-head">
-                        <small>
-                            WHY THIS ROUTE
-                        </small>
-
-                        <strong id="diagnosticHighlightTitle">
-                            Edge / road highlights
-                        </strong>
-                    </div>
-
-                    <div id="diagnosticHighlights" class="nav-diagnostic-highlights-list"></div>
-
-                </div>
-                </div>
-            </section>
-        </aside>
-    </div>
-
-
-    <!-- =====================================================
-         LIVE NAVIGATION
-         ===================================================== -->
-
-    <section class="nav-live-panel" id="liveNavigationPanel">
-        <div class="nav-live-left">
-            <div class="nav-live-status">
-                <span id="liveChip" class="nav-live-chip">
-                    GPS OFF
-                </span>
-            </div>
-
-            <div class="nav-live-position">
-                <strong id="livePosition">
-                    Lokacija nije aktivna
-                </strong>
-
-                <small id="liveAccuracy">
-                    —
-                </small>
-            </div>
-        </div>
-
-        <div class="nav-live-stats">
-            <div>
-                <small>
-                    BRZINA
-                </small>
-                <strong id="liveSpeed">
-                    0 km/h
-                </strong>
-            </div>
-
-            <div>
-                <small>
-                    OFF ROUTE
-                </small>
-                <strong id="liveOffRoute">
-                    NE
-                </strong>
-            </div>
-        </div>
-
-        <div class="nav-live-actions">
-            <button type="button" id="startLiveNavigation" class="pm-btn pm-btn-primary">
-                ◎ Pokreni live navigaciju
-            </button>
-
-            <button type="button" id="stopLiveNavigation" class="pm-btn pm-btn-danger" hidden>
-                ■ Zaustavi
-            </button>
-        </div>
-    </section>
-
-    <div class="nav-mobile-bottom-space"></div>
-
-</div>
-
-
-@section Scripts {
-
-    <script src="~/js/promap-gps.js" asp-append-version="true"></script>
-    <script src="~/js/promap-maneuvers.js" asp-append-version="true"></script>
-    <script src="~/js/promap-routing.js" asp-append-version="true"></script>
-
-    <!-- PMTiles runtime -->
-    <script src="~/lib/pmtiles/dist/pmtiles.js" asp-append-version="true"></script>
-
-    <!-- Icons -->
-    <script src="~/js/promap-map-icons.js" asp-append-version="true"></script>
-
-    <!-- Operational map layers -->
-    <script src="~/js/promap-map-enhancements.js" asp-append-version="true"></script>
-
-    <!-- PMTiles / MapLibre initialization -->
-    <script src="~/js/promap-pmtiles-init.js" asp-append-version="true"></script>
-
-    <!-- Navigation -->
-    <script src="~/js/navigation.js" asp-append-version="true"></script>
-
-    <script>
-        (() => {
-            "use strict";
-
-            const query = new URLSearchParams(window.location.search);
-            const isEmbeddedNavigation =
-                query.get("embedded") === "1" ||
-                query.get("mobile") === "1";
-
-            if (isEmbeddedNavigation) {
-                document.body.classList.add("pm-embedded-navigation");
-                document.body.classList.add("pm-embedded-mobile");
-            }
-
-            function bindMobileSheetToggle() {
-                if (!isEmbeddedNavigation) {
-                    return;
-                }
-
-                const panel = document.querySelector(".navigation-control-panel");
-                const toggle = document.getElementById("togglePlanner");
-
-                if (!panel || !toggle) {
-                    return;
-                }
-
-                toggle.hidden = false;
-
-                toggle.addEventListener("click", () => {
-                    panel.classList.toggle("sheet-open");
-                });
-            }
-
-            function bindDesktopPlannerCollapse() {
-                const panel = document.getElementById("navigationControlPanel");
-                const toggle = document.getElementById("plannerCollapse");
-                const workspace = document.querySelector(".navigation-workspace");
-
-                if (!panel || !toggle || !workspace || isEmbeddedNavigation) {
-                    return;
-                }
-
-                const syncCollapsedState = (isCollapsed) => {
-                    workspace.classList.toggle("planner-is-collapsed", isCollapsed);
-                    toggle.setAttribute("aria-expanded", String(!isCollapsed));
-                    toggle.textContent = isCollapsed ? "⇥" : "⇤";
-                };
-
-                syncCollapsedState(panel.classList.contains("panel-collapsed"));
-
-                toggle.addEventListener("click", () => {
-                    const isCollapsed = panel.classList.toggle("panel-collapsed");
-                    syncCollapsedState(isCollapsed);
-
-                    const mapRoot = document.getElementById("navMap");
-                    if (mapRoot) {
-                        mapRoot.dispatchEvent(new Event("resize"));
-                    }
-
-                    window.dispatchEvent(new Event("resize"));
-                });
-            }
-
-            function bindRightSidebarCardCollapsibles() {
-                const toggles = document.querySelectorAll(".nav-collapse-toggle[data-collapse-target]");
-                if (!toggles.length) {
-                    return;
-                }
-
-                const setExpanded = (toggleButton, content, expanded) => {
-                    content.classList.toggle("is-open", expanded);
-                    toggleButton.setAttribute("aria-expanded", String(expanded));
-                    toggleButton.textContent = expanded ? "▾" : "▸";
-                };
-
-                toggles.forEach((toggleButton) => {
-                    const targetId = toggleButton.getAttribute("data-collapse-target");
-                    if (!targetId) {
-                        return;
-                    }
-
-                    const content = document.getElementById(targetId);
-                    if (!content) {
-                        return;
-                    }
-
-                    setExpanded(toggleButton, content, content.classList.contains("is-open"));
-
-                    toggleButton.addEventListener("click", () => {
-                        const isExpanded = toggleButton.getAttribute("aria-expanded") === "true";
-                        setExpanded(toggleButton, content, !isExpanded);
-                    });
-                });
-            }
-
-            bindMobileSheetToggle();
-            bindDesktopPlannerCollapse();
-            bindRightSidebarCardCollapsibles();
-
-
-        })();
-    </script>
-}
-

@@ -20,6 +20,9 @@
         : System.IO.Path.Combine(webRootPath, "js", "pages", $"{pageAssetKey}.js");
     var includePageCss = !string.IsNullOrWhiteSpace(pageCssPhysicalPath) && System.IO.File.Exists(pageCssPhysicalPath);
     var includePageJs = !string.IsNullOrWhiteSpace(pageJsPhysicalPath) && System.IO.File.Exists(pageJsPhysicalPath);
+    var isFullscreenWorkspace =
+        string.Equals(currentPage, "/Navigation/Index", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(currentPage, "/Trips/Index", StringComparison.OrdinalIgnoreCase);
     var request = ViewContext.HttpContext.Request;
     var isEmbeddedNavigationShell =
         string.Equals(currentPage, "/Navigation/Index", StringComparison.OrdinalIgnoreCase) &&
@@ -29,6 +32,7 @@
 
 <!DOCTYPE html>
 <html lang="sr">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -50,6 +54,7 @@
     {
         <link rel="stylesheet" href="@pageCssVirtualPath" asp-append-version="true" />
     }
+    <link rel="stylesheet" href="~/css/tailwind.generated.css" asp-append-version="true" />
 
     @await RenderSectionAsync("Head", required: false)
 </head>
@@ -58,7 +63,7 @@
 
     <input type="checkbox" id="pm-sidebar-toggle" class="pm-sidebar-toggle-input" aria-hidden="true" />
 
-    <div class="pm-app-shell">
+    <div class="pm-app-shell@(isFullscreenWorkspace ? " tw-h-[100dvh] tw-min-h-0 tw-overflow-hidden" : string.Empty)">
         <label for="pm-sidebar-toggle" class="pm-mobile-backdrop" aria-label="Zatvori navigaciju"></label>
 
         <aside class="pm-sidebar">
@@ -84,107 +89,148 @@
                 <nav class="pm-navigation" aria-label="Glavna navigacija">
                     <div class="pm-nav-section">
                         <div class="pm-nav-section-title">OPERACIJE</div>
-                        <a asp-page="/Dispatch/Index" class="pm-nav-item @(currentPage == "/Dispatch/Index" ? "active" : "")"><span class="pm-nav-icon">◈</span><span class="pm-nav-label">Dispatch</span></a>
-                        <a asp-page="/Orders/Index" class="pm-nav-item @(currentPage == "/Orders/Index" ? "active" : "")"><span class="pm-nav-icon">▤</span><span class="pm-nav-label">Transportni nalozi</span></a>
-                        <a asp-page="/Trips/Index" class="pm-nav-item @(currentPage == "/Trips/Index" ? "active" : "")"><span class="pm-nav-icon">↗</span><span class="pm-nav-label">Ture</span></a>
-                    </div>
+                        <a asp-page="/Dispatch/Index"
+                           class="pm-nav-item @(currentPage == "/Dispatch/Index" ? "active" : "")"><span
+                            class="pm-nav-icon">◈</span><span class="pm-nav-label">Dispatch</span></a>
+                            <a asp-page="/Orders/Index"
+                               class="pm-nav-item @(currentPage == "/Orders/Index" ? "active" : "")"><span
+                                class="pm-nav-icon">▤</span><span class="pm-nav-label">Transportni nalozi</span></a>
+                                <a asp-page="/Trips/Index"
+                                   class="pm-nav-item @(currentPage == "/Trips/Index" ? "active" : "")"><span
+                                    class="pm-nav-icon">↗</span><span class="pm-nav-label">Ture</span></a>
+                                </div>
 
-                    <div class="pm-nav-section">
-                        <div class="pm-nav-section-title">FLEET</div>
-                        <a asp-page="/Vehicles/Index" class="pm-nav-item @(currentPage == "/Vehicles/Index" || currentPage == "/Vehicles/New" ? "active" : "")"><span class="pm-nav-icon">▣</span><span class="pm-nav-label">Vozila</span></a>
-                        <a asp-page="/Drivers/Index" class="pm-nav-item @(currentPage == "/Drivers/Index" ? "active" : "")"><span class="pm-nav-icon">♙</span><span class="pm-nav-label">Vozači</span></a>
-                        <a asp-page="/Navigation/Index" class="pm-nav-item @(currentPage == "/Navigation/Index" ? "active" : "")"><span class="pm-nav-icon">◎</span><span class="pm-nav-label">Navigacija</span><span class="pm-nav-live">GPS</span></a>
-                    </div>
+                                <div class="pm-nav-section">
+                                    <div class="pm-nav-section-title">FLEET</div>
+                                    <a asp-page="/Vehicles/Index"
+                                       class="pm-nav-item @(currentPage == "/Vehicles/Index" || currentPage == "/Vehicles/New" ? "active" : "")"><span
+                                        class="pm-nav-icon">▣</span><span class="pm-nav-label">Vozila</span></a>
+                                        <a asp-page="/Drivers/Index"
+                                           class="pm-nav-item @(currentPage == "/Drivers/Index" ? "active" : "")"><span
+                                            class="pm-nav-icon">♙</span><span class="pm-nav-label">Vozači</span></a>
+                                            <a asp-page="/Navigation/Index"
+                                               class="pm-nav-item @(currentPage == "/Navigation/Index" ? "active" : "")"><span
+                                                class="pm-nav-icon">◎</span><span class="pm-nav-label">Navigacija</span><span
+                                                class="pm-nav-live">GPS</span></a>
+                                            </div>
 
-                    <div class="pm-nav-section">
-                        <div class="pm-nav-section-title">KONTROLA</div>
-                        <a asp-page="/Alerts/Index" class="pm-nav-item @(currentPage == "/Alerts/Index" ? "active" : "")"><span class="pm-nav-icon">△</span><span class="pm-nav-label">Alerts</span><span class="pm-nav-count danger" data-alert-count hidden>0</span></a>
-                        <a asp-page="/Moderation/Index" class="pm-nav-item @(currentPage == "/Moderation/Index" ? "active" : "")"><span class="pm-nav-icon">◌</span><span class="pm-nav-label">Moderacija</span></a>
-                        <a asp-page="/Audit/Index" class="pm-nav-item @(currentPage == "/Audit/Index" ? "active" : "")"><span class="pm-nav-icon">◇</span><span class="pm-nav-label">Audit</span></a>
-                        <a asp-page="/Compliance/Index" class="pm-nav-item @(currentPage == "/Compliance/Index" ? "active" : "")"><span class="pm-nav-icon">◈</span><span class="pm-nav-label">Compliance</span></a>
-                        <a asp-page="/Monitoring/Index" class="pm-nav-item @(currentPage == "/Monitoring/Index" ? "active" : "")"><span class="pm-nav-icon">◉</span><span class="pm-nav-label">Monitoring</span></a>
-                    </div>
+                                            <div class="pm-nav-section">
+                                                <div class="pm-nav-section-title">KONTROLA</div>
+                                                <a asp-page="/Alerts/Index"
+                                                   class="pm-nav-item @(currentPage == "/Alerts/Index" ? "active" : "")"><span
+                                                    class="pm-nav-icon">△</span><span class="pm-nav-label">Alerts</span><span
+                                                    class="pm-nav-count danger" data-alert-count hidden>0</span></a>
+                                                    <a asp-page="/Moderation/Index"
+                                                       class="pm-nav-item @(currentPage == "/Moderation/Index" ? "active" : "")"><span
+                                                        class="pm-nav-icon">◌</span><span class="pm-nav-label">Moderacija</span></a>
+                                                        <a asp-page="/Audit/Index"
+                                                           class="pm-nav-item @(currentPage == "/Audit/Index" ? "active" : "")"><span
+                                                            class="pm-nav-icon">◇</span><span class="pm-nav-label">Audit</span></a>
+                                                            <a asp-page="/Compliance/Index"
+                                                               class="pm-nav-item @(currentPage == "/Compliance/Index" ? "active" : "")"><span
+                                                                class="pm-nav-icon">◈</span><span class="pm-nav-label">Compliance</span></a>
+                                                                <a asp-page="/Monitoring/Index"
+                                                                   class="pm-nav-item @(currentPage == "/Monitoring/Index" ? "active" : "")"><span
+                                                                    class="pm-nav-icon">◉</span><span class="pm-nav-label">Monitoring</span></a>
+                                                                </div>
 
-                    <div class="pm-nav-section">
-                        <div class="pm-nav-section-title">ANALITIKA</div>
-                        <a asp-page="/Finance/Index" class="pm-nav-item @(currentPage == "/Finance/Index" ? "active" : "")"><span class="pm-nav-icon">₿</span><span class="pm-nav-label">Finansije</span></a>
-                        <a asp-page="/Reports/Index" class="pm-nav-item @(currentPage == "/Reports/Index" ? "active" : "")"><span class="pm-nav-icon">▥</span><span class="pm-nav-label">Izveštaji</span></a>
-                    </div>
+                                                                <div class="pm-nav-section">
+                                                                    <div class="pm-nav-section-title">ANALITIKA</div>
+                                                                    <a asp-page="/Finance/Index"
+                                                                       class="pm-nav-item @(currentPage == "/Finance/Index" ? "active" : "")"><span
+                                                                        class="pm-nav-icon">₿</span><span class="pm-nav-label">Finansije</span></a>
+                                                                        <a asp-page="/Reports/Index"
+                                                                           class="pm-nav-item @(currentPage == "/Reports/Index" ? "active" : "")"><span
+                                                                            class="pm-nav-icon">▥</span><span class="pm-nav-label">Izveštaji</span></a>
+                                                                        </div>
 
-                    <div class="pm-nav-section">
-                        <div class="pm-nav-section-title">SISTEM</div>
-                        <a asp-page="/Settings/Index" class="pm-nav-item @(currentPage == "/Settings/Index" ? "active" : "")"><span class="pm-nav-icon">⚙</span><span class="pm-nav-label">Podešavanja</span></a>
-                        <a asp-page="/Profile/Index" class="pm-nav-item @(currentPage == "/Profile/Index" ? "active" : "")"><span class="pm-nav-icon">◯</span><span class="pm-nav-label">Profil</span></a>
-                        <a asp-page="/Admin/Index" class="pm-nav-item @(currentPage == "/Admin/Index" ? "active" : "")"><span class="pm-nav-icon">⚙</span><span class="pm-nav-label">Administracija</span></a>
-                    </div>
-                </nav>
+                                                                        <div class="pm-nav-section">
+                                                                            <div class="pm-nav-section-title">SISTEM</div>
+                                                                            <a asp-page="/Settings/Index"
+                                                                               class="pm-nav-item @(currentPage == "/Settings/Index" ? "active" : "")"><span
+                                                                                class="pm-nav-icon">⚙</span><span class="pm-nav-label">Podešavanja</span></a>
+                                                                                <a asp-page="/Profile/Index"
+                                                                                   class="pm-nav-item @(currentPage == "/Profile/Index" ? "active" : "")"><span
+                                                                                    class="pm-nav-icon">◯</span><span class="pm-nav-label">Profil</span></a>
+                                                                                    <a asp-page="/Admin/Index"
+                                                                                       class="pm-nav-item @(currentPage == "/Admin/Index" ? "active" : "")"><span
+                                                                                        class="pm-nav-icon">⚙</span><span class="pm-nav-label">Administracija</span></a>
+                                                                                    </div>
+                                                                                </nav>
 
-                <div class="pm-sidebar-footer">
-                    <div class="pm-sidebar-version">
-                        <span class="pm-brand-mini"><span></span><span></span><span></span></span>
-                        <div><strong>ProMap Cargo</strong><small>Fleet Intelligence Platform</small></div>
-                    </div>
-                    <div class="pm-sidebar-footer-line"><span>v1.0.0</span><span>·</span><span>PostGIS</span><span>·</span><span>OSM</span></div>
-                </div>
-            </div>
-        </aside>
+                                                                                <div class="pm-sidebar-footer">
+                                                                                    <div class="pm-sidebar-version">
+                                                                                        <span class="pm-brand-mini"><span></span><span></span><span></span></span>
+                                                                                        <div><strong>ProMap Cargo</strong><small>Fleet Intelligence Platform</small></div>
+                                                                                    </div>
+                                                                                    <div class="pm-sidebar-footer-line">
+                                                                                        <span>v1.0.0</span><span>·</span><span>PostGIS</span><span>·</span><span>OSM</span></div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </aside>
 
-        <div class="pm-main">
-            <header class="pm-topbar">
-                <div class="pm-topbar-left">
-                    <label for="pm-sidebar-toggle" class="pm-menu-button" aria-label="Otvori navigaciju"><span></span><span></span><span></span></label>
-                    <div class="pm-breadcrumb"><span>ProMap Cargo</span><i>/</i><strong>@pageTitle</strong></div>
-                </div>
+                                                                            <div class="pm-main@(isFullscreenWorkspace ? " tw-h-[100dvh] tw-min-h-0 tw-overflow-hidden" : string.Empty)">
+                                                                                <header class="pm-topbar">
+                                                                                    <div class="pm-topbar-left">
+                                                                                        <label for="pm-sidebar-toggle" class="pm-menu-button"
+                                                                                               aria-label="Otvori navigaciju"><span></span><span></span><span></span></label>
+                                                                                        <div class="pm-breadcrumb"><span>ProMap Cargo</span><i>/</i><strong>@pageTitle</strong></div>
+                                                                                    </div>
 
-                <div class="pm-topbar-center">
-                    <div class="pm-global-search">
-                        <span class="pm-search-icon">⌕</span>
-                        <input type="search" placeholder="Pretraga vozila, vozača, naloga, lokacija..." aria-label="Globalna pretraga" />
-                        <kbd>Ctrl K</kbd>
-                    </div>
-                </div>
+                                                                                    <div class="pm-topbar-center">
+                                                                                        <div class="pm-global-search">
+                                                                                            <span class="pm-search-icon">⌕</span>
+                                                                                            <input type="search" placeholder="Pretraga vozila, vozača, naloga, lokacija..."
+                                                                                                   aria-label="Globalna pretraga" />
+                                                                                            <kbd>Ctrl K</kbd>
+                                                                                        </div>
+                                                                                    </div>
 
-                <div class="pm-topbar-right">
-                    <div class="pm-system-indicator"><span class="pm-status-dot"></span><span>Sistem online</span></div>
-                    <a asp-page="/Alerts/Index" class="pm-topbar-action pm-notification" aria-label="Obaveštenja">
-                        <span class="pm-notification-icon">♢</span>
-                        <span class="pm-notification-badge" data-alert-count hidden>0</span>
-                    </a>
-                    <a asp-page="/Profile/Index" class="pm-user">
-                        <span class="pm-user-avatar">MP</span>
-                        <span class="pm-user-copy"><strong>Administrator</strong><small>Fleet Operations</small></span>
-                        <span class="pm-user-chevron">⌄</span>
-                    </a>
-                </div>
-            </header>
+                                                                                    <div class="pm-topbar-right">
+                                                                                        <div class="pm-system-indicator"><span class="pm-status-dot"></span><span>Sistem online</span></div>
+                                                                                        <a asp-page="/Alerts/Index" class="pm-topbar-action pm-notification" aria-label="Obaveštenja">
+                                                                                            <span class="pm-notification-icon">♢</span>
+                                                                                            <span class="pm-notification-badge" data-alert-count hidden>0</span>
+                                                                                        </a>
+                                                                                        <a asp-page="/Profile/Index" class="pm-user">
+                                                                                            <span class="pm-user-avatar">MP</span>
+                                                                                            <span class="pm-user-copy"><strong>Administrator</strong><small>Fleet Operations</small></span>
+                                                                                            <span class="pm-user-chevron">⌄</span>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </header>
 
-            <main class="pm-content">
-                <div class="pm-content-inner">@RenderBody()</div>
-            </main>
+                                                                                <main
+                                                                                    class="pm-content@(isFullscreenWorkspace ? " tw-min-h-0 tw-overflow-hidden tw-p-0 max-[1000px]:tw-overflow-y-auto" : string.Empty)">
+                                                                                    <div
+                                                                                        class="pm-content-inner@(isFullscreenWorkspace ? " tw-flex tw-h-full tw-min-h-0 tw-w-full tw-flex-col tw-overflow-hidden tw-p-0 max-[1000px]:tw-h-auto max-[1000px]:tw-min-h-full max-[1000px]:tw-overflow-visible" : string.Empty)">
+                                                                                        @RenderBody()</div>
+                                                                                    </main>
 
-        </div>
-    </div>
+                                                                                </div>
+                                                                            </div>
 
 
 
-    <script src="~/lib/signalr/signalr.min.js" asp-append-version="true" defer></script>
-    <script src="~/js/promap-map-layers.js" asp-append-version="true"></script>
-    <script src="~/js/core/dom.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/events.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/http.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/format.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/validation.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/toast.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/modal.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/compat.js" asp-append-version="true" defer></script>
-    <script src="~/js/services/alerts.js" asp-append-version="true" defer></script>
-    <script src="~/js/app.js" asp-append-version="true"  defer></script>
-    <script src="~/lib/leaflet/leaflet.js" asp-append-version="true" defer></script>
-    @if (includePageJs)
-    {
-        <script src="@pageJsVirtualPath" asp-append-version="true" defer></script>
-    }
+                                                                            <script src="~/lib/signalr/signalr.min.js" asp-append-version="true" defer></script>
+                                                                            <script src="~/js/promap-map-layers.js" asp-append-version="true"></script>
+                                                                            <script src="~/js/core/dom.js" asp-append-version="true" defer></script>
+                                                                            <script src="~/js/core/events.js" asp-append-version="true" defer></script>
+                                                                            <script src="~/js/core/http.js" asp-append-version="true" defer></script>
+                                                                            <script src="~/js/core/format.js" asp-append-version="true" defer></script>
+                                                                            <script src="~/js/core/validation.js" asp-append-version="true" defer></script>
+                                                                            <script src="~/js/core/toast.js" asp-append-version="true" defer></script>
+                                                                            <script src="~/js/core/modal.js" asp-append-version="true" defer></script>
+                                                                            <script src="~/js/core/compat.js" asp-append-version="true" defer></script>
+                                                                            <script src="~/js/services/alerts.js" asp-append-version="true" defer></script>
+                                                                            <script src="~/js/app.js" asp-append-version="true" defer></script>
+                                                                            <script src="~/lib/leaflet/leaflet.js" asp-append-version="true" defer></script>
+                                                                            @if (includePageJs)
+                                                                            {
+                                                                                <script src="@pageJsVirtualPath" asp-append-version="true" defer></script>
+                                                                            }
 
-@await RenderSectionAsync("Scripts", required: false)
-</body>
-</html>
+                                                                            @await RenderSectionAsync("Scripts", required: false)
+                                                                        </body>
+
+                                                                    </html>

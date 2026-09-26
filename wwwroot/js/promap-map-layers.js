@@ -5,10 +5,12 @@
 
     const manager = (window.ProMap.MapLayers = window.ProMap.MapLayers || {});
     const maps = new WeakMap();
+    const leafletLayers = new WeakMap();
 
     const LOCAL_MAPLIBRE_JS = "/lib/maplibre-gl/dist/maplibre-gl.js";
     const LOCAL_MAPLIBRE_CSS = "/lib/maplibre-gl/dist/maplibre-gl.css";
     const LOCAL_PMTILES_JS = "/lib/pmtiles/dist/pmtiles.js";
+    const LOCAL_LEAFLET_BRIDGE_JS = "/lib/maplibre-gl-leaflet/leaflet-maplibre-gl.js";
     const LOCAL_MAP_STYLE = "/styles/promap-dark3.json?v=20260924-promap-dark-v12";
     const DEFAULT_ARCHIVE_URL = "/maps/europe.pmtiles";
     const LOCAL_MAPLIBRE_CSS_ID = "promap-shared-maplibre-css";
@@ -191,11 +193,10 @@
     }
 
     async function createMaplibreMap(
-                                container,
-                                archiveUrl,
-                                center,
-                                zoom)
-    {
+        container,
+        archiveUrl,
+        center,
+        zoom) {
         const maplibregl = await ensureLibraries();
         const style = await buildStyle(archiveUrl);
 
@@ -362,6 +363,80 @@
         });
     }
 
+    async function ensureLeafletBridge() {
+        await ensureLibraries();
+
+        if (!window.L) {
+            throw new Error("Leaflet nije učitan.");
+        }
+
+        if (typeof window.L.maplibreGL !== "function") {
+            await loadScriptOnce(LOCAL_LEAFLET_BRIDGE_JS, null);
+        }
+
+        if (typeof window.L.maplibreGL !== "function") {
+            throw new Error("Leaflet/MapLibre bridge nije validan.");
+        }
+
+        return window.L;
+    }
+
+    /*
+     * Za stranice koje koriste Leaflet kao primarnu mapu (markeri, popup-ovi,
+     * fitBounds...), MapLibre GL PMTiles bazna mapa se dodaje kao Leaflet
+     * layer preko maplibre-gl-leaflet mosta, umesto da se Leaflet instanca
+     * prosledi attach()-u koji očekuje sirovi DOM kontejner.
+     */
+    async function attachToLeaflet(leafletMap, options = {}) {
+        if (!leafletMap) {
+            return null;
+        }
+
+        await ensureLeafletBridge();
+
+        const archiveUrl =
+            options.archiveUrl ??
+            options.pmtilesUrl ??
+            DEFAULT_ARCHIVE_URL;
+
+        let record = leafletLayers.get(leafletMap);
+
+        if (record?.archiveUrl === archiveUrl && record.glLayer) {
+            return record;
+        }
+
+        if (record?.glLayer) {
+            leafletMap.removeLayer(record.glLayer);
+            record.glLayer = null;
+        }
+
+        const style = await buildStyle(archiveUrl);
+
+        const glLayer = window.L.maplibreGL({
+            style,
+            attributionControl: false,
+        });
+
+        glLayer.addTo(leafletMap);
+
+        record = {
+            leafletMap,
+            archiveUrl,
+            glLayer,
+            maplibreMap: glLayer.getMaplibreMap(),
+        };
+
+        leafletLayers.set(leafletMap, record);
+
+        return record;
+    }
+
+    async function setLeafletArchive(leafletMap, archiveUrl) {
+        return attachToLeaflet(leafletMap, {
+            archiveUrl: archiveUrl || DEFAULT_ARCHIVE_URL,
+        });
+    }
+
     function getArchive(container) {
         return (
             maps.get(container)?.archiveUrl ||
@@ -380,4 +455,6 @@
     manager.setArchive = setArchive;
     manager.getArchive = getArchive;
     manager.getMap = getMap;
+    manager.attachToLeaflet = attachToLeaflet;
+    manager.setLeafletArchive = setLeafletArchive;
 })();

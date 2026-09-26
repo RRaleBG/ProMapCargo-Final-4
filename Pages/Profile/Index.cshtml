@@ -8,12 +8,8 @@
     <header class="pm-profile-header">
 
         <div class="pm-profile-heading">
-
-            <div class="pm-profile-kicker">
-                ACCOUNT · IDENTITY
-            </div>
-
-            <h1>Profil</h1>
+        
+            <h1 class="pm-profile-kicker">Profil</h1>
 
             <p>
                 Lični podaci, bezbednost naloga, Identity podešavanja i operativni kontekst korisnika.
@@ -28,15 +24,11 @@
                 <span>Nalog aktivan</span>
             </div>
 
-            <button type="button"
-                    class="pm-profile-btn pm-profile-btn-secondary"
-                    data-action="discard">
+            <button type="button" class="pm-profile-btn pm-profile-btn-secondary" data-action="discard">
                 Poništi izmene
             </button>
 
-            <button type="button"
-                    class="pm-profile-btn pm-profile-btn-primary"
-                    data-action="save">
+            <button type="button" class="pm-profile-btn pm-profile-btn-primary" data-action="save">
                 Sačuvaj profil
             </button>
 
@@ -65,27 +57,19 @@
 
                     <div class="pm-profile-avatar" id="profileAvatar">
 
-                        <span class="pm-profile-avatar-initials"
-                              id="avatarInitials">
+                        <span class="pm-profile-avatar-initials" id="avatarInitials">
                             MP
                         </span>
 
-                        <img id="avatarImage"
-                             alt="Profilna fotografija"
-                             hidden />
+                        <img id="avatarImage" alt="Profilna fotografija" hidden />
 
                     </div>
 
-                    <label class="pm-profile-avatar-edit"
-                           for="avatarUpload"
-                           title="Promeni profilnu fotografiju">
+                    <label class="pm-profile-avatar-edit" for="avatarUpload" title="Promeni profilnu fotografiju">
                         +
                     </label>
 
-                    <input id="avatarUpload"
-                           type="file"
-                           accept="image/png,image/jpeg,image/webp"
-                           hidden />
+                    <input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" hidden />
 
                 </div>
 
@@ -96,8 +80,7 @@
 
                         <div>
 
-                            <div class="pm-profile-name"
-                                 id="profileNamePreview">
+                            <div class="pm-profile-name" id="profileNamePreview">
                                 Marko Petrović
                             </div>
 
@@ -143,15 +126,9 @@
 
                         <svg viewBox="0 0 42 42">
 
-                            <circle class="pm-score-track"
-                                    cx="21"
-                                    cy="21"
-                                    r="16"></circle>
+                            <circle class="pm-score-track" cx="21" cy="21" r="16"></circle>
 
-                            <circle class="pm-score-progress"
-                                    cx="21"
-                                    cy="21"
-                                    r="16"></circle>
+                            <circle class="pm-score-progress" cx="21" cy="21" r="16"></circle>
 
                         </svg>
 
@@ -210,10 +187,7 @@
                             Ime i prezime
                         </label>
 
-                        <input id="displayName"
-                               name="DisplayName"
-                               type="text"
-                               value="Marko Petrović"
+                        <input id="displayName" name="DisplayName" type="text" value="Marko Petrović"
                                autocomplete="name" />
 
                     </div>
@@ -225,10 +199,7 @@
                             Username
                         </label>
 
-                        <input id="username"
-                               name="UserName"
-                               type="text"
-                               value="marko.petrovic"
+                        <input id="username" name="UserName" type="text" value="marko.petrovic"
                                autocomplete="username" />
 
                         <small>
@@ -246,10 +217,7 @@
 
                         <div class="pm-profile-input-status">
 
-                            <input id="email"
-                                   name="Email"
-                                   type="email"
-                                   value="marko.petrovic@promapcargo.local"
+                            <input id="email" name="Email" type="email" value="marko.petrovic@promapcargo.local"
                                    autocomplete="email" />
 
                             <span class="pm-profile-verified">
@@ -269,10 +237,7 @@
 
                         <div class="pm-profile-input-status">
 
-                            <input id="phone"
-                                   name="PhoneNumber"
-                                   type="tel"
-                                   value="+381 64 123 4567"
+                            <input id="phone" name="PhoneNumber" type="tel" value="+381 64 123 4567"
                                    autocomplete="tel" />
 
                             <span class="pm-profile-unverified">
@@ -290,8 +255,7 @@
                             Jezik
                         </label>
 
-                        <select id="language"
-                                name="Language">
+                        <select id="language" name="Language">
 
                             <option value="sr" selected>
                                 Srpski
@@ -316,11 +280,9 @@
                             Vremenska zona
                         </label>
 
-                        <select id="timezone"
-                                name="Timezone">
+                        <select id="timezone" name="Timezone">
 
-                            <option value="Europe/Belgrade"
-                                    selected>
+                            <option value="Europe/Belgrade" selected>
                                 Europe/Belgrade
                             </option>
 
@@ -343,9 +305,7 @@
                             Kratak opis
                         </label>
 
-                        <textarea id="bio"
-                                  name="Bio"
-                                  rows="4"
+                        <textarea id="bio" name="Bio" rows="4"
                                   placeholder="Kratak opis korisnika...">Fleet Operations · Dispatch</textarea>
 
                     </div>
@@ -393,9 +353,7 @@
                             9c4e1b7a-••••-••••-••••-a812
                         </strong>
 
-                        <button type="button"
-                                class="pm-profile-copy"
-                                data-copy="9c4e1b7a-demo-user">
+                        <button type="button" class="pm-profile-copy" data-copy="9c4e1b7a-demo-user">
                             Copy
                         </button>
 
@@ -647,9 +605,7 @@
 
                         </span>
 
-                        <input type="checkbox"
-                               checked
-                               data-preference="dispatch" />
+                        <input type="checkbox" checked data-preference="dispatch" />
 
                         <i></i>
 
@@ -670,9 +626,7 @@
 
                         </span>
 
-                        <input type="checkbox"
-                               checked
-                               data-preference="gps" />
+                        <input type="checkbox" checked data-preference="gps" />
 
                         <i></i>
 
@@ -693,9 +647,7 @@
 
                         </span>
 
-                        <input type="checkbox"
-                               checked
-                               data-preference="finance" />
+                        <input type="checkbox" checked data-preference="finance" />
 
                         <i></i>
 
@@ -716,9 +668,7 @@
 
                         </span>
 
-                        <input type="checkbox"
-                               checked
-                               data-preference="email" />
+                        <input type="checkbox" checked data-preference="email" />
 
                         <i></i>
 
@@ -739,8 +689,7 @@
 
                         </span>
 
-                        <input type="checkbox"
-                               data-preference="push" />
+                        <input type="checkbox" data-preference="push" />
 
                         <i></i>
 
@@ -809,9 +758,7 @@
 
                         </div>
 
-                        <button type="button"
-                                class="pm-profile-link-btn"
-                                data-action="password">
+                        <button type="button" class="pm-profile-link-btn" data-action="password">
                             Promeni
                         </button>
 
@@ -836,9 +783,7 @@
 
                         </div>
 
-                        <button type="button"
-                                class="pm-profile-link-btn"
-                                data-action="twofa">
+                        <button type="button" class="pm-profile-link-btn" data-action="twofa">
                             Manage
                         </button>
 
@@ -863,9 +808,7 @@
 
                         </div>
 
-                        <button type="button"
-                                class="pm-profile-link-btn"
-                                data-action="recovery">
+                        <button type="button" class="pm-profile-link-btn" data-action="recovery">
                             Prikaži
                         </button>
 
@@ -968,8 +911,7 @@
 
                         </div>
 
-                        <button type="button"
-                                class="pm-profile-session-close">
+                        <button type="button" class="pm-profile-session-close">
                             ×
                         </button>
 
@@ -998,8 +940,7 @@
 
                         </div>
 
-                        <button type="button"
-                                class="pm-profile-session-close">
+                        <button type="button" class="pm-profile-session-close">
                             ×
                         </button>
 
@@ -1008,9 +949,7 @@
                 </div>
 
 
-                <button type="button"
-                        class="pm-profile-wide-btn"
-                        data-action="logout-other-sessions">
+                <button type="button" class="pm-profile-wide-btn" data-action="logout-other-sessions">
                     Odjavi ostale sesije
                 </button>
 
@@ -1124,8 +1063,7 @@
 
                     </div>
 
-                    <button type="button"
-                            class="pm-profile-link-btn">
+                    <button type="button" class="pm-profile-link-btn">
                         Audit
                     </button>
 
@@ -1238,9 +1176,7 @@
                     Deaktivacija naloga mora biti potvrđena od strane administratora kompanije.
                 </p>
 
-                <button type="button"
-                        class="pm-profile-danger-btn"
-                        data-action="deactivate">
+                <button type="button" class="pm-profile-danger-btn" data-action="deactivate">
                     Zatraži deaktivaciju naloga
                 </button>
 
@@ -1256,18 +1192,13 @@
          PASSWORD MODAL
          ========================================================= -->
 
-    <div class="pm-profile-modal"
-         id="passwordModal"
-         hidden>
+    <div class="pm-profile-modal" id="passwordModal" hidden>
 
-        <div class="pm-profile-modal-backdrop"
-             data-close-modal></div>
+        <div class="pm-profile-modal-backdrop" data-close-modal></div>
 
         <div class="pm-profile-modal-panel">
 
-            <button type="button"
-                    class="pm-profile-modal-close"
-                    data-close-modal>
+            <button type="button" class="pm-profile-modal-close" data-close-modal>
                 ×
             </button>
 
@@ -1286,20 +1217,17 @@
 
                 <label>
                     Trenutna lozinka
-                    <input type="password"
-                           autocomplete="current-password" />
+                    <input type="password" autocomplete="current-password" />
                 </label>
 
                 <label>
                     Nova lozinka
-                    <input type="password"
-                           autocomplete="new-password" />
+                    <input type="password" autocomplete="new-password" />
                 </label>
 
                 <label>
                     Potvrdi novu lozinku
-                    <input type="password"
-                           autocomplete="new-password" />
+                    <input type="password" autocomplete="new-password" />
                 </label>
 
             </div>
@@ -1307,15 +1235,11 @@
 
             <div class="pm-profile-modal-actions">
 
-                <button type="button"
-                        class="pm-profile-btn pm-profile-btn-secondary"
-                        data-close-modal>
+                <button type="button" class="pm-profile-btn pm-profile-btn-secondary" data-close-modal>
                     Otkaži
                 </button>
 
-                <button type="button"
-                        class="pm-profile-btn pm-profile-btn-primary"
-                        data-action="change-password">
+                <button type="button" class="pm-profile-btn pm-profile-btn-primary" data-action="change-password">
                     Promeni lozinku
                 </button>
 
@@ -1328,10 +1252,7 @@
 
     <!-- TOAST -->
 
-    <div class="pm-profile-toast"
-         id="profileToast"
-         role="status"
-         aria-live="polite">
+    <div class="pm-profile-toast" id="profileToast" role="status" aria-live="polite">
 
         <span class="pm-profile-toast-icon">
             ✓
@@ -1351,622 +1272,569 @@
 
 <script>
 
-(() =>
-{
-    "use strict";
+    (() => {
+        "use strict";
 
-    const root =
-        document.querySelector(".pm-profile-page");
+        const root =
+            document.querySelector(".pm-profile-page");
 
-    if (!root)
-    {
-        return;
-    }
-
-
-    const toast =
-        root.querySelector("#profileToast");
-
-    const toastText =
-        root.querySelector("#profileToastText");
-
-    let toastTimer = null;
-
-
-    function showToast(message)
-    {
-        if (!toast || !toastText)
-        {
+        if (!root) {
             return;
         }
 
-        toastText.textContent = message;
 
-        toast.classList.add("show");
+        const toast =
+            root.querySelector("#profileToast");
 
-        window.clearTimeout(toastTimer);
+        const toastText =
+            root.querySelector("#profileToastText");
 
-        toastTimer =
-            window.setTimeout(
-                () =>
-                {
-                    toast.classList.remove("show");
-                },
-                2400
-            );
-    }
+        let toastTimer = null;
 
 
-    /* =====================================================
-       AVATAR
-       ===================================================== */
-
-    const avatarUpload =
-        root.querySelector("#avatarUpload");
-
-    const avatarImage =
-        root.querySelector("#avatarImage");
-
-    const avatarInitials =
-        root.querySelector("#avatarInitials");
-
-
-    if (avatarUpload)
-    {
-        avatarUpload.addEventListener(
-            "change",
-            event =>
-            {
-                const file =
-                    event.target.files?.[0];
-
-                if (!file)
-                {
-                    return;
-                }
-
-                if (!file.type.startsWith("image/"))
-                {
-                    showToast(
-                        "Izabrani fajl nije validna slika."
-                    );
-
-                    return;
-                }
-
-                const reader =
-                    new FileReader();
-
-                reader.onload =
-                    loadEvent =>
-                    {
-                        avatarImage.src =
-                            loadEvent.target.result;
-
-                        avatarImage.hidden =
-                            false;
-
-                        avatarInitials.hidden =
-                            true;
-
-                        showToast(
-                            "Nova fotografija je spremna za čuvanje."
-                        );
-                    };
-
-                reader.readAsDataURL(file);
+        function showToast(message) {
+            if (!toast || !toastText) {
+                return;
             }
-        );
-    }
 
+            toastText.textContent = message;
 
-    /* =====================================================
-       PROFILE NAME PREVIEW
-       ===================================================== */
+            toast.classList.add("show");
 
-    const displayName =
-        root.querySelector("#displayName");
+            window.clearTimeout(toastTimer);
 
-    const profileNamePreview =
-        root.querySelector("#profileNamePreview");
-
-    const username =
-        root.querySelector("#username");
-
-    const usernameElement =
-        root.querySelector(".pm-profile-username");
-
-
-    if (displayName && profileNamePreview)
-    {
-        displayName.addEventListener(
-            "input",
-            () =>
-            {
-                profileNamePreview.textContent =
-                    displayName.value.trim() ||
-                    "Novi korisnik";
-
-                updateInitials(
-                    displayName.value
-                );
-            }
-        );
-    }
-
-
-    if (username && usernameElement)
-    {
-        username.addEventListener(
-            "input",
-            () =>
-            {
-                const value =
-                    username.value
-                        .trim()
-                        .replace(/^@@+/, "");
-
-                usernameElement.textContent =
-                    value
-                        ? `${value}`
-                        : `${username}`;
-            }
-        );
-    }
-
-
-    function updateInitials(name)
-    {
-        if (!avatarInitials)
-        {
-            return;
-        }
-
-        const parts =
-            name
-                .trim()
-                .split(/\s+/)
-                .filter(Boolean);
-
-        if (!parts.length)
-        {
-            avatarInitials.textContent =
-                "PM";
-
-            return;
-        }
-
-        const initials =
-            parts
-                .slice(0, 2)
-                .map(part => part[0])
-                .join("")
-                .toUpperCase();
-
-        avatarInitials.textContent =
-            initials;
-    }
-
-
-    /* =====================================================
-       SAVE
-       ===================================================== */
-
-    const saveButton =
-        root.querySelector(
-            '[data-action="save"]'
-        );
-
-
-    if (saveButton)
-    {
-        saveButton.addEventListener(
-            "click",
-            () =>
-            {
-                saveButton.disabled =
-                    true;
-
-                const originalText =
-                    saveButton.textContent;
-
-                saveButton.textContent =
-                    "Čuvanje...";
-
-
+            toastTimer =
                 window.setTimeout(
-                    () =>
-                    {
-                        saveButton.disabled =
-                            false;
-
-                        saveButton.textContent =
-                            originalText;
-
-                        showToast(
-                            "Profil je spreman za Identity čuvanje."
-                        );
+                    () => {
+                        toast.classList.remove("show");
                     },
-                    650
+                    2400
                 );
-            }
-        );
-    }
-
-
-    /* =====================================================
-       DISCARD
-       ===================================================== */
-
-    const discardButton =
-        root.querySelector(
-            '[data-action="discard"]'
-        );
-
-
-    if (discardButton)
-    {
-        discardButton.addEventListener(
-            "click",
-            () =>
-            {
-                const name =
-                    root.querySelector("#displayName");
-
-                const email =
-                    root.querySelector("#email");
-
-                const phone =
-                    root.querySelector("#phone");
-
-                if (name)
-                {
-                    name.value =
-                        "Marko Petrović";
-
-                    name.dispatchEvent(
-                        new Event(
-                            "input",
-                            {
-                                bubbles: true
-                            }
-                        )
-                    );
-                }
-
-                if (email)
-                {
-                    email.value =
-                        "marko.petrovic@promapcargo.local";
-                }
-
-                if (phone)
-                {
-                    phone.value =
-                        "+381 64 123 4567";
-                }
-
-                showToast(
-                    "Izmene su poništene."
-                );
-            }
-        );
-    }
-
-
-    /* =====================================================
-       COPY ID
-       ===================================================== */
-
-    root.querySelectorAll(
-        "[data-copy]"
-    ).forEach(
-        button =>
-        {
-            button.addEventListener(
-                "click",
-                async () =>
-                {
-                    const value =
-                        button.dataset.copy;
-
-                    try
-                    {
-                        await navigator.clipboard.writeText(
-                            value
-                        );
-
-                        showToast(
-                            "User ID je kopiran."
-                        );
-                    }
-                    catch
-                    {
-                        showToast(
-                            "Kopiranje nije dostupno."
-                        );
-                    }
-                }
-            );
-        }
-    );
-
-
-    /* =====================================================
-       MODAL
-       ===================================================== */
-
-    const passwordModal =
-        root.querySelector(
-            "#passwordModal"
-        );
-
-
-    function openPasswordModal()
-    {
-        if (!passwordModal)
-        {
-            return;
         }
 
-        passwordModal.hidden =
-            false;
 
-        document.body.classList.add(
-            "pm-profile-modal-open"
-        );
-    }
+        /* =====================================================
+           AVATAR
+           ===================================================== */
 
+        const avatarUpload =
+            root.querySelector("#avatarUpload");
 
-    function closePasswordModal()
-    {
-        if (!passwordModal)
-        {
-            return;
-        }
+        const avatarImage =
+            root.querySelector("#avatarImage");
 
-        passwordModal.hidden =
-            true;
-
-        document.body.classList.remove(
-            "pm-profile-modal-open"
-        );
-    }
+        const avatarInitials =
+            root.querySelector("#avatarInitials");
 
 
-    root.querySelectorAll(
-        '[data-action="password"]'
-    ).forEach(
-        button =>
-        {
-            button.addEventListener(
-                "click",
-                openPasswordModal
-            );
-        }
-    );
+        if (avatarUpload) {
+            avatarUpload.addEventListener(
+                "change",
+                event => {
+                    const file =
+                        event.target.files?.[0];
 
-
-    root.querySelectorAll(
-        "[data-close-modal]"
-    ).forEach(
-        element =>
-        {
-            element.addEventListener(
-                "click",
-                closePasswordModal
-            );
-        }
-    );
-
-
-    document.addEventListener(
-        "keydown",
-        event =>
-        {
-            if (
-                event.key === "Escape" &&
-                passwordModal &&
-                !passwordModal.hidden
-            )
-            {
-                closePasswordModal();
-            }
-        }
-    );
-
-
-    /* =====================================================
-       IDENTITY SECURITY ACTIONS
-       ===================================================== */
-
-    root.querySelectorAll(
-        '[data-action="twofa"]'
-    ).forEach(
-        button =>
-        {
-            button.addEventListener(
-                "click",
-                () =>
-                {
-                    showToast(
-                        "2FA management UI je spreman za Identity integraciju."
-                    );
-                }
-            );
-        }
-    );
-
-
-    root.querySelectorAll(
-        '[data-action="recovery"]'
-    ).forEach(
-        button =>
-        {
-            button.addEventListener(
-                "click",
-                () =>
-                {
-                    showToast(
-                        "Recovery codes UI je spreman za Identity integraciju."
-                    );
-                }
-            );
-        }
-    );
-
-
-    root.querySelectorAll(
-        '[data-action="change-password"]'
-    ).forEach(
-        button =>
-        {
-            button.addEventListener(
-                "click",
-                () =>
-                {
-                    closePasswordModal();
-
-                    showToast(
-                        "Password change UI je spreman za Identity."
-                    );
-                }
-            );
-        }
-    );
-
-
-    /* =====================================================
-       OTHER SESSIONS
-       ===================================================== */
-
-    root.querySelectorAll(
-        ".pm-profile-session-close"
-    ).forEach(
-        button =>
-        {
-            button.addEventListener(
-                "click",
-                () =>
-                {
-                    const session =
-                        button.closest(
-                            ".pm-profile-session"
-                        );
-
-                    if (!session)
-                    {
+                    if (!file) {
                         return;
                     }
 
-                    session.style.opacity =
-                        "0";
+                    if (!file.type.startsWith("image/")) {
+                        showToast(
+                            "Izabrani fajl nije validna slika."
+                        );
 
-                    session.style.transform =
-                        "translateX(8px)";
+                        return;
+                    }
 
-                    session.style.transition =
-                        "opacity .2s ease, transform .2s ease";
+                    const reader =
+                        new FileReader();
 
-                    window.setTimeout(
-                        () =>
-                        {
-                            session.remove();
+                    reader.onload =
+                        loadEvent => {
+                            avatarImage.src =
+                                loadEvent.target.result;
+
+                            avatarImage.hidden =
+                                false;
+
+                            avatarInitials.hidden =
+                                true;
 
                             showToast(
-                                "Sesija je označena za odjavu."
+                                "Nova fotografija je spremna za čuvanje."
+                            );
+                        };
+
+                    reader.readAsDataURL(file);
+                }
+            );
+        }
+
+
+        /* =====================================================
+           PROFILE NAME PREVIEW
+           ===================================================== */
+
+        const displayName =
+            root.querySelector("#displayName");
+
+        const profileNamePreview =
+            root.querySelector("#profileNamePreview");
+
+        const username =
+            root.querySelector("#username");
+
+        const usernameElement =
+            root.querySelector(".pm-profile-username");
+
+
+        if (displayName && profileNamePreview) {
+            displayName.addEventListener(
+                "input",
+                () => {
+                    profileNamePreview.textContent =
+                        displayName.value.trim() ||
+                        "Novi korisnik";
+
+                    updateInitials(
+                        displayName.value
+                    );
+                }
+            );
+        }
+
+
+        if (username && usernameElement) {
+            username.addEventListener(
+                "input",
+                () => {
+                    const value =
+                        username.value
+                            .trim()
+                            .replace(/^@@+/, "");
+
+                    usernameElement.textContent =
+                        value
+                            ? `${value}`
+                            : `${username}`;
+                }
+            );
+        }
+
+
+        function updateInitials(name) {
+            if (!avatarInitials) {
+                return;
+            }
+
+            const parts =
+                name
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean);
+
+            if (!parts.length) {
+                avatarInitials.textContent =
+                    "PM";
+
+                return;
+            }
+
+            const initials =
+                parts
+                    .slice(0, 2)
+                    .map(part => part[0])
+                    .join("")
+                    .toUpperCase();
+
+            avatarInitials.textContent =
+                initials;
+        }
+
+
+        /* =====================================================
+           SAVE
+           ===================================================== */
+
+        const saveButton =
+            root.querySelector(
+                '[data-action="save"]'
+            );
+
+
+        if (saveButton) {
+            saveButton.addEventListener(
+                "click",
+                () => {
+                    saveButton.disabled =
+                        true;
+
+                    const originalText =
+                        saveButton.textContent;
+
+                    saveButton.textContent =
+                        "Čuvanje...";
+
+
+                    window.setTimeout(
+                        () => {
+                            saveButton.disabled =
+                                false;
+
+                            saveButton.textContent =
+                                originalText;
+
+                            showToast(
+                                "Profil je spreman za Identity čuvanje."
                             );
                         },
-                        220
+                        650
                     );
                 }
             );
         }
-    );
 
 
-    root.querySelectorAll(
-        '[data-action="logout-other-sessions"]'
-    ).forEach(
-        button =>
-        {
-            button.addEventListener(
+        /* =====================================================
+           DISCARD
+           ===================================================== */
+
+        const discardButton =
+            root.querySelector(
+                '[data-action="discard"]'
+            );
+
+
+        if (discardButton) {
+            discardButton.addEventListener(
                 "click",
-                () =>
-                {
+                () => {
+                    const name =
+                        root.querySelector("#displayName");
+
+                    const email =
+                        root.querySelector("#email");
+
+                    const phone =
+                        root.querySelector("#phone");
+
+                    if (name) {
+                        name.value =
+                            "Marko Petrović";
+
+                        name.dispatchEvent(
+                            new Event(
+                                "input",
+                                {
+                                    bubbles: true
+                                }
+                            )
+                        );
+                    }
+
+                    if (email) {
+                        email.value =
+                            "marko.petrovic@promapcargo.local";
+                    }
+
+                    if (phone) {
+                        phone.value =
+                            "+381 64 123 4567";
+                    }
+
                     showToast(
-                        "Ostale sesije su spremne za Identity logout."
+                        "Izmene su poništene."
                     );
                 }
             );
         }
-    );
 
 
-    /* =====================================================
-       ACCOUNT CONTROL
-       ===================================================== */
+        /* =====================================================
+           COPY ID
+           ===================================================== */
 
-    root.querySelectorAll(
-        '[data-action="deactivate"]'
-    ).forEach(
-        button =>
-        {
-            button.addEventListener(
-                "click",
-                () =>
-                {
-                    showToast(
-                        "Zahtev za deaktivaciju je spreman za administratorski workflow."
-                    );
-                }
-            );
-        }
-    );
+        root.querySelectorAll(
+            "[data-copy]"
+        ).forEach(
+            button => {
+                button.addEventListener(
+                    "click",
+                    async () => {
+                        const value =
+                            button.dataset.copy;
 
-
-    /* =====================================================
-       PREFERENCES
-       ===================================================== */
-
-    root.querySelectorAll(
-        "[data-preference]"
-    ).forEach(
-        checkbox =>
-        {
-            checkbox.addEventListener(
-                "change",
-                () =>
-                {
-                    const label =
-                        checkbox
-                            .closest(
-                                ".pm-profile-toggle-row"
+                        try {
+                            await navigator.clipboard.writeText(
+                                value
                             );
 
-                    const title =
-                        label?.querySelector(
-                            "strong"
-                        )?.textContent?.trim();
+                            showToast(
+                                "User ID je kopiran."
+                            );
+                        }
+                        catch {
+                            showToast(
+                                "Kopiranje nije dostupno."
+                            );
+                        }
+                    }
+                );
+            }
+        );
 
-                    showToast(
-                        `${title || "Preferencija"} ${checkbox.checked ? "uključena" : "isključena"}.`
-                    );
-                }
+
+        /* =====================================================
+           MODAL
+           ===================================================== */
+
+        const passwordModal =
+            root.querySelector(
+                "#passwordModal"
+            );
+
+
+        function openPasswordModal() {
+            if (!passwordModal) {
+                return;
+            }
+
+            passwordModal.hidden =
+                false;
+
+            document.body.classList.add(
+                "pm-profile-modal-open"
             );
         }
-    );
 
 
-    /* =====================================================
-       INITIAL STATE
-       ===================================================== */
+        function closePasswordModal() {
+            if (!passwordModal) {
+                return;
+            }
 
-    updateInitials(
-        displayName?.value ||
-        "Marko Petrović"
-    );
+            passwordModal.hidden =
+                true;
 
-})();
+            document.body.classList.remove(
+                "pm-profile-modal-open"
+            );
+        }
+
+
+        root.querySelectorAll(
+            '[data-action="password"]'
+        ).forEach(
+            button => {
+                button.addEventListener(
+                    "click",
+                    openPasswordModal
+                );
+            }
+        );
+
+
+        root.querySelectorAll(
+            "[data-close-modal]"
+        ).forEach(
+            element => {
+                element.addEventListener(
+                    "click",
+                    closePasswordModal
+                );
+            }
+        );
+
+
+        document.addEventListener(
+            "keydown",
+            event => {
+                if (
+                    event.key === "Escape" &&
+                    passwordModal &&
+                    !passwordModal.hidden
+                ) {
+                    closePasswordModal();
+                }
+            }
+        );
+
+
+        /* =====================================================
+           IDENTITY SECURITY ACTIONS
+           ===================================================== */
+
+        root.querySelectorAll(
+            '[data-action="twofa"]'
+        ).forEach(
+            button => {
+                button.addEventListener(
+                    "click",
+                    () => {
+                        showToast(
+                            "2FA management UI je spreman za Identity integraciju."
+                        );
+                    }
+                );
+            }
+        );
+
+
+        root.querySelectorAll(
+            '[data-action="recovery"]'
+        ).forEach(
+            button => {
+                button.addEventListener(
+                    "click",
+                    () => {
+                        showToast(
+                            "Recovery codes UI je spreman za Identity integraciju."
+                        );
+                    }
+                );
+            }
+        );
+
+
+        root.querySelectorAll(
+            '[data-action="change-password"]'
+        ).forEach(
+            button => {
+                button.addEventListener(
+                    "click",
+                    () => {
+                        closePasswordModal();
+
+                        showToast(
+                            "Password change UI je spreman za Identity."
+                        );
+                    }
+                );
+            }
+        );
+
+
+        /* =====================================================
+           OTHER SESSIONS
+           ===================================================== */
+
+        root.querySelectorAll(
+            ".pm-profile-session-close"
+        ).forEach(
+            button => {
+                button.addEventListener(
+                    "click",
+                    () => {
+                        const session =
+                            button.closest(
+                                ".pm-profile-session"
+                            );
+
+                        if (!session) {
+                            return;
+                        }
+
+                        session.style.opacity =
+                            "0";
+
+                        session.style.transform =
+                            "translateX(8px)";
+
+                        session.style.transition =
+                            "opacity .2s ease, transform .2s ease";
+
+                        window.setTimeout(
+                            () => {
+                                session.remove();
+
+                                showToast(
+                                    "Sesija je označena za odjavu."
+                                );
+                            },
+                            220
+                        );
+                    }
+                );
+            }
+        );
+
+
+        root.querySelectorAll(
+            '[data-action="logout-other-sessions"]'
+        ).forEach(
+            button => {
+                button.addEventListener(
+                    "click",
+                    () => {
+                        showToast(
+                            "Ostale sesije su spremne za Identity logout."
+                        );
+                    }
+                );
+            }
+        );
+
+
+        /* =====================================================
+           ACCOUNT CONTROL
+           ===================================================== */
+
+        root.querySelectorAll(
+            '[data-action="deactivate"]'
+        ).forEach(
+            button => {
+                button.addEventListener(
+                    "click",
+                    () => {
+                        showToast(
+                            "Zahtev za deaktivaciju je spreman za administratorski workflow."
+                        );
+                    }
+                );
+            }
+        );
+
+
+        /* =====================================================
+           PREFERENCES
+           ===================================================== */
+
+        root.querySelectorAll(
+            "[data-preference]"
+        ).forEach(
+            checkbox => {
+                checkbox.addEventListener(
+                    "change",
+                    () => {
+                        const label =
+                            checkbox
+                                .closest(
+                                    ".pm-profile-toggle-row"
+                                );
+
+                        const title =
+                            label?.querySelector(
+                                "strong"
+                            )?.textContent?.trim();
+
+                        showToast(
+                            `${title || "Preferencija"} ${checkbox.checked ? "uključena" : "isključena"}.`
+                        );
+                    }
+                );
+            }
+        );
+
+
+        /* =====================================================
+           INITIAL STATE
+           ===================================================== */
+
+        updateInitials(
+            displayName?.value ||
+            "Marko Petrović"
+        );
+
+    })();
 
 </script>

@@ -1,0 +1,6 @@
+/*
+ * Tailwind utility layer for the gradual ProMap Cargo UI migration.
+ * Preflight is intentionally disabled: Leaflet and the legacy shell rely on
+ * their existing element defaults until each screen is migrated deliberately.
+ */
+@tailwind utilities;

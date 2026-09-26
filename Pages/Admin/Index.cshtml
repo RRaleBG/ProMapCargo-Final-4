@@ -1,40 +1,93 @@
 @page "/admin"
 @{
-    ViewData["Title"] = "Administracija · ProMap Cargo";
+  ViewData["Title"] = "Administracija · ProMap Cargo";
 }
 
-<div id="app" style="display:none"></div>
-<div class="pm-page" data-module="admin">
-  <header class="pm-header">
-    <div>
-      <div class="pm-brand">ProMap <span>Cargo</span></div>
-      <div class="pm-kicker">Administracija</div>
-      <div class="pm-subtitle">Users, roles, tenants and graph administration</div>
+<div data-module="admin">
+
+  <main class="pm-content">
+    <div class="pm-title">Administracija</div>
+    <div class="pm-muted" style="margin:5px 0 14px">Users, roles, tenant permissions and system administration.</div>
+    <div class="pm-grid pm-grid-4">
+      <div class="pm-card pm-stat"><small>Users</small>
+        <div class="pm-value">24</div>
+        <div class="pm-muted">tenant</div>
+      </div>
+      <div class="pm-card pm-stat"><small>Roles</small>
+        <div class="pm-value">7</div>
+        <div class="pm-muted">configured</div>
+      </div>
+      <div class="pm-card pm-stat"><small>Tenants</small>
+        <div class="pm-value">3</div>
+        <div class="pm-muted">active</div>
+      </div>
+      <div class="pm-card pm-stat"><small>Pending</small>
+        <div class="pm-value">2</div>
+        <div class="pm-muted">requests</div>
+      </div>
     </div>
-    <div class="pm-header-actions">
-      <a class="pm-btn pm-btn-primary" href="/dispatch">Command Center</a>
-      <a class="pm-btn" href="/profile">Profil</a>
+
+    <div style="height:14px"></div>
+
+    <div class="pm-card" style="overflow:auto">
+      <table class="pm-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Tenant</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>admin@promap.local</td>
+            <td>Administrator</td>
+            <td>All tenants</td>
+            <td><span class="pm-badge">Active</span></td>
+          </tr>
+          <tr>
+            <td>dispatcher@promap.local</td>
+            <td>Dispatcher</td>
+            <td>EU Logistics</td>
+            <td><span class="pm-badge">Active</span></td>
+          </tr>
+          <tr>
+            <td>operator@promap.local</td>
+            <td>Operator</td>
+            <td>EU Logistics</td>
+            <td><span class="pm-badge">Active</span></td>
+          </tr>
+          <tr>
+            <td>audit@promap.local</td>
+            <td>Auditor</td>
+            <td>EU Logistics</td>
+            <td><span class="pm-badge">Read-only</span></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </header>
-  <div class="pm-layout">
-    <aside class="pm-sidebar">
-      <div class="pm-nav-title">OPERATIONS</div>
-      <nav class="pm-nav"><a class="" href="/dashboard">Dashboard</a><a class="" href="/dispatch">Command Center</a><a class="" href="/orders">Transportni nalozi</a><a class="" href="/trips">Ture</a><a class="" href="/vehicles">Vozila</a><a class="" href="/drivers">Vozači</a><a class="" href="/navigation">Navigacija</a><a class="" href="/alerts">Alerts</a><a class="" href="/moderation">Moderacija</a><a class="" href="/audit">Audit</a><a class="" href="/compliance">Compliance</a><a class="" href="/monitoring">Monitoring</a><a class="" href="/finance">Finansije</a><a class="" href="/reports">Izveštaji</a><a class="" href="/settings">Podešavanja</a><a class="" href="/profile">Profil</a><a class="active" href="/admin">Administracija</a></nav>
-      <div class="pm-sidebar-footer"><b>Routing engine</b><br>PostGIS · OSM · Truck-aware<br><span>Graph protected</span></div>
-    </aside>
-    <main class="pm-content">
-      <div class="pm-title">Administracija</div><div class="pm-muted" style="margin:5px 0 14px">Users, roles, tenant permissions and system administration.</div><div class="pm-grid pm-grid-4"><div class="pm-card pm-stat"><small>Users</small><div class="pm-value">24</div><div class="pm-muted">tenant</div></div><div class="pm-card pm-stat"><small>Roles</small><div class="pm-value">7</div><div class="pm-muted">configured</div></div><div class="pm-card pm-stat"><small>Tenants</small><div class="pm-value">3</div><div class="pm-muted">active</div></div><div class="pm-card pm-stat"><small>Pending</small><div class="pm-value">2</div><div class="pm-muted">requests</div></div></div><div style="height:14px"></div><div class="pm-card" style="overflow:auto"><table class="pm-table"><thead><tr><th>User</th><th>Role</th><th>Tenant</th><th>Status</th></tr></thead><tbody><tr><td>admin@promap.local</td><td>Administrator</td><td>All tenants</td><td><span class="pm-badge">Active</span></td></tr><tr><td>dispatcher@promap.local</td><td>Dispatcher</td><td>EU Logistics</td><td><span class="pm-badge">Active</span></td></tr><tr><td>operator@promap.local</td><td>Operator</td><td>EU Logistics</td><td><span class="pm-badge">Active</span></td></tr><tr><td>audit@promap.local</td><td>Auditor</td><td>EU Logistics</td><td><span class="pm-badge">Read-only</span></td></tr></tbody></table></div><div style="height:14px"></div><div class="pm-card pm-card-body"><div class="pm-h2">Routing graph administration</div><div class="pm-muted" style="margin-top:5px">Active graph: 20260912 · OSM import lifecycle protected by graph versioning.</div><div class="pm-actions" style="margin-top:12px"><a class="pm-btn" href="/monitoring">Health check</a><a class="pm-btn" href="/audit">View audit</a></div></div>
-    </main>
-  </div>
-</div>
+    
+    <div style="height:14px"></div>
+    <div class="pm-card pm-card-body">
+      <div class="pm-h2">Routing graph administration</div>
+      <div class="pm-muted" style="margin-top:5px">Active graph: 20260912 · OSM import lifecycle protected by graph
+        versioning.</div>
+        <div class="pm-actions" style="margin-top:12px"><a class="pm-btn" href="/monitoring">Health check</a><a
+          class="pm-btn" href="/audit">View audit</a></div>
+        </div>
+      </main>
+      
+    </div>
 
 
-<script>
-// Pages are server-rendered and must remain independent from the legacy SPA renderer.
-document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('.pm-page a[href]').forEach(a=>a.addEventListener('click',e=>{
-    if(a.origin===location.origin){ e.stopPropagation(); }
-  },true));
-});
-</script>
+    <script>
+      // Pages are server-rendered and must remain independent from the legacy SPA renderer.
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.pm-page a[href]').forEach(a => a.addEventListener('click', e => {
+          if (a.origin === location.origin) { e.stopPropagation(); }
+        }, true));
+      });
+    </script>
 

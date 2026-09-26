@@ -1,0 +1,11 @@
+{
+    "name": "promap-cargo-ui",
+    "private": true,
+    "scripts": {
+        "css:build": "tailwindcss --config tailwind.config.cjs --input Styles/tailwind.css --output wwwroot/css/tailwind.generated.css --minify",
+        "css:watch": "tailwindcss --config tailwind.config.cjs --input Styles/tailwind.css --output wwwroot/css/tailwind.generated.css --watch"
+    },
+    "devDependencies": {
+        "tailwindcss": "3.4.17"
+    }
+}

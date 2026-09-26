@@ -33,6 +33,16 @@ There is **one PostgreSQL/PostGIS database**: `promapcargo`.
 
 The solution explicitly references the required spatial Npgsql plugins. In particular, `Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite` is required for `UseNetTopologySuite`, and `Npgsql.NetTopologySuite` provides the Npgsql spatial integration. These packages are compatible with the selected Npgsql 9.0.x provider line.
 
+## Frontend styles
+
+Tailwind CSS utilities are compiled locally (no CDN) to `wwwroot/css/tailwind.generated.css`. The utility prefix is `tw-` and Preflight is disabled so existing Razor, Leaflet, and map controls keep their current defaults during the gradual migration. The Trips and Navigation workspaces use Tailwind utilities; the shared application shell and remaining pages still use their existing styles.
+
+After changing Tailwind classes, rebuild the utility bundle before building or publishing the API:
+
+`npm ci`
+
+`npm run css:build`
+
 ## Upgrading from the previous archive
 
 The previous archive could have created tables with the old PostgreSQL naming convention. For a clean final installation, reset the development volume once:
@@ -44,7 +54,6 @@ Then run `docker compose up --build`. The final version uses PostgreSQL snake_ca
 ## Run locally
 
 1. Make sure local map archives exist in `wwwroot/maps`:
-
    - `wwwroot/maps/serbia.pmtiles`
    - `wwwroot/maps/europe.pmtiles`
 
@@ -60,20 +69,26 @@ Then run `docker compose up --build`. The final version uses PostgreSQL snake_ca
 
    `docker compose up -d postgres osrm`
 
-3. Restore and build:
+4. Install frontend dependencies and compile Tailwind:
+
+   `npm ci`
+
+   `npm run css:build`
+
+5. Restore and build:
 
    `dotnet restore ProMapCargo.sln`
    `dotnet build ProMapCargo.sln`
 
-4. Import the Europe routing graph so truck routing follows the same Europe network:
+6. Import the Europe routing graph so truck routing follows the same Europe network:
 
    `dotnet run --project Importer -- ./osm/europe-latest.osm.pbf`
 
-5. Start the API:
+7. Start the API:
 
    `dotnet run --project ProMapCargo.Api.csproj`
 
-6. Open the application:
+8. Open the application:
 
    `http://localhost:5090`
 

@@ -650,7 +650,7 @@
         background: var(--pm-border);
     }
 
-    @@media (max-width: 1180px) {
+    @media (max-width: 1180px) {
 
         .vehicle-new-layout {
             grid-template-columns: minmax(0, 1fr);
@@ -668,7 +668,7 @@
 
     }
 
-    @@media (max-width: 900px) {
+    @media (max-width: 900px) {
 
         .pm-vehicle-new-page {
             padding: 24px 20px 45px;
@@ -714,7 +714,7 @@
 
     }
 
-    @@media (max-width: 600px) {
+    @media (max-width: 600px) {
 
         .pm-vehicle-new-page {
             padding: 20px 14px 35px;
