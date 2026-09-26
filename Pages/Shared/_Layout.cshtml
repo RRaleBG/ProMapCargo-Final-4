@@ -15,6 +15,11 @@
     var pageCssPhysicalPath = string.IsNullOrWhiteSpace(pageAssetKey)
         ? null
         : System.IO.Path.Combine(webRootPath, "css", "pages", $"{pageAssetKey}.css");
+    if (string.Equals(currentPage, "/Account/Manage/Index", StringComparison.OrdinalIgnoreCase))
+    {
+        pageCssVirtualPath = "/css/pages/profile-index.css";
+        pageCssPhysicalPath = System.IO.Path.Combine(webRootPath, "css", "pages", "profile-index.css");
+    }
     var pageJsPhysicalPath = string.IsNullOrWhiteSpace(pageAssetKey)
         ? null
         : System.IO.Path.Combine(webRootPath, "js", "pages", $"{pageAssetKey}.js");
@@ -172,8 +177,8 @@
                             <i class="pm-nav-icon" data-lucide="settings" aria-hidden="true"></i><span
                             class="pm-nav-label">Podešavanja</span>
                         </a>
-                        <a asp-page="/Profile/Index"
-                           class="pm-nav-item @(currentPage == "/Profile/Index" ? "active" : "")">
+                        <a asp-page="/Account/Manage/Index"
+                           class="pm-nav-item @(currentPage == "/Account/Manage/Index" ? "active" : "")">
                             <i class="pm-nav-icon" data-lucide="user-round" aria-hidden="true"></i><span
                             class="pm-nav-label">Profil</span>
                         </a>
@@ -220,7 +225,7 @@
                         <i class="pm-notification-icon" data-lucide="bell" aria-hidden="true"></i>
                         <span class="pm-notification-badge" data-alert-count hidden>0</span>
                     </a>
-                    <a asp-page="/Profile/Index" class="pm-user">
+                    <a asp-page="/Account/Manage/Index" class="pm-user">
                         <span class="pm-user-avatar">MP</span>
                         <span class="pm-user-copy"><strong>Administrator</strong><small>Fleet Operations</small></span>
                         <i class="pm-user-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
@@ -238,6 +243,15 @@
         </div>
     </div>
 
+    @if (TempData["Toast.Success"] is string toastSuccess)
+    {
+        <div id="pm-server-toast" data-toast-type="success" hidden>@toastSuccess</div>
+    }
+    @if (TempData["Toast.Error"] is string toastError)
+    {
+        <div id="pm-server-toast" data-toast-type="danger" hidden>@toastError</div>
+    }
+
     <script src="~/lib/lucide.min.js" asp-append-version="true" defer></script>
     <script src="~/lib/signalr/signalr.min.js" asp-append-version="true" defer></script>
     <script src="~/js/promap-map-layers.js" asp-append-version="true"></script>
@@ -247,6 +261,16 @@
     <script src="~/js/core/format.js" asp-append-version="true" defer></script>
     <script src="~/js/core/validation.js" asp-append-version="true" defer></script>
     <script src="~/js/core/toast.js" asp-append-version="true" defer></script>
+    <script>
+        window.addEventListener("load", () => {
+            const serverToast = document.getElementById("pm-server-toast");
+            if (serverToast && window.ProMapCargo?.toast) {
+                window.ProMapCargo.toast.show(
+                    serverToast.textContent || "",
+                    serverToast.dataset.toastType || "info");
+            }
+        });
+    </script>
     <script src="~/js/core/modal.js" asp-append-version="true" defer></script>
     <script src="~/js/core/icons.js" asp-append-version="true" defer></script>
     <script src="~/js/core/compat.js" asp-append-version="true" defer></script>

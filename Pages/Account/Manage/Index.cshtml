@@ -1,6 +1,7 @@
-@page "/profile"
+@page "/Account/Manage"
+@model ProMapCargo.Api.Pages.Account.Manage.IndexModel
 @{
-    ViewData["Title"] = "Profil · ProMap Cargo";
+    ViewData["Title"] = "Nalog · ProMap Cargo";
 }
 
 <div class="pm-profile-page" data-module="profile">
@@ -9,7 +10,7 @@
 
         <div class="pm-profile-heading">
         
-            <h1 class="pm-profile-kicker">Profil</h1>
+            <h1 class="pm-profile-kicker">Moj nalog</h1>
 
             <p>
                 Lični podaci, bezbednost naloga, Identity podešavanja i operativni kontekst korisnika.
@@ -61,15 +62,18 @@
                             MP
                         </span>
 
-                        <img id="avatarImage" alt="Profilna fotografija" hidden />
+                        <img id="avatarImage" src="@Model.CurrentUser.ProfileImageUrl" alt="Profilna fotografija" @(string.IsNullOrWhiteSpace(Model.CurrentUser.ProfileImageUrl) ? "hidden" : null) />
 
                     </div>
 
+                    <form method="post" asp-page-handler="ProfileImage" enctype="multipart/form-data">
                     <label class="pm-profile-avatar-edit" for="avatarUpload" title="Promeni profilnu fotografiju">
                         +
                     </label>
 
-                    <input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+                    <input asp-for="ProfileImage" id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+                    <button type="submit" class="pm-profile-btn pm-profile-btn-primary">Sačuvaj sliku</button>
+                    </form>
 
                 </div>
 
@@ -81,11 +85,11 @@
                         <div>
 
                             <div class="pm-profile-name" id="profileNamePreview">
-                                Marko Petrović
+                                @(Model.CurrentUser.DisplayName ?? Model.CurrentUser.UserName)
                             </div>
 
                             <div class="pm-profile-username">
-                                @@marko.petrovic
+                                @(Model.CurrentUser.UserName is { Length: > 0 } userName ? $"@{userName}" : "@user")
                             </div>
 
                         </div>
@@ -97,7 +101,7 @@
                     </div>
 
                     <div class="pm-profile-company">
-                        ProMap Cargo Demo · Fleet Operations
+                        @(Model.CurrentUser.Company?.Name ?? "ProMap Cargo") · Fleet Operations
                     </div>
 
                     <div class="pm-profile-meta">
@@ -187,7 +191,7 @@
                             Ime i prezime
                         </label>
 
-                        <input id="displayName" name="DisplayName" type="text" value="Marko Petrović"
+                        <input id="displayName" name="DisplayName" type="text" value="@Model.CurrentUser.DisplayName"
                                autocomplete="name" />
 
                     </div>
@@ -199,7 +203,7 @@
                             Username
                         </label>
 
-                        <input id="username" name="UserName" type="text" value="marko.petrovic"
+                        <input id="username" name="UserName" type="text" value="@Model.CurrentUser.UserName"
                                autocomplete="username" />
 
                         <small>
@@ -217,7 +221,7 @@
 
                         <div class="pm-profile-input-status">
 
-                            <input id="email" name="Email" type="email" value="marko.petrovic@promapcargo.local"
+                            <input id="email" name="Email" type="email" value="@Model.CurrentUser.Email"
                                    autocomplete="email" />
 
                             <span class="pm-profile-verified">
@@ -1239,9 +1243,9 @@
                     Otkaži
                 </button>
 
-                <button type="button" class="pm-profile-btn pm-profile-btn-primary" data-action="change-password">
+                <a class="pm-profile-btn pm-profile-btn-primary" asp-page="/Account/ChangePassword">
                     Promeni lozinku
-                </button>
+                </a>
 
             </div>
 
@@ -1249,20 +1253,6 @@
 
     </div>
 
-
-    <!-- TOAST -->
-
-    <div class="pm-profile-toast" id="profileToast" role="status" aria-live="polite">
-
-        <span class="pm-profile-toast-icon">
-            ✓
-        </span>
-
-        <span id="profileToastText">
-            Sačuvano
-        </span>
-
-    </div>
 
 </div>
 
@@ -1283,33 +1273,8 @@
         }
 
 
-        const toast =
-            root.querySelector("#profileToast");
-
-        const toastText =
-            root.querySelector("#profileToastText");
-
-        let toastTimer = null;
-
-
         function showToast(message) {
-            if (!toast || !toastText) {
-                return;
-            }
-
-            toastText.textContent = message;
-
-            toast.classList.add("show");
-
-            window.clearTimeout(toastTimer);
-
-            toastTimer =
-                window.setTimeout(
-                    () => {
-                        toast.classList.remove("show");
-                    },
-                    2400
-                );
+            window.ProMapCargo?.toast?.info(message);
         }
 
 

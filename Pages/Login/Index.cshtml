@@ -1,4 +1,5 @@
 @page "/login"
+@model ProMapCargo.Api.Pages.Login.IndexModel
 @{
 
     ViewData["Title"] = "Login · ProMap Cargo";
@@ -59,6 +60,8 @@
 
 
             <form method="post" class="pm-login-form">
+                <input asp-for="Input.ReturnUrl" type="hidden" />
+                <div asp-validation-summary="ModelOnly" class="pm-login-validation"></div>
 
 
                 <div class="pm-login-field">
@@ -73,7 +76,7 @@
                             @@
                         </span>
 
-                        <input id="email" name="Email" type="email" autocomplete="username"
+                        <input asp-for="Input.Email" id="email" type="email" autocomplete="username"
                                placeholder="operator@promapcargo.com" required />
 
                     </div>
@@ -102,7 +105,7 @@
                             ●
                         </span>
 
-                        <input id="password" name="Password" type="password" autocomplete="current-password"
+                        <input asp-for="Input.Password" id="password" type="password" autocomplete="current-password"
                                placeholder="Unesite lozinku" required />
 
                         <button type="button" class="pm-login-password-toggle" id="togglePassword"
@@ -117,7 +120,7 @@
 
                 <label class="pm-login-remember">
 
-                    <input type="checkbox" name="RememberMe" value="true" />
+                    <input asp-for="Input.RememberMe" />
 
                     <span class="pm-login-check"></span>
 
@@ -233,4 +236,3 @@
     </script>
   
 }
-

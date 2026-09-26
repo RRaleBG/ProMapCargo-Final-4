@@ -1,0 +1,30 @@
+@page "/Account/Logout"
+@model ProMapCargo.Api.Pages.Account.LogoutModel
+@{
+    ViewData["Title"] = "Odjava · ProMap Cargo";
+}
+
+<div class="pm-auth-main">
+    <section class="pm-auth-card">
+        <div class="pm-auth-card-glow"></div>
+
+        <header class="pm-auth-header">
+            <div>
+                <div class="pm-auth-eyebrow">Account · Session</div>
+                <h1>Odjava</h1>
+                <p>Da li želite da završite trenutnu sesiju na ovom uređaju?</p>
+            </div>
+            <div class="pm-auth-mark"><i data-lucide="log-out"></i></div>
+        </header>
+
+        <form method="post" class="pm-auth-form">
+            <div class="pm-auth-actions">
+                <button class="pm-btn pm-btn-primary" type="submit">
+                    <i data-lucide="log-out"></i>
+                    <span>Odjavi me</span>
+                </button>
+                <a class="pm-btn pm-btn-ghost" asp-page="/Index">Odustani</a>
+            </div>
+        </form>
+    </section>
+</div>

@@ -5,6 +5,28 @@
     border-color: var(--pm-border);
 }
 
+:is(.pm-page,.pm-content-inner) {
+    letter-spacing: -0.005em;
+}
+
+:is(.pm-page,.pm-content-inner) > :is(.pm-header,.pm-page-header),
+:is(.pm-page,.pm-content-inner) > header:first-child {
+    width: 100%;
+    max-width: none;
+}
+
+:is(.pm-page,.pm-content-inner) h1 {
+    letter-spacing: -0.025em;
+}
+
+:is(.pm-page,.pm-content-inner) [data-lucide],
+:is(.pm-page,.pm-content-inner) .pm-kpi-icon,
+:is(.pm-page,.pm-content-inner) .pm-profile-section-icon,
+:is(.pm-page,.pm-content-inner) .pm-profile-operation-icon {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
 :is(.pm-dashboard-kpi,.pm-dispatch-kpi)
 {
     min-height: 118px;

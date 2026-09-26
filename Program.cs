@@ -9,6 +9,7 @@ using ProMapCargo.Api.Data;
 using ProMapCargo.Api.Models;
 using ProMapCargo.Api.Routing;
 using ProMapCargo.Api.Services;
+using System.Data;
 using System.Text;
 
 var dotEnv = LoadDotEnvConfiguration();
@@ -88,6 +89,20 @@ builder.Services
     .AddEntityFrameworkStores<ProMapCargoDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ReturnUrlParameter = "returnUrl";
+    options.SlidingExpiration = true;
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.Cookie.Name = "ProMapCargo.Identity";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
+
 builder.Services.Configure<MobileAuthOptions>(builder.Configuration.GetSection("MobileAuth"));
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<MobileAuthOptions>>().Value);
 
@@ -138,6 +153,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, IdentityClaimsFactory>();
+builder.Services.AddSingleton<IIdentityEmailSender, LoggingIdentityEmailSender>();
 builder.Services.AddScoped<BusinessService>();
 builder.Services.AddScoped<MobileTokenService>();
 
@@ -198,6 +214,7 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+await InitializeDatabaseAsync(app);
 await SeedDefaultMobileUserAsync(app);
 
 // ============================================================
@@ -268,6 +285,77 @@ app.Map("/pmtiles/{*path}", pmTilesApp =>
 
 app.Run();
 
+static async Task InitializeDatabaseAsync(WebApplication app)
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<ProMapCargoDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
+        .CreateLogger("DatabaseInitialization");
+
+    var hasMigrations = db.Database.GetMigrations().Any();
+    var appliedMigrations = hasMigrations
+        ? (await db.Database.GetAppliedMigrationsAsync().ConfigureAwait(false)).Any()
+        : false;
+    var schemaExists = await SchemaExistsAsync(db).ConfigureAwait(false);
+
+    if (hasMigrations && (appliedMigrations || !schemaExists))
+    {
+        await db.Database.MigrateAsync().ConfigureAwait(false);
+    }
+    else if (!schemaExists)
+    {
+        await db.Database.EnsureCreatedAsync().ConfigureAwait(false);
+    }
+    else if (hasMigrations)
+    {
+        // The schema predates migrations (created by EnsureCreated). Applying
+        // migrations here would attempt to recreate existing objects, so the
+        // migration history has to be baselined manually instead.
+        logger.LogWarning(
+            "Skipping MigrateAsync: the database schema already exists but has no migration history. Baseline the migration history before enabling migrations.");
+    }
+
+    await db.Database.ExecuteSqlRawAsync("""
+        ALTER TABLE IF EXISTS "AspNetUsers"
+        ADD COLUMN IF NOT EXISTS profile_image_url text;
+
+        ALTER TABLE IF EXISTS asp_net_users
+        ADD COLUMN IF NOT EXISTS profile_image_url text;
+        """).ConfigureAwait(false);
+}
+
+static async Task<bool> SchemaExistsAsync(ProMapCargoDbContext db)
+{
+    // The connection is taken from the DbContext because
+    // Database.GetConnectionString() omits the password.
+    var connection = db.Database.GetDbConnection();
+    var wasClosed = connection.State != ConnectionState.Open;
+
+    if (wasClosed)
+    {
+        await connection.OpenAsync().ConfigureAwait(false);
+    }
+
+    try
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT to_regclass('public."AspNetUsers"') IS NOT NULL
+                OR to_regclass('public.asp_net_users') IS NOT NULL;
+            """;
+
+        var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
+        return result is bool exists && exists;
+    }
+    finally
+    {
+        if (wasClosed)
+        {
+            await connection.CloseAsync().ConfigureAwait(false);
+        }
+    }
+}
+
 static async Task SeedDefaultMobileUserAsync(WebApplication app)
 {
     const string email = "user@user.com";
@@ -287,6 +375,7 @@ static async Task SeedDefaultMobileUserAsync(WebApplication app)
             UserName = email,
             Email = email,
             EmailConfirmed = true,
+            ProfileImageUrl = null,
             DisplayName = "ProMapCargo Mobile User",
             IsActive = true
         };
