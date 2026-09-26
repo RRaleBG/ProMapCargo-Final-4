@@ -7,33 +7,29 @@
 <div class="pm-page pm-moderation-page" data-module="moderation">
 
     <!-- HEADER -->
-    <header class="moderation-header">
-        <div class="moderation-heading">
+    <header class="moderation-header pm-page-header">
+        <div class="moderation-heading pm-page-heading">
             <div class="moderation-kicker">
                 <span class="moderation-kicker-dot"></span>
                 OPERATIONAL MODERATION CENTER
             </div>
 
-            <h1>Moderacija</h1>
+            <h1 class="pm-page-title">Moderacija</h1>
 
-            <p>
+            <p class="pm-page-subtitle">
                 Kontrolni centar za odobravanje, odbijanje i vraćanje
                 rizičnih operativnih promena uz potpun audit trag.
             </p>
         </div>
 
-        <div class="moderation-header-actions">
-            <button
-                class="moderation-btn moderation-btn-secondary"
-                id="refreshModeration"
-                type="button">
+        <div class="moderation-header-actions pm-page-actions">
+            <button class="moderation-btn moderation-btn-secondary pm-btn pm-btn-secondary" id="refreshModeration"
+                    type="button">
                 <span>↻</span>
                 Osveži
             </button>
 
-            <a
-                class="moderation-btn moderation-btn-primary"
-                href="/audit">
+            <a class="moderation-btn moderation-btn-primary pm-btn pm-btn-primary" href="/audit">
                 Otvori Audit
             </a>
         </div>
@@ -41,7 +37,7 @@
 
 
     <!-- CRITICAL BANNER -->
-    <section class="moderation-critical-banner">
+    <section class="moderation-critical-banner pm-card">
         <div class="moderation-banner-icon">
             !
         </div>
@@ -57,10 +53,7 @@
             </span>
         </div>
 
-        <button
-            class="moderation-banner-action"
-            id="showPending"
-            type="button">
+        <button class="moderation-banner-action" id="showPending" type="button">
             Prikaži na čekanju
         </button>
 
@@ -68,87 +61,72 @@
 
 
     <!-- KPI -->
-    <section class="moderation-kpi-grid">
+    <section class="moderation-kpi-grid pm-kpi-grid">
 
-        <article class="moderation-kpi kpi-pending">
-            <span>Čeka odluku</span>
-            <strong id="pendingCount">3</strong>
-            <small>aktivna moderation queue</small>
+        <article class="moderation-kpi kpi-pending pm-kpi">
+            <span class="pm-kpi-label">Čeka odluku</span>
+            <strong id="pendingCount" class="pm-kpi-value">3</strong>
+            <small class="pm-kpi-footer">aktivna moderation queue</small>
         </article>
 
-        <article class="moderation-kpi kpi-risk">
-            <span>Visok rizik</span>
-            <strong>2</strong>
-            <small>zahteva zahtevaju pažnju</small>
+        <article class="moderation-kpi kpi-risk pm-kpi">
+            <span class="pm-kpi-label">Visok rizik</span>
+            <strong class="pm-kpi-value">2</strong>
+            <small class="pm-kpi-footer">zahteva zahtevaju pažnju</small>
         </article>
 
-        <article class="moderation-kpi kpi-approved">
-            <span>Odobreno</span>
-            <strong>18</strong>
-            <small>ovog meseca</small>
+        <article class="moderation-kpi kpi-approved pm-kpi">
+            <span class="pm-kpi-label">Odobreno</span>
+            <strong class="pm-kpi-value">18</strong>
+            <small class="pm-kpi-footer">ovog meseca</small>
         </article>
 
-        <article class="moderation-kpi kpi-rejected">
-            <span>Odbijeno</span>
-            <strong>2</strong>
-            <small>ovog meseca</small>
+        <article class="moderation-kpi kpi-rejected pm-kpi">
+            <span class="pm-kpi-label">Odbijeno</span>
+            <strong class="pm-kpi-value">2</strong>
+            <small class="pm-kpi-footer">ovog meseca</small>
         </article>
 
-        <article class="moderation-kpi kpi-today">
-            <span>Danas</span>
-            <strong>6</strong>
-            <small>novih zahteva</small>
+        <article class="moderation-kpi kpi-today pm-kpi">
+            <span class="pm-kpi-label">Danas</span>
+            <strong class="pm-kpi-value">6</strong>
+            <small class="pm-kpi-footer">novih zahteva</small>
         </article>
 
-        <article class="moderation-kpi kpi-time">
-            <span>Prosečno vreme</span>
-            <strong>14m</strong>
-            <small>od prijema do odluke</small>
+        <article class="moderation-kpi kpi-time pm-kpi">
+            <span class="pm-kpi-label">Prosečno vreme</span>
+            <strong class="pm-kpi-value">14m</strong>
+            <small class="pm-kpi-footer">od prijema do odluke</small>
         </article>
 
     </section>
 
 
     <!-- FILTER TOOLBAR -->
-    <section class="moderation-toolbar">
+    <section class="moderation-toolbar pm-card">
 
         <div class="moderation-search">
             <span>⌕</span>
 
-            <input
-                id="moderationSearch"
-                type="search"
-                placeholder="Pretraži ID, vozilo, turu, operatora..."
-                autocomplete="off" />
+            <input id="moderationSearch" type="search" placeholder="Pretraži ID, vozilo, turu, operatora..."
+                   autocomplete="off" />
         </div>
 
         <div class="moderation-filter-group">
 
-            <button
-                class="moderation-filter active"
-                data-status="all"
-                type="button">
+            <button class="moderation-filter active" data-status="all" type="button">
                 Svi <b>6</b>
             </button>
 
-            <button
-                class="moderation-filter"
-                data-status="pending"
-                type="button">
+            <button class="moderation-filter" data-status="pending" type="button">
                 Na čekanju <b>3</b>
             </button>
 
-            <button
-                class="moderation-filter"
-                data-status="approved"
-                type="button">
+            <button class="moderation-filter" data-status="approved" type="button">
                 Odobreno <b>1</b>
             </button>
 
-            <button
-                class="moderation-filter"
-                data-status="rejected"
-                type="button">
+            <button class="moderation-filter" data-status="rejected" type="button">
                 Odbijeno <b>2</b>
             </button>
 
@@ -176,7 +154,7 @@
     <section class="moderation-workspace">
 
         <!-- QUEUE -->
-        <div class="moderation-queue-panel">
+        <div class="moderation-queue-panel pm-card">
 
             <div class="panel-heading">
 
@@ -190,28 +168,20 @@
                     </h2>
                 </div>
 
-                <span
-                    class="queue-count"
-                    id="queueCount">
+                <span class="queue-count" id="queueCount">
                     6 zahteva
                 </span>
 
             </div>
 
 
-            <div
-                class="moderation-queue"
-                id="moderationQueue">
+            <div class="moderation-queue" id="moderationQueue">
 
 
                 <!-- REQUEST 1 -->
-                <article
-                    class="moderation-request selected"
-                    data-id="MOD-1001"
-                    data-status="pending"
-                    data-risk="high"
-                    data-domain="routing"
-                    data-search="MOD-1001 BG-241-AA TRP-8843 Marko Petrović route override">
+                <article class="moderation-request selected pm-card" data-id="MOD-1001" data-status="pending"
+                         data-risk="high" data-domain="routing"
+                         data-search="MOD-1001 BG-241-AA TRP-8843 Marko Petrović route override">
 
                     <div class="request-top">
 
@@ -247,13 +217,8 @@
 
 
                 <!-- REQUEST 2 -->
-                <article
-                    class="moderation-request"
-                    data-id="MOD-1002"
-                    data-status="pending"
-                    data-risk="high"
-                    data-domain="safety"
-                    data-search="MOD-1002 TRP-8851 Jelena restriction exception safety">
+                <article class="moderation-request pm-card" data-id="MOD-1002" data-status="pending" data-risk="high"
+                         data-domain="safety" data-search="MOD-1002 TRP-8851 Jelena restriction exception safety">
 
                     <div class="request-top">
 
@@ -289,13 +254,8 @@
 
 
                 <!-- REQUEST 3 -->
-                <article
-                    class="moderation-request"
-                    data-id="MOD-1003"
-                    data-status="pending"
-                    data-risk="medium"
-                    data-domain="eta"
-                    data-search="MOD-1003 TRP-8854 Milan manual ETA change">
+                <article class="moderation-request pm-card" data-id="MOD-1003" data-status="pending" data-risk="medium"
+                         data-domain="eta" data-search="MOD-1003 TRP-8854 Milan manual ETA change">
 
                     <div class="request-top">
 
@@ -331,13 +291,8 @@
 
 
                 <!-- REQUEST 4 -->
-                <article
-                    class="moderation-request"
-                    data-id="MOD-1004"
-                    data-status="approved"
-                    data-risk="medium"
-                    data-domain="dispatch"
-                    data-search="MOD-1004 BG-731-KL dispatch reassignment">
+                <article class="moderation-request pm-card" data-id="MOD-1004" data-status="approved" data-risk="medium"
+                         data-domain="dispatch" data-search="MOD-1004 BG-731-KL dispatch reassignment">
 
                     <div class="request-top">
 
@@ -372,13 +327,8 @@
 
 
                 <!-- REQUEST 5 -->
-                <article
-                    class="moderation-request"
-                    data-id="MOD-1005"
-                    data-status="rejected"
-                    data-risk="medium"
-                    data-domain="routing"
-                    data-search="MOD-1005 NS-412 route bypass">
+                <article class="moderation-request pm-card" data-id="MOD-1005" data-status="rejected" data-risk="medium"
+                         data-domain="routing" data-search="MOD-1005 NS-412 route bypass">
 
                     <div class="request-top">
 
@@ -413,13 +363,8 @@
 
 
                 <!-- REQUEST 6 -->
-                <article
-                    class="moderation-request"
-                    data-id="MOD-1006"
-                    data-status="rejected"
-                    data-risk="low"
-                    data-domain="eta"
-                    data-search="MOD-1006 TRP-8838 ETA correction">
+                <article class="moderation-request pm-card" data-id="MOD-1006" data-status="rejected" data-risk="low"
+                         data-domain="eta" data-search="MOD-1006 TRP-8838 ETA correction">
 
                     <div class="request-top">
 
@@ -458,9 +403,7 @@
 
 
         <!-- DETAIL -->
-        <aside
-            class="moderation-detail"
-            id="moderationDetail">
+        <aside class="moderation-detail pm-card" id="moderationDetail">
 
             <div class="detail-header">
 
@@ -480,9 +423,7 @@
 
                 </div>
 
-                <span
-                    class="risk-badge risk-high"
-                    id="detailRisk">
+                <span class="risk-badge risk-high" id="detailRisk">
                     HIGH RISK
                 </span>
 
@@ -490,9 +431,7 @@
 
 
             <!-- WARNING -->
-            <div
-                class="detail-warning"
-                id="detailWarning">
+            <div class="detail-warning" id="detailWarning">
 
                 <span>!</span>
 
@@ -541,7 +480,7 @@
 
 
             <!-- CHANGE SET -->
-            <section class="change-section">
+            <section class="change-section pm-card">
 
                 <div class="section-heading">
 
@@ -603,7 +542,7 @@
 
 
             <!-- POLICY -->
-            <section class="policy-checks">
+            <section class="policy-checks pm-card">
 
                 <div class="section-heading">
 
@@ -643,7 +582,7 @@
 
 
             <!-- DECISION -->
-            <section class="decision-panel">
+            <section class="decision-panel pm-card">
 
                 <div class="section-heading">
 
@@ -664,31 +603,21 @@
                 </div>
 
 
-                <textarea
-                    id="decisionReason"
-                    placeholder="Obrazloženje odluke je obavezno za odbijanje ili vraćanje zahteva..."></textarea>
+                <textarea id="decisionReason"
+                          placeholder="Obrazloženje odluke je obavezno za odbijanje ili vraćanje zahteva..."></textarea>
 
 
                 <div class="decision-actions">
 
-                    <button
-                        class="decision-btn decision-approve"
-                        data-decision="approved"
-                        type="button">
+                    <button class="decision-btn decision-approve" data-decision="approved" type="button">
                         ✓ Odobri
                     </button>
 
-                    <button
-                        class="decision-btn decision-changes"
-                        data-decision="changes"
-                        type="button">
+                    <button class="decision-btn decision-changes" data-decision="changes" type="button">
                         ↺ Traži izmene
                     </button>
 
-                    <button
-                        class="decision-btn decision-reject"
-                        data-decision="rejected"
-                        type="button">
+                    <button class="decision-btn decision-reject" data-decision="rejected" type="button">
                         × Odbij
                     </button>
 
@@ -698,7 +627,7 @@
 
 
             <!-- AUDIT -->
-            <section class="audit-preview">
+            <section class="audit-preview pm-card">
 
                 <div class="section-heading">
 
@@ -762,7 +691,7 @@
 
 
     <!-- POLICY FOOTER -->
-    <section class="moderation-policy">
+    <section class="moderation-policy pm-card">
 
         <div>
 
@@ -793,9 +722,7 @@
 
         </div>
 
-        <a
-            href="/compliance"
-            class="moderation-btn moderation-btn-secondary">
+        <a href="/compliance" class="moderation-btn moderation-btn-secondary">
             Compliance centar →
         </a>
 
@@ -803,9 +730,7 @@
 
 
     <!-- TOAST -->
-    <div
-        class="moderation-toast"
-        id="moderationToast">
+    <div class="moderation-toast" id="moderationToast">
 
         <span>✓</span>
 

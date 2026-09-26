@@ -5,26 +5,24 @@
 
 <div class="pm-page pm-drivers-page" data-module="drivers">
 
-    
-
     <div class="pm-drivers-content">
 
-        <header class="pm-drivers-header">
-            <div class="pm-drivers-heading">
-                <div class="pm-drivers-kicker">
-                    <span class="pm-drivers-kicker-dot"></span>
+        <header class="pm-page-header">
+            <div class="pm-page-heading">
+                <div class="pm-page-kicker">
+                    <span class="pm-kicker-dot"></span>
                     Fleet · Vozači
                 </div>
 
-                <h1 class="pm-drivers-title">Vozači</h1>
+                <h1 class="pm-page-title">Vozači</h1>
 
-                <p class="pm-drivers-subtitle">
+                <p class="pm-page-subtitle">
                     Pregled vozača, statusa, dodeljenih vozila, aktivnih tura i poslednje GPS aktivnosti.
                 </p>
             </div>
 
-            <div class="pm-drivers-header-actions">
-                <button type="button" class="pm-drivers-btn" id="refreshDrivers">
+            <div class="pm-page-actions">
+                <button type="button" class="pm-btn" id="refreshDrivers">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                         <path d="M20 11a8.1 8.1 0 0 0-14.8-4L3 10"></path>
                         <path d="M3 4v6h6"></path>
@@ -34,7 +32,7 @@
                     Osveži
                 </button>
 
-                <button type="button" class="pm-drivers-btn primary" id="addDriver">
+                <button type="button" class="pm-btn pm-btn-primary" id="addDriver">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M12 5v14"></path>
                         <path d="M5 12h14"></path>
@@ -44,13 +42,14 @@
             </div>
         </header>
 
-        <section class="pm-drivers-kpis" aria-label="Statistika vozača">
+        <section class="pm-kpi-grid" aria-label="Statistika vozača">
 
-            <article class="pm-driver-kpi">
-                <div class="pm-driver-kpi-head">
-                    <span class="pm-driver-kpi-label">Ukupno vozača</span>
-                    <span class="pm-driver-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <article class="pm-kpi">
+                <div class="pm-kpi-header">
+                    <span class="pm-kpi-label">Ukupno vozača</span>
+                    <span class="pm-kpi-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             aria-hidden="true">
                             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                             <circle cx="9" cy="7" r="4"></circle>
                             <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -58,28 +57,30 @@
                         </svg>
                     </span>
                 </div>
-                <div class="pm-driver-kpi-value" id="kpiTotal">—</div>
-                <div class="pm-driver-kpi-note">registrovanih vozača</div>
+                <div class="pm-kpi-value" id="kpiTotal">—</div>
+                <div class="pm-kpi-footer">registrovanih vozača</div>
             </article>
 
-            <article class="pm-driver-kpi">
-                <div class="pm-driver-kpi-head">
-                    <span class="pm-driver-kpi-label">Aktivni</span>
-                    <span class="pm-driver-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <article class="pm-kpi">
+                <div class="pm-kpi-header">
+                    <span class="pm-kpi-label">Aktivni</span>
+                    <span class="pm-kpi-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             aria-hidden="true">
                             <path d="M20 6 9 17l-5-5"></path>
                         </svg>
                     </span>
                 </div>
-                <div class="pm-driver-kpi-value" id="kpiActive">—</div>
-                <div class="pm-driver-kpi-note">status Active</div>
+                <div class="pm-kpi-value" id="kpiActive">—</div>
+                <div class="pm-kpi-footer">status Active</div>
             </article>
 
-            <article class="pm-driver-kpi">
-                <div class="pm-driver-kpi-head">
-                    <span class="pm-driver-kpi-label">Na turi</span>
-                    <span class="pm-driver-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <article class="pm-kpi">
+                <div class="pm-kpi-header">
+                    <span class="pm-kpi-label">Na turi</span>
+                    <span class="pm-kpi-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             aria-hidden="true">
                             <path d="M3 17h3"></path>
                             <path d="M18 17h3"></path>
                             <path d="M5 17V9h10l4 4v4"></path>
@@ -89,15 +90,16 @@
                         </svg>
                     </span>
                 </div>
-                <div class="pm-driver-kpi-value" id="kpiTrips">—</div>
-                <div class="pm-driver-kpi-note">imaju aktivnu turu</div>
+                <div class="pm-kpi-value" id="kpiTrips">—</div>
+                <div class="pm-kpi-footer">imaju aktivnu turu</div>
             </article>
 
-            <article class="pm-driver-kpi">
-                <div class="pm-driver-kpi-head">
-                    <span class="pm-driver-kpi-label">GPS online</span>
-                    <span class="pm-driver-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <article class="pm-kpi">
+                <div class="pm-kpi-header">
+                    <span class="pm-kpi-label">GPS online</span>
+                    <span class="pm-kpi-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             aria-hidden="true">
                             <path d="M12 2v4"></path>
                             <path d="M12 18v4"></path>
                             <path d="M2 12h4"></path>
@@ -106,28 +108,29 @@
                         </svg>
                     </span>
                 </div>
-                <div class="pm-driver-kpi-value" id="kpiGps">—</div>
-                <div class="pm-driver-kpi-note">GPS signal ≤ 2 min</div>
+                <div class="pm-kpi-value" id="kpiGps">—</div>
+                <div class="pm-kpi-footer">GPS signal ≤ 2 min</div>
             </article>
 
-            <article class="pm-driver-kpi">
-                <div class="pm-driver-kpi-head">
-                    <span class="pm-driver-kpi-label">Van sistema</span>
-                    <span class="pm-driver-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <article class="pm-kpi">
+                <div class="pm-kpi-header">
+                    <span class="pm-kpi-label">Van sistema</span>
+                    <span class="pm-kpi-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             aria-hidden="true">
                             <path d="M12 3 4 6v5c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-3Z"></path>
                             <path d="M12 8v4"></path>
                             <path d="M12 16h.01"></path>
                         </svg>
                     </span>
                 </div>
-                <div class="pm-driver-kpi-value" id="kpiUnavailable">—</div>
-                <div class="pm-driver-kpi-note">odmor ili suspendovan</div>
+                <div class="pm-kpi-value" id="kpiUnavailable">—</div>
+                <div class="pm-kpi-footer">odmor ili suspendovan</div>
             </article>
 
         </section>
 
-        <section class="pm-drivers-toolbar" aria-label="Filteri vozača">
+        <section class="pm-toolbar" aria-label="Filteri vozača">
 
             <div class="pm-driver-search">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -135,12 +138,8 @@
                     <path d="m20 20-4-4"></path>
                 </svg>
 
-                <input
-                    id="driverSearch"
-                    class="pm-driver-input"
-                    type="search"
-                    autocomplete="off"
-                    placeholder="Pretraži ime, telefon ili broj licence..." />
+                <input id="driverSearch" class="pm-driver-input" type="search" autocomplete="off"
+                       placeholder="Pretraži ime, telefon ili broj licence..." />
             </div>
 
             <select id="driverStatusFilter" class="pm-driver-select" aria-label="Status vozača">
@@ -176,13 +175,10 @@
                         </p>
                     </div>
 
-                    <button
-                        type="button"
-                        class="pm-drivers-refresh"
-                        id="refreshDriversSmall"
-                        title="Osveži podatke"
-                        aria-label="Osveži podatke">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <button type="button" class="pm-drivers-refresh" id="refreshDriversSmall" title="Osveži podatke"
+                            aria-label="Osveži podatke">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             aria-hidden="true">
                             <path d="M20 11a8.1 8.1 0 0 0-14.8-4L3 10"></path>
                             <path d="M3 4v6h6"></path>
                             <path d="M4 13a8.1 8.1 0 0 0 14.8 4L21 14"></path>
@@ -211,7 +207,8 @@
                                 <td colspan="7">
                                     <div class="pm-driver-loading">
                                         <div class="pm-driver-loading-icon">
-                                            <svg class="pm-driver-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                            <svg class="pm-driver-spin" viewBox="0 0 24 24" fill="none"
+                                                 stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                                                 <path d="M12 3a9 9 0 1 0 9 9"></path>
                                             </svg>
                                         </div>
@@ -291,7 +288,8 @@
 
                         <div class="pm-driver-operation-row">
                             <div class="pm-driver-operation-label">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                     aria-hidden="true">
                                     <path d="M3 17h3"></path>
                                     <path d="M18 17h3"></path>
                                     <path d="M5 17V9h10l4 4v4"></path>
@@ -308,7 +306,8 @@
 
                         <div class="pm-driver-operation-row">
                             <div class="pm-driver-operation-label">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                     aria-hidden="true">
                                     <path d="M5 4h14v16H5z"></path>
                                     <path d="M8 8h8"></path>
                                     <path d="M8 12h8"></path>
@@ -324,7 +323,8 @@
 
                         <div class="pm-driver-operation-row">
                             <div class="pm-driver-operation-label">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                     aria-hidden="true">
                                     <circle cx="12" cy="12" r="8"></circle>
                                     <path d="M12 7v5l3 2"></path>
                                 </svg>
@@ -345,14 +345,18 @@
                     <div class="pm-driver-detail-actions">
 
                         <button type="button" class="pm-driver-detail-action" id="callDriver">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.08 5.18 2 2 0 0 1 5.06 3h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L8.96 10.73a16 16 0 0 0 4.31 4.31l1.27-1.27a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92Z"></path>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 aria-hidden="true">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.08 5.18 2 2 0 0 1 5.06 3h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L8.96 10.73a16 16 0 0 0 4.31 4.31l1.27-1.27a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92Z">
+                                </path>
                             </svg>
                             Pozovi
                         </button>
 
                         <button type="button" class="pm-driver-detail-action" id="showDriverRoute">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 aria-hidden="true">
                                 <circle cx="6" cy="18" r="2"></circle>
                                 <circle cx="18" cy="6" r="2"></circle>
                                 <path d="M8 18c5 0 3-8 8-12"></path>
@@ -381,5 +385,3 @@
     </div>
 
 </div>
-
-

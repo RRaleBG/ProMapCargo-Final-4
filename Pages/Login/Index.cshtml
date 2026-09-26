@@ -5,206 +5,191 @@
 }
 
 
-    <div>        
+<div>
 
-        <div class="pm-login-route route-a"></div>
-        <div class="pm-login-route route-b"></div>
+    <div class="pm-login-route route-a"></div>
+    <div class="pm-login-route route-b"></div>
 
-        <div class="pm-login-node node-a"></div>
-        <div class="pm-login-node node-b"></div>
-        <div class="pm-login-node node-c"></div>
-    </div>
+    <div class="pm-login-node node-a"></div>
+    <div class="pm-login-node node-b"></div>
+    <div class="pm-login-node node-c"></div>
+</div>
 
 
   
 
 
-    <main class="pm-login-main">
+<div class="pm-login-main">
 
-        <section class="pm-login-shell">
+    <section class="pm-login-shell">
 
 
-            <!-- =====================================================
+        <!-- =====================================================
                  RIGHT / LOGIN
                  ===================================================== -->
 
-            <section class="pm-login-card">
+        <section class="pm-login-card">
 
-                <div class="pm-login-card-glow"></div>
+            <div class="pm-login-card-glow"></div>
 
 
-                <div class="pm-login-card-header">
+            <div class="pm-login-card-header">
 
-                    <div>
+                <div>
 
-                        <div class="pm-login-card-eyebrow">
-                            ACCOUNT · ACCESS
-                        </div>
-
-                        <h2>
-                            Prijava
-                        </h2>
-
-                        <p>
-                            Unesite podatke za pristup vašem nalogu.
-                        </p>
-
+                    <div class="pm-login-card-eyebrow">
+                        ACCOUNT · ACCESS
                     </div>
 
-                    <div class="pm-login-lock">
-                        ◈
+                    <h2>
+                        Prijava
+                    </h2>
+
+                    <p>
+                        Unesite podatke za pristup vašem nalogu.
+                    </p>
+
+                </div>
+
+                <div class="pm-login-lock">
+                    ◈
+                </div>
+
+            </div>
+
+
+            <form method="post" class="pm-login-form">
+
+
+                <div class="pm-login-field">
+
+                    <label for="email">
+                        Email adresa
+                    </label>
+
+                    <div class="pm-login-input-wrap">
+
+                        <span class="pm-login-input-icon">
+                            @@
+                        </span>
+
+                        <input id="email" name="Email" type="email" autocomplete="username"
+                               placeholder="operator@promapcargo.com" required />
+
                     </div>
 
                 </div>
 
 
-                <form method="post"
-                      class="pm-login-form">
+                <div class="pm-login-field">
 
+                    <div class="pm-login-label-row">
 
-                    <div class="pm-login-field">
-
-                        <label for="email">
-                            Email adresa
+                        <label for="password">
+                            Lozinka
                         </label>
 
-                        <div class="pm-login-input-wrap">
-
-                            <span class="pm-login-input-icon">
-                                @@
-                            </span>
-
-                            <input id="email"
-                                   name="Email"
-                                   type="email"
-                                   autocomplete="username"
-                                   placeholder="operator@promapcargo.com"
-                                   required />
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="pm-login-field">
-
-                        <div class="pm-login-label-row">
-
-                            <label for="password">
-                                Lozinka
-                            </label>
-
-                            <a href="/Account/ForgotPassword"
-                               class="pm-login-link">
-                                Zaboravljena lozinka?
-                            </a>
-
-                        </div>
-
-
-                        <div class="pm-login-input-wrap">
-
-                            <span class="pm-login-input-icon">
-                                ●
-                            </span>
-
-                            <input id="password"
-                                   name="Password"
-                                   type="password"
-                                   autocomplete="current-password"
-                                   placeholder="Unesite lozinku"
-                                   required />
-
-                            <button type="button"
-                                    class="pm-login-password-toggle"
-                                    id="togglePassword"
-                                    aria-label="Prikaži lozinku">
-                                ◉
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <label class="pm-login-remember">
-
-                        <input type="checkbox"
-                               name="RememberMe"
-                               value="true" />
-
-                        <span class="pm-login-check"></span>
-
-                        <span>
-                            Zapamti me na ovom uređaju
-                        </span>
-
-                    </label>
-
-
-                    <button type="submit"
-                            class="pm-login-submit">
-
-                        <span>
-                            Prijavi se
-                        </span>
-
-                        <span class="pm-login-submit-arrow">
-                            →
-                        </span>
-
-                    </button>
-
-
-                    <div class="pm-login-divider">
-
-                        <span>
-                            SECURE IDENTITY ACCESS
-                        </span>
-
-                    </div>
-
-
-                    <div class="pm-login-security">
-
-                        <div class="pm-login-security-icon">
-                            ✓
-                        </div>
-
-                        <div>
-
-                            <strong>
-                                Zaštićen pristup
-                            </strong>
-
-                            <span>
-                                ASP.NET Core Identity · Secure session
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="pm-login-register">
-
-                        <span>
-                            Nemate nalog?
-                        </span>
-
-                        <a href="/Account/Register">
-                            Kreirajte nalog
+                        <a href="/Account/ForgotPassword" class="pm-login-link">
+                            Zaboravljena lozinka?
                         </a>
 
                     </div>
 
-                </form>
 
-            </section>
+                    <div class="pm-login-input-wrap">
+
+                        <span class="pm-login-input-icon">
+                            ●
+                        </span>
+
+                        <input id="password" name="Password" type="password" autocomplete="current-password"
+                               placeholder="Unesite lozinku" required />
+
+                        <button type="button" class="pm-login-password-toggle" id="togglePassword"
+                                aria-label="Prikaži lozinku">
+                            ◉
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <label class="pm-login-remember">
+
+                    <input type="checkbox" name="RememberMe" value="true" />
+
+                    <span class="pm-login-check"></span>
+
+                    <span>
+                        Zapamti me na ovom uređaju
+                    </span>
+
+                </label>
+
+
+                <button type="submit" class="pm-login-submit">
+
+                    <span>
+                        Prijavi se
+                    </span>
+
+                    <span class="pm-login-submit-arrow">
+                        →
+                    </span>
+
+                </button>
+
+
+                <div class="pm-login-divider">
+
+                    <span>
+                        SECURE IDENTITY ACCESS
+                    </span>
+
+                </div>
+
+
+                <div class="pm-login-security">
+
+                    <div class="pm-login-security-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Zaštićen pristup
+                        </strong>
+
+                        <span>
+                            ASP.NET Core Identity · Secure session
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pm-login-register">
+
+                    <span>
+                        Nemate nalog?
+                    </span>
+
+                    <a href="/Account/Register">
+                        Kreirajte nalog
+                    </a>
+
+                </div>
+
+            </form>
 
         </section>
 
-    </main>
+    </section>
+
+</div>
 
 
 

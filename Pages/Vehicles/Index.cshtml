@@ -5,33 +5,28 @@
 
 <div class="pm-page pm-vehicles-page" data-module="vehicles">
 
-    
-
     <div class="pm-vehicles-content">
 
-        <header class="pm-vehicles-header">
+        <header class="pm-page-header">
 
-            <div class="pm-vehicles-heading">
+            <div class="pm-page-heading">
 
-                <div class="pm-vehicles-kicker">
-                    <span class="pm-vehicles-kicker-dot"></span>
-                    Fleet · Vozila
-                </div>
+                <div class="pm-page-kicker">Fleet · Vozila</div>
 
-                <h1 class="pm-vehicles-title">
+                <h1 class="pm-page-title">
                     Vozila
                 </h1>
 
-                <p class="pm-vehicles-subtitle">
+                <p class="pm-page-subtitle">
                     Pregled kompletnog voznog parka, statusa vozila, dodeljenih vozača,
                     aktivnih tura i GPS aktivnosti.
                 </p>
 
             </div>
 
-            <div class="pm-vehicles-header-actions">
+            <div class="pm-page-actions">
 
-                <button type="button" class="pm-vehicles-btn" id="refreshVehicles">
+                <button type="button" class="pm-btn" id="refreshVehicles">
 
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                         <path d="M20 11a8.1 8.1 0 0 0-14.8-4L3 10"></path>
@@ -39,12 +34,10 @@
                         <path d="M4 13a8.1 8.1 0 0 0 14.8 4L21 14"></path>
                         <path d="M21 20v-6h-6"></path>
                     </svg>
-
                     Osveži
-
                 </button>
 
-                <button type="button" class="pm-vehicles-btn primary" id="addVehicle">
+                <button type="button" class="pm-btn pm-btn-primary" id="addVehicle">
 
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M12 5v14"></path>
@@ -59,15 +52,16 @@
 
         </header>
 
-        <section class="pm-vehicles-kpis" aria-label="Statistika vozila">
+        <section class="pm-kpi-grid" aria-label="Statistika vozila">
 
-            <article class="pm-vehicle-kpi">
+            <article class="pm-kpi">
 
-                <div class="pm-vehicle-kpi-head">
-                    <span class="pm-vehicle-kpi-label">Ukupno vozila</span>
+                <div class="pm-kpi-header">
+                    <span class="pm-kpi-label">Ukupno vozila</span>
 
-                    <span class="pm-vehicle-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <span class="pm-kpi-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             aria-hidden="true">
                             <path d="M3 17h3"></path>
                             <path d="M18 17h3"></path>
                             <path d="M5 17V9h10l4 4v4"></path>
@@ -78,35 +72,37 @@
                     </span>
                 </div>
 
-                <div class="pm-vehicle-kpi-value" id="kpiTotal">—</div>
-                <div class="pm-vehicle-kpi-note">registrovanih vozila</div>
+                <div class="pm-kpi-value" id="kpiTotal">—</div>
+                <div class="pm-kpi-footer">registrovanih vozila</div>
 
             </article>
 
-            <article class="pm-vehicle-kpi">
+            <article class="pm-kpi">
 
-                <div class="pm-vehicle-kpi-head">
-                    <span class="pm-vehicle-kpi-label">Aktivna</span>
+                <div class="pm-kpi-header">
+                    <span class="pm-kpi-label">Aktivna</span>
 
-                    <span class="pm-vehicle-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <span class="pm-kpi-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             aria-hidden="true">
                             <path d="M20 6 9 17l-5-5"></path>
                         </svg>
                     </span>
                 </div>
 
-                <div class="pm-vehicle-kpi-value" id="kpiActive">—</div>
-                <div class="pm-vehicle-kpi-note">u operativnom statusu</div>
+                <div class="pm-kpi-value" id="kpiActive">—</div>
+                <div class="pm-kpi-footer">u operativnom statusu</div>
 
             </article>
 
-            <article class="pm-vehicle-kpi">
+            <article class="pm-kpi">
 
-                <div class="pm-vehicle-kpi-head">
-                    <span class="pm-vehicle-kpi-label">Na turi</span>
+                <div class="pm-kpi-header">
+                    <span class="pm-kpi-label">Na turi</span>
 
-                    <span class="pm-vehicle-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <span class="pm-kpi-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             aria-hidden="true">
                             <path d="M3 17h3"></path>
                             <path d="M18 17h3"></path>
                             <path d="M5 17V9h10l4 4v4"></path>
@@ -117,18 +113,19 @@
                     </span>
                 </div>
 
-                <div class="pm-vehicle-kpi-value" id="kpiTrips">—</div>
-                <div class="pm-vehicle-kpi-note">dodeljeno aktivnim turama</div>
+                <div class="pm-kpi-value" id="kpiTrips">—</div>
+                <div class="pm-kpi-footer">dodeljeno aktivnim turama</div>
 
             </article>
 
-            <article class="pm-vehicle-kpi">
+            <article class="pm-kpi">
 
-                <div class="pm-vehicle-kpi-head">
-                    <span class="pm-vehicle-kpi-label">GPS online</span>
+                <div class="pm-kpi-header">
+                    <span class="pm-kpi-label">GPS online</span>
 
-                    <span class="pm-vehicle-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <span class="pm-kpi-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             aria-hidden="true">
                             <path d="M12 2v4"></path>
                             <path d="M12 18v4"></path>
                             <path d="M2 12h4"></path>
@@ -138,31 +135,34 @@
                     </span>
                 </div>
 
-                <div class="pm-vehicle-kpi-value" id="kpiGps">—</div>
-                <div class="pm-vehicle-kpi-note">signal u poslednja 2 min</div>
+                <div class="pm-kpi-value" id="kpiGps">—</div>
+                <div class="pm-kpi-footer">signal u poslednja 2 min</div>
 
             </article>
 
-            <article class="pm-vehicle-kpi">
+            <article class="pm-kpi">
 
-                <div class="pm-vehicle-kpi-head">
-                    <span class="pm-vehicle-kpi-label">Servis</span>
+                <div class="pm-kpi-header">
+                    <span class="pm-kpi-label">Servis</span>
 
-                    <span class="pm-vehicle-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                            <path d="M14.7 6.3a4.5 4.5 0 0 0-5.9 5.9L3 18a2.1 2.1 0 0 0 3 3l5.8-5.8a4.5 4.5 0 0 0 5.9-5.9l-2.8 2.8-2.9-2.9 2.7-2.9Z"></path>
+                    <span class="pm-kpi-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             aria-hidden="true">
+                            <path
+                                d="M14.7 6.3a4.5 4.5 0 0 0-5.9 5.9L3 18a2.1 2.1 0 0 0 3 3l5.8-5.8a4.5 4.5 0 0 0 5.9-5.9l-2.8 2.8-2.9-2.9 2.7-2.9Z">
+                            </path>
                         </svg>
                     </span>
                 </div>
 
-                <div class="pm-vehicle-kpi-value" id="kpiMaintenance">—</div>
-                <div class="pm-vehicle-kpi-note">trenutno u servisu</div>
+                <div class="pm-kpi-value" id="kpiMaintenance">—</div>
+                <div class="pm-kpi-footer">trenutno u servisu</div>
 
             </article>
 
         </section>
 
-        <section class="pm-vehicles-toolbar" aria-label="Filteri vozila">
+        <section class="pm-toolbar" aria-label="Filteri vozila">
 
             <div class="pm-vehicle-search">
 
@@ -171,12 +171,8 @@
                     <path d="m20 20-4-4"></path>
                 </svg>
 
-                <input
-                    id="vehicleSearch"
-                    class="pm-vehicle-input"
-                    type="search"
-                    autocomplete="off"
-                    placeholder="Pretraži registraciju, marku, model ili VIN..." />
+                <input id="vehicleSearch" class="pm-vehicle-input" type="search" autocomplete="off"
+                       placeholder="Pretraži registraciju, marku, model ili VIN..." />
 
             </div>
 
@@ -219,14 +215,11 @@
 
                     </div>
 
-                    <button
-                        type="button"
-                        class="pm-vehicles-refresh"
-                        id="refreshVehiclesSmall"
-                        title="Osveži podatke"
-                        aria-label="Osveži podatke">
+                    <button type="button" class="pm-vehicles-refresh" id="refreshVehiclesSmall" title="Osveži podatke"
+                            aria-label="Osveži podatke">
 
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                             aria-hidden="true">
                             <path d="M20 11a8.1 8.1 0 0 0-14.8-4L3 10"></path>
                             <path d="M3 4v6h6"></path>
                             <path d="M4 13a8.1 8.1 0 0 0 14.8 4L21 14"></path>
@@ -262,13 +255,8 @@
 
                                         <div class="pm-vehicle-state-icon">
 
-                                            <svg
-                                                class="pm-vehicle-spin"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="1.8"
-                                                aria-hidden="true">
+                                            <svg class="pm-vehicle-spin" viewBox="0 0 24 24" fill="none"
+                                                 stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 
                                                 <path d="M12 3a9 9 0 1 0 9 9"></path>
 
@@ -305,7 +293,8 @@
 
                         <div class="pm-vehicle-profile-icon">
 
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 aria-hidden="true">
                                 <path d="M3 17h3"></path>
                                 <path d="M18 17h3"></path>
                                 <path d="M5 17V9h10l4 4v4"></path>
@@ -318,21 +307,15 @@
 
                         <div>
 
-                            <h2
-                                class="pm-vehicle-profile-registration"
-                                id="detailRegistration">
+                            <h2 class="pm-vehicle-profile-registration" id="detailRegistration">
                                 Izaberite vozilo
                             </h2>
 
-                            <div
-                                class="pm-vehicle-profile-meta"
-                                id="detailVehicleName">
+                            <div class="pm-vehicle-profile-meta" id="detailVehicleName">
                                 Detalji vozila će biti prikazani ovde.
                             </div>
 
-                            <div
-                                class="pm-vehicle-profile-status"
-                                id="detailStatus">
+                            <div class="pm-vehicle-profile-status" id="detailStatus">
                             </div>
 
                         </div>
@@ -385,7 +368,8 @@
 
                             <div class="pm-vehicle-operation-label">
 
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                     aria-hidden="true">
                                     <circle cx="12" cy="7" r="4"></circle>
                                     <path d="M4 21a8 8 0 0 1 16 0"></path>
                                 </svg>
@@ -394,9 +378,7 @@
 
                             </div>
 
-                            <div
-                                class="pm-vehicle-operation-value"
-                                id="detailDriver">
+                            <div class="pm-vehicle-operation-value" id="detailDriver">
                                 —
                             </div>
 
@@ -406,7 +388,8 @@
 
                             <div class="pm-vehicle-operation-label">
 
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                     aria-hidden="true">
                                     <path d="M5 4h14v16H5z"></path>
                                     <path d="M8 8h8"></path>
                                     <path d="M8 12h8"></path>
@@ -417,9 +400,7 @@
 
                             </div>
 
-                            <div
-                                class="pm-vehicle-operation-value"
-                                id="detailTrip">
+                            <div class="pm-vehicle-operation-value" id="detailTrip">
                                 —
                             </div>
 
@@ -429,7 +410,8 @@
 
                             <div class="pm-vehicle-operation-label">
 
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                     aria-hidden="true">
                                     <path d="M12 2v4"></path>
                                     <path d="M12 18v4"></path>
                                     <path d="M2 12h4"></path>
@@ -441,9 +423,7 @@
 
                             </div>
 
-                            <div
-                                class="pm-vehicle-operation-value"
-                                id="detailGpsStatus">
+                            <div class="pm-vehicle-operation-value" id="detailGpsStatus">
                                 —
                             </div>
 
@@ -489,12 +469,10 @@
 
                     <div class="pm-vehicle-detail-actions">
 
-                        <button
-                            type="button"
-                            class="pm-vehicle-detail-action"
-                            id="showVehicleTrip">
+                        <button type="button" class="pm-vehicle-detail-action" id="showVehicleTrip">
 
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 aria-hidden="true">
                                 <circle cx="6" cy="18" r="2"></circle>
                                 <circle cx="18" cy="6" r="2"></circle>
                                 <path d="M8 18c5 0 3-8 8-12"></path>
@@ -504,12 +482,10 @@
 
                         </button>
 
-                        <button
-                            type="button"
-                            class="pm-vehicle-detail-action"
-                            id="showVehicleNavigation">
+                        <button type="button" class="pm-vehicle-detail-action" id="showVehicleNavigation">
 
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 aria-hidden="true">
                                 <path d="m12 19 7-14-14 7 6 1 1 6Z"></path>
                             </svg>
 

@@ -1,35 +1,94 @@
-@page "/audit" 
+@page "/audit"
 @{
     ViewData["Title"] = "Audit · ProMap Cargo";
 }
 
-<div id="app" style="display:none"></div>
-<div class="pm-page" data-module="audit">
-  <header class="pm-header">
-    <div>
-      <div class="pm-brand">ProMap <span>Cargo</span></div>
-      <div class="pm-kicker">Audit</div>
-      <div class="pm-subtitle">Security events, operational changes and traceability</div>
-    </div>
-    <div class="pm-header-actions">
-      <a class="pm-btn pm-btn-primary" href="/dispatch">Command Center</a>
-      <a class="pm-btn" href="/profile">Profil</a>
-    </div>
-  </header>
-  <div class="pm-layout">
-    <main class="pm-content">
-      <div class="pm-title">Audit</div><div class="pm-muted" style="margin:5px 0 14px">Immutable operational trail for security and compliance.</div><div class="pm-card pm-card-body"><div class="pm-grid pm-grid-4"><div><label class="pm-label">Actor</label><input class="pm-field" placeholder="email / system"></div><div><label class="pm-label">Action</label><input class="pm-field" placeholder="Event type"></div><div><label class="pm-label">Entity</label><input class="pm-field" placeholder="ID"></div><div><label class="pm-label">From</label><input class="pm-field" placeholder="date/time"></div></div><div class="pm-actions" style="margin-top:12px"><button class="pm-btn pm-btn-primary">Pretraži audit</button><button class="pm-btn">Export CSV</button></div></div><div style="height:14px"></div><div class="pm-card" style="overflow:auto"><table class="pm-table"><thead><tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Entity</th><th>Result</th></tr></thead><tbody><tr><td>2026-09-12 15:21</td><td>operator@promap.local</td><td>RouteCalculated</td><td>TRP-8841</td><td><span class="pm-badge ">Success</span></td></tr><tr><td>2026-09-12 15:18</td><td>dispatcher@promap.local</td><td>TripUpdated</td><td>TRP-8842</td><td><span class="pm-badge ">Success</span></td></tr><tr><td>2026-09-12 15:11</td><td>admin@promap.local</td><td>RestrictionChanged</td><td>RS-HEIGHT-04</td><td><span class="pm-badge ">Success</span></td></tr><tr><td>2026-09-12 14:59</td><td>system</td><td>GpsLost</td><td>NI-401-TT</td><td><span class="pm-badge warn">Warning</span></td></tr></tbody></table></div>
-    </main>
-  </div>
-</div>
+<div class="pm-page pm-audit-page" data-module="audit">
+    <header class="pm-page-header">
+        <div class="pm-page-heading">
+            <div class="pm-page-kicker">Kontrola</div>
+            <h1 class="pm-page-title">Audit evidencija</h1>
+            <p class="pm-page-subtitle">Bezbednosni događaji, operativne izmene i sledljivost.</p>
+        </div>
+        <div class="pm-page-actions">
+            <button class="pm-btn pm-btn-secondary" type="button">Izvezi CSV</button>
+        </div>
+    </header>
 
+    <section class="pm-card">
+        <header class="pm-card-header">
+            <div>
+                <h2 class="pm-card-title">Filteri</h2>
+                <p class="pm-card-subtitle">Suzi evidenciju po korisniku, akciji ili periodu.</p>
+            </div>
+        </header>
+        <div class="pm-card-body">
+            <div class="pm-form-grid pm-form-grid-4">
+                <label class="pm-field"><span class="pm-label">Korisnik</span><input class="pm-input" type="search"
+                                                                                         placeholder="E-mail ili sistem" /></label>
+                    <label class="pm-field"><span class="pm-label">Akcija</span><input class="pm-input" type="search"
+                                                                                           placeholder="Vrsta događaja" /></label>
+                        <label class="pm-field"><span class="pm-label">Entitet</span><input class="pm-input" type="search"
+                                                                                                placeholder="ID entiteta" /></label>
+                            <label class="pm-field"><span class="pm-label">Od datuma</span><input class="pm-input"
+                                                                                                      type="date" /></label>
+                            </div>
+                            <div class="pm-page-actions pm-mt-3">
+                                <button class="pm-btn pm-btn-primary" type="button">Pretraži audit</button>
+                                <button class="pm-btn pm-btn-ghost" type="button">Očisti filtere</button>
+                            </div>
+                        </div>
+                    </section>
 
-<script>
-// Pages are server-rendered and must remain independent from the legacy SPA renderer.
-document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('.pm-page a[href]').forEach(a=>a.addEventListener('click',e=>{
-    if(a.origin===location.origin){ e.stopPropagation(); }
-  },true));
-});
-</script>
-
+                    <section class="pm-card">
+                        <header class="pm-card-header">
+                            <div>
+                                <h2 class="pm-card-title">Operativni događaji</h2>
+                                <p class="pm-card-subtitle">Najnovije promene zabeležene u sistemu</p>
+                            </div>
+                        </header>
+                        <div class="pm-table-wrap">
+                            <table class="pm-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Vreme</th>
+                                        <th scope="col">Korisnik</th>
+                                        <th scope="col">Akcija</th>
+                                        <th scope="col">Entitet</th>
+                                        <th scope="col">Rezultat</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2026-09-12 15:21</td>
+                                        <td>operator@promap.local</td>
+                                        <td>RouteCalculated</td>
+                                        <td>TRP-8841</td>
+                                        <td><span class="pm-badge pm-badge--success">Uspešno</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-09-12 15:18</td>
+                                        <td>dispatcher@promap.local</td>
+                                        <td>TripUpdated</td>
+                                        <td>TRP-8842</td>
+                                        <td><span class="pm-badge pm-badge--success">Uspešno</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-09-12 15:11</td>
+                                        <td>admin@promap.local</td>
+                                        <td>RestrictionChanged</td>
+                                        <td>RS-HEIGHT-04</td>
+                                        <td><span class="pm-badge pm-badge--success">Uspešno</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-09-12 14:59</td>
+                                        <td>system</td>
+                                        <td>GpsLost</td>
+                                        <td>NI-401-TT</td>
+                                        <td><span class="pm-badge pm-badge--warning">Upozorenje</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>

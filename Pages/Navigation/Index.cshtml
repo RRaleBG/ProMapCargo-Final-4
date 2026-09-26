@@ -54,18 +54,6 @@
 
             <div class="navigation-map-shell min-[1001px]:tw-h-full min-[1001px]:tw-min-h-0">
 
-                <!-- Add inside .navigation-map-shell, above #navMap -->
-                <div id="promapLayerPanel" class="promap-layer-panel" aria-label="Map layers">
-                    <div class="promap-layer-title">MAP LAYERS</div>
-
-                    <label><input type="checkbox" data-promap-layer="route" checked> Route</label>
-                    <label><input type="checkbox" data-promap-layer="restrictions" checked> Truck restrictions</label>
-                    <label><input type="checkbox" data-promap-layer="fleet"> Fleet</label>
-                    <label><input type="checkbox" data-promap-layer="poi"> POI</label>
-                    <label><input type="checkbox" data-promap-layer="elevation"> Elevation</label>
-                </div>
-
-
                 <div id="navMap" class="pm-map min-[1001px]:tw-h-full min-[1001px]:tw-min-h-0"
                      data-map-archive="/maps/europe.pmtiles" data-map-max-zoom="19">
 
@@ -85,7 +73,11 @@
 
 
                         <div class="nav-map-engine">
-
+                            <button type="button" id="mapBasemapToggle" class="pm-btn pm-btn--secondary nav-basemap-toggle"
+                                    aria-label="Promeni podlogu mape" aria-live="polite">
+                                <i data-lucide="layers-3" aria-hidden="true"></i>
+                                <span id="mapBasemapLabel">Dark</span>
+                            </button>
                             <span></span>
 
                             <strong id="routeSafeBadge">
@@ -1303,4 +1295,3 @@
         })();
     </script>
 }
-

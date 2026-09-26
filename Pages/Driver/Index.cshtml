@@ -1,40 +1,84 @@
 @page "/driver"
 @{
-    ViewData["Title"] = "Driver Portal · ProMap Cargo";
+    ViewData["Title"] = "Vozački portal · ProMap Cargo";
 }
 
-<div id="app" style="display:none"></div>
 <div class="pm-page" data-module="driver">
-  <header class="pm-header">
-    <div>
-      <div class="pm-brand">ProMap <span>Cargo</span></div>
-      <div class="pm-kicker">Driver Portal</div>
-      <div class="pm-subtitle">Active trip, stops, instructions and driver actions</div>
-    </div>
-    <div class="pm-header-actions">
-      <a class="pm-btn pm-btn-primary" href="/dispatch">Command Center</a>
-      <a class="pm-btn" href="/profile">Profil</a>
-    </div>
-  </header>
-  <div class="pm-layout">
-    <aside class="pm-sidebar">
-      <div class="pm-nav-title">OPERATIONS</div>
-      <nav class="pm-nav"><a class="" href="/dashboard">Dashboard</a><a class="" href="/dispatch">Command Center</a><a class="" href="/orders">Transportni nalozi</a><a class="" href="/trips">Ture</a><a class="" href="/vehicles">Vozila</a><a class="" href="/drivers">Vozači</a><a class="" href="/navigation">Navigacija</a><a class="" href="/alerts">Alerts</a><a class="" href="/moderation">Moderacija</a><a class="" href="/audit">Audit</a><a class="" href="/compliance">Compliance</a><a class="" href="/monitoring">Monitoring</a><a class="" href="/finance">Finansije</a><a class="" href="/reports">Izveštaji</a><a class="" href="/settings">Podešavanja</a><a class="" href="/profile">Profil</a><a class="" href="/admin">Administracija</a></nav>
-      <div class="pm-sidebar-footer"><b>Routing engine</b><br>PostGIS · OSM · Truck-aware<br><span>Graph protected</span></div>
-    </aside>
-    <main class="pm-content">
-      <div class="pm-title">Driver portal</div><div class="pm-muted" style="margin:5px 0 14px">Mobile-friendly view for active driver operations.</div><div class="pm-grid pm-grid-3"><div class="pm-card pm-card-body"><div class="pm-muted">CURRENT TRIP</div><div class="pm-value">TRP-8841</div><div class="pm-muted">Beograd → München</div></div><div class="pm-card pm-card-body"><div class="pm-muted">NEXT STOP</div><div class="pm-value">Horgoš</div><div class="pm-muted">Border checkpoint · ETA 17:12</div></div><div class="pm-card pm-card-body"><div class="pm-muted">DRIVING STATUS</div><div class="pm-value">ON DUTY</div><div class="pm-muted">Rest window available 02:14</div></div></div><div style="height:14px"></div><div class="pm-grid pm-grid-2"><div class="pm-card pm-card-body"><div class="pm-h2">Route instructions</div><div class="pm-list" style="margin-top:12px"><div class="pm-item"><b>1 · Beograd</b><div class="pm-muted">Depart pickup yard</div></div><div class="pm-item"><b>2 · Horgoš</b><div class="pm-muted">Border and document check</div></div><div class="pm-item"><b>3 · Budapest</b><div class="pm-muted">Continue on planned truck route</div></div><div class="pm-item"><b>4 · München</b><div class="pm-muted">Delivery window 18:00–20:00</div></div></div></div><div class="pm-card pm-card-body"><div class="pm-h2">Driver actions</div><div class="pm-actions" style="margin-top:12px"><button class="pm-btn pm-btn-primary">Arrived at stop</button><button class="pm-btn">Start break</button><button class="pm-btn">Report incident</button><button class="pm-btn">Call dispatch</button></div></div></div>
-    </main>
-  </div>
+    <header class="pm-page-header">
+        <div class="pm-page-heading">
+            <div class="pm-page-kicker">Flota</div>
+            <h1 class="pm-page-title">Vozački portal</h1>
+            <p class="pm-page-subtitle">Aktivna tura, sledeća stanica, uputstva i akcije vozača.</p>
+        </div>
+        <div class="pm-page-actions">
+            <a class="pm-btn pm-btn-secondary" asp-page="/Dispatch/Index">Dispečerski centar</a>
+            <a class="pm-btn pm-btn-ghost" asp-page="/Profile/Index">Profil</a>
+        </div>
+    </header>
+
+    <section class="pm-grid pm-grid-3" aria-label="Trenutni status vozača">
+        <article class="pm-card pm-card-body">
+            <div class="pm-kpi-label">Aktivna tura</div>
+            <div class="pm-kpi-value">TRP-8841</div>
+            <div class="pm-kpi-footer">Beograd → München</div>
+        </article>
+        <article class="pm-card pm-card-body">
+            <div class="pm-kpi-label">Sledeća stanica</div>
+            <div class="pm-kpi-value">Horgoš</div>
+            <div class="pm-kpi-footer">Granični prelaz · ETA 17:12</div>
+        </article>
+        <article class="pm-card pm-card-body">
+            <div class="pm-kpi-label">Status vožnje</div>
+            <div class="pm-kpi-value">Na dužnosti</div>
+            <div class="pm-kpi-footer">Odmor dostupan za 02:14</div>
+        </article>
+    </section>
+
+    <section class="pm-grid pm-grid-2">
+        <article class="pm-card">
+            <header class="pm-card-header">
+                <div>
+                    <h2 class="pm-card-title">Uputstva za rutu</h2>
+                    <p class="pm-card-subtitle">Planirane stanice i isporuka</p>
+                </div>
+            </header>
+            <div class="pm-card-body pm-list">
+                <div class="pm-list-row">
+                    <div><strong>1 · Beograd</strong>
+                        <div class="pm-text-muted">Polazak iz utovarnog terminala</div>
+                    </div><span class="pm-badge">Polazak</span>
+                </div>
+                <div class="pm-list-row">
+                    <div><strong>2 · Horgoš</strong>
+                        <div class="pm-text-muted">Granična i dokumentaciona kontrola</div>
+                    </div><span class="pm-badge pm-badge--warning">Granica</span>
+                </div>
+                <div class="pm-list-row">
+                    <div><strong>3 · Budimpešta</strong>
+                        <div class="pm-text-muted">Nastavak planiranom rutom</div>
+                    </div><span class="pm-badge">Stanica</span>
+                </div>
+                <div class="pm-list-row">
+                    <div><strong>4 · München</strong>
+                        <div class="pm-text-muted">Prozor isporuke 18:00–20:00</div>
+                    </div><span class="pm-badge pm-badge--success">Odredište</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="pm-card">
+            <header class="pm-card-header">
+                <div>
+                    <h2 class="pm-card-title">Akcije vozača</h2>
+                    <p class="pm-card-subtitle">Ažuriraj status ture ili prijavi događaj</p>
+                </div>
+            </header>
+            <div class="pm-card-body pm-page-actions">
+                <button class="pm-btn pm-btn-primary" type="button">Stigao na stanicu</button>
+                <button class="pm-btn pm-btn-secondary" type="button">Započni pauzu</button>
+                <button class="pm-btn pm-btn-danger" type="button">Prijavi incident</button>
+                <button class="pm-btn pm-btn-ghost" type="button">Pozovi dispečera</button>
+            </div>
+        </article>
+    </section>
 </div>
-
-
-<script>
-// Pages are server-rendered and must remain independent from the legacy SPA renderer.
-document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('.pm-page a[href]').forEach(a=>a.addEventListener('click',e=>
-    if(a.origin===location.origin){ e.stopPropagation(); }
-  },true));
-});
-</script>
-

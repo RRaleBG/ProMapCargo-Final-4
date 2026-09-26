@@ -1,69 +1,68 @@
 @page "/reports"
 @{
-  ViewData["Title"] = "Izveštaji · ProMap Cargo";
+    ViewData["Title"] = "Izveštaji · ProMap Cargo";
 }
 
-<div id="app" style="display:none"></div>
-<div class="pm-page" data-module="reports">
-  <header class="pm-header">
-    <div>
-      <div class="pm-brand">ProMap <span>Cargo</span></div>
-      <div class="pm-kicker">Izveštaji</div>
-      <div class="pm-subtitle">Operational analytics and exportable management reports</div>
-    </div>
-    <div class="pm-header-actions">
-      <a class="pm-btn pm-btn-primary" href="/dispatch">Command Center</a>
-      <a class="pm-btn" href="/profile">Profil</a>
-    </div>
-  </header>
-
-
-        <main class="pm-content">
-          <div class="pm-title">Izveštaji</div>
-          <div class="pm-muted" style="margin:5px 0 14px">Operational, fleet and route analytics.</div>
-          <div class="pm-grid pm-grid-3">
-            <div class="pm-card pm-card-body">
-              <div class="pm-h2">Fleet utilization</div>
-              <div class="pm-value">82%</div>
-              <div class="pm-progress" style="margin-top:10px"><span style="width:82%"></span></div>
-            </div>
-            <div class="pm-card pm-card-body">
-              <div class="pm-h2">On-time delivery</div>
-              <div class="pm-value">94%</div>
-              <div class="pm-progress" style="margin-top:10px">
-                <span style="width:94%"></span>
-              </div>
-            </div>
-            <div class="pm-card pm-card-body">
-              <div class="pm-h2">Average route deviation</div>
-              <div class="pm-value">1.7%</div>
-              <div class="pm-muted">↓ 0.4 pp vs last month</div>
-            </div>
-          </div>
-          <div style="height:14px"></div>
-          <div class="pm-card pm-card-body">
-            <div class="pm-h2">Generate report</div>
-            <div class="pm-grid pm-grid-3" style="margin-top:12px"><select class="pm-field">
-              <option>Fleet performance</option>
-              <option>Trip profitability</option>
-              <option>Driver compliance</option>
-              <option>Routing exceptions</option>
-            </select><input class="pm-field" type="date" value="2026-09-01"><input class="pm-field" type="date"
-                                                                                   value="2026-09-12"></div>
-            <div class="pm-actions" style="margin-top:12px"><button class="pm-btn pm-btn-primary">Generate</button><button
-              class="pm-btn">Export CSV</button><button class="pm-btn">Export PDF</button></div>
-            </div>
-          </main>
+<div class="pm-page pm-reports-page" data-module="reports">
+    <header class="pm-page-header">
+        <div class="pm-page-heading">
+            <div class="pm-page-kicker">Analitika</div>
+            <h1 class="pm-page-title">Izveštaji</h1>
+            <p class="pm-page-subtitle">Operativni, flotni i routing pokazatelji.</p>
         </div>
-      
+        <div class="pm-page-actions">
+            <button class="pm-btn pm-btn-secondary" type="button">Izvezi CSV</button>
+            <button class="pm-btn pm-btn-primary" type="button">Novi izveštaj</button>
+        </div>
+    </header>
 
-      
-      <script>
-        // Pages are server-rendered and must remain independent from the legacy SPA renderer.
-        document.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('.pm-page a[href]').forEach(a => a.addEventListener('click', e => {
-            if (a.origin === location.origin) { e.stopPropagation(); }
-          }, true));
-        });
-      </script>
+    <section class="pm-grid pm-grid-3" aria-label="Ključni pokazatelji">
+        <article class="pm-card pm-card-body">
+            <div class="pm-kpi-label">Iskorišćenost flote</div>
+            <div class="pm-kpi-value">82%</div>
+            <div class="pm-progress pm-mt-3" role="progressbar" aria-label="Iskorišćenost flote" aria-valuemin="0"
+                 aria-valuemax="100" aria-valuenow="82"><span style="--pm-progress:82%"></span></div>
+        </article>
+        <article class="pm-card pm-card-body">
+            <div class="pm-kpi-label">Isporuke na vreme</div>
+            <div class="pm-kpi-value">94%</div>
+            <div class="pm-progress pm-mt-3" role="progressbar" aria-label="Isporuke na vreme" aria-valuemin="0"
+                 aria-valuemax="100" aria-valuenow="94"><span style="--pm-progress:94%"></span></div>
+        </article>
+        <article class="pm-card pm-card-body">
+            <div class="pm-kpi-label">Prosečno odstupanje rute</div>
+            <div class="pm-kpi-value">1,7%</div>
+            <div class="pm-kpi-footer">↓ 0,4 procentna poena u odnosu na prethodni mesec</div>
+        </article>
+    </section>
 
+    <section class="pm-card">
+        <header class="pm-card-header">
+            <div>
+                <h2 class="pm-card-title">Generisanje izveštaja</h2>
+                <p class="pm-card-subtitle">Izaberi tip izveštaja i vremenski period</p>
+            </div>
+        </header>
+        <div class="pm-card-body">
+            <div class="pm-form-grid pm-form-grid-3">
+                <label class="pm-field"><span class="pm-label">Tip izveštaja</span>
+                    <select class="pm-select">
+                        <option>Performanse flote</option>
+                        <option>Profitabilnost ture</option>
+                        <option>Usklađenost vozača</option>
+                        <option>Routing izuzeci</option>
+                    </select>
+                </label>
+                <label class="pm-field"><span class="pm-label">Od datuma</span><input class="pm-input" type="date"
+                                                                                          value="2026-09-01" /></label>
+                    <label class="pm-field"><span class="pm-label">Do datuma</span><input class="pm-input" type="date"
+                                                                                              value="2026-09-12" /></label>
+                    </div>
+                    <div class="pm-page-actions pm-mt-3">
+                        <button class="pm-btn pm-btn-primary" type="button">Generiši</button>
+                        <button class="pm-btn pm-btn-secondary" type="button">Preuzmi CSV</button>
+                        <button class="pm-btn pm-btn-ghost" type="button">Preuzmi PDF</button>
+                    </div>
+                </div>
+            </section>
+        </div>

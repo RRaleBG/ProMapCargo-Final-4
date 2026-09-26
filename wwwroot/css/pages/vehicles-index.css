@@ -1,9 +1,6 @@
-.pm-vehicles-page {
-  padding: 28px 30px 34px;
-  min-width: 0;
-}
-
 .pm-vehicles-content {
+  width: 100%;
+  min-width: 0;
   max-width: 1680px;
   margin: 0 auto;
 }
@@ -258,12 +255,14 @@
 
 .pm-vehicles-workspace {
   display: grid;
+  min-width: 0;
   grid-template-columns: minmax(0, 1fr) 380px;
   gap: 18px;
   align-items: start;
 }
 
 .pm-vehicles-card {
+  min-width: 0;
   border: 1px solid var(--pm-border);
   border-radius: var(--pm-radius-lg);
   background: var(--pm-surface);

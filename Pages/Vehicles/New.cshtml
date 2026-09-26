@@ -3,12 +3,12 @@
     ViewData["Title"] = "Novo vozilo · ProMap Cargo";
 }
 
-<div class="pm-page pm-vehicle-new-page" data-module="vehicle-new">
+<div class="pm-page" data-module="vehicle-new">
 
-    <header class="vehicle-new-header">
-        <div class="vehicle-new-heading">
-            <div class="vehicle-new-kicker">
-                <span class="vehicle-new-kicker-dot"></span>
+    <header class="pm-page-header">
+        <div class="pm-page-heading">
+            <div class="pm-page-kicker">
+                <span class="pm-page-kicker-dot"></span>
                 FLEET · NOVO VOZILO
             </div>
 
@@ -26,9 +26,7 @@
                 Nazad na vozila
             </a>
 
-            <button type="button"
-                    class="vehicle-new-btn vehicle-new-btn-primary"
-                    id="saveVehicleTop">
+            <button type="button" class="vehicle-new-btn vehicle-new-btn-primary" id="saveVehicleTop">
                 <span>✓</span>
                 Sačuvaj vozilo
             </button>
@@ -43,7 +41,7 @@
 
         <div class="vehicle-new-layout">
 
-            <main class="vehicle-new-main">
+            <div class="vehicle-new-main">
 
                 <!-- OSNOVNI PODACI -->
                 <section class="vehicle-card">
@@ -68,12 +66,8 @@
                                 <span>*</span>
                             </label>
 
-                            <input id="vehicleName"
-                                   name="vehicleName"
-                                   type="text"
-                                   placeholder="npr. Mercedes Actros 1845"
-                                   autocomplete="off"
-                                   required />
+                            <input id="vehicleName" name="vehicleName" type="text"
+                                   placeholder="npr. Mercedes Actros 1845" autocomplete="off" required />
 
                             <small>
                                 Interni naziv vozila koji se prikazuje u sistemu.
@@ -86,12 +80,8 @@
                                 <span>*</span>
                             </label>
 
-                            <input id="registrationNumber"
-                                   name="registrationNumber"
-                                   type="text"
-                                   placeholder="BG 123-AA"
-                                   autocomplete="off"
-                                   required />
+                            <input id="registrationNumber" name="registrationNumber" type="text" placeholder="BG 123-AA"
+                                   autocomplete="off" required />
                         </div>
 
                         <div class="vehicle-field">
@@ -99,10 +89,7 @@
                                 Fleet broj
                             </label>
 
-                            <input id="fleetNumber"
-                                   name="fleetNumber"
-                                   type="text"
-                                   placeholder="TRK-001"
+                            <input id="fleetNumber" name="fleetNumber" type="text" placeholder="TRK-001"
                                    autocomplete="off" />
                         </div>
 
@@ -112,13 +99,8 @@
                                 <span>*</span>
                             </label>
 
-                            <input id="vin"
-                                   name="vin"
-                                   type="text"
-                                   maxlength="17"
-                                   placeholder="WDBxxxxxxxxxxxxxx"
-                                   autocomplete="off"
-                                   required />
+                            <input id="vin" name="vin" type="text" maxlength="17" placeholder="WDBxxxxxxxxxxxxxx"
+                                   autocomplete="off" required />
 
                             <small>17 karaktera za standardni VIN.</small>
                         </div>
@@ -129,9 +111,7 @@
                                 <span>*</span>
                             </label>
 
-                            <select id="vehicleType"
-                                    name="vehicleType"
-                                    required>
+                            <select id="vehicleType" name="vehicleType" required>
                                 <option value="">Izaberite tip</option>
                                 <option value="truck">Kamion</option>
                                 <option value="tractor">Tegljač</option>
@@ -146,10 +126,7 @@
                                 Proizvođač
                             </label>
 
-                            <input id="manufacturer"
-                                   name="manufacturer"
-                                   type="text"
-                                   placeholder="Mercedes-Benz"
+                            <input id="manufacturer" name="manufacturer" type="text" placeholder="Mercedes-Benz"
                                    autocomplete="off" />
                         </div>
 
@@ -158,11 +135,7 @@
                                 Model
                             </label>
 
-                            <input id="model"
-                                   name="model"
-                                   type="text"
-                                   placeholder="Actros 1845"
-                                   autocomplete="off" />
+                            <input id="model" name="model" type="text" placeholder="Actros 1845" autocomplete="off" />
                         </div>
 
                         <div class="vehicle-field">
@@ -170,11 +143,7 @@
                                 Godina proizvodnje
                             </label>
 
-                            <input id="productionYear"
-                                   name="productionYear"
-                                   type="number"
-                                   min="1950"
-                                   max="2100"
+                            <input id="productionYear" name="productionYear" type="number" min="1950" max="2100"
                                    placeholder="2024" />
                         </div>
 
@@ -204,9 +173,7 @@
                                 Datum registracije
                             </label>
 
-                            <input id="registrationDate"
-                                   name="registrationDate"
-                                   type="date" />
+                            <input id="registrationDate" name="registrationDate" type="date" />
                         </div>
 
                         <div class="vehicle-field">
@@ -215,10 +182,7 @@
                                 <span>*</span>
                             </label>
 
-                            <input id="registrationExpiry"
-                                   name="registrationExpiry"
-                                   type="date"
-                                   required />
+                            <input id="registrationExpiry" name="registrationExpiry" type="date" required />
                         </div>
 
                         <div class="vehicle-field">
@@ -226,9 +190,7 @@
                                 Mesto registracije
                             </label>
 
-                            <input id="registrationOffice"
-                                   name="registrationOffice"
-                                   type="text"
+                            <input id="registrationOffice" name="registrationOffice" type="text"
                                    placeholder="Beograd" />
                         </div>
 
@@ -237,9 +199,7 @@
                                 Broj saobraćajne dozvole
                             </label>
 
-                            <input id="registrationDocument"
-                                   name="registrationDocument"
-                                   type="text"
+                            <input id="registrationDocument" name="registrationDocument" type="text"
                                    placeholder="Broj dokumenta" />
                         </div>
 
@@ -269,10 +229,7 @@
                                 Motor
                             </label>
 
-                            <input id="engine"
-                                   name="engine"
-                                   type="text"
-                                   placeholder="12.8 L Diesel" />
+                            <input id="engine" name="engine" type="text" placeholder="12.8 L Diesel" />
                         </div>
 
                         <div class="vehicle-field">
@@ -281,11 +238,7 @@
                             </label>
 
                             <div class="vehicle-input-unit">
-                                <input id="enginePower"
-                                       name="enginePower"
-                                       type="number"
-                                       min="0"
-                                       placeholder="450" />
+                                <input id="enginePower" name="enginePower" type="number" min="0" placeholder="450" />
                                 <span>kW</span>
                             </div>
                         </div>
@@ -295,8 +248,7 @@
                                 Emisiona norma
                             </label>
 
-                            <select id="emissionClass"
-                                    name="emissionClass">
+                            <select id="emissionClass" name="emissionClass">
                                 <option value="">Izaberite</option>
                                 <option value="euro3">Euro 3</option>
                                 <option value="euro4">Euro 4</option>
@@ -311,8 +263,7 @@
                                 Gorivo
                             </label>
 
-                            <select id="fuelType"
-                                    name="fuelType">
+                            <select id="fuelType" name="fuelType">
                                 <option value="">Izaberite</option>
                                 <option value="diesel">Dizel</option>
                                 <option value="lng">LNG</option>
@@ -329,11 +280,7 @@
                             </label>
 
                             <div class="vehicle-input-unit">
-                                <input id="grossWeight"
-                                       name="grossWeight"
-                                       type="number"
-                                       min="0"
-                                       step="0.1"
+                                <input id="grossWeight" name="grossWeight" type="number" min="0" step="0.1"
                                        placeholder="40" />
                                 <span>t</span>
                             </div>
@@ -345,11 +292,7 @@
                             </label>
 
                             <div class="vehicle-input-unit">
-                                <input id="emptyWeight"
-                                       name="emptyWeight"
-                                       type="number"
-                                       min="0"
-                                       step="0.1"
+                                <input id="emptyWeight" name="emptyWeight" type="number" min="0" step="0.1"
                                        placeholder="8.5" />
                                 <span>t</span>
                             </div>
@@ -361,11 +304,7 @@
                             </label>
 
                             <div class="vehicle-input-unit">
-                                <input id="vehicleHeight"
-                                       name="vehicleHeight"
-                                       type="number"
-                                       min="0"
-                                       step="0.01"
+                                <input id="vehicleHeight" name="vehicleHeight" type="number" min="0" step="0.01"
                                        placeholder="4.00" />
                                 <span>m</span>
                             </div>
@@ -377,11 +316,7 @@
                             </label>
 
                             <div class="vehicle-input-unit">
-                                <input id="vehicleWidth"
-                                       name="vehicleWidth"
-                                       type="number"
-                                       min="0"
-                                       step="0.01"
+                                <input id="vehicleWidth" name="vehicleWidth" type="number" min="0" step="0.01"
                                        placeholder="2.55" />
                                 <span>m</span>
                             </div>
@@ -393,11 +328,7 @@
                             </label>
 
                             <div class="vehicle-input-unit">
-                                <input id="vehicleLength"
-                                       name="vehicleLength"
-                                       type="number"
-                                       min="0"
-                                       step="0.01"
+                                <input id="vehicleLength" name="vehicleLength" type="number" min="0" step="0.01"
                                        placeholder="16.50" />
                                 <span>m</span>
                             </div>
@@ -409,11 +340,7 @@
                             </label>
 
                             <div class="vehicle-input-unit">
-                                <input id="axleLoad"
-                                       name="axleLoad"
-                                       type="number"
-                                       min="0"
-                                       step="0.1"
+                                <input id="axleLoad" name="axleLoad" type="number" min="0" step="0.1"
                                        placeholder="10" />
                                 <span>t</span>
                             </div>
@@ -424,12 +351,7 @@
                                 Broj osovina
                             </label>
 
-                            <input id="axles"
-                                   name="axles"
-                                   type="number"
-                                   min="1"
-                                   max="20"
-                                   placeholder="5" />
+                            <input id="axles" name="axles" type="number" min="1" max="20" placeholder="5" />
                         </div>
 
                         <div class="vehicle-field">
@@ -438,12 +360,7 @@
                             </label>
 
                             <div class="vehicle-input-unit">
-                                <input id="maxSpeed"
-                                       name="maxSpeed"
-                                       type="number"
-                                       min="0"
-                                       max="200"
-                                       placeholder="90" />
+                                <input id="maxSpeed" name="maxSpeed" type="number" min="0" max="200" placeholder="90" />
                                 <span>km/h</span>
                             </div>
                         </div>
@@ -470,8 +387,7 @@
                                 Status
                             </label>
 
-                            <select id="vehicleStatus"
-                                    name="vehicleStatus">
+                            <select id="vehicleStatus" name="vehicleStatus">
                                 <option value="active">Aktivno</option>
                                 <option value="maintenance">Na održavanju</option>
                                 <option value="inactive">Neaktivno</option>
@@ -484,10 +400,7 @@
                                 Organizacija / sektor
                             </label>
 
-                            <input id="department"
-                                   name="department"
-                                   type="text"
-                                   placeholder="Transport" />
+                            <input id="department" name="department" type="text" placeholder="Transport" />
                         </div>
 
                         <div class="vehicle-field">
@@ -495,8 +408,7 @@
                                 Trenutni vozač
                             </label>
 
-                            <select id="assignedDriver"
-                                    name="assignedDriver">
+                            <select id="assignedDriver" name="assignedDriver">
                                 <option value="">Nije dodeljen</option>
                                 <option value="driver-001">Marko Petrović</option>
                                 <option value="driver-002">Nikola Jovanović</option>
@@ -509,10 +421,7 @@
                                 Primarna fuel kartica
                             </label>
 
-                            <input id="fuelCard"
-                                   name="fuelCard"
-                                   type="text"
-                                   placeholder="FC-0001" />
+                            <input id="fuelCard" name="fuelCard" type="text" placeholder="FC-0001" />
                         </div>
 
                         <div class="vehicle-field vehicle-field-wide">
@@ -520,9 +429,7 @@
                                 Napomena
                             </label>
 
-                            <textarea id="vehicleNotes"
-                                      name="vehicleNotes"
-                                      rows="4"
+                            <textarea id="vehicleNotes" name="vehicleNotes" rows="4"
                                       placeholder="Interna napomena o vozilu..."></textarea>
                         </div>
 
@@ -561,8 +468,7 @@
                             </div>
                         </div>
 
-                        <select id="assignedTrailer"
-                                name="assignedTrailer">
+                        <select id="assignedTrailer" name="assignedTrailer">
                             <option value="">Bez prikolice</option>
                             <option value="TRL-001">BG-TR-001 · Schmitz Cargobull</option>
                             <option value="TRL-002">BG-TR-002 · Krone</option>
@@ -599,9 +505,7 @@
                                 Tehnički pregled važi do
                             </label>
 
-                            <input id="technicalInspection"
-                                   name="technicalInspection"
-                                   type="date" />
+                            <input id="technicalInspection" name="technicalInspection" type="date" />
                         </div>
 
                         <div class="vehicle-field">
@@ -609,9 +513,7 @@
                                 TIR važi do
                             </label>
 
-                            <input id="tirExpiry"
-                                   name="tirExpiry"
-                                   type="date" />
+                            <input id="tirExpiry" name="tirExpiry" type="date" />
                         </div>
 
                         <div class="vehicle-field">
@@ -619,9 +521,7 @@
                                 Euro potvrda važi do
                             </label>
 
-                            <input id="euroConfirmation"
-                                   name="euroConfirmation"
-                                   type="date" />
+                            <input id="euroConfirmation" name="euroConfirmation" type="date" />
                         </div>
 
                         <div class="vehicle-field">
@@ -629,9 +529,7 @@
                                 Tahograf — kontrola/kalibracija
                             </label>
 
-                            <input id="tachographCalibration"
-                                   name="tachographCalibration"
-                                   type="date" />
+                            <input id="tachographCalibration" name="tachographCalibration" type="date" />
                         </div>
 
                     </div>
@@ -667,14 +565,11 @@
 
                     <div class="vehicle-actions">
 
-                        <a href="/vehicles"
-                           class="vehicle-new-btn vehicle-new-btn-secondary">
+                        <a href="/vehicles" class="vehicle-new-btn vehicle-new-btn-secondary">
                             Otkaži
                         </a>
 
-                        <button type="submit"
-                                class="vehicle-new-btn vehicle-new-btn-primary"
-                                id="saveVehicle">
+                        <button type="submit" class="vehicle-new-btn vehicle-new-btn-primary" id="saveVehicle">
                             <span>✓</span>
                             Kreiraj vozilo
                         </button>
@@ -683,7 +578,7 @@
 
                 </section>
 
-            </main>
+            </div>
 
 
             <!-- DESNI PANEL -->
@@ -699,13 +594,11 @@
                         🚛
                     </div>
 
-                    <div class="vehicle-preview-name"
-                         id="previewName">
+                    <div class="vehicle-preview-name" id="previewName">
                         Novo vozilo
                     </div>
 
-                    <div class="vehicle-preview-registration"
-                         id="previewRegistration">
+                    <div class="vehicle-preview-registration" id="previewRegistration">
                         REGISTRACIJA
                     </div>
 
@@ -855,345 +748,345 @@
 
 <script>
 
-(function () {
+    (function () {
 
-    "use strict";
+        "use strict";
 
-    const form = document.getElementById("vehicleForm");
+        const form = document.getElementById("vehicleForm");
 
-    if (!form) {
-        return;
-    }
-
-    const message = document.getElementById("vehicleFormMessage");
-
-    const nameInput = document.getElementById("vehicleName");
-    const registrationInput = document.getElementById("registrationNumber");
-    const vinInput = document.getElementById("vin");
-    const typeInput = document.getElementById("vehicleType");
-    const registrationExpiryInput = document.getElementById("registrationExpiry");
-
-    const previewName = document.getElementById("previewName");
-    const previewRegistration = document.getElementById("previewRegistration");
-    const previewType = document.getElementById("previewType");
-    const previewWeight = document.getElementById("previewWeight");
-    const previewHeight = document.getElementById("previewHeight");
-    const previewEuro = document.getElementById("previewEuro");
-
-    const grossWeight = document.getElementById("grossWeight");
-    const vehicleHeight = document.getElementById("vehicleHeight");
-    const emissionClass = document.getElementById("emissionClass");
-
-    const saveButton = document.getElementById("saveVehicle");
-    const saveTopButton = document.getElementById("saveVehicleTop");
-
-
-    function normalize(value) {
-        return (value || "").trim();
-    }
-
-
-    function updatePreview() {
-
-        const name = normalize(nameInput.value);
-        const registration = normalize(registrationInput.value);
-        const type = typeInput.options[typeInput.selectedIndex]?.text || "";
-        const weight = normalize(grossWeight.value);
-        const height = normalize(vehicleHeight.value);
-        const euro = emissionClass.options[emissionClass.selectedIndex]?.text || "";
-
-        previewName.textContent = name || "Novo vozilo";
-        previewRegistration.textContent =
-            registration
-                ? registration.toUpperCase()
-                : "REGISTRACIJA";
-
-        previewType.textContent =
-            type && type !== "Izaberite tip"
-                ? type
-                : "—";
-
-        previewWeight.textContent =
-            weight
-                ? weight + " t"
-                : "—";
-
-        previewHeight.textContent =
-            height
-                ? height + " m"
-                : "—";
-
-        previewEuro.textContent =
-            euro && euro !== "Izaberite"
-                ? euro
-                : "—";
-    }
-
-
-    function updateChecklist() {
-
-        const checks = [
-            {
-                id: "checkName",
-                valid:
-                    normalize(nameInput.value).length > 0 &&
-                    normalize(registrationInput.value).length > 0
-            },
-            {
-                id: "checkVin",
-                valid:
-                    normalize(vinInput.value).length === 17
-            },
-            {
-                id: "checkType",
-                valid:
-                    normalize(typeInput.value).length > 0
-            },
-            {
-                id: "checkRegistration",
-                valid:
-                    normalize(registrationExpiryInput.value).length > 0
-            }
-        ];
-
-        checks.forEach(function (check) {
-
-            const element = document.getElementById(check.id);
-
-            if (!element) {
-                return;
-            }
-
-            element.classList.toggle("complete", check.valid);
-
-        });
-    }
-
-
-    function validateField(input) {
-
-        if (!input) {
-            return true;
-        }
-
-        const value = normalize(input.value);
-
-        let valid = true;
-
-        if (input.hasAttribute("required") && !value) {
-            valid = false;
-        }
-
-        if (input === vinInput && value && value.length !== 17) {
-            valid = false;
-        }
-
-        input.classList.toggle("invalid", !valid);
-
-        return valid;
-    }
-
-
-    function validateForm() {
-
-        const fields = [
-            nameInput,
-            registrationInput,
-            vinInput,
-            typeInput,
-            registrationExpiryInput
-        ];
-
-        let valid = true;
-
-        fields.forEach(function (field) {
-
-            if (!validateField(field)) {
-                valid = false;
-            }
-
-        });
-
-        return valid;
-    }
-
-
-    function showMessage(text, isError) {
-
-        message.hidden = false;
-        message.textContent = text;
-        message.classList.toggle("error", !!isError);
-
-        message.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest"
-        });
-    }
-
-
-    function setSavingState(saving) {
-
-        [saveButton, saveTopButton].forEach(function (button) {
-
-            if (!button) {
-                return;
-            }
-
-            button.disabled = saving;
-
-            if (saving) {
-
-                button.dataset.originalText =
-                    button.innerHTML;
-
-                button.innerHTML =
-                    "<span>…</span> Čuvanje...";
-
-            } else {
-
-                button.innerHTML =
-                    button.dataset.originalText ||
-                    "<span>✓</span> Sačuvaj vozilo";
-
-            }
-
-        });
-
-    }
-
-
-    function saveVehicle() {
-
-        if (!validateForm()) {
-
-            showMessage(
-                "Popunite sva obavezna polja. VIN mora sadržati tačno 17 karaktera.",
-                true
-            );
-
+        if (!form) {
             return;
         }
 
-        setSavingState(true);
+        const message = document.getElementById("vehicleFormMessage");
 
-        /*
-         * UI ONLY.
-         *
-         * Backend model, Entity Framework persistence,
-         * Identity permissions i Compliance veze biće
-         * povezani kasnije.
-         */
+        const nameInput = document.getElementById("vehicleName");
+        const registrationInput = document.getElementById("registrationNumber");
+        const vinInput = document.getElementById("vin");
+        const typeInput = document.getElementById("vehicleType");
+        const registrationExpiryInput = document.getElementById("registrationExpiry");
 
-        window.setTimeout(function () {
+        const previewName = document.getElementById("previewName");
+        const previewRegistration = document.getElementById("previewRegistration");
+        const previewType = document.getElementById("previewType");
+        const previewWeight = document.getElementById("previewWeight");
+        const previewHeight = document.getElementById("previewHeight");
+        const previewEuro = document.getElementById("previewEuro");
 
-            setSavingState(false);
+        const grossWeight = document.getElementById("grossWeight");
+        const vehicleHeight = document.getElementById("vehicleHeight");
+        const emissionClass = document.getElementById("emissionClass");
 
-            showMessage(
-                "Vozilo je validirano i spremno za čuvanje. Backend persistence će biti povezan kada budu uvedeni modeli.",
-                false
-            );
-
-        }, 700);
-    }
-
-
-    form.addEventListener("submit", function (event) {
-
-        event.preventDefault();
-
-        saveVehicle();
-
-    });
+        const saveButton = document.getElementById("saveVehicle");
+        const saveTopButton = document.getElementById("saveVehicleTop");
 
 
-    if (saveTopButton) {
+        function normalize(value) {
+            return (value || "").trim();
+        }
 
-        saveTopButton.addEventListener("click", function () {
+
+        function updatePreview() {
+
+            const name = normalize(nameInput.value);
+            const registration = normalize(registrationInput.value);
+            const type = typeInput.options[typeInput.selectedIndex]?.text || "";
+            const weight = normalize(grossWeight.value);
+            const height = normalize(vehicleHeight.value);
+            const euro = emissionClass.options[emissionClass.selectedIndex]?.text || "";
+
+            previewName.textContent = name || "Novo vozilo";
+            previewRegistration.textContent =
+                registration
+                    ? registration.toUpperCase()
+                    : "REGISTRACIJA";
+
+            previewType.textContent =
+                type && type !== "Izaberite tip"
+                    ? type
+                    : "—";
+
+            previewWeight.textContent =
+                weight
+                    ? weight + " t"
+                    : "—";
+
+            previewHeight.textContent =
+                height
+                    ? height + " m"
+                    : "—";
+
+            previewEuro.textContent =
+                euro && euro !== "Izaberite"
+                    ? euro
+                    : "—";
+        }
+
+
+        function updateChecklist() {
+
+            const checks = [
+                {
+                    id: "checkName",
+                    valid:
+                        normalize(nameInput.value).length > 0 &&
+                        normalize(registrationInput.value).length > 0
+                },
+                {
+                    id: "checkVin",
+                    valid:
+                        normalize(vinInput.value).length === 17
+                },
+                {
+                    id: "checkType",
+                    valid:
+                        normalize(typeInput.value).length > 0
+                },
+                {
+                    id: "checkRegistration",
+                    valid:
+                        normalize(registrationExpiryInput.value).length > 0
+                }
+            ];
+
+            checks.forEach(function (check) {
+
+                const element = document.getElementById(check.id);
+
+                if (!element) {
+                    return;
+                }
+
+                element.classList.toggle("complete", check.valid);
+
+            });
+        }
+
+
+        function validateField(input) {
+
+            if (!input) {
+                return true;
+            }
+
+            const value = normalize(input.value);
+
+            let valid = true;
+
+            if (input.hasAttribute("required") && !value) {
+                valid = false;
+            }
+
+            if (input === vinInput && value && value.length !== 17) {
+                valid = false;
+            }
+
+            input.classList.toggle("invalid", !valid);
+
+            return valid;
+        }
+
+
+        function validateForm() {
+
+            const fields = [
+                nameInput,
+                registrationInput,
+                vinInput,
+                typeInput,
+                registrationExpiryInput
+            ];
+
+            let valid = true;
+
+            fields.forEach(function (field) {
+
+                if (!validateField(field)) {
+                    valid = false;
+                }
+
+            });
+
+            return valid;
+        }
+
+
+        function showMessage(text, isError) {
+
+            message.hidden = false;
+            message.textContent = text;
+            message.classList.toggle("error", !!isError);
+
+            message.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest"
+            });
+        }
+
+
+        function setSavingState(saving) {
+
+            [saveButton, saveTopButton].forEach(function (button) {
+
+                if (!button) {
+                    return;
+                }
+
+                button.disabled = saving;
+
+                if (saving) {
+
+                    button.dataset.originalText =
+                        button.innerHTML;
+
+                    button.innerHTML =
+                        "<span>…</span> Čuvanje...";
+
+                } else {
+
+                    button.innerHTML =
+                        button.dataset.originalText ||
+                        "<span>✓</span> Sačuvaj vozilo";
+
+                }
+
+            });
+
+        }
+
+
+        function saveVehicle() {
+
+            if (!validateForm()) {
+
+                showMessage(
+                    "Popunite sva obavezna polja. VIN mora sadržati tačno 17 karaktera.",
+                    true
+                );
+
+                return;
+            }
+
+            setSavingState(true);
+
+            /*
+             * UI ONLY.
+             *
+             * Backend model, Entity Framework persistence,
+             * Identity permissions i Compliance veze biće
+             * povezani kasnije.
+             */
+
+            window.setTimeout(function () {
+
+                setSavingState(false);
+
+                showMessage(
+                    "Vozilo je validirano i spremno za čuvanje. Backend persistence će biti povezan kada budu uvedeni modeli.",
+                    false
+                );
+
+            }, 700);
+        }
+
+
+        form.addEventListener("submit", function (event) {
+
+            event.preventDefault();
 
             saveVehicle();
 
         });
 
-    }
 
+        if (saveTopButton) {
 
-    [
-        nameInput,
-        registrationInput,
-        vinInput,
-        typeInput,
-        registrationExpiryInput,
-        grossWeight,
-        vehicleHeight,
-        emissionClass
-    ].forEach(function (input) {
+            saveTopButton.addEventListener("click", function () {
 
-        if (!input) {
-            return;
+                saveVehicle();
+
+            });
+
         }
 
-        input.addEventListener("input", function () {
+
+        [
+            nameInput,
+            registrationInput,
+            vinInput,
+            typeInput,
+            registrationExpiryInput,
+            grossWeight,
+            vehicleHeight,
+            emissionClass
+        ].forEach(function (input) {
+
+            if (!input) {
+                return;
+            }
+
+            input.addEventListener("input", function () {
+
+                updatePreview();
+                updateChecklist();
+
+            });
+
+            input.addEventListener("change", function () {
+
+                updatePreview();
+                updateChecklist();
+
+            });
+
+        });
+
+
+        vinInput.addEventListener("input", function () {
+
+            this.value =
+                this.value
+                    .toUpperCase()
+                    .replace(/[^A-Z0-9]/g, "")
+                    .slice(0, 17);
+
+            updateChecklist();
+
+        });
+
+
+        registrationInput.addEventListener("input", function () {
+
+            this.value =
+                this.value
+                    .toUpperCase();
 
             updatePreview();
             updateChecklist();
 
         });
 
-        input.addEventListener("change", function () {
 
-            updatePreview();
-            updateChecklist();
+        [
+            nameInput,
+            registrationInput,
+            vinInput,
+            typeInput,
+            registrationExpiryInput
+        ].forEach(function (input) {
+
+            input.addEventListener("blur", function () {
+
+                validateField(input);
+
+            });
 
         });
 
-    });
-
-
-    vinInput.addEventListener("input", function () {
-
-        this.value =
-            this.value
-                .toUpperCase()
-                .replace(/[^A-Z0-9]/g, "")
-                .slice(0, 17);
-
-        updateChecklist();
-
-    });
-
-
-    registrationInput.addEventListener("input", function () {
-
-        this.value =
-            this.value
-                .toUpperCase();
 
         updatePreview();
         updateChecklist();
 
-    });
-
-
-    [
-        nameInput,
-        registrationInput,
-        vinInput,
-        typeInput,
-        registrationExpiryInput
-    ].forEach(function (input) {
-
-        input.addEventListener("blur", function () {
-
-            validateField(input);
-
-        });
-
-    });
-
-
-    updatePreview();
-    updateChecklist();
-
-})();
+    })();
 
 </script>
