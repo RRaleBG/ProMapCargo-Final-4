@@ -1,0 +1,33 @@
+@page "/Account/Lockout"
+@model ProMapCargo.Api.Pages.Account.LockoutModel
+@{
+    ViewData["Title"] = "Nalog zaključan · ProMap Cargo";
+}
+
+<div class="pm-auth-main">
+    <section class="pm-auth-card">
+        <div class="pm-auth-card-glow"></div>
+
+        <header class="pm-auth-header">
+            <div>
+                <div class="pm-auth-eyebrow">Account · Security</div>
+                <h1>Nalog je privremeno zaključan</h1>
+                <p>Zbog previše neuspešnih pokušaja prijave pristup je privremeno onemogućen.</p>
+            </div>
+            <div class="pm-auth-mark"><i data-lucide="lock"></i></div>
+        </header>
+
+        <div class="pm-auth-note">
+            <i data-lucide="timer"></i>
+            <span>Pokušajte ponovo za nekoliko minuta ili obnovite lozinku ako je ne pamtite.</span>
+        </div>
+
+        <div class="pm-auth-actions">
+            <a class="pm-btn pm-btn-primary" asp-page="/Account/ForgotPassword">
+                <i data-lucide="key-round"></i>
+                <span>Obnovi lozinku</span>
+            </a>
+            <a class="pm-btn pm-btn-ghost" asp-page="/Login/Index">Nazad na prijavu</a>
+        </div>
+    </section>
+</div>

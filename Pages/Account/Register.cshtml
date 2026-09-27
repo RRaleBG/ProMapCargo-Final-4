@@ -1,0 +1,65 @@
+@page "/Account/Register"
+@model ProMapCargo.Api.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Kreiranje naloga · ProMap Cargo";
+}
+
+<div class="pm-auth-main">
+    <section class="pm-auth-card">
+        <div class="pm-auth-card-glow"></div>
+
+        <header class="pm-auth-header">
+            <div>
+                <div class="pm-auth-eyebrow">Account · Registration</div>
+                <h1>Kreiranje naloga</h1>
+                <p>Registrujte korisnika za pristup ProMap Cargo platformi.</p>
+            </div>
+            <div class="pm-auth-mark"><i data-lucide="user-plus"></i></div>
+        </header>
+
+        <form method="post" class="pm-auth-form" novalidate>
+            <div asp-validation-summary="ModelOnly" class="pm-validation-summary"></div>
+
+            <div class="pm-auth-field">
+                <label asp-for="Input.DisplayName">Ime i prezime</label>
+                <input asp-for="Input.DisplayName" type="text" autocomplete="name"
+                       maxlength="120" placeholder="Marko Marković" required />
+                <span asp-validation-for="Input.DisplayName" class="field-validation-error"></span>
+            </div>
+
+            <div class="pm-auth-field">
+                <label asp-for="Input.Email">Email adresa</label>
+                <input asp-for="Input.Email" type="email" autocomplete="email"
+                       maxlength="256" placeholder="operator@promapcargo.com" required />
+                <span asp-validation-for="Input.Email" class="field-validation-error"></span>
+            </div>
+
+            <div class="pm-auth-field">
+                <label asp-for="Input.Password">Lozinka</label>
+                <input asp-for="Input.Password" type="password" autocomplete="new-password"
+                       minlength="8" maxlength="128" required />
+                <span class="pm-auth-hint">Najmanje 8 karaktera, sa velikim i malim slovom i brojem.</span>
+                <span asp-validation-for="Input.Password" class="field-validation-error"></span>
+            </div>
+
+            <div class="pm-auth-field">
+                <label asp-for="Input.ConfirmPassword">Potvrda lozinke</label>
+                <input asp-for="Input.ConfirmPassword" type="password" autocomplete="new-password"
+                       minlength="8" maxlength="128" required />
+                <span asp-validation-for="Input.ConfirmPassword" class="field-validation-error"></span>
+            </div>
+
+            <div class="pm-auth-actions">
+                <button class="pm-btn pm-btn-primary" type="submit">
+                    <i data-lucide="user-check"></i>
+                    <span>Kreiraj nalog</span>
+                </button>
+            </div>
+        </form>
+
+        <div class="pm-auth-footer">
+            <span>Već imate nalog?</span>
+            <a asp-page="/Login/Index">Prijavite se</a>
+        </div>
+    </section>
+</div>

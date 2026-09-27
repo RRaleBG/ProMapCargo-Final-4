@@ -1,0 +1,33 @@
+@page "/Account/AccessDenied"
+@model ProMapCargo.Api.Pages.Account.AccessDeniedModel
+@{
+    ViewData["Title"] = "Pristup odbijen · ProMap Cargo";
+}
+
+<div class="pm-auth-main">
+    <section class="pm-auth-card">
+        <div class="pm-auth-card-glow"></div>
+
+        <header class="pm-auth-header">
+            <div>
+                <div class="pm-auth-eyebrow">Account · Authorization</div>
+                <h1>Pristup odbijen</h1>
+                <p>Vaš nalog nema potrebne dozvole za pristup traženoj stranici.</p>
+            </div>
+            <div class="pm-auth-mark"><i data-lucide="shield-alert"></i></div>
+        </header>
+
+        <div class="pm-auth-note">
+            <i data-lucide="info"></i>
+            <span>Ako smatrate da je ovo greška, obratite se administratoru sistema radi dodele odgovarajuće uloge.</span>
+        </div>
+
+        <div class="pm-auth-actions">
+            <a class="pm-btn pm-btn-primary" asp-page="/Index">
+                <i data-lucide="home"></i>
+                <span>Nazad na početnu</span>
+            </a>
+            <a class="pm-btn pm-btn-ghost" asp-page="/Account/Logout">Prijavi se drugim nalogom</a>
+        </div>
+    </section>
+</div>
