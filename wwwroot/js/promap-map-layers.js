@@ -282,14 +282,7 @@
             return null;
         }
 
-        let mapContainer = container.querySelector(":scope > .promap-maplibre-host");
-        if (!mapContainer) {
-            mapContainer = document.createElement("div");
-            mapContainer.className = "promap-maplibre-host";
-            container.prepend(mapContainer);
-        }
-
-        prepareContainer(mapContainer);
+        prepareContainer(container);
 
         const archiveUrl =
             options.archiveUrl ??
@@ -319,6 +312,8 @@
             record.maplibreMap = null;
         }
 
+        container.replaceChildren();
+
         const fallbackCenter = {
             lat: 50.2,
             lng: 9.75,
@@ -331,7 +326,7 @@
             : 4.35;
 
         const maplibreMap = await createMaplibreMap(
-            mapContainer,
+            container,
             archiveUrl,
             center,
             zoom,
@@ -348,7 +343,6 @@
          */
         record = {
             container,
-            mapContainer,
             archiveUrl,
             maplibreMap,
             map: maplibreMap,
@@ -457,79 +451,10 @@
         );
     }
 
-    function setTheme(container, theme) {
-        const map = maps.get(container)?.maplibreMap;
-
-        if (!map || typeof map.setPaintProperty !== "function") {
-            return false;
-        }
-
-        const palettes = {
-            dark: {
-                background: "#091318",
-                landcover: "#223c37",
-                landuse: "#29413e",
-                water: "#123f50",
-                road: "#58d7b5",
-                casing: "#0a2722",
-            },
-            roads: {
-                background: "#e8edf0",
-                landcover: "#dce8dc",
-                landuse: "#e4e8e2",
-                water: "#a9d5e5",
-                road: "#ffffff",
-                casing: "#a7b1b8",
-            },
-            satellite: {
-                background: "#31403b",
-                landcover: "#566b4c",
-                landuse: "#5d684e",
-                water: "#345f72",
-                road: "#e8d8a4",
-                casing: "#554d3d",
-            },
-        };
-
-        const palette = palettes[theme] || palettes.dark;
-        const set = (layer, property, value) => {
-            if (map.getLayer(layer)) {
-                map.setPaintProperty(layer, property, value);
-            }
-        };
-
-        set("background", "background-color", palette.background);
-        set("landcover", "fill-color", palette.landcover);
-        set("landuse", "fill-color", palette.landuse);
-        set("water", "fill-color", palette.water);
-
-        [
-            "road-motorway",
-            "road-trunk",
-            "road-primary",
-            "road-secondary",
-            "road-tertiary",
-            "road-residential",
-            "road-service",
-            "road-minor",
-        ].forEach((layer) => set(layer, "line-color", palette.road));
-
-        [
-            "road-motorway-casing",
-            "road-trunk-casing",
-            "road-primary-casing",
-            "road-secondary-casing",
-            "road-tertiary-casing",
-        ].forEach((layer) => set(layer, "line-color", palette.casing));
-
-        return true;
-    }
-
     manager.attach = attach;
     manager.setArchive = setArchive;
     manager.getArchive = getArchive;
     manager.getMap = getMap;
-    manager.setTheme = setTheme;
     manager.attachToLeaflet = attachToLeaflet;
     manager.setLeafletArchive = setLeafletArchive;
 })();
