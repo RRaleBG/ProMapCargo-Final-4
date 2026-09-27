@@ -1,7 +1,7 @@
 # ProMap Cargo — Project Context
 
 ## Scope
-Treat `D:\Projects\ProMapCargo-Final-4` as the workspace root.
+Treat `C:\Users\rale_\Desktop\ProMapCargo-Final-4` as the workspace root.
 
 ## Architecture
 - .NET 10 Blazor Web App / Interactive Server

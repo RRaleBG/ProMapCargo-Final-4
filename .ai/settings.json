@@ -1,8 +1,5 @@
 {
   "workspace": "C:\\Users\\rale_\\Desktop\\ProMapCargo-Final-4",
-  "mcp": {
-    "config": ".\\mcp.json"
-  },
   "skills": {
     "path": ".\\skills",
     "autoLoad": true
