@@ -256,3 +256,6 @@ docker-compose.override.yml
 !/osm/.gitkeep
 !/wwwroot/maps/.gitkeep
 !/data/.gitkeep
+# Local AI / MCP
+.ai/mcp/*.local.json
+.ai/secrets/
