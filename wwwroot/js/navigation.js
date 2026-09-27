@@ -59,7 +59,7 @@ window.ProMap = window.ProMap || {};
 
         embeddedMode:
             new URLSearchParams(window.location.search).get("embedded") === "1" ||
-            new URLSearchParams(window.location.search).get("mobile") === "1", 
+            new URLSearchParams(window.location.search).get("mobile") === "1",
 
         pendingMobilePayload: null,
 
@@ -172,36 +172,6 @@ window.ProMap = window.ProMap || {};
         return fallback;
     }
 
-    function applyLayerStates(layers) {
-        if (!layers || typeof layers !== "object") {
-            return;
-        }
-
-        const mapping = {
-            route: "route",
-            restrictions: "restrictions",
-            fleet: "fleet",
-            poi: "poi",
-        };
-
-        for (const [source, group] of Object.entries(mapping)) {
-            if (!(source in layers)) {
-                continue;
-            }
-
-            const visible = toBoolean(layers[source], group === "route" || group === "restrictions");
-
-            if (state.localMap?.enhancements?.setGroupVisible) {
-                state.localMap.enhancements.setGroupVisible(group, visible);
-            }
-
-            const checkbox = document.querySelector(`[data-promap-layer="${group}"]`);
-            if (checkbox && "checked" in checkbox) {
-                checkbox.checked = visible;
-            }
-        }
-    }
-
     function buildMobileRouteResponse(payload) {
         const routePoints = Array.isArray(payload?.route)
             ? payload.route.map(normalizePoint).filter(Boolean)
@@ -286,8 +256,6 @@ window.ProMap = window.ProMap || {};
                 timestamp: Date.now(),
             });
         }
-
-        applyLayerStates(payload.layers);
 
         if (state.localMap?.enhancements?.setRoute) {
             const response = buildMobileRouteResponse(payload);
@@ -602,7 +570,7 @@ window.ProMap = window.ProMap || {};
             console.debug(`[GEOMETRY] Array geometry: converted ${value.length} → ${result.length} points`);
             if (result.length > 0) {
                 console.debug(`[GEOMETRY] First point (array): [${result[0][0].toFixed(6)}, ${result[0][1].toFixed(6)}]`);
-                console.debug(`[GEOMETRY] Last point (array): [${result[result.length-1][0].toFixed(6)}, ${result[result.length-1][1].toFixed(6)}]`);
+                console.debug(`[GEOMETRY] Last point (array): [${result[result.length - 1][0].toFixed(6)}, ${result[result.length - 1][1].toFixed(6)}]`);
             }
             return result;
         }
@@ -627,7 +595,7 @@ window.ProMap = window.ProMap || {};
             console.debug(`[GEOMETRY] LineString: converted ${value.coordinates.length} → ${result.length} points`);
             if (result.length > 0) {
                 console.debug(`[GEOMETRY] First point (LineString): [${result[0][0].toFixed(6)}, ${result[0][1].toFixed(6)}]`);
-                console.debug(`[GEOMETRY] Last point (LineString): [${result[result.length-1][0].toFixed(6)}, ${result[result.length-1][1].toFixed(6)}]`);
+                console.debug(`[GEOMETRY] Last point (LineString): [${result[result.length - 1][0].toFixed(6)}, ${result[result.length - 1][1].toFixed(6)}]`);
             }
             if (value.coordinates.length > 0) {
                 console.debug(`[GEOMETRY] Original [lon,lat]: [${value.coordinates[0][0]}, ${value.coordinates[0][1]}]`);
@@ -1124,7 +1092,7 @@ window.ProMap = window.ProMap || {};
             state.localMap.enhancements = window.ProMap.MapEnhancements.install(record.maplibreMap, {
                 visibleGroups: {
                     route: true,
-                    restrictions: true,                  
+                    restrictions: true,
                     fleet: false,
                     poi: true,
                     elevation: false,
@@ -1384,6 +1352,12 @@ window.ProMap = window.ProMap || {};
             state.localMap.archive =
                 record.archiveUrl ||
                 PROMAP_PMTILES_ENDPOINT;
+
+            window.dispatchEvent(
+                new CustomEvent("promap:navigation-map-ready", {
+                    detail: { container: mapElement, map },
+                }),
+            );
 
             console.info(
                 "[ProMap Navigation] MapLibre map ready.",
@@ -3179,7 +3153,7 @@ window.ProMap = window.ProMap || {};
 
                     if (geom?.coordinates && geom.coordinates.length > 0) {
                         console.debug(`[ROUTING-RESPONSE] Route ${idx} first [lon,lat]: [${geom.coordinates[0][0]}, ${geom.coordinates[0][1]}]`);
-                        console.debug(`[ROUTING-RESPONSE] Route ${idx} last [lon,lat]: [${geom.coordinates[geom.coordinates.length-1][0]}, ${geom.coordinates[geom.coordinates.length-1][1]}]`);
+                        console.debug(`[ROUTING-RESPONSE] Route ${idx} last [lon,lat]: [${geom.coordinates[geom.coordinates.length - 1][0]}, ${geom.coordinates[geom.coordinates.length - 1][1]}]`);
                     }
                 });
             }

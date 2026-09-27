@@ -20,6 +20,11 @@
         pageCssVirtualPath = "/css/pages/profile-index.css";
         pageCssPhysicalPath = System.IO.Path.Combine(webRootPath, "css", "pages", "profile-index.css");
     }
+    if (string.Equals(currentPage, "/Account/Manage/Index", StringComparison.OrdinalIgnoreCase))
+    {
+        pageCssVirtualPath = "/css/pages/profile-index.css";
+        pageCssPhysicalPath = System.IO.Path.Combine(webRootPath, "css", "pages", "profile-index.css");
+    }
     var pageJsPhysicalPath = string.IsNullOrWhiteSpace(pageAssetKey)
         ? null
         : System.IO.Path.Combine(webRootPath, "js", "pages", $"{pageAssetKey}.js");
@@ -181,35 +186,44 @@
                             <span class="pm-nav-section-title">SISTEM</span>
                             <a asp-page="/Account/Manage/Index"
                                class="pm-nav-item @(currentPage == "/Account/Manage/Index" ? "active" : "")">
-                                <i class="pm-nav-icon" data-lucide="user-round" aria-hidden="true"></i><span class="pm-nav-label">Profil</span>
+                                <i class="pm-nav-icon" data-lucide="user-round" aria-hidden="true"></i><span
+                                class="pm-nav-label">Profil</span>
                             </a>
                             @if (User.IsInRole("Administrator"))
-                            {   
-                                <a asp-page="/Account/Admin/Index" class="pm-nav-item @((currentPage == "/Account/Admin/Index" || currentPage == "/Account/Admin") ? "active" : "")">
-                                    <i class="pm-nav-icon" data-lucide="settings-2" aria-hidden="true"></i><span class="pm-nav-label">Administracija</span>
+                            {
+                                <a asp-page="/Account/Admin/Index"
+                                   class="pm-nav-item @((currentPage == "/Account/Admin/Index" || currentPage == "/Account/Admin") ? "active" : "")">
+                                    <i class="pm-nav-icon" data-lucide="settings-2" aria-hidden="true"></i><span
+                                    class="pm-nav-label">Administracija</span>
                                 </a>
                             }
 
                             <a asp-page="/Settings/Index"
                                class="pm-nav-item @(currentPage == "/Settings/Index" ? "active" : "")">
-                                <i class="pm-nav-icon" data-lucide="settings" aria-hidden="true"></i><span class="pm-nav-label">Podešavanja</span>
+                                <i class="pm-nav-icon" data-lucide="settings" aria-hidden="true"></i><span
+                                class="pm-nav-label">Podešavanja</span>
                             </a>
        
-                            <a asp-page="/Account/Logout" class="pm-nav-item @(currentPage == "/Account/Logout" ? "active" : "")">
-                                <i class="pm-nav-icon" data-lucide="log-out" aria-hidden="true"></i><span class="pm-nav-label">Odjava</span>
+                            <a asp-page="/Account/Logout"
+                               class="pm-nav-item @(currentPage == "/Account/Logout" ? "active" : "")">
+                                <i class="pm-nav-icon" data-lucide="log-out" aria-hidden="true"></i><span
+                                class="pm-nav-label">Odjava</span>
                             </a>
                         }
                         else
                         {
                             <span class="pm-nav-section-title">LOGIN</span>
                             <a asp-page="/Login/Index" class="pm-nav-item @(currentPage == "/Login/index" ? "active" : "")">
-                                <i class="pm-nav-icon" data-lucide="log-in" aria-hidden="true"></i><span class="pm-nav-label">Prijava</span>
+                                <i class="pm-nav-icon" data-lucide="log-in" aria-hidden="true"></i><span
+                                class="pm-nav-label">Prijava</span>
                             </a>
 
-                            <a asp-page="/Login/Register" class="pm-nav-item @(currentPage == "/Login/Register" ? "active" : "")">
-                                <i class="pm-nav-icon" data-lucide="log-in" aria-hidden="true"></i><span class="pm-nav-label">Registracija</span>
+                            <a asp-page="/Login/Register"
+                               class="pm-nav-item @(currentPage == "/Login/Register" ? "active" : "")">
+                                <i class="pm-nav-icon" data-lucide="log-in" aria-hidden="true"></i><span
+                                class="pm-nav-label">Registracija</span>
                             </a>
-                        }       
+                        }
                     </div>
                 </div>
             </div>
@@ -247,75 +261,76 @@
                             <span class="pm-user-copy"><strong>Administrator</strong><small>Fleet Operations</small></span>
                             <i class="pm-user-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
                         </a>
-                    }                   
+                    }
                     else if (User.Identity?.IsAuthenticated ?? true && !User.IsInRole("User"))
                     {
                         <a asp-page="/Account/Manage/Index" class="pm-user">
                             <span class="pm-user-avatar">UU</span>
-                            <span class="pm-user-copy"><strong>@User.Identity?.Name</strong><small>Fleet Operations</small></span>
-                            <i class="pm-user-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
-                        </a>
-                    }
+                            <span class="pm-user-copy"><strong>@User.Identity?.Name</strong><small>Fleet
+                                Operations</small></span>
+                                <i class="pm-user-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
+                            </a>
+                        }
                     else
-                    {
-                        <a asp-page="/Login/Index" class="pm-topbar-action" aria-label="Prijava">
-                            <i data-lucide="log-in" aria-hidden="true"></i>
-                        </a>
-                    }
+                        {
+                            <a asp-page="/Login/Index" class="pm-topbar-action" aria-label="Prijava">
+                                <i data-lucide="log-in" aria-hidden="true"></i>
+                            </a>
+                        }
                     
 
-                </div>
-            </header>
+                    </div>
+                </header>
 
-            <main
-                class="pm-content@(isFullscreenWorkspace ? " tw-min-h-0 tw-overflow-hidden tw-p-0 max-[1000px]:tw-overflow-y-auto" : string.Empty)">
-                <div
-                    class="pm-content-inner@(isFullscreenWorkspace ? " tw-flex tw-h-full tw-min-h-0 tw-w-full tw-flex-col tw-overflow-hidden tw-p-0 max-[1000px]:tw-h-auto max-[1000px]:tw-min-h-full max-[1000px]:tw-overflow-visible" : string.Empty)">
-                    @RenderBody()
-                </div>
-            </main>
+                <main
+                    class="pm-content@(isFullscreenWorkspace ? " tw-min-h-0 tw-overflow-hidden tw-p-0 max-[1000px]:tw-overflow-y-auto" : string.Empty)">
+                    <div
+                        class="pm-content-inner@(isFullscreenWorkspace ? " tw-flex tw-h-full tw-min-h-0 tw-w-full tw-flex-col tw-overflow-hidden tw-p-0 max-[1000px]:tw-h-auto max-[1000px]:tw-min-h-full max-[1000px]:tw-overflow-visible" : string.Empty)">
+                        @RenderBody()
+                    </div>
+                </main>
+            </div>
         </div>
-    </div>
 
-    @if (TempData["ToastSuccess"] is string toastSuccess)
-    {
-        <div id="pm-server-toast" data-toast-type="success" hidden>@toastSuccess</div>
-    }
-    @if (TempData["ToastError"] is string toastError)
-    {
-        <div id="pm-server-toast" data-toast-type="danger" hidden>@toastError</div>
-    }
+        @if (TempData["ToastSuccess"] is string toastSuccess)
+        {
+            <div id="pm-server-toast" data-toast-type="success" hidden>@toastSuccess</div>
+        }
+        @if (TempData["ToastError"] is string toastError)
+        {
+            <div id="pm-server-toast" data-toast-type="danger" hidden>@toastError</div>
+        }
 
-    <script src="~/lib/lucide.min.js" asp-append-version="true" defer></script>
-    <script src="~/lib/signalr/signalr.min.js" asp-append-version="true" defer></script>
-    <script src="~/js/promap-map-layers.js" asp-append-version="true"></script>
-    <script src="~/js/core/dom.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/events.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/http.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/format.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/validation.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/toast.js" asp-append-version="true" defer></script>
-    <script>
-        window.addEventListener("load", () => {
-            const serverToast = document.getElementById("pm-server-toast");
-            if (serverToast && window.ProMapCargo?.toast) {
-                window.ProMapCargo.toast.show(
-                    serverToast.textContent || "",
-                    serverToast.dataset.toastType || "info");
-            }
-        });
-    </script>
-    <script src="~/js/core/modal.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/icons.js" asp-append-version="true" defer></script>
-    <script src="~/js/core/compat.js" asp-append-version="true" defer></script>
-    <script src="~/js/services/alerts.js" asp-append-version="true" defer></script>
-    <script src="~/js/app.js" asp-append-version="true" defer></script>
-    <script src="~/lib/leaflet/leaflet.js" asp-append-version="true" defer></script>
-    @if (includePageJs)
-    {
-        <script src="@pageJsVirtualPath" asp-append-version="true" defer></script>
-    }
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
+        <script src="~/lib/lucide.min.js" asp-append-version="true" defer></script>
+        <script src="~/lib/signalr/signalr.min.js" asp-append-version="true" defer></script>
+        <script src="~/js/promap-map-layers.js" asp-append-version="true"></script>
+        <script src="~/js/core/dom.js" asp-append-version="true" defer></script>
+        <script src="~/js/core/events.js" asp-append-version="true" defer></script>
+        <script src="~/js/core/http.js" asp-append-version="true" defer></script>
+        <script src="~/js/core/format.js" asp-append-version="true" defer></script>
+        <script src="~/js/core/validation.js" asp-append-version="true" defer></script>
+        <script src="~/js/core/toast.js" asp-append-version="true" defer></script>
+        <script>
+                window.addEventListener("load", () => {
+                    const serverToast = document.getElementById("pm-server-toast");
+                    if (serverToast && window.ProMapCargo?.toast) {
+                        window.ProMapCargo.toast.show(
+                            serverToast.textContent || "",
+                            serverToast.dataset.toastType || "info");
+                    }
+                });
+        </script>
+        <script src="~/js/core/modal.js" asp-append-version="true" defer></script>
+        <script src="~/js/core/icons.js" asp-append-version="true" defer></script>
+        <script src="~/js/core/compat.js" asp-append-version="true" defer></script>
+        <script src="~/js/services/alerts.js" asp-append-version="true" defer></script>
+        <script src="~/js/app.js" asp-append-version="true" defer></script>
+        <script src="~/lib/leaflet/leaflet.js" asp-append-version="true" defer></script>
+        @if (includePageJs)
+        {
+            <script src="@pageJsVirtualPath" asp-append-version="true" defer></script>
+        }
+        @await RenderSectionAsync("Scripts", required: false)
+    </body>
 
 </html>
