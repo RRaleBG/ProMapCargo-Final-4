@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>dotnet-script</id>
+    <version>2.0.1</version>
+    <authors>filipw</authors>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <projectUrl>https://github.com/dotnet-script/dotnet-script</projectUrl>
+    <iconUrl>https://avatars.githubusercontent.com/u/113979420</iconUrl>
+    <description>Dotnet CLI tool allowing you to run C# (CSX) scripts.</description>
+    <tags>dotnet cli script csx csharp roslyn</tags>
+    <packageTypes>
+      <packageType name="DotnetTool" />
+    </packageTypes>
+    <repository type="git" url="https://github.com/dotnet-script/dotnet-script.git" />
+  </metadata>
+</package>

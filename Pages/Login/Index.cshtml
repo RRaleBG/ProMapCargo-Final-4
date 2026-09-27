@@ -1,10 +1,29 @@
 @page "/login"
+@model ProMapCargo.Api.Pages.Login.IndexModel
 @{
-
+    Layout = null;
     ViewData["Title"] = "Login · ProMap Cargo";
 }
 
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#031c18" />
+    <title>@ViewData["Title"]</title>
 
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages/login-index.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/compat.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tailwind.generated.css" asp-append-version="true" />
+</head>
+<body class="pm-login-page">
 <div>
 
     <div class="pm-login-route route-a"></div>
@@ -21,7 +40,7 @@
 
 <div class="pm-login-main">
 
-    <section class="pm-login-shell">
+    <section class="pm-login-shell pm-login-shell-single">
 
 
         <!-- =====================================================
@@ -58,7 +77,9 @@
             </div>
 
 
-            <form method="post" class="pm-login-form">
+            <form method="post" class="pm-login-form" novalidate>
+                <input asp-for="Input.ReturnUrl" type="hidden" />
+                <div asp-validation-summary="ModelOnly" class="pm-login-validation"></div>
 
 
                 <div class="pm-login-field">
@@ -73,10 +94,11 @@
                             @@
                         </span>
 
-                        <input id="email" name="Email" type="email" autocomplete="username"
-                               placeholder="operator@promapcargo.com" required />
+                        <input asp-for="Input.Email" id="email" type="email" autocomplete="username"
+                               placeholder="operator@promapcargo.com" required class="tw-transition-colors tw-duration-150" />
 
                     </div>
+                    <span asp-validation-for="Input.Email" class="pm-login-field-validation"></span>
 
                 </div>
 
@@ -102,8 +124,8 @@
                             ●
                         </span>
 
-                        <input id="password" name="Password" type="password" autocomplete="current-password"
-                               placeholder="Unesite lozinku" required />
+                        <input asp-for="Input.Password" id="password" type="password" autocomplete="current-password"
+                               placeholder="Unesite lozinku" required class="tw-transition-colors tw-duration-150" />
 
                         <button type="button" class="pm-login-password-toggle" id="togglePassword"
                                 aria-label="Prikaži lozinku">
@@ -111,13 +133,14 @@
                         </button>
 
                     </div>
+                    <span asp-validation-for="Input.Password" class="pm-login-field-validation"></span>
 
                 </div>
 
 
                 <label class="pm-login-remember">
 
-                    <input type="checkbox" name="RememberMe" value="true" />
+                    <input asp-for="Input.RememberMe" />
 
                     <span class="pm-login-check"></span>
 
@@ -191,46 +214,108 @@
 
 </div>
 
-
-
-
-@section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const password =
-                document.getElementById("password");
-
-            const toggle =
-                document.getElementById("togglePassword");
-
-            if (password && toggle) {
-
-                toggle.addEventListener("click", function () {
-
-                    const visible =
-                        password.type === "text";
-
-                    password.type =
-                        visible ? "password" : "text";
-
-                    toggle.textContent =
-                        visible ? "◉" : "◎";
-
-                    toggle.setAttribute(
-                        "aria-label",
-                        visible
-                            ? "Prikaži lozinku"
-                            : "Sakrij lozinku"
-                    );
-
-                });
-
-            }
-
-        });
-
-    </script>
-  
+@if (TempData["Toast.Success"] is string toastSuccess)
+{
+    <div id="pm-server-toast" data-toast-type="success" hidden>@toastSuccess</div>
+}
+@if (TempData["Toast.Error"] is string toastError)
+{
+    <div id="pm-server-toast" data-toast-type="danger" hidden>@toastError</div>
 }
 
+<script src="~/lib/lucide.min.js" asp-append-version="true" defer></script>
+<script src="~/js/core/icons.js" asp-append-version="true" defer></script>
+<script src="~/js/core/toast.js" asp-append-version="true" defer></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const password =
+            document.getElementById("password");
+
+        const toggle =
+            document.getElementById("togglePassword");
+
+        if (password && toggle) {
+
+            toggle.addEventListener("click", function () {
+
+                const visible =
+                    password.type === "text";
+
+                password.type =
+                    visible ? "password" : "text";
+
+                toggle.textContent =
+                    visible ? "◉" : "◎";
+
+                toggle.setAttribute(
+                    "aria-label",
+                    visible
+                        ? "Prikaži lozinku"
+                        : "Sakrij lozinku"
+                );
+
+            });
+
+        }
+
+        const form = document.querySelector(".pm-login-form");
+        if (!form) {
+            return;
+        }
+
+        const inputs = Array.from(form.querySelectorAll("input[type='email'], input[type='password']"));
+
+        const applyValidationState = function (input) {
+            const hasValue = (input.value || "").trim().length > 0;
+            const isValid = input.checkValidity();
+
+            input.classList.remove(
+                "tw-border-emerald-400",
+                "tw-ring-2",
+                "tw-ring-emerald-500/20",
+                "tw-border-rose-400",
+                "tw-ring-rose-500/20");
+
+            if (!hasValue) {
+                return;
+            }
+
+            if (isValid) {
+                input.classList.add("tw-border-emerald-400", "tw-ring-2", "tw-ring-emerald-500/20");
+                input.setAttribute("aria-invalid", "false");
+                return;
+            }
+
+            input.classList.add("tw-border-rose-400", "tw-ring-2", "tw-ring-rose-500/20");
+            input.setAttribute("aria-invalid", "true");
+        };
+
+        inputs.forEach(function (input) {
+            input.addEventListener("input", function () {
+                applyValidationState(input);
+            });
+            input.addEventListener("blur", function () {
+                applyValidationState(input);
+            });
+            applyValidationState(input);
+        });
+
+        form.addEventListener("submit", function () {
+            inputs.forEach(applyValidationState);
+        });
+
+        window.addEventListener("load", function () {
+            const serverToast = document.getElementById("pm-server-toast");
+            if (serverToast && window.ProMapCargo?.toast) {
+                window.ProMapCargo.toast.show(
+                    serverToast.textContent || "",
+                    serverToast.dataset.toastType || "info");
+            }
+        });
+
+    });
+</script>
+</body>
+</html>

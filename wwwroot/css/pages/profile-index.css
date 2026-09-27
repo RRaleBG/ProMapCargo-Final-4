@@ -1153,14 +1153,16 @@
    MODAL
    ========================================================= */
 
-.pm-profile-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+.pm-profile-modal
+{
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 60px;
+    justify-content: center;
+    padding: 20px;
 }
 
 .pm-profile-modal[hidden] {

@@ -46,10 +46,16 @@
     <Content Remove="wwwroot\maps\pmtiles.exe" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="tmp\" />
     <Folder Include="wwwroot\icons\" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".github\copilot-instructions.md" />
     <None Include="wwwroot\maps\pmtiles.exe" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="wwwroot\maps\pmtiles-metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

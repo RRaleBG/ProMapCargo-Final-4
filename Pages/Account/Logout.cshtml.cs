@@ -17,6 +17,6 @@ public sealed class LogoutModel(SignInManager<ApplicationUser> signInManager) : 
     {
         await signInManager.SignOutAsync().ConfigureAwait(false);
         TempData["Toast.Success"] = "Uspešno ste odjavljeni.";
-        return RedirectToPage("/Login/Index");
+        return RedirectToPage("/Index");
     }
 }

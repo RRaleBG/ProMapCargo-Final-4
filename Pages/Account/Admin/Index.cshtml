@@ -1,0 +1,297 @@
+@page "/Account/Admin"
+@model ProMapCargo.Api.Pages.Account.Admin.IndexModel
+@{
+    ViewData["Title"] = "Account Admin · ProMap Cargo";
+}
+
+<div class="pm-page pm-account-admin-page" data-module="account-admin">
+    <section class="pm-kpi-grid" aria-label="Account admin pregled">
+
+        <article class="pm-kpi">
+            <div class="pm-kpi-label">Ukupno korisnika</div>
+            <div class="pm-kpi-value">@Model.Summary.TotalUsers</div>
+            <div class="pm-kpi-footer">registrovani nalozi</div>
+            <i data-lucide="users" class="pm-kpi-icon" aria-hidden="true"></i>
+        </article>
+
+        <article class="pm-kpi">
+            <div class="pm-kpi-label">Aktivni nalozi</div>
+            <div class="pm-kpi-value">@Model.Summary.ActiveUsers</div>
+            <div class="pm-kpi-footer">status IsActive = true</div>
+            <i data-lucide="user-check" class="pm-kpi-icon" aria-hidden="true"></i>
+        </article>
+
+        <article class="pm-kpi">
+            <div class="pm-kpi-label">Trenutno online</div>
+            <div class="pm-kpi-value">@Model.Summary.OnlineUsers</div>
+            <div class="pm-kpi-footer">SignalR prisustvo</div>
+            <i data-lucide="wifi" class="pm-kpi-icon" aria-hidden="true"></i>
+        </article>
+
+        <article class="pm-kpi">
+            <div class="pm-kpi-label">Sistemske role</div>
+            <div class="pm-kpi-value">@Model.Summary.RolesCount</div>
+            <div class="pm-kpi-footer">konfigurisane role</div>
+            <i data-lucide="shield-check" class="pm-kpi-icon" aria-hidden="true"></i>
+        </article>
+
+    </section>
+
+    <section class="pm-card pm-account-admin-tabs-shell">
+        <div class="pm-account-admin-tabs" role="tablist" aria-label="Admin sekcije">
+            <button type="button" class="pm-account-admin-tab is-active" role="tab" aria-selected="true" data-tab-target="users">Korisnici</button>
+            <button type="button" class="pm-account-admin-tab" role="tab" aria-selected="false" data-tab-target="roles">Role i dozvole</button>
+            <button type="button" class="pm-account-admin-tab" role="tab" aria-selected="false" data-tab-target="audit">Audit</button>
+        </div>
+
+        <section class="pm-account-admin-tab-panel is-active" data-tab-panel="users">
+            <header class="pm-card-header">
+                <div>
+                    <h2 class="pm-card-title">Korisnici i pristup</h2>
+                    <p class="pm-card-subtitle">Status naloga, online prisustvo, poslednja poseta i administratorske operacije.</p>
+                </div>
+            </header>
+
+            <form method="get" class="pm-account-admin-toolbar">
+                <input type="search" name="Search" value="@Model.Search" placeholder="Pretraga korisnika (ime/email)" class="pm-input" />
+                <select name="Status" class="pm-select">
+                    <option value="all" selected="@(Model.Status == "all")">Svi statusi</option>
+                    <option value="active" selected="@(Model.Status == "active")">Aktivni</option>
+                    <option value="inactive" selected="@(Model.Status == "inactive")">Neaktivni</option>
+                    <option value="locked" selected="@(Model.Status == "locked")">Zaključani</option>
+                    <option value="online" selected="@(Model.Status == "online")">Online</option>
+                </select>
+                <select name="Role" class="pm-select">
+                    <option value="all" selected="@(Model.Role == "all")">Sve role</option>
+                    @foreach (var role in Model.AvailableRoles)
+                    {
+                        <option value="@role.Name" selected="@(string.Equals(Model.Role, role.Name, StringComparison.OrdinalIgnoreCase))">@role.Name</option>
+                    }
+                </select>
+                <select name="PageSize" class="pm-select">
+                    <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                    <option value="20" selected="@(Model.PageSize == 20)">20</option>
+                    <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                </select>
+                <button type="submit" class="pm-btn pm-btn-primary">Primeni</button>
+            </form>
+
+            <div class="pm-table-wrap">
+                <table class="pm-table pm-account-admin-users">
+                    <thead>
+                        <tr>
+                            <th scope="col">Korisnik</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Nalog</th>
+                            <th scope="col">Session state</th>
+                            <th scope="col">Akcije</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>@user.DisplayName</td>
+                                <td>@user.Email</td>
+                                <td>
+                                    <div class="pm-account-admin-role-list">
+                                        @if (user.Roles.Count == 0)
+                                        {
+                                            <span class="pm-badge">Bez role</span>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var role in user.Roles)
+                                            {
+                                                <span class="pm-badge">@role</span>
+                                            }
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (user.IsLocked)
+                                    {
+                                        <span class="pm-badge pm-badge--danger">Zaključan</span>
+                                    }
+                                    else if (user.IsActive)
+                                    {
+                                        <span class="pm-badge pm-badge--success">Aktivan</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="pm-badge">Neaktivan</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="pm-account-admin-session">
+                                        @if (user.IsOnline)
+                                        {
+                                            <span class="pm-badge pm-badge--success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="pm-badge pm-badge--danger">Inactive</span>
+                                        }
+                                        <small>IP: @(string.IsNullOrWhiteSpace(user.LastIpAddress) ? "—" : user.LastIpAddress)</small>
+                                        <small>Lokacija: @(string.IsNullOrWhiteSpace(user.LastLocation) ? "—" : user.LastLocation)</small>
+                                        <small>Poseta: @(user.LastConnectedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</small>
+                                        <small>Odlazak: @(user.LastDisconnectedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</small>
+                                        <small>Last seen: @(user.LastSeenAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="pm-account-admin-actions">
+                                        <form method="post" asp-page-handler="ToggleActive">
+                                            <input type="hidden" name="userId" value="@user.Id" />
+                                            <button class="pm-btn pm-btn-sm @(user.IsActive ? "pm-btn-secondary" : "pm-btn-primary")" type="submit">
+                                                @(user.IsActive ? "Deaktiviraj" : "Aktiviraj")
+                                            </button>
+                                        </form>
+
+                                        <form method="post" asp-page-handler="ToggleLock">
+                                            <input type="hidden" name="userId" value="@user.Id" />
+                                            <button class="pm-btn pm-btn-sm @(user.IsLocked ? "pm-btn-secondary" : "pm-btn-danger")" type="submit">
+                                                @(user.IsLocked ? "Otključaj" : "Zaključaj")
+                                            </button>
+                                        </form>
+
+                                        <details class="pm-account-admin-role-editor">
+                                            <summary class="pm-btn pm-btn-sm">Role</summary>
+                                            <div class="pm-account-admin-role-editor-body">
+                                                @foreach (var role in Model.AvailableRoles)
+                                                {
+                                                    var assigned = user.Roles.Contains(role.Name, StringComparer.OrdinalIgnoreCase);
+                                                    <form method="post" asp-page-handler="SetRole" class="pm-account-admin-role-form">
+                                                        <input type="hidden" name="userId" value="@user.Id" />
+                                                        <input type="hidden" name="roleName" value="@role.Name" />
+                                                        <input type="hidden" name="assign" value="@(!assigned)" />
+                                                        <button class="pm-btn pm-btn-sm @(assigned ? "pm-btn-secondary" : "pm-btn-ghost")" type="submit">
+                                                            @(assigned ? "Ukloni" : "Dodaj") @role.Name
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </div>
+                                        </details>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pm-account-admin-pager">
+                <span>Strana @Model.Pager.Page od @Model.Pager.TotalPages · @Model.Pager.TotalItems korisnika</span>
+                <div class="pm-account-admin-pager-actions">
+                    @if (Model.Pager.Page > 1)
+                    {
+                        <a class="pm-btn pm-btn-sm" asp-page="./Index" asp-route-Search="@Model.Search" asp-route-Status="@Model.Status" asp-route-Role="@Model.Role" asp-route-Page="@(Model.Pager.Page - 1)" asp-route-PageSize="@Model.PageSize">Prethodna</a>
+                    }
+                    @if (Model.Pager.Page < Model.Pager.TotalPages)
+                    {
+                        <a class="pm-btn pm-btn-sm" asp-page="./Index" asp-route-Search="@Model.Search" asp-route-Status="@Model.Status" asp-route-Role="@Model.Role" asp-route-Page="@(Model.Pager.Page + 1)" asp-route-PageSize="@Model.PageSize">Sledeća</a>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="pm-account-admin-tab-panel" data-tab-panel="roles">
+            <header class="pm-card-header">
+                <div>
+                    <h2 class="pm-card-title">Role i dozvole</h2>
+                    <p class="pm-card-subtitle">Savremeni permission model: granularna prava grupisana po domenima.</p>
+                </div>
+            </header>
+
+            <div class="pm-account-admin-permissions">
+                @foreach (var role in Model.RolePermissions)
+                {
+                    <article class="pm-account-admin-role-card">
+                        <h3>@role.RoleName</h3>
+                        @foreach (var group in role.AllPermissions.GroupBy(p => p.Split('.')[0], StringComparer.OrdinalIgnoreCase).OrderBy(g => g.Key))
+                        {
+                            <div class="pm-account-admin-permission-group">
+                                <h4>@group.Key</h4>
+                                <div class="pm-account-admin-permission-grid">
+                                    @foreach (var permission in group)
+                                    {
+                                        var hasPermission = role.AssignedPermissions.Contains(permission, StringComparer.OrdinalIgnoreCase);
+                                        <form method="post" asp-page-handler="TogglePermission" class="pm-account-admin-permission-form">
+                                            <input type="hidden" name="roleId" value="@role.RoleId" />
+                                            <input type="hidden" name="permission" value="@permission" />
+                                            <input type="hidden" name="grant" value="@(!hasPermission)" />
+                                            <button class="pm-account-admin-permission-chip @(hasPermission ? "is-enabled" : "")" type="submit">
+                                                <span class="state-dot" aria-hidden="true"></span>
+                                                <span>@permission</span>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </article>
+                }
+            </div>
+        </section>
+
+        <section class="pm-account-admin-tab-panel" data-tab-panel="audit">
+            <header class="pm-card-header">
+                <div>
+                    <h2 class="pm-card-title">Poslednje administratorske aktivnosti</h2>
+                    <p class="pm-card-subtitle">Audit log promena korisnika, rola i dozvola sa vremenom i IP adresom.</p>
+                </div>
+            </header>
+            <div class="pm-table-wrap">
+                <table class="pm-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Vreme</th>
+                            <th scope="col">Akcija</th>
+                            <th scope="col">Entitet</th>
+                            <th scope="col">Korisnik</th>
+                            <th scope="col">IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model.RecentAuditLogs)
+                        {
+                            <tr>
+                                <td>@log.CreatedAt.LocalDateTime.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                                <td>@log.Action</td>
+                                <td>@log.EntityType @log.EntityId</td>
+                                <td>@(log.UserId?.ToString() ?? "Sistem")</td>
+                                <td>@(string.IsNullOrWhiteSpace(log.IpAddress) ? "—" : log.IpAddress)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const tabs = Array.from(document.querySelectorAll("[data-tab-target]"));
+            const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
+
+            tabs.forEach(function (tab) {
+                tab.addEventListener("click", function () {
+                    const target = tab.getAttribute("data-tab-target");
+
+                    tabs.forEach(function (item) {
+                        const active = item === tab;
+                        item.classList.toggle("is-active", active);
+                        item.setAttribute("aria-selected", active ? "true" : "false");
+                    });
+
+                    panels.forEach(function (panel) {
+                        panel.classList.toggle("is-active", panel.getAttribute("data-tab-panel") === target);
+                    });
+                });
+            });
+        });
+    </script>
+}

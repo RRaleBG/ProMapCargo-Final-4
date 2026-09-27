@@ -51,7 +51,7 @@ public sealed class RegisterModel(UserManager<ApplicationUser> userManager) : Pa
         if (result.Succeeded)
         {
             TempData["Toast.Success"] = "Nalog je kreiran. Možete se prijaviti.";
-            return RedirectToPage("/Login/Index");
+            return Redirect("/login");
         }
 
         foreach (var error in result.Errors)

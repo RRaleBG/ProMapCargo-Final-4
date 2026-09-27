@@ -1,8 +1,8 @@
 :root {
     --pm-font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --pm-font-xs: 11px;
-    --pm-font-sm: 12px;
-    --pm-font-md: 14px;
+    --pm-font-xs: 12px;
+    --pm-font-sm: 13px;
+    --pm-font-md: 16px;
     --pm-font-base: 16px;
     --pm-font-lg: 18px;
     --pm-font-xl: 24px;

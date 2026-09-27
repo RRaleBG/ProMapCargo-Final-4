@@ -12,6 +12,8 @@ public interface ICurrentUserContext
     bool IsAdministrator{get;}
 
     bool IsInRole(string role);
+
+    bool HasPermission(string permission);
 }
 
 
@@ -29,4 +31,6 @@ public sealed class CurrentUserContext(IHttpContextAccessor a):ICurrentUserConte
     public bool IsAdministrator=>U.IsInRole("Administrator");
 
     public bool IsInRole(string role)=>U.IsInRole(role);
+
+    public bool HasPermission(string permission)=>U.Claims.Any(x=>x.Type=="permission"&&string.Equals(x.Value,permission,StringComparison.OrdinalIgnoreCase));
 }

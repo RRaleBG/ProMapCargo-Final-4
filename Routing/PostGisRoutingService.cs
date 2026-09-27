@@ -3,12 +3,10 @@ using ProMapCargo.Api.Models;
 namespace ProMapCargo.Api.Routing;
 
 
-
 public interface IPostGisRoutingService
 {
     Task<RouteResponse> CalculateAsync(RouteRequest request, CancellationToken ct);
 }
-
 
 
 public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSnapper snapper, PostGisAStarRouter
@@ -84,7 +82,7 @@ public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSna
 
     public async Task<RouteResponse> CalculateAsync(RouteRequest request, CancellationToken ct)
     {
-        Console.WriteLine($"[ROUTING] CalculateAsync START - Start:[{request.Start.Lat:F6}, {request.Start.Lon:F6}], Target:[{request.Target.Lat:F6}, {request.Target.Lon:F6}]");
+        Console.WriteLine($"[ROUTING] CalculateAsync START - Start:[{request?.Start?.Lat:F6}, {request?.Start?.Lon:F6}], Target:[{request.Target.Lat:F6}, {request.Target.Lon:F6}]");
 
         var truck = request.Truck ?? new TruckProfile
         {
@@ -198,8 +196,8 @@ public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSna
                         ? "Start could not be snapped to the active graph."
                         : "Destination could not be snapped to the active graph."
             }
-        }
-        ;
+        };
+
         var r = await router.RouteAsync(s, e, truck, version.Value, ct);
 
         if (!r.Success)

@@ -7,33 +7,9 @@
 <div id="navigationPage"
      class="pm-page pm-navigation-page tw-flex tw-h-full tw-min-h-0 tw-flex-col tw-gap-3 max-[1000px]:tw-h-auto"
      data-module="navigation">
+
     <div class="nav-page-header tw-shrink-0">
 
-
-        <div class="nav-header-status">
-            <div class="nav-status-card">
-                <span class="nav-status-light"></span>
-
-                <div>
-                    <small>GPS STATUS</small>
-                    <strong id="gpsStatus">OFF</strong>
-                </div>
-
-            </div>
-
-
-            <div class="nav-status-card">
-
-                <span class="nav-status-light emerald"></span>
-
-                <div>
-                    <small>ROUTING ENGINE</small>
-                    <strong id="engineHeader">POSTGIS</strong>
-                </div>
-
-            </div>
-
-        </div>
 
     </div>
 
@@ -42,8 +18,7 @@
          MAIN WORKSPACE
          ===================================================== -->
 
-    <div
-        class="navigation-workspace tw-min-h-0 tw-flex-1 max-[1000px]:tw-flex-none max-[1000px]:tw-grid-cols-1 max-[1000px]:tw-gap-3">
+    <div class="navigation-workspace tw-min-h-0 tw-flex-1 max-[1000px]:tw-flex-none max-[1000px]:tw-grid-cols-1 max-[1000px]:tw-gap-3">
 
 
         <!-- =================================================
@@ -72,20 +47,14 @@
                         </div>
 
 
-                        <div class="nav-map-engine">
-                            <button type="button" id="mapBasemapToggle" class="pm-btn pm-btn--secondary nav-basemap-toggle"
-                                    aria-label="Promeni podlogu mape" aria-live="polite">
+                        <div>
+                            <button type="button" id="mapBasemapToggle"
+                                    class="pm-btn pm-btn-secondary nav-basemap-toggle" aria-label="Promeni podlogu mape"
+                                    aria-live="polite">
                                 <i data-lucide="layers-3" aria-hidden="true"></i>
-                                <span id="mapBasemapLabel">Dark</span>
-                            </button>
-                            <span></span>
-
-                            <strong id="routeSafeBadge">
-                                TRUCK SAFE
-                            </strong>
-
+                    
+                            </button>                
                         </div>
-
                     </div>
 
 
@@ -1119,178 +1088,56 @@
 
             bindMobileSheetToggle();
 
-            let panelBound = false;
+            const basemapModes = ["dark", "roads", "satellite"];
+            const basemapLabels = {
+                dark: "Dark",
+                roads: "Roads",
+                satellite: "Satellite",
+            };
+            let basemapIndex = 0;
 
-            function bindProMapLayerPanel() {
-                const panel =
-                    document.getElementById("promapLayerPanel");
+            function bindBasemapToggle(container) {
+                const button = document.getElementById("mapBasemapToggle");
+                const label = document.getElementById("mapBasemapLabel");
 
-                if (!panel) {
-                    console.warn(
-                        "[ProMap Layers] #promapLayerPanel nije pronađen."
-                    );
-
-                    return false;
+                if (!button || !label || !container) {
+                    return;
                 }
 
-                /*
-                 * Ne bindujemo isti panel više puta.
-                 */
-                if (
-                    panelBound ||
-                    panel.dataset.bound === "1"
-                ) {
-                    return true;
-                }
+                button.addEventListener("click", () => {
+                    basemapIndex =
+                        (basemapIndex + 1) % basemapModes.length;
 
-                /*
-                 * MapEnhancementState nastaje u:
-                 *
-                 * ProMap.MapEnhancements.install(...)
-                 *
-                 * Zato panel mora da sačeka da mapa
-                 * i operational layers budu spremni.
-                 */
-                const state =
-                    window.ProMap?.MapEnhancementState;
+                    const mode = basemapModes[basemapIndex];
+                    const changed =
+                        window.ProMap?.MapLayers?.setTheme?.(
+                            container,
+                            mode,
+                        );
 
-                if (
-                    !state ||
-                    typeof state.setGroupVisible !== "function"
-                ) {
-                    console.info(
-                        "[ProMap Layers] Čekam MapEnhancementState..."
-                    );
-
-                    return false;
-                }
-
-                const inputs =
-                    panel.querySelectorAll(
-                        "input[data-promap-layer]"
-                    );
-
-                if (!inputs.length) {
-                    console.warn(
-                        "[ProMap Layers] Nema layer checkboxova u panelu."
-                    );
-
-                    return false;
-                }
-
-                /*
-                 * Sada je panel stvarno povezan.
-                 */
-                panelBound = true;
-                panel.dataset.bound = "1";
-
-                inputs.forEach((input) => {
-
-                    input.addEventListener(
-                        "change",
-                        () => {
-                            const group =
-                                input.dataset.promapLayer;
-
-                            if (!group) {
-                                return;
-                            }
-
-                            const visible =
-                                input.checked;
-
-                            console.info(
-                                `[ProMap Layers] ${group}: ${visible
-                                    ? "ON"
-                                    : "OFF"
-                                }`
-                            );
-
-                            state.setGroupVisible(
-                                group,
-                                visible
-                            );
-                        }
-                    );
-                });
-
-                /*
-                 * Sinhronizuj početno stanje checkboxova
-                 * sa trenutnim MapEnhancementState stanjem.
-                 */
-                let currentGroups = {};
-
-                if (
-                    typeof state.getVisibleGroups ===
-                    "function"
-                ) {
-                    currentGroups =
-                        state.getVisibleGroups() || {};
-                }
-
-                inputs.forEach((input) => {
-                    const group =
-                        input.dataset.promapLayer;
-
-                    if (!group) {
+                    if (!changed) {
+                        basemapIndex = 0;
                         return;
                     }
 
-                    /*
-                     * Ako state već zna stanje grupe,
-                     * checkbox prati state.
-                     */
-                    if (
-                        Object.prototype.hasOwnProperty.call(
-                            currentGroups,
-                            group
-                        )
-                    ) {
-                        input.checked =
-                            currentGroups[group] !== false;
-                    }
-
-                    /*
-                     * Primeni stanje na MapLibre.
-                     */
-                    state.setGroupVisible(
-                        group,
-                        input.checked
+                    label.textContent = basemapLabels[mode];
+                    button.setAttribute(
+                        "aria-label",
+                        `Podloga mape: ${basemapLabels[mode]}`,
                     );
                 });
-
-                console.info(
-                    `[ProMap Layers] Panel povezan: ${inputs.length} layer grupa.`
-                );
-
-                return true;
             }
 
-            /*
-             * Pokušaj odmah.
-             *
-             * Ako navigation.js još nije napravio mapu,
-             * funkcija samo vraća false.
-             */
-            bindProMapLayerPanel();
-
-            /*
-             * navigation.js šalje ovaj event odmah nakon:
-             *
-             * MapEnhancements.install(...)
-             *
-             */
             window.addEventListener(
-                "promap:map-enhancements-ready",
-                () => {
-                    console.info(
-                        "[ProMap Layers] MapEnhancements ready — binding panel."
-                    );
-
-                    bindProMapLayerPanel();
-                },
-                { once: true }
+                "promap:navigation-map-ready",
+                (event) => bindBasemapToggle(event.detail?.container),
+                { once: true },
             );
+
+            const readyMap = document.getElementById("navMap");
+            if (readyMap?.querySelector(".promap-maplibre-host")) {
+                bindBasemapToggle(readyMap);
+            }
 
         })();
     </script>

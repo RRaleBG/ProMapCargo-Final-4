@@ -328,11 +328,7 @@ Importer executes this schema file to create:
 - `routing_cell_adjacency`, `routing_boundaries` — Spatial adjacency
 
 #### Database Connection
-Default fallback (if env vars not set):
-```
-Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
-```
-
+Default fallback (if env vars not set):Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
 **Important**: When run on Windows host, use `Host=localhost`. When run in Docker, use `Host=postgres` (Docker DNS).
 
 #### Processing Pipeline
@@ -353,7 +349,6 @@ Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_de
 
 #### Progress Tracking
 - Console output at each major stage: schema, cleanup, version insert, PBF parse, node/way/restriction copy, finalization
-- Progress every 10,000 ways and 1,000 restrictions
 
 ---
 
@@ -456,8 +451,6 @@ Routing consists of two engines:
 - **Important**: Do NOT claim OSRM is truck-aware; it is standard driving
 
 ### Engine Selection Logic (RoutingController.cs)
-
-```csharp
 // Pseudo-code
 var postgisResult = await _postgisService.CalculateAsync(request, ct);
 if (postgisResult.Code == "Success")
@@ -471,8 +464,6 @@ if (postgisResult.Code == "NoGraph" || postgisResult.Code == "GraphError" || ...
 }
 
 return BadRequest(postgisResult);
-```
-
 **Critical**: Never silently swap engines; always identify which engine produced the result in the response.
 
 ---
@@ -649,8 +640,6 @@ Local development stack (`docker-compose.yml`):
 ## 14. COMPLETE PROJECT MAP
 
 ### ProMapCargo.Api
-
-```
 ProMapCargo.Api/
 ├── Program.cs                           ← Entry point
 ├── ProMapCargo.Api.csproj
@@ -794,11 +783,7 @@ ProMapCargo.Api/
 	│
 	└── styles/
 		└── promap-dark.json             ← MapLibre style
-```
-
 ### ProMapCargo.Mobile
-
-```
 ProMapCargo.Mobile/
 ├── ProMapCargo.Mobile.csproj            ← MAUI project
 │
@@ -867,11 +852,7 @@ ProMapCargo.Mobile/
 		├── App.xaml, App.xaml.cs
 		├── app.manifest
 		└── Package.appxmanifest
-```
-
 ### ProMapCargo.OsmImporter
-
-```
 Importer/
 ├── ProMapCargo.OsmImporter.csproj       ← Console app
 │
@@ -903,8 +884,6 @@ Importer/
 ├── OsmRestrictionImporter.cs            ← Restriction parsing
 │
 └── (Sql/03-routing-graph.sql)           ← Schema (created at runtime)
-```
-
 ---
 
 ## 15. MIGRATION & DEPLOYMENT NOTES
@@ -932,3 +911,9 @@ Importer/
 ---
 
 **Last updated**: This document consolidates all three projects (API, Mobile, Importer) with complete file tree, responsibilities, and architecture into one authoritative reference.
+
+---
+
+## 16. UI/Architecture Changes
+
+Before making major UI/architecture changes, ask for explicit confirmation and scope first; preserve Identity/authentication UI and features.

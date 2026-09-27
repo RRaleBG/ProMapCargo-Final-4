@@ -74,7 +74,7 @@ public sealed class ResetPasswordModel(UserManager<ApplicationUser> userManager)
         }
 
         TempData["Toast.Success"] = "Lozinka je uspešno promenjena. Prijavite se novom lozinkom.";
-        return RedirectToPage("/Login/Index");
+        return Redirect("/login");
     }
 
     public sealed class ResetPasswordInput

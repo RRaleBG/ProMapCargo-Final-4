@@ -169,33 +169,47 @@
                                aria-hidden="true"></i><span class="pm-nav-label">Izveštaji</span>
                         </a>
                     </div>
-
-                    <div class="pm-nav-section">
-                        <div class="pm-nav-section-title">SISTEM</div>
-                        <a asp-page="/Settings/Index"
-                           class="pm-nav-item @(currentPage == "/Settings/Index" ? "active" : "")">
-                            <i class="pm-nav-icon" data-lucide="settings" aria-hidden="true"></i><span
-                            class="pm-nav-label">Podešavanja</span>
-                        </a>
-                        <a asp-page="/Account/Manage/Index"
-                           class="pm-nav-item @(currentPage == "/Account/Manage/Index" ? "active" : "")">
-                            <i class="pm-nav-icon" data-lucide="user-round" aria-hidden="true"></i><span
-                            class="pm-nav-label">Profil</span>
-                        </a>
-                        <a asp-page="/Admin/Index" class="pm-nav-item @(currentPage == "/Admin/Index" ? "active" : "")">
-                            <i class="pm-nav-icon" data-lucide="settings-2" aria-hidden="true"></i><span
-                            class="pm-nav-label">Administracija</span>
-                        </a>
-                    </div>
+                                
                 </nav>
 
+    
                 <div class="pm-sidebar-footer">
-                    <div class="pm-sidebar-version">
-                        <span class="pm-brand-mini"><span></span><span></span><span></span></span>
-                        <div><strong>ProMap Cargo</strong><small>Fleet Intelligence Platform</small></div>
-                    </div>
-                    <div class="pm-sidebar-footer-line">
-                        <span>v1.0.0</span><span>·</span><span>PostGIS</span><span>·</span><span>OSM</span>
+
+                    <div class="pm-nav-section">
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <span class="pm-nav-section-title">SISTEM</span>
+                            <a asp-page="/Account/Manage/Index"
+                               class="pm-nav-item @(currentPage == "/Account/Manage/Index" ? "active" : "")">
+                                <i class="pm-nav-icon" data-lucide="user-round" aria-hidden="true"></i><span class="pm-nav-label">Profil</span>
+                            </a>
+                            @if (User.IsInRole("Administrator"))
+                            {   
+                                <a asp-page="/Account/Admin/Index" class="pm-nav-item @((currentPage == "/Account/Admin/Index" || currentPage == "/Account/Admin") ? "active" : "")">
+                                    <i class="pm-nav-icon" data-lucide="settings-2" aria-hidden="true"></i><span class="pm-nav-label">Administracija</span>
+                                </a>
+                            }
+
+                            <a asp-page="/Settings/Index"
+                               class="pm-nav-item @(currentPage == "/Settings/Index" ? "active" : "")">
+                                <i class="pm-nav-icon" data-lucide="settings" aria-hidden="true"></i><span class="pm-nav-label">Podešavanja</span>
+                            </a>
+       
+                            <a asp-page="/Account/Logout" class="pm-nav-item @(currentPage == "/Account/Logout" ? "active" : "")">
+                                <i class="pm-nav-icon" data-lucide="log-out" aria-hidden="true"></i><span class="pm-nav-label">Odjava</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="pm-nav-section-title">LOGIN</span>
+                            <a asp-page="/Login/Index" class="pm-nav-item @(currentPage == "/Login/index" ? "active" : "")">
+                                <i class="pm-nav-icon" data-lucide="log-in" aria-hidden="true"></i><span class="pm-nav-label">Prijava</span>
+                            </a>
+
+                            <a asp-page="/Login/Register" class="pm-nav-item @(currentPage == "/Login/Register" ? "active" : "")">
+                                <i class="pm-nav-icon" data-lucide="log-in" aria-hidden="true"></i><span class="pm-nav-label">Registracija</span>
+                            </a>
+                        }       
                     </div>
                 </div>
             </div>
@@ -225,11 +239,31 @@
                         <i class="pm-notification-icon" data-lucide="bell" aria-hidden="true"></i>
                         <span class="pm-notification-badge" data-alert-count hidden>0</span>
                     </a>
-                    <a asp-page="/Account/Manage/Index" class="pm-user">
-                        <span class="pm-user-avatar">MP</span>
-                        <span class="pm-user-copy"><strong>Administrator</strong><small>Fleet Operations</small></span>
-                        <i class="pm-user-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
-                    </a>
+
+                    @if (User.Identity?.IsAuthenticated ?? true && User.IsInRole("Administrator"))
+                    {
+                        <a asp-page="/Account/Manage/Index" class="pm-user">
+                            <span class="pm-user-avatar">MP</span>
+                            <span class="pm-user-copy"><strong>Administrator</strong><small>Fleet Operations</small></span>
+                            <i class="pm-user-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
+                        </a>
+                    }                   
+                    else if (User.Identity?.IsAuthenticated ?? true && !User.IsInRole("User"))
+                    {
+                        <a asp-page="/Account/Manage/Index" class="pm-user">
+                            <span class="pm-user-avatar">UU</span>
+                            <span class="pm-user-copy"><strong>@User.Identity?.Name</strong><small>Fleet Operations</small></span>
+                            <i class="pm-user-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-page="/Login/Index" class="pm-topbar-action" aria-label="Prijava">
+                            <i data-lucide="log-in" aria-hidden="true"></i>
+                        </a>
+                    }
+                    
+
                 </div>
             </header>
 
@@ -243,11 +277,11 @@
         </div>
     </div>
 
-    @if (TempData["Toast.Success"] is string toastSuccess)
+    @if (TempData["ToastSuccess"] is string toastSuccess)
     {
         <div id="pm-server-toast" data-toast-type="success" hidden>@toastSuccess</div>
     }
-    @if (TempData["Toast.Error"] is string toastError)
+    @if (TempData["ToastError"] is string toastError)
     {
         <div id="pm-server-toast" data-toast-type="danger" hidden>@toastError</div>
     }

@@ -4,27 +4,48 @@
     ViewData["Title"] = "Odjava · ProMap Cargo";
 }
 
-<div class="pm-auth-main">
-    <section class="pm-auth-card">
-        <div class="pm-auth-card-glow"></div>
+<div class="pm-logout-main">
+    <section class="pm-logout-card pm-card">
+        <div class="pm-logout-card-glow"></div>
 
-        <header class="pm-auth-header">
+        <header class="pm-logout-header">
             <div>
-                <div class="pm-auth-eyebrow">Account · Session</div>
-                <h1>Odjava</h1>
-                <p>Da li želite da završite trenutnu sesiju na ovom uređaju?</p>
+                <div class="pm-logout-eyebrow">Account · Session</div>
+                <h1>Potvrda odjave</h1>
+                <p>Završićete trenutnu sesiju na ovom uređaju. Za nastavak rada biće potrebna ponovna prijava.</p>
             </div>
-            <div class="pm-auth-mark"><i data-lucide="log-out"></i></div>
+            <span class="pm-logout-icon" aria-hidden="true">
+                <i data-lucide="shield-alert"></i>
+            </span>
         </header>
 
-        <form method="post" class="pm-auth-form">
-            <div class="pm-auth-actions">
-                <button class="pm-btn pm-btn-primary" type="submit">
+        <div class="pm-logout-warning" role="status" aria-live="polite">
+            <i data-lucide="info"></i>
+            <span>Proverite da li ste sačuvali sve izmene pre odjave.</span>
+        </div>
+
+        <form method="post" class="pm-logout-form">
+            <div class="pm-logout-actions">
+                <button class="pm-btn pm-btn-danger pm-btn-lg" type="submit">
                     <i data-lucide="log-out"></i>
                     <span>Odjavi me</span>
                 </button>
-                <a class="pm-btn pm-btn-ghost" asp-page="/Index">Odustani</a>
+
+                <a class="pm-btn pm-btn-secondary pm-btn-lg" href="/" onclick="event.preventDefault(); window.history.back();">
+                    <i data-lucide="arrow-left"></i>
+                    <span>Odustani</span>
+                </a>
             </div>
         </form>
     </section>
 </div>
+
+@section Scripts {
+    <script>
+        window.addEventListener("load", () => {
+            if (window.ProMapCargo?.toast) {
+                window.ProMapCargo.toast.info("Ako nastavite, trenutna sesija će biti zatvorena.", 3600);
+            }
+        });
+    </script>
+}

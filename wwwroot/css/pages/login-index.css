@@ -7,6 +7,7 @@
 {
     position: relative;
     min-height: 100vh;
+    margin: 0;
     overflow: hidden;
     color: var(--pm-text, #e6f4ef);
     background: radial-gradient( circle at 15% 15%, rgba(16,185,129,.08), transparent 32% ), radial-gradient( circle at 85% 75%, rgba(45,212,191,.055), transparent 30% ), linear-gradient( 145deg, #020b09 0%, #041612 48%, #061b17 100% );
@@ -185,7 +186,7 @@
 {
     position: relative;
     z-index: 2;
-    min-height: calc(100vh - 70px);
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -200,6 +201,13 @@
     grid-template-columns: minmax(0, 1.1fr) minmax(390px, .78fr);
     gap: 18px;
     align-items: stretch;
+}
+
+
+.pm-login-shell-single
+{
+    width: min(520px, 100%);
+    grid-template-columns: minmax(0, 1fr);
 }
 
 
@@ -627,7 +635,8 @@
     color: #e8f5f1;
     font-family: inherit;
     font-size: 10px;
-    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    transform: translateY(0) scale(1);
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .18s ease;
 }
 
 
@@ -648,6 +657,8 @@
         border-color: rgba(45,212,191,.42);
         background: rgba(2,23,19,.88);
         box-shadow: 0 0 0 3px rgba(45,212,191,.055);
+        transform: translateY(-1px) scale(1.01);
+        animation: pmLoginInputFocus .22s ease-out;
     }
 
 
@@ -671,6 +682,62 @@
         color: #2dd4bf;
         background: rgba(45,212,191,.055);
     }
+
+
+.pm-login-field-validation
+{
+    min-height: 14px;
+    color: #fb7185;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+
+.pm-login-validation ul
+{
+    margin: 0;
+    padding-left: 14px;
+}
+
+
+.pm-login-input-wrap input.input-validation-error
+{
+    border-color: #fb7185;
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, .13);
+}
+
+
+.tw-border-emerald-400
+{
+    border-color: #34d399 !important;
+}
+
+
+.tw-border-rose-400
+{
+    border-color: #fb7185 !important;
+}
+
+
+.tw-ring-2
+{
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, .10) !important;
+}
+
+
+.tw-ring-emerald-500\/20
+{
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, .18) !important;
+    animation: pmLoginInputValid .20s ease-out;
+}
+
+
+.tw-ring-rose-500\/20
+{
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, .18) !important;
+    animation: pmLoginInputInvalid .22s ease-out;
+}
 
 
 /* =========================================================
@@ -909,6 +976,48 @@
 }
 
 
+@keyframes pmLoginInputFocus
+{
+    0%
+    {
+        transform: translateY(0) scale(1);
+    }
+
+    100%
+    {
+        transform: translateY(-1px) scale(1.01);
+    }
+}
+
+
+@keyframes pmLoginInputValid
+{
+    0%
+    {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, .32);
+    }
+
+    100%
+    {
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, .18);
+    }
+}
+
+
+@keyframes pmLoginInputInvalid
+{
+    0%
+    {
+        box-shadow: 0 0 0 0 rgba(244, 63, 94, .36);
+    }
+
+    100%
+    {
+        box-shadow: 0 0 0 3px rgba(244, 63, 94, .18);
+    }
+}
+
+
 /* =========================================================
    RESPONSIVE
    ========================================================= */
@@ -953,7 +1062,7 @@
 
     .pm-login-main
     {
-        min-height: calc(100vh - 62px);
+        min-height: 100vh;
         padding: 18px 12px;
     }
 

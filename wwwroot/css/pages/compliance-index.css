@@ -226,6 +226,42 @@
   font-weight: 900;
 }
 
+.compliance-kpi-icon i[data-lucide] {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.2px;
+}
+
+.compliance-kpi-total .compliance-kpi-icon {
+  color: var(--pm-teal);
+  background: rgba(45, 212, 191, 0.1);
+}
+
+.compliance-kpi-good .compliance-kpi-icon {
+  color: var(--pm-emerald-300);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.compliance-kpi-warning .compliance-kpi-icon {
+  color: var(--pm-warning);
+  background: var(--pm-warning-bg);
+}
+
+.compliance-kpi-danger .compliance-kpi-icon {
+  color: var(--pm-danger);
+  background: var(--pm-danger-bg);
+}
+
+.compliance-kpi-info .compliance-kpi-icon {
+  color: var(--pm-info);
+  background: var(--pm-info-bg);
+}
+
+.compliance-kpi-neutral .compliance-kpi-icon {
+  color: #c4b5fd;
+  background: rgba(168, 85, 247, 0.1);
+}
+
 .compliance-kpi-value {
   display: block;
   margin-top: 13px;
@@ -951,9 +987,39 @@
   border: 1px solid var(--pm-border-soft);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.025);
-  color: var(--pm-text-muted);
+  color: var(--pm-cyan);
   cursor: pointer;
   transition: 0.16s ease;
+}
+
+.icon-action i[data-lucide] {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.2px;
+}
+
+.document-valid .icon-action {
+  color: var(--pm-emerald-300);
+  border-color: rgba(16, 185, 129, 0.18);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.document-valid .icon-action:hover {
+  color: #a7f3d0;
+  border-color: rgba(16, 185, 129, 0.34);
+  background: rgba(16, 185, 129, 0.13);
+}
+
+.document-expired .icon-action {
+  color: var(--pm-danger);
+  border-color: rgba(251, 113, 133, 0.22);
+  background: rgba(244, 63, 94, 0.1);
+}
+
+.document-expired .icon-action:hover {
+  color: #fecdd3;
+  border-color: rgba(251, 113, 133, 0.38);
+  background: rgba(244, 63, 94, 0.2);
 }
 
 .icon-action:hover {
@@ -1402,13 +1468,15 @@
 }
 
 .compliance-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 5000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+    align-items: flex-start;
+    padding-top: 60px;
+    justify-content: center;
+    padding: 20px;
+
 }
 
 .compliance-modal.open {

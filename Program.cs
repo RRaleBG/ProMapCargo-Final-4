@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -24,6 +25,12 @@ builder.Services.AddRazorPages();
 builder.Services.AddProblemDetails();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 
 // ============================================================
@@ -88,6 +95,13 @@ builder.Services
     .AddEntityFrameworkStores<ProMapCargoDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.LogoutPath = "/Account/Logout";
+});
+
 builder.Services.Configure<MobileAuthOptions>(builder.Configuration.GetSection("MobileAuth"));
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<MobileAuthOptions>>().Value);
 
@@ -115,6 +129,25 @@ builder.Services
         };
     });
 
+var permissionPolicies = new[]
+{
+    "users.read",
+    "users.manage",
+    "roles.manage",
+    "permissions.manage",
+    "dispatch.manage",
+    "trips.manage",
+    "drivers.manage",
+    "vehicles.manage",
+    "orders.manage",
+    "navigation.live",
+    "alerts.manage",
+    "compliance.manage",
+    "finance.manage",
+    "audit.read",
+    "settings.manage"
+};
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("MobileBearer", policy =>
@@ -129,6 +162,14 @@ builder.Services.AddAuthorization(options =>
         policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
         policy.RequireAuthenticatedUser();
     });
+
+    foreach (var permission in permissionPolicies)
+    {
+        options.AddPolicy(permission, policy =>
+            policy.RequireAssertion(context =>
+                context.User.IsInRole("Administrator") ||
+                context.User.HasClaim("permission", permission)));
+    }
 });
 
 
@@ -137,9 +178,17 @@ builder.Services.AddAuthorization(options =>
 // ============================================================
 
 builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
+builder.Services.AddSingleton<UserPresenceTracker>();
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, IdentityClaimsFactory>();
+builder.Services.AddScoped<IAccountAdminService, AccountAdminService>();
 builder.Services.AddScoped<BusinessService>();
 builder.Services.AddScoped<MobileTokenService>();
+builder.Services.AddScoped<IIdentityEmailSender, LoggingIdentityEmailSender>();
+builder.Services.AddHttpClient<IIPAddressLocationService, IpAddressLocationService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(8);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("ProMapCargo/1.0");
+});
 
 
 // ============================================================
@@ -199,6 +248,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 await SeedDefaultMobileUserAsync(app);
+await SeedAdministratorUserAsync(app);
 
 // ============================================================
 // MIDDLEWARE
@@ -212,6 +262,7 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler("/error");
 app.UseStatusCodePages();
 app.UseHsts();
+app.UseForwardedHeaders();
 
 // ============================================================
 // STATIC FILES
@@ -286,7 +337,6 @@ static async Task SeedDefaultMobileUserAsync(WebApplication app)
             Id = Guid.NewGuid(),
             UserName = email,
             Email = email,
-            EmailConfirmed = true,
             DisplayName = "ProMapCargo Mobile User",
             IsActive = true
         };
@@ -312,12 +362,6 @@ static async Task SeedDefaultMobileUserAsync(WebApplication app)
     if (!string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase))
     {
         user.Email = email;
-        shouldUpdateUser = true;
-    }
-
-    if (!user.EmailConfirmed)
-    {
-        user.EmailConfirmed = true;
         shouldUpdateUser = true;
     }
 
@@ -349,6 +393,107 @@ static async Task SeedDefaultMobileUserAsync(WebApplication app)
     {
         var errors = string.Join("; ", resetResult.Errors.Select(x => x.Description));
         throw new InvalidOperationException($"Failed to reset password for seeded mobile user '{email}': {errors}");
+    }
+}
+
+static async Task SeedAdministratorUserAsync(WebApplication app)
+{
+    const string roleName = "Administrator";
+    const string email = "admin@promapcargo.com";
+    const string password = "Admin1234!";
+
+    using var scope = app.Services.CreateScope();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    if (!await roleManager.RoleExistsAsync(roleName).ConfigureAwait(false))
+    {
+        var roleResult = await roleManager.CreateAsync(new ApplicationRole
+        {
+            Name = roleName
+        }).ConfigureAwait(false);
+
+        if (!roleResult.Succeeded)
+        {
+            var errors = string.Join("; ", roleResult.Errors.Select(x => x.Description));
+            throw new InvalidOperationException($"Failed to seed role '{roleName}': {errors}");
+        }
+    }
+
+    var user = await userManager.FindByEmailAsync(email).ConfigureAwait(false)
+               ?? await userManager.FindByNameAsync(email).ConfigureAwait(false);
+
+    if (user is null)
+    {
+        user = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = email,
+            Email = email,
+            DisplayName = "System Administrator",
+            IsActive = true
+        };
+
+        var createResult = await userManager.CreateAsync(user, password).ConfigureAwait(false);
+        if (!createResult.Succeeded)
+        {
+            var errors = string.Join("; ", createResult.Errors.Select(x => x.Description));
+            throw new InvalidOperationException($"Failed to seed admin user '{email}': {errors}");
+        }
+    }
+    else
+    {
+        var shouldUpdateUser = false;
+
+        if (!string.Equals(user.UserName, email, StringComparison.OrdinalIgnoreCase))
+        {
+            user.UserName = email;
+            shouldUpdateUser = true;
+        }
+
+        if (!string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase))
+        {
+            user.Email = email;
+            shouldUpdateUser = true;
+        }
+
+        if (!user.IsActive)
+        {
+            user.IsActive = true;
+            shouldUpdateUser = true;
+        }
+
+        if (shouldUpdateUser)
+        {
+            var updateResult = await userManager.UpdateAsync(user).ConfigureAwait(false);
+            if (!updateResult.Succeeded)
+            {
+                var errors = string.Join("; ", updateResult.Errors.Select(x => x.Description));
+                throw new InvalidOperationException($"Failed to update admin user '{email}': {errors}");
+            }
+        }
+
+        var passwordValid = await userManager.CheckPasswordAsync(user, password).ConfigureAwait(false);
+        if (!passwordValid)
+        {
+            var token = await userManager.GeneratePasswordResetTokenAsync(user).ConfigureAwait(false);
+            var resetResult = await userManager.ResetPasswordAsync(user, token, password).ConfigureAwait(false);
+            if (!resetResult.Succeeded)
+            {
+                var errors = string.Join("; ", resetResult.Errors.Select(x => x.Description));
+                throw new InvalidOperationException($"Failed to reset password for admin user '{email}': {errors}");
+            }
+        }
+    }
+
+    if (!await userManager.IsInRoleAsync(user, roleName).ConfigureAwait(false))
+    {
+        var addRoleResult = await userManager.AddToRoleAsync(user, roleName).ConfigureAwait(false);
+        if (!addRoleResult.Succeeded)
+        {
+            var errors = string.Join("; ", addRoleResult.Errors.Select(x => x.Description));
+            throw new InvalidOperationException($"Failed to assign role '{roleName}' to '{email}': {errors}");
+        }
     }
 }
 

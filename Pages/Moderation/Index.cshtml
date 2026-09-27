@@ -9,27 +9,17 @@
     <!-- HEADER -->
     <header class="moderation-header pm-page-header">
         <div class="moderation-heading pm-page-heading">
-            <div class="moderation-kicker">
-                <span class="moderation-kicker-dot"></span>
-                OPERATIONAL MODERATION CENTER
-            </div>
-
-            <h1 class="pm-page-title">Moderacija</h1>
-
-            <p class="pm-page-subtitle">
-                Kontrolni centar za odobravanje, odbijanje i vraćanje
-                rizičnih operativnih promena uz potpun audit trag.
-            </p>
+    
         </div>
 
         <div class="moderation-header-actions pm-page-actions">
-            <button class="moderation-btn moderation-btn-secondary pm-btn pm-btn-secondary" id="refreshModeration"
+            <button class="moderation-btn pm-btn pm-btn-secondary" id="refreshModeration"
                     type="button">
                 <span>↻</span>
                 Osveži
             </button>
 
-            <a class="moderation-btn moderation-btn-primary pm-btn pm-btn-primary" href="/audit">
+            <a class="moderation-btn pm-btn" href="/audit">
                 Otvori Audit
             </a>
         </div>
@@ -41,7 +31,7 @@
         <div class="moderation-banner-icon">
             !
         </div>
-
+ 
         <div class="moderation-banner-copy">
             <strong id="moderationBannerTitle">
                 3 zahteva čekaju odluku
@@ -58,50 +48,61 @@
         </button>
 
     </section>
-
-
     <!-- KPI -->
-    <section class="moderation-kpi-grid pm-kpi-grid">
+
+    <section class="moderation-kpi-grid pm-kpi-grid" aria-label="Moderation pregled">
+
 
         <article class="moderation-kpi kpi-pending pm-kpi">
-            <span class="pm-kpi-label">Čeka odluku</span>
-            <strong id="pendingCount" class="pm-kpi-value">3</strong>
-            <small class="pm-kpi-footer">aktivna moderation queue</small>
+            <span class="pm-kpi-label">Čeka odluku</span>        
+            <div id="activeUsersCount" class="pm-kpi-value">3</div>
+            <div class="pm-kpi-footer">aktivna moderation queue</div>
+            <i data-lucide="clock-3" class="moderation-kpi-icon" aria-hidden="true"></i>
         </article>
+
+
 
         <article class="moderation-kpi kpi-risk pm-kpi">
             <span class="pm-kpi-label">Visok rizik</span>
-            <strong class="pm-kpi-value">2</strong>
-            <small class="pm-kpi-footer">zahteva zahtevaju pažnju</small>
+            <div id="activeUsersCount" class="pm-kpi-value">2</div>
+            <div class="pm-kpi-footer">zahteva zahtevaju pažnju</div>
+            <i data-lucide="triangle-alert" class="moderation-kpi-icon" aria-hidden="true"></i>
         </article>
+
+
 
         <article class="moderation-kpi kpi-approved pm-kpi">
             <span class="pm-kpi-label">Odobreno</span>
-            <strong class="pm-kpi-value">18</strong>
-            <small class="pm-kpi-footer">ovog meseca</small>
+            <div id="activeUsersCount" class="pm-kpi-value">18</div>
+            <div class="pm-kpi-footer">ovog meseca</div>
+            <i data-lucide="circle-check" class="moderation-kpi-icon" aria-hidden="true"></i>
         </article>
+
 
         <article class="moderation-kpi kpi-rejected pm-kpi">
             <span class="pm-kpi-label">Odbijeno</span>
-            <strong class="pm-kpi-value">2</strong>
-            <small class="pm-kpi-footer">ovog meseca</small>
+            <div id="activeUsersCount" class="pm-kpi-value">2</div>
+            <div class="pm-kpi-footer">ovog meseca</div>
+            <i data-lucide="circle-x" class="moderation-kpi-icon" aria-hidden="true"></i>
         </article>
+
 
         <article class="moderation-kpi kpi-today pm-kpi">
             <span class="pm-kpi-label">Danas</span>
-            <strong class="pm-kpi-value">6</strong>
-            <small class="pm-kpi-footer">novih zahteva</small>
+            <div id="activeUsersCount" class="pm-kpi-value">6</div>
+            <div class="pm-kpi-footer">novih zahteva</div>
+            <i data-lucide="calendar-days" class="moderation-kpi-icon" aria-hidden="true"></i>
         </article>
 
-        <article class="moderation-kpi kpi-time pm-kpi">
+
+        <article class="moderation-kpi kpi-changes pm-kpi">
             <span class="pm-kpi-label">Prosečno vreme</span>
-            <strong class="pm-kpi-value">14m</strong>
-            <small class="pm-kpi-footer">od prijema do odluke</small>
+            <div id="activeUsersCount" class="pm-kpi-value">14m</div>
+            <div class="pm-kpi-footer">od prijema do odluke</div>
+            <i data-lucide="timer" class="moderation-kpi-icon" aria-hidden="true"></i>
         </article>
 
     </section>
-
-
     <!-- FILTER TOOLBAR -->
     <section class="moderation-toolbar pm-card">
 
