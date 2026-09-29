@@ -3,31 +3,40 @@
     ViewData["Title"] = "Command Center · ProMap Cargo";
 }
 
-<div class="pm-dispatch-page" data-module="dispatch">
-     
-    <div class="pm-dispatch-content">
+<div class="pm-page" data-module="dispatch">     
 
-        <header class="pm-dispatch-header">
-            <div class="pm-dispatch-heading">
-                <div class="pm-dispatch-kicker"> ProMap Cargo · Operations </div>
-                <h1 class="pm-dispatch-title"> Command Center </h1>
-                <div class="pm-dispatch-subtitle">
-                    Live dispatch, fleet position and exception management
-                </div>
+    <header class="pm-header">
+
+        <div class="pm-heading">
+            <div class="pm-page-kicker">
+                <span class="pm-kicker-dot"></span>
+                ProMap Cargo · Operations
             </div>
-            <div class="pm-dispatch-header-actions">
-                <div class="pm-dispatch-live-status"><span></span>
-                    Sistem online
-                </div>
-                <button type="button" class="pm-dispatch-btn" id="dispatchRefresh">
-                    Osveži
-                </button>
-                <a class="pm-dispatch-btn primary" href="/navigation"> Nova ruta </a>
+            <p class="pm-page-subtitle">
+                Pregled i upravljanje dokumentacijom vozila, prikolica i opreme. Obezbedite da sva vozila u floti budu u skladu sa zakonskim propisima i bez kritičnih problema.
+            </p>
+        </div>
+
+        <div class="pm-header-actions">
+            <div class="pm-dispatch-live-status">
+                <span></span>
+                Sistem online
             </div>
-        </header>
+            <button class="pm-btn pm-btn-secondary" type="button" id="dispatchRefresh">
+                <span>↻</span>
+                Osveži
+            </button>
+
+            <a asp-page="/navigation" class="pm-btn pm-btn-primary"> Nova ruta </a>
+        </div>
+    </header>
 
 
-        <section class="pm-dispatch-kpis">
+
+
+    <div class="pm-content">
+
+        <section class="pm-kpi-grid">
 
             <article class="pm-dispatch-kpi">
                 <div class="pm-dispatch-kpi-head">

@@ -5,93 +5,72 @@
 
 <div class="pm-page" data-module="alerts">
 
-    <header class="pm-alerts-header">
-
-        <div class="pm-alerts-heading">
-
-
+    <header class="pm-header">
+        <div class="pm-heading">
+            <div class="pm-page-kicker">
+                <span class="pm-kicker-dot"></span>
+                Fleet · Alerti
+            </div>
+            <p class="pm-subtitle">
+                Pregled alerti, statusa, dodeljenih vozila, aktivnih tura i poslednje GPS aktivnosti.
+            </p>
         </div>
 
-        <div class="pm-alerts-header-actions">
+        <div class="pm-header-actions">
             <div class="pm-alerts-live">
                 <span class="pm-alerts-live-dot"></span>
                 <span>
                     Alert engine
                 </span>
-
                 <strong>
                     LIVE
                 </strong>
-
             </div>
-
-            <button type="button" class="pm-alerts-btn" id="alertsRefresh">
-
-                <span>↻</span>
+            <button type="button" class="pm-btn" id="alertsRefresh">
                 Osveži
-
             </button>
-
-            <button type="button" class="pm-alerts-btn pm-alerts-btn-primary" id="alertsClearResolved">
-
+            <button type="button" class="pm-btn" id="alertsClearResolved">
                 Očisti rešene
-
             </button>
-
         </div>
-
     </header>
 
 
-    <section class="pm-alerts-kpis" aria-label="Alert statistika">
+    <section class="pm-kpi-grid" aria-label="Alert statistika">
 
         <article class="pm-alert-kpi pm-alert-kpi-open">
-
             <div class="pm-alert-kpi-top">
-
                 <span>
                     Otvoreni alerti
                 </span>
-
                 <span class="pm-alert-kpi-icon">
                     !
                 </span>
-
             </div>
-
             <strong id="alertsOpenCount">
                 —
             </strong>
-
             <small>
                 zahtevaju pažnju
             </small>
-
         </article>
 
 
         <article class="pm-alert-kpi pm-alert-kpi-critical">
-
             <div class="pm-alert-kpi-top">
-
                 <span>
                     Critical
                 </span>
-
                 <span class="pm-alert-kpi-icon">
                     !
                 </span>
-
             </div>
-
             <strong id="alertsCriticalCount">
                 —
             </strong>
-
             <small>
                 bezbednosni / blokirajući
             </small>
-
         </article>
 
 

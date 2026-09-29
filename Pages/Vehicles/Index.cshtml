@@ -3,29 +3,19 @@
     ViewData["Title"] = "Vozila · ProMap Cargo";
 }
 
-<div class="pm-page pm-vehicles-page" data-module="vehicles">
-
-    <div class="pm-vehicles-content">
-
-        <header class="pm-page-header">
-
-            <div class="pm-page-heading">
-
-                <div class="pm-page-kicker">Fleet · Vozila</div>
-
-                <h1 class="pm-page-title">
-                    Vozila
-                </h1>
-
-                <p class="pm-page-subtitle">
+<div class="pm-page" data-module="vehicles">
+    <div class="pm-content">
+        <header class="pm-header">
+            <div class="pm-heading">
+                <div class="pm-page-kicker">Fleet · Vozila</div>                     
+                <p class="pm-page-subtitle ">
                     Pregled kompletnog voznog parka, statusa vozila, dodeljenih vozača,
                     aktivnih tura i GPS aktivnosti.
                 </p>
-
             </div>
 
-            <div class="pm-page-actions">
 
+            <div class="pm-actions">
                 <button type="button" class="pm-btn" id="refreshVehicles">
 
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -47,9 +37,7 @@
                     Novo vozilo
 
                 </button>
-
             </div>
-
         </header>
 
         <section class="pm-kpi-grid" aria-label="Statistika vozila">

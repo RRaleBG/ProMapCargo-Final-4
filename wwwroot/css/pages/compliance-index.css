@@ -129,7 +129,7 @@
   place-items: center;
   flex-shrink: 0;
   background: rgba(244, 63, 94, 0.16);
-  border: 1px solid rgba(251, 113, 133, 0.32);
+  border: none;
   color: #fb7185;
   font-size: 19px;
   font-weight: 900;

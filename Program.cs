@@ -198,6 +198,9 @@ builder.Services.AddHttpClient<IIPAddressLocationService, IpAddressLocationServi
     client.DefaultRequestHeaders.UserAgent.ParseAdd("ProMapCargo/1.0");
 });
 
+// adding admin services
+builder.Services.AddScoped<IAccountAdminService, AccountAdminService>();
+
 
 // ============================================================
 // GEOCODING & ROUTING HTTP CLIENTS

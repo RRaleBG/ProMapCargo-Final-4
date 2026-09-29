@@ -1,9 +1,13 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
     content: [
         "./Pages/**/*.cshtml",
+        "./Views/**/*.cshtml",
         "./wwwroot/js/**/*.js",
+        "./Styles/**/*.css"
     ],
-    prefix: "tw-",
+    // Uklonjen "tw-" prefiks jer u HTML/cshtml kodu koristite standardne Tailwind klase
+    prefix: "",
     important: true,
     corePlugins: {
         preflight: false,
@@ -12,16 +16,20 @@ module.exports = {
         extend: {
             colors: {
                 pm: {
-                    bg: "#010d0b",
-                    surface: "#041f1a",
-                    elevated: "#07342b",
-                    border: "#1c5448",
-                    accent: "#10b981",
-                    teal: "#2dd4bf",
-                    text: "#f0fdf8",
-                    muted: "#8eb8aa",
-                    dim: "#638b80",
-                },
+                    'bg-deep': '#010d0b', // Generiše: bg-pm-bg-deep
+                    text: '#d9f8ed',       // Generiše: text-pm-text
+                    teal: '#2dd4bf',       // Generiše: text-pm-teal, border-pm-teal
+                    emerald: {
+                        400: '#34d399',
+                        500: '#10b981',    // Generiše: bg-pm-emerald-500
+                        600: '#059669',
+                    },
+                    danger: '#fb7185',
+                    warning: '#fbbf24'
+                }
+            },
+            spacing: {
+                sidebar: '238px', // Pravilno postavljeno van colors objekta
             },
             fontFamily: {
                 sans: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],

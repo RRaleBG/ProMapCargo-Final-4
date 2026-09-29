@@ -62,6 +62,14 @@
         );
     }
 
+    function initializeLucideIcons() {
+    document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+    }
+
     function initializeReveal() {
         const elements = Array.from(document.querySelectorAll(".pm-reveal"));
         if (!elements.length) return;
@@ -102,6 +110,7 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
         initializeTheme();
+        initializeLucideIcons();
         initializeGlobalSearch();
         initializeDoubleSubmitProtection();
         initializeReveal();

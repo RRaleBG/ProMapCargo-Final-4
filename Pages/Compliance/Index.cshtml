@@ -3,17 +3,27 @@
     ViewData["Title"] = "Compliance · ProMap Cargo";
 }
 
-<div class="pm-page pm-compliance-page" data-module="compliance">
+<div class="pm-page" data-module="compliance">
 
-    <header class="compliance-header">
+    <header class="pm-header">
 
-        <div class="compliance-header-actions">
-            <button class="compliance-btn compliance-btn-secondary" type="button" id="refreshCompliance">
+        <div class="pm-heading">
+            <div class="pm-page-kicker">
+                <span class="pm-kicker-dot"></span>
+                Compliance
+            </div>
+            <p class="pm-page-subtitle">
+                Pregled i upravljanje dokumentacijom vozila, prikolica i opreme. Obezbedite da sva vozila u floti budu u skladu sa zakonskim propisima i bez kritičnih problema.
+            </p>
+        </div>
+
+        <div class="pm-header-actions">
+            <button class="pm-btn pm-btn-secondary" type="button" id="refreshCompliance">
                 <span>↻</span>
                 Osveži
             </button>
 
-            <button class="compliance-btn compliance-btn-primary" type="button" id="addDocumentTop">
+            <button class="pm-btn pm-btn-secondary" type="button" id="addDocumentTop">
                 <span>＋</span>
                 Novi dokument
             </button>
