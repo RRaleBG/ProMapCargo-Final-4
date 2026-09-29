@@ -94,6 +94,17 @@ img {
   flex-direction: column;
 }
 
+.pm-fullscreen-shell {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.pm-fullscreen-main {
+  height: 100dvh;
+  min-height: 0;
+}
+
 /* =========================================================
    SIDEBAR
    ========================================================= */
@@ -1760,6 +1771,22 @@ svg.lucide {
   .pm-main {
     width: 100%;
     margin-left: 0;
+  }
+
+  .pm-fullscreen-main {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .pm-fullscreen-content {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .pm-fullscreen-content-inner {
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
   }
 
   .pm-sidebar-toggle-input:checked ~ .pm-app-shell .pm-sidebar {
