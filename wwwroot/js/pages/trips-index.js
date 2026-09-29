@@ -42,11 +42,11 @@
         suspended: "Obustavljena",
     };
     const tones = {
-        planned: "pm-trip-status--planned",
-        active: "pm-trip-status--active",
-        paused: "pm-trip-status--paused",
-        completed: "pm-trip-status--completed",
-        cancelled: "pm-trip-status--cancelled",
+        planned: "pm-status--planned",
+        active: "pm-status--active",
+        paused: "pm-status--paused",
+        completed: "pm-status--completed",
+        cancelled: "pm-status--cancelled",
     };
 
     const value = (record, camel, pascal = camel[0].toUpperCase() + camel.slice(1)) =>
@@ -129,7 +129,7 @@
                     <div class="pm-trip-secondary">Nalog ${escapeHtml(orderNumber || (orderId ? orderId.slice(0, 8).toUpperCase() : "nije povezan"))}</div>
                 </td>
                 <td >
-                    <span class="pm-trip-status ${tones[status] ?? tones.completed}">${escapeHtml(statusLabels[status] ?? "Nepoznat status")}</span>
+                    <span class="pm-status ${tones[status] ?? tones.completed}">${escapeHtml(statusLabels[status] ?? "Nepoznat status")}</span>
                     <div class="pm-trip-secondary">${escapeHtml(executionLabels[execution] ?? "—")}${offRoute ? " · van rute" : ""}</div>
                 </td>
                 <td >
