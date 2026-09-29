@@ -243,11 +243,6 @@ img {
    APP SHELL
    ========================================================= */
 
-.pm-body {
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
 .pm-app-shell {
   min-height: 100vh;
   display: flex;
@@ -263,16 +258,6 @@ img {
   flex-direction: column;
 }
 
-.pm-fullscreen-shell {
-  height: 100dvh;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.pm-fullscreen-main {
-  height: 100dvh;
-  min-height: 0;
-}
 
 /* =========================================================
    SIDEBAR
@@ -904,24 +889,7 @@ svg.lucide {
 
 .pm-content {
   flex: 1;
-  min-height: 0;
   position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-.pm-fullscreen-content {
-  overflow: hidden;
-}
-
-.pm-fullscreen-content-inner {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  padding: 0;
-  overflow: hidden;
 }
 
 .pm-content::before {
@@ -1942,21 +1910,6 @@ svg.lucide {
     margin-left: 0;
   }
 
-  .pm-fullscreen-main {
-    height: auto;
-    min-height: 100vh;
-  }
-
-  .pm-fullscreen-content {
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-
-  .pm-fullscreen-content-inner {
-    height: auto;
-    min-height: 100%;
-    overflow: visible;
-  }
 
   .pm-sidebar-toggle-input:checked ~ .pm-app-shell .pm-sidebar {
     transform: translateX(0);
