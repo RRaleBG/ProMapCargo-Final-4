@@ -2,37 +2,14 @@
 @{
     var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
     var pageTitle = ViewData["Title"]?.ToString() ?? "ProMap Cargo";
+    var pageAssetKey = currentPage.Trim('/').Replace('/', '-').ToLowerInvariant();
     var webRootPath = string.IsNullOrWhiteSpace(Environment.WebRootPath)
         ? System.IO.Path.Combine(Environment.ContentRootPath, "wwwroot")
         : Environment.WebRootPath;
-    var pageAssetKey = currentPage.Trim('/').Replace('/', '-').ToLowerInvariant();
-    var pageCssVirtualPath = string.IsNullOrWhiteSpace(pageAssetKey)
-        ? null
-        : $"/css/pages/{pageAssetKey}.css";
-    var pageJsVirtualPath = string.IsNullOrWhiteSpace(pageAssetKey)
-        ? null
-        : $"/js/pages/{pageAssetKey}.js";
-    var pageCssPhysicalPath = string.IsNullOrWhiteSpace(pageAssetKey)
-        ? null
-        : System.IO.Path.Combine(webRootPath, "css", "pages", $"{pageAssetKey}.css");
-    if (string.Equals(currentPage, "/Account/Manage/Index", StringComparison.OrdinalIgnoreCase))
-    {
-        pageCssVirtualPath = "/css/pages/profile-index.css";
-        pageCssPhysicalPath = System.IO.Path.Combine(webRootPath, "css", "pages", "profile-index.css");
-    }
-    if (string.Equals(currentPage, "/Account/Manage/Index", StringComparison.OrdinalIgnoreCase))
-    {
-        pageCssVirtualPath = "/css/pages/profile-index.css";
-        pageCssPhysicalPath = System.IO.Path.Combine(webRootPath, "css", "pages", "profile-index.css");
-    }
     var pageJsPhysicalPath = string.IsNullOrWhiteSpace(pageAssetKey)
         ? null
         : System.IO.Path.Combine(webRootPath, "js", "pages", $"{pageAssetKey}.js");
-    var includePageCss = !string.IsNullOrWhiteSpace(pageCssPhysicalPath) && System.IO.File.Exists(pageCssPhysicalPath);
     var includePageJs = !string.IsNullOrWhiteSpace(pageJsPhysicalPath) && System.IO.File.Exists(pageJsPhysicalPath);
-    var isFullscreenWorkspace =
-        string.Equals(currentPage, "/Navigation/Index", StringComparison.OrdinalIgnoreCase) ||
-        string.Equals(currentPage, "/Trips/Index", StringComparison.OrdinalIgnoreCase);
     var request = ViewContext.HttpContext.Request;
     var isEmbeddedNavigationShell =
         string.Equals(currentPage, "/Navigation/Index", StringComparison.OrdinalIgnoreCase) &&
@@ -52,18 +29,7 @@
 
     <link rel="stylesheet" href="~/lib/leaflet/leaflet.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    @if (includePageCss)
-    {
-        <link rel="stylesheet" href="@pageCssVirtualPath" asp-append-version="true" />
-    }
-    <link rel="stylesheet" href="~/css/compat.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/tables.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/tailwind.generated.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/promap.css" asp-append-version="true" />
 
     @await RenderSectionAsync("Head", required: false)
 </head>
@@ -71,7 +37,7 @@
 <body class="pm-body@(isEmbeddedNavigationShell ? " pm-embedded-mobile-shell" : string.Empty)">
     <input type="checkbox" id="pm-sidebar-toggle" class="pm-sidebar-toggle-input" aria-hidden="true" />
 
-    <div class="pm-app-shell@(isFullscreenWorkspace ? " tw-h-[100dvh] tw-min-h-0 tw-overflow-hidden" : string.Empty)">
+    <div class="pm-app-shell">
         <label for="pm-sidebar-toggle" class="pm-mobile-backdrop" aria-label="Zatvori navigaciju"></label>
 
         <aside class="pm-sidebar">
@@ -164,8 +130,6 @@
                     </div>
 
                 </nav>
-
-    
                 <div class="pm-sidebar-footer">
 
                     <div class="pm-nav-section">
@@ -178,13 +142,12 @@
                             </a>
                             @if (User.IsInRole("Administrator"))
                             {
-         
-                            }
-
-                                                   <a asp-page="/Account/Admin/Index"
+                                <a asp-page="/Account/Admin/Index"
                                    class="pm-nav-item @((currentPage == "/Account/Admin/Index" || currentPage == "/Account/Admin") ? "active" : "")">
-                                    <i class="pm-nav-icon" data-lucide="settings-2" aria-hidden="true"></i><span class="pm-nav-label">Administracija</span>
+                                    <i class="pm-nav-icon" data-lucide="settings-2" aria-hidden="true"></i>
+                                    <span class="pm-nav-label">Administracija</span>
                                 </a>
+                            }
 
 
                             <a asp-page="/Settings/Index"
@@ -214,7 +177,7 @@
             </div>
         </aside>
 
-        <div class="pm-main@(isFullscreenWorkspace ? " tw-h-[100dvh] tw-min-h-0 tw-overflow-hidden" : string.Empty)">
+        <div class="pm-main">
             <header class="pm-topbar">
                 <div class="pm-topbar-left">
                     <label for="pm-sidebar-toggle" class="pm-menu-button" aria-label="Otvori navigaciju">
@@ -266,13 +229,11 @@
                         <i data-lucide="log-in" aria-hidden="true"></i>
                     </a>
                 }
-
-                    
             </div>
         </header>
 
-        <main class="pm-content@(isFullscreenWorkspace ? " tw-min-h-0 tw-overflow-hidden tw-p-0 max-[1000px]:tw-overflow-y-auto" : string.Empty)">
-            <div class="pm-content-inner@(isFullscreenWorkspace ? " tw-flex tw-h-full tw-min-h-0 tw-w-full tw-flex-col tw-overflow-hidden tw-p-0 max-[1000px]:tw-h-auto max-[1000px]:tw-min-h-full max-[1000px]:tw-overflow-visible" : string.Empty)">
+        <main class="pm-content">
+            <div class="pm-content-inner">
                 @RenderBody()
             </div>
         </main>
@@ -320,7 +281,7 @@
 <script src="~/lib/leaflet/leaflet.js" asp-append-version="true" defer></script>
 @if (includePageJs)
 {
-    <script src="@pageJsVirtualPath" asp-append-version="true" defer></script>
+    <script src="~/js/pages/@(pageAssetKey).js" asp-append-version="true" defer></script>
 }
 @await RenderSectionAsync("Scripts", required: false)
 </body>

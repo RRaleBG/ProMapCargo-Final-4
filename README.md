@@ -35,13 +35,13 @@ The solution explicitly references the required spatial Npgsql plugins. In parti
 
 ## Frontend styles
 
-Tailwind CSS utilities are compiled locally (no CDN) to `wwwroot/css/tailwind.generated.css`. The utility prefix is `tw-` and Preflight is disabled so existing Razor, Leaflet, and map controls keep their current defaults during the gradual migration. The Trips and Navigation workspaces use Tailwind utilities; the shared application shell and remaining pages still use their existing styles.
+The UI uses a single global ProMap CSS system.
 
-After changing Tailwind classes, rebuild the utility bundle before building or publishing the API:
-
-`npm ci`
-
-`npm run css:build`
+- `wwwroot/css/tokens.css` is the design-token source.
+- `wwwroot/css/promap.css` is the canonical global stylesheet.
+- Shared layout, components, page patterns, forms, tables, alerts, toasts, navigation, animations, responsive rules, and Leaflet integration live in the ProMap stylesheet.
+- Razor pages do not load page-specific CSS files.
+- Tailwind CSS is not part of the application build or runtime.
 
 ## Upgrading from the previous archive
 
