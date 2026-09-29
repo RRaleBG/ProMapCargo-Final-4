@@ -14048,14 +14048,14 @@ textarea:valid {
 }
 
 
-.tw-ring-emerald-500\/20
+.pm-field-valid-ring
 {
     box-shadow: 0 0 0 3px rgba(16, 185, 129, .18) !important;
     animation: pmLoginInputValid .20s ease-out;
 }
 
 
-.tw-ring-rose-500\/20
+.pm-field-invalid-ring
 {
     box-shadow: 0 0 0 3px rgba(244, 63, 94, .18) !important;
     animation: pmLoginInputInvalid .22s ease-out;
