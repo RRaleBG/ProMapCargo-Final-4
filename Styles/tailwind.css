@@ -9,7 +9,7 @@
   }
 
   body {
-    @apply m-0 min-h-screen text-pm-text font-sans text-base leading-relaxed antialiased overflow-hidden;
+    @apply m-0 min-h-screen text-pm-text font-sans text-base leading-relaxed antialiased;
     background:
       radial-gradient(
         circle at 15% 20%,
