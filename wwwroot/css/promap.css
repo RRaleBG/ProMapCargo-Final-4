@@ -14174,24 +14174,6 @@ textarea:valid {
 }
 
 
-.tw-border-emerald-400
-{
-    border-color: #34d399 !important;
-}
-
-
-.tw-border-rose-400
-{
-    border-color: #fb7185 !important;
-}
-
-
-.tw-ring-2
-{
-    box-shadow: 0 0 0 3px rgba(45, 212, 191, .10) !important;
-}
-
-
 .tw-ring-emerald-500\/20
 {
     box-shadow: 0 0 0 3px rgba(16, 185, 129, .18) !important;
