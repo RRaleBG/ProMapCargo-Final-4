@@ -3,6 +3,7 @@
     --pm-font-xs: 12px;
     --pm-font-sm: 13px;
     --pm-font-md: 16px;
+    --pm-font-size: var(--pm-font-sm);
     --pm-font-base: 16px;
     --pm-font-lg: 18px;
     --pm-font-xl: 24px;
@@ -65,6 +66,10 @@
     --pm-footer-height: 42px;
 
     --pm-shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.16);
+    --pm-shadow: var(--pm-shadow-md);
+    --pm-shadow-soft: var(--pm-shadow-sm);
+    --pm-blur: blur(18px);
+    --pm-accent: var(--pm-teal);
     --pm-shadow-md: 0 16px 45px rgba(0, 0, 0, 0.22);
     --pm-shadow-glow: 0 0 35px rgba(16, 185, 129, 0.09);
 
