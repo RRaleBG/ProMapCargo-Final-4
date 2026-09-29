@@ -10,7 +10,6 @@ Frontend:
 
 - Razor Pages
 - JavaScript
-- Tailwind CSS
 - MapLibre GL
 - PMTiles
 
