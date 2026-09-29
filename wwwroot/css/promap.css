@@ -1,0 +1,29 @@
+/* ProMap Cargo — single global stylesheet entrypoint.
+   Page-specific files are loaded globally in a deterministic order.
+   Tailwind remains an internal utility build layer. */
+
+@import url("./tokens.css");
+@import url("./base.css");
+@import url("./site.css");
+@import url("./pages/account-admin-index.css");
+@import url("./pages/account-logout.css");
+@import url("./pages/alerts-index.css");
+@import url("./pages/compliance-index.css");
+@import url("./pages/dispatch-index.css");
+@import url("./pages/drivers-index.css");
+@import url("./pages/finance-index.css");
+@import url("./pages/index.css");
+@import url("./pages/login-index.css");
+@import url("./pages/moderation-index.css");
+@import url("./pages/monitoring-index.css");
+@import url("./pages/navigation-index.css");
+@import url("./pages/orders-index.css");
+@import url("./pages/profile-index.css");
+@import url("./pages/vehicles-index.css");
+@import url("./pages/vehicles-new.css");
+@import url("./pages/trips-index.css");
+@import url("./compat.css");
+@import url("./components.css");
+@import url("./forms.css");
+@import url("./tables.css");
+@import url("./animations.css");
