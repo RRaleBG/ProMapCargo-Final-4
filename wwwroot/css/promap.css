@@ -23357,3 +23357,29 @@ input
 .pm-trip-gps {
   font-weight: 500;
 }
+
+
+/* Login validation / interaction states */
+.pm-login-input-transition {
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.pm-field-ring {
+  box-shadow: 0 0 0 2px transparent;
+}
+
+.pm-field-valid {
+  border-color: var(--pm-emerald-400);
+}
+
+.pm-field-valid-ring {
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.20);
+}
+
+.pm-field-invalid {
+  border-color: var(--pm-danger);
+}
+
+.pm-field-invalid-ring {
+  box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.20);
+}
