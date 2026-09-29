@@ -4579,8 +4579,6 @@ textarea:valid {
 }
 
 
-/* ===== ACCOUNT-ADMIN-INDEX.CSS ===== */
-
 .pm-account-admin-page {
   display: grid;
   gap: 14px;
@@ -4823,8 +4821,6 @@ textarea:valid {
 }
 
 
-/* ===== ACCOUNT-LOGOUT.CSS ===== */
-
 .pm-logout-main {
   min-height: calc(100dvh - var(--pm-topbar-height) - var(--pm-footer-height));
   display: grid;
@@ -4941,8 +4937,6 @@ textarea:valid {
   }
 }
 
-
-/* ===== ALERTS-INDEX.CSS ===== */
 
 .pm-alerts-page {
   width: 100%;
@@ -5910,8 +5904,6 @@ textarea:valid {
   }
 }
 
-
-/* ===== COMPLIANCE-INDEX.CSS ===== */
 
 .pm-compliance-page {
   width: 100%;
@@ -7834,8 +7826,6 @@ textarea:valid {
 }
 
 
-/* ===== DISPATCH-INDEX.CSS ===== */
-
 .pm-dispatch-page {
   --dispatch-card: rgba(5, 31, 25, 0.88);
   --dispatch-card-2: rgba(7, 39, 31, 0.96);
@@ -8722,8 +8712,6 @@ textarea:valid {
 }
 
 
-/* ===== DRIVERS-INDEX.CSS ===== */
-
 .pm-drivers-content {
   width: 100%;
   min-width: 0;
@@ -9562,8 +9550,6 @@ textarea:valid {
 }
 
 
-/* ===== FINANCE-INDEX.CSS ===== */
-
 /* =========================================================
        PAGE
     ========================================================== */
@@ -9572,8 +9558,7 @@ textarea:valid {
   position: relative;
   isolation: isolate;
   padding: 28px;
-  overflow: hidden;
-}
+  }
 
 .finance-bg-orb {
   position: fixed;
@@ -11404,8 +11389,6 @@ textarea:valid {
 }
 
 
-/* ===== INDEX.CSS ===== */
-
 :root {
             --pm-bg: #021512;
             --pm-bg-deep: #010b09;
@@ -11475,8 +11458,8 @@ textarea:valid {
         .pm-public-page {
             position: relative;
             min-height: 100vh;
-            overflow: hidden;
-        }
+            overflow-x: clip;
+}
 
         /* =========================================================
            BACKGROUND
@@ -13441,8 +13424,6 @@ textarea:valid {
         }
 
 
-/* ===== LOGIN-INDEX.CSS ===== */
-
 /* =========================================================
    PROMAP CARGO LOGIN
    Matches Profile / Navigation visual system
@@ -13453,7 +13434,6 @@ textarea:valid {
     position: relative;
     min-height: 100vh;
     margin: 0;
-    overflow: hidden;
     color: var(--pm-text, #e6f4ef);
     background: radial-gradient( circle at 15% 15%, rgba(16,185,129,.08), transparent 32% ), radial-gradient( circle at 85% 75%, rgba(45,212,191,.055), transparent 30% ), linear-gradient( 145deg, #020b09 0%, #041612 48%, #061b17 100% );
     font-family: Inter, "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -14564,8 +14544,6 @@ textarea:valid {
 }
 
 
-/* ===== MODERATION-INDEX.CSS ===== */
-
 .pm-moderation-page {
   display: grid;
   gap: 18px;
@@ -15372,8 +15350,6 @@ textarea:valid {
   }
 }
 
-
-/* ===== MONITORING-INDEX.CSS ===== */
 
 .pm-monitoring-page {
   --monitor-green: #10b981;
@@ -16411,8 +16387,6 @@ textarea:valid {
   }
 }
 
-
-/* ===== NAVIGATION-INDEX.CSS ===== */
 
 /* ============================================================
    PROMAP CARGO — TRUCK NAVIGATION
@@ -18604,8 +18578,6 @@ input
 }
 
 
-/* ===== ORDERS-INDEX.CSS ===== */
-
 .pm-orders-page {
   --orders-card: rgba(5, 31, 25, 0.88);
   --orders-card-strong: rgba(7, 39, 31, 0.96);
@@ -19649,8 +19621,6 @@ input
   }
 }
 
-
-/* ===== PROFILE-INDEX.CSS ===== */
 
 .pm-profile-page {
   position: relative;
@@ -21096,8 +21066,6 @@ input
 }
 
 
-/* ===== VEHICLES-INDEX.CSS ===== */
-
 .pm-vehicles-content {
   width: 100%;
   min-width: 0;
@@ -21934,8 +21902,6 @@ input
 }
 
 
-/* ===== VEHICLES-NEW.CSS ===== */
-
 .pm-vehicle-new-page {
         width: 100%;
         max-width: 100%;
@@ -22688,8 +22654,6 @@ input
 
     }
 
-
-/* ===== TRIPS-INDEX.CSS ===== */
 
 /* Trips page: semantic ProMap UI layer. Visual values intentionally mirror the existing Trips layout. */
 
