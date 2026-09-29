@@ -69,26 +69,20 @@ Then run `docker compose up --build`. The final version uses PostgreSQL snake_ca
 
    `docker compose up -d postgres osrm`
 
-4. Install frontend dependencies and compile Tailwind:
-
-   `npm ci`
-
-   `npm run css:build`
-
-5. Restore and build:
+4. Restore and build:
 
    `dotnet restore ProMapCargo.sln`
    `dotnet build ProMapCargo.sln`
 
-6. Import the Europe routing graph so truck routing follows the same Europe network:
+5. Import the Europe routing graph so truck routing follows the same Europe network:
 
    `dotnet run --project Importer -- ./osm/europe-latest.osm.pbf`
 
-7. Start the API:
+6. Start the API:
 
    `dotnet run --project ProMapCargo.Api.csproj`
 
-8. Open the application:
+7. Open the application:
 
    `http://localhost:5090`
 
