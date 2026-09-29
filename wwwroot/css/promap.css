@@ -1,8 +1,6 @@
 /* ProMap Cargo — canonical global UI stylesheet. */
 
 
-/* ===== WWWROOT/CSS/BASE.CSS ===== */
-
 html
 {
     color-scheme: dark;
@@ -78,8 +76,6 @@ img, svg
 {
     color: var(--pm-info) !important;
 }
-
-/* ===== WWWROOT/CSS/SITE.CSS ===== */
 
 *,
 *::before,
@@ -2306,9 +2302,6 @@ svg.lucide {
   font-weight: 900;
 }
 
-.nav-next-copy {
-  min-width: 0;
-}
 
 .nav-next-copy small {
   display: block;
@@ -3710,8 +3703,6 @@ svg.lucide {
   }
 }
 
-/* ===== WWWROOT/CSS/COMPONENTS.CSS ===== */
-
 .pm-page {
   display: grid;
   gap: var(--pm-space-6);
@@ -4331,8 +4322,6 @@ textarea:valid {
   }
 }
 
-/* ===== WWWROOT/CSS/FORMS.CSS ===== */
-
 .pm-field
 {
     display: grid;
@@ -4425,8 +4414,6 @@ textarea:valid {
     }
 }
 
-/* ===== WWWROOT/CSS/TABLES.CSS ===== */
-
 .pm-table-wrap
 {
     width: 100%;
@@ -4476,8 +4463,6 @@ textarea:valid {
         border-bottom: 0;
     }
 
-/* ===== WWWROOT/CSS/ANIMATIONS.CSS ===== */
-
 .pm-content-inner { animation: pmPageEnter var(--pm-motion-page) var(--pm-motion-ease) both; }
 
 .pm-card, .pm-kpi, .pm-btn, .pm-list-row, .pm-badge, .pm-status,
@@ -4521,8 +4506,6 @@ textarea:valid {
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
     .pm-content-inner, .pm-reveal { opacity: 1 !important; transform: none !important; }
 }
-
-/* ===== WWWROOT/CSS/COMPAT.CSS ===== */
 
 /* Transitional compatibility layer for existing page-specific ProMap Cargo UI. */
 
@@ -11483,10 +11466,6 @@ textarea:valid {
             overflow-x: hidden;
         }
 
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
 
         button,
         input {
@@ -16587,10 +16566,6 @@ textarea:valid {
     margin-bottom: 10px;
 }
 
-.nav-page-heading
-{
-    min-width: 0;
-}
 
 .pm-eyebrow,
 .nav-section-kicker
@@ -17479,15 +17454,6 @@ textarea:valid {
     gap: 9px;
 }
 
-.nav-field
-{
-    min-width: 0;
-}
-
-.nav-input-unit
-{
-    position: relative;
-}
 
     .nav-input-unit .nav-input
     {
@@ -17524,12 +17490,6 @@ textarea:valid {
     cursor: pointer;
 }
 
-    .nav-check input
-    {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-    }
 
 .nav-check-box
 {
@@ -17543,11 +17503,6 @@ textarea:valid {
     background: rgba(255, 255, 255, 0.04);
 }
 
-.nav-check input:checked + .nav-check-box
-{
-    border-color: var(--nav-green);
-    background: var(--nav-green);
-}
 
     .nav-check input:checked + .nav-check-box::after
     {
@@ -17938,10 +17893,6 @@ textarea:valid {
     white-space: nowrap;
 }
 
-.nav-live-position
-{
-    min-width: 0;
-}
 
     .nav-live-position strong
     {
@@ -18615,21 +18566,6 @@ input
 /* ============================================================
    REDUCED MOTION
    ============================================================ */
-
-@media (prefers-reduced-motion: reduce)
-{
-    *,
-    *::before,
-    *::after
-    {
-        scroll-behavior: auto !important;
-        transition-duration: 0.01ms !important;
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-    }
-}
-
-
 
 
 /* ============================================================
@@ -23275,12 +23211,7 @@ input
 
 /* Leaflet integration */
 .leaflet-popup-content-wrapper,
-.leaflet-popup-tip {
-  background: rgba(2, 28, 23, 0.95);
-  color: #d9f8ed;
-  border: 1px solid rgba(45, 212, 191, 0.16);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-}
+
 
 .leaflet-control-zoom a {
   width: 30px !important;
@@ -23292,7 +23223,4 @@ input
   transition: color 160ms ease, background-color 160ms ease;
 }
 
-.leaflet-control-zoom a:hover {
-  background: rgba(8, 54, 44, 0.95) !important;
-  color: var(--pm-teal) !important;
-}
+
