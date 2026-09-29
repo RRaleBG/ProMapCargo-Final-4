@@ -6,7 +6,7 @@ module.exports = {
         "./wwwroot/js/**/*.js",
         "./Styles/**/*.css"
     ],
-    prefix: "pm-",
+    prefix: "tw-",
     important: true,
     corePlugins: {
         preflight: false,
