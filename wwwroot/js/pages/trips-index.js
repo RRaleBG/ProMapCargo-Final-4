@@ -150,8 +150,8 @@
                     <div class="pm-trip-secondary">Preostalo ${escapeHtml(formatDistance(value(trip, "routeRemainingMeters")))}</div>
                 </td>
                 <td >
-                    <div class="tw-font-medium ${gps.tone}">${escapeHtml(gps.label)}</div>
-                    <div class="tw-mt-1 tw-whitespace-nowrap tw-text-xs tw-text-pm-muted">${escapeHtml(gps.date)}</div>
+                    <div class="pm-trip-gps ${gps.tone}">${escapeHtml(gps.label)}</div>
+                    <div class="pm-trip-secondary pm-trip-secondary--nowrap">${escapeHtml(gps.date)}</div>
                 </td>
             </tr>`,
         };
