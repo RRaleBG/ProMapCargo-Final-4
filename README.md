@@ -35,15 +35,13 @@ The solution explicitly references the required spatial Npgsql plugins. In parti
 
 ## Frontend styles
 
-The UI uses a single global stylesheet entrypoint at `wwwroot/css/promap.css`. Shared layout, components, page content patterns, forms, tables, alerts, toasts, navigation, animations, responsive rules, and Leaflet integration are consolidated there. Razor pages do not load page-specific CSS files.
+The UI uses a single global ProMap CSS system.
 
-Tailwind CSS is retained only as an internal build layer. Its source is `wwwroot/css/tailwind.css`, configuration is `tailwind.config.cjs`, and the generated utility bundle is `wwwroot/css/tailwind.generated.css`. The application UI does not expose Tailwind utility classes as its public styling namespace.
-
-After changing Tailwind source/configuration, rebuild the generated layer:
-
-```bash
-npm run css:build
-```
+- `wwwroot/css/tokens.css` is the design-token source.
+- `wwwroot/css/promap.css` is the canonical global stylesheet.
+- Shared layout, components, page patterns, forms, tables, alerts, toasts, navigation, animations, responsive rules, and Leaflet integration live in the ProMap stylesheet.
+- Razor pages do not load page-specific CSS files.
+- Tailwind CSS is not part of the application build or runtime.
 
 ## Upgrading from the previous archive
 
