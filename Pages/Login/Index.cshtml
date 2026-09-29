@@ -95,7 +95,7 @@
                         </span>
 
                         <input asp-for="Input.Email" id="email" type="email" autocomplete="username"
-                               placeholder="operator@promapcargo.com" required class="tw-transition-colors tw-duration-150" />
+                               placeholder="operator@promapcargo.com" required class="pm-login-input-transition" />
 
                     </div>
                     <span asp-validation-for="Input.Email" class="pm-login-field-validation"></span>
@@ -125,7 +125,7 @@
                         </span>
 
                         <input asp-for="Input.Password" id="password" type="password" autocomplete="current-password"
-                               placeholder="Unesite lozinku" required class="tw-transition-colors tw-duration-150" />
+                               placeholder="Unesite lozinku" required class="pm-login-input-transition" />
 
                         <button type="button" class="pm-login-password-toggle" id="togglePassword"
                                 aria-label="Prikaži lozinku">
@@ -272,23 +272,23 @@
             const isValid = input.checkValidity();
 
             input.classList.remove(
-                "tw-border-emerald-400",
-                "tw-ring-2",
-                "tw-ring-emerald-500/20",
-                "tw-border-rose-400",
-                "tw-ring-rose-500/20");
+                "pm-field-valid",
+                "pm-field-ring",
+                "pm-field-valid-ring",
+                "pm-field-invalid",
+                "pm-field-invalid-ring");
 
             if (!hasValue) {
                 return;
             }
 
             if (isValid) {
-                input.classList.add("tw-border-emerald-400", "tw-ring-2", "tw-ring-emerald-500/20");
+                input.classList.add("pm-field-valid", "pm-field-ring", "pm-field-valid-ring");
                 input.setAttribute("aria-invalid", "false");
                 return;
             }
 
-            input.classList.add("tw-border-rose-400", "tw-ring-2", "tw-ring-rose-500/20");
+            input.classList.add("pm-field-invalid", "pm-field-ring", "pm-field-invalid-ring");
             input.setAttribute("aria-invalid", "true");
         };
 
