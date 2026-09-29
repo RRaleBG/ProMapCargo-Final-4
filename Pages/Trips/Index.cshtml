@@ -5,134 +5,134 @@
 }
 
 <div id="tripsPage" data-module="trips"
-     class="pm-page tw-flex tw-h-full tw-min-h-0 tw-flex-col tw-gap-4 tw-overflow-hidden tw-text-pm-text tw-p-5 max-[1000px]:tw-h-auto max-[1000px]:tw-min-h-full max-[1000px]:tw-overflow-visible max-[1000px]:tw-p-3">
+     class="pm-page pm-trips-page">
 
     <header
-        class="pm-page-header pm-header tw-flex tw-shrink-0 tw-flex-wrap tw-items-center tw-justify-between tw-gap-4">
-        <div class="tw-min-w-0">
+        class="pm-page-header pm-header pm-trip-header">
+        <div class="pm-trip-heading">
             <div
-                class="pm-page-kicker tw-mb-1 tw-text-xs tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-pm-teal">
+                class="pm-page-kicker pm-trip-kicker">
                 Operacije
                 flote</div>
-                <h1 class="pm-page-title tw-m-0 tw-text-3xl tw-font-bold tw-tracking-tight tw-text-pm-text">Sve ture</h1>
-                <p class="pm-page-subtitle tw-mt-1 tw-text-sm tw-text-pm-muted">Pregled statusa, dodela, napretka i
+                <h1 class="pm-page-title pm-trip-title">Sve ture</h1>
+                <p class="pm-page-subtitle pm-trip-subtitle">Pregled statusa, dodela, napretka i
                     poslednje GPS aktivnosti.
                 </p>
             </div>
             <button id="refreshTrips" type="button"
-                    class="pm-btn pm-btn--secondary tw-inline-flex tw-min-h-11 tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border tw-border-pm-border tw-px-4 tw-text-sm tw-font-semibold tw-text-pm-text focus-visible:tw-outline focus-visible:tw-outline-2 focus-visible:tw-outline-offset-2 focus-visible:tw-outline-pm-teal">
+                    class="pm-btn pm-btn--secondary pm-trip-refresh">
                 <i data-lucide="refresh-cw" aria-hidden="true"></i> Osveži ture
             </button>
         </header>
 
         <section aria-label="Sažetak tura"
-                 class="tw-grid tw-shrink-0 tw-grid-cols-4 tw-gap-3 max-[1100px]:tw-grid-cols-2 max-[520px]:tw-grid-cols-1">
+                 class="pm-trip-kpis">
             <article class="pm-kpi">
-                <div class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wider tw-text-pm-muted">Ukupno tura</div>
-                <strong data-trip-kpi="total" class="tw-mt-2 tw-block tw-text-3xl tw-font-bold tw-text-pm-text">—</strong>
+                <div class="pm-trip-kpi-label">Ukupno tura</div>
+                <strong data-trip-kpi="total" class="pm-trip-kpi-value">—</strong>
             </article>
             <article class="pm-kpi pm-kpi--success">
-                <div class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wider tw-text-pm-muted">Aktivne</div>
+                <div class="pm-trip-kpi-label">Aktivne</div>
                 <strong data-trip-kpi="active"
-                        class="tw-mt-2 tw-block tw-text-3xl tw-font-bold tw-text-emerald-300">—</strong>
+                        class="pm-trip-kpi-value pm-trip-kpi-value--active">—</strong>
             </article>
             <article class="pm-kpi pm-kpi--info">
-                <div class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wider tw-text-pm-muted">Planirane</div>
-                <strong data-trip-kpi="planned" class="tw-mt-2 tw-block tw-text-3xl tw-font-bold tw-text-sky-300">—</strong>
+                <div class="pm-trip-kpi-label">Planirane</div>
+                <strong data-trip-kpi="planned" class="pm-trip-kpi-value pm-trip-kpi-value--planned">—</strong>
             </article>
             <article class="pm-kpi">
-                <div class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wider tw-text-pm-muted">Završene</div>
+                <div class="pm-trip-kpi-label">Završene</div>
                 <strong data-trip-kpi="completed"
-                        class="tw-mt-2 tw-block tw-text-3xl tw-font-bold tw-text-pm-text">—</strong>
+                        class="pm-trip-kpi-value">—</strong>
             </article>
         </section>
 
         <div
-            class="tw-grid tw-min-h-0 tw-flex-1 tw-grid-cols-[250px_minmax(0,1fr)] tw-gap-4 max-[1000px]:tw-min-h-full max-[1000px]:tw-grid-cols-1">
+            class="pm-trip-layout">
             <aside aria-label="Filteri tura"
-                   class="pm-card tw-flex tw-min-h-0 tw-flex-col tw-gap-5 tw-overflow-y-auto tw-p-4 max-[1000px]:tw-gap-3 max-[1000px]:tw-overflow-visible">
+                   class="pm-card pm-trip-filters">
                 <div>
-                    <h2 class="tw-m-0 tw-text-sm tw-font-bold tw-uppercase tw-tracking-wider tw-text-pm-muted">Status ture
+                    <h2 class="pm-trip-filter-title">Status ture
                     </h2>
-                    <nav class="tw-mt-3 tw-flex tw-flex-col tw-gap-1 max-[1000px]:tw-flex-row max-[1000px]:tw-flex-wrap"
+                    <nav class="pm-trip-filter-nav"
                          aria-label="Filtriraj po statusu">
                         <button type="button" data-trip-filter="all" aria-pressed="true"
-                                class="tw-flex tw-min-h-10 tw-items-center tw-justify-between tw-rounded-lg tw-border tw-border-pm-teal/30 tw-bg-pm-elevated tw-px-3 tw-text-left tw-text-sm tw-font-semibold tw-text-pm-text">
+                                class="pm-trip-filter pm-trip-filter--active">
                             Sve ture <span data-trip-filter-count="all"
-                                           class="tw-rounded-full tw-bg-pm-bg tw-px-2 tw-py-0.5 tw-text-xs tw-text-pm-muted">—</span>
+                                           class="pm-trip-filter-count">—</span>
                         </button>
                         <button type="button" data-trip-filter="active" aria-pressed="false"
-                                class="tw-flex tw-min-h-10 tw-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-border tw-border-transparent tw-bg-transparent tw-px-3 tw-text-left tw-text-sm tw-font-medium tw-text-pm-muted hover:tw-bg-pm-elevated hover:tw-text-pm-text">
+                                class="pm-trip-filter">
                             Aktivne <span data-trip-filter-count="active"
                                           class="tw-rounded-full tw-bg-pm-bg tw-px-2 tw-py-0.5 tw-text-xs">—</span>
                         </button>
                         <button type="button" data-trip-filter="planned" aria-pressed="false"
-                                class="tw-flex tw-min-h-10 tw-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-border tw-border-transparent tw-bg-transparent tw-px-3 tw-text-left tw-text-sm tw-font-medium tw-text-pm-muted hover:tw-bg-pm-elevated hover:tw-text-pm-text">
+                                class="pm-trip-filter">
                             Planirane <span data-trip-filter-count="planned"
                                             class="tw-rounded-full tw-bg-pm-bg tw-px-2 tw-py-0.5 tw-text-xs">—</span>
                         </button>
                         <button type="button" data-trip-filter="paused" aria-pressed="false"
-                                class="tw-flex tw-min-h-10 tw-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-border tw-border-transparent tw-bg-transparent tw-px-3 tw-text-left tw-text-sm tw-font-medium tw-text-pm-muted hover:tw-bg-pm-elevated hover:tw-text-pm-text">
+                                class="pm-trip-filter">
                             Pauzirane <span data-trip-filter-count="paused"
                                             class="tw-rounded-full tw-bg-pm-bg tw-px-2 tw-py-0.5 tw-text-xs">—</span>
                         </button>
                         <button type="button" data-trip-filter="completed" aria-pressed="false"
-                                class="tw-flex tw-min-h-10 tw-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-border tw-border-transparent tw-bg-transparent tw-px-3 tw-text-left tw-text-sm tw-font-medium tw-text-pm-muted hover:tw-bg-pm-elevated hover:tw-text-pm-text">
+                                class="pm-trip-filter">
                             Završene <span data-trip-filter-count="completed"
                                            class="tw-rounded-full tw-bg-pm-bg tw-px-2 tw-py-0.5 tw-text-xs">—</span>
                         </button>
                         <button type="button" data-trip-filter="cancelled" aria-pressed="false"
-                                class="tw-flex tw-min-h-10 tw-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-border tw-border-transparent tw-bg-transparent tw-px-3 tw-text-left tw-text-sm tw-font-medium tw-text-pm-muted hover:tw-bg-pm-elevated hover:tw-text-pm-text">
+                                class="pm-trip-filter">
                             Otkazane <span data-trip-filter-count="cancelled"
                                            class="tw-rounded-full tw-bg-pm-bg tw-px-2 tw-py-0.5 tw-text-xs">—</span>
                         </button>
                     </nav>
                 </div>
                 <div
-                    class="tw-mt-auto tw-rounded-xl tw-border tw-border-pm-border tw-bg-pm-bg/70 tw-p-3 max-[1000px]:tw-hidden">
-                    <div class="tw-text-xs tw-font-semibold tw-text-pm-text">Podaci u realnom vremenu</div>
-                    <p class="tw-mb-0 tw-mt-1 tw-text-xs tw-leading-relaxed tw-text-pm-muted">Prikaz koristi ture i dodele
+                    class="pm-trip-live-note">
+                    <div class="pm-trip-live-note-title">Podaci u realnom vremenu</div>
+                    <p class="pm-trip-live-note-text">Prikaz koristi ture i dodele
                         iz sistema. GPS status se računa prema poslednjem primljenom signalu.</p>
                     </div>
                 </aside>
 
-                <section aria-label="Lista svih tura" class="pm-card tw-flex tw-min-h-0 tw-flex-col tw-overflow-hidden">
+                <section aria-label="Lista svih tura" class="pm-card pm-trip-list">
                     <header
-                        class="tw-flex tw-shrink-0 tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-border-b tw-border-pm-border tw-p-4">
+                        class="pm-trip-list-header">
                         <div>
-                            <h2 class="tw-m-0 tw-text-base tw-font-bold tw-text-pm-text">Evidencija tura</h2>
-                            <p class="tw-mb-0 tw-mt-1 tw-text-xs tw-text-pm-muted"><span
+                            <h2 class="pm-trip-list-title">Evidencija tura</h2>
+                            <p class="pm-trip-list-subtitle"><span
                                 id="tripsResultCount">Učitavanje…</span> · poslednjih do 500 tura</p>
                             </div>
                             <label
-                                class="tw-flex tw-min-h-10 tw-w-full tw-max-w-sm tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-pm-border tw-bg-pm-bg tw-px-3 focus-within:tw-border-pm-teal">
-                                <span aria-hidden="true" class="tw-text-pm-muted">⌕</span>
+                                class="pm-trip-search">
+                                <span aria-hidden="true" class="pm-trip-search-icon">⌕</span>
                                 <span class="tw-sr-only">Pretraži ture</span>
                                 <input id="tripsSearch" type="search" autocomplete="off"
                                        placeholder="Tura, nalog, vozač ili vozilo…"
-                                       class="tw-min-w-0 tw-flex-1 tw-bg-transparent tw-text-sm tw-text-pm-text tw-outline-none placeholder:tw-text-pm-dim" />
+                                        />
                             </label>
                         </header>
 
                         <div id="tripsError" role="alert" hidden
-                             class="tw-m-4 tw-rounded-xl tw-border tw-border-rose-400/30 tw-bg-rose-500/10 tw-p-3 tw-text-sm tw-text-rose-200">
+                             class="pm-trip-error">
                         </div>
-                        <div class="tw-min-h-0 tw-flex-1 tw-overflow-auto">
-                            <table class="tw-w-full tw-min-w-[900px] tw-border-collapse tw-text-left">
-                                <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-pm-surface">
+                        <div class="pm-trip-table-wrap">
+                            <table class="pm-trip-table">
+                                <thead class="pm-trip-table-head">
                                     <tr
-                                        class="tw-border-b tw-border-pm-border tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-wider tw-text-pm-muted">
-                                        <th scope="col" class="tw-px-4 tw-py-3">Tura / nalog</th>
-                                        <th scope="col" class="tw-px-4 tw-py-3">Status</th>
-                                        <th scope="col" class="tw-px-4 tw-py-3">Vozač / vozilo</th>
-                                        <th scope="col" class="tw-px-4 tw-py-3">Napredak</th>
-                                        <th scope="col" class="tw-px-4 tw-py-3">Ruta</th>
-                                        <th scope="col" class="tw-px-4 tw-py-3">Poslednji GPS</th>
+                                        >
+                                        <th scope="col" >Tura / nalog</th>
+                                        <th scope="col" >Status</th>
+                                        <th scope="col" >Vozač / vozilo</th>
+                                        <th scope="col" >Napredak</th>
+                                        <th scope="col" >Ruta</th>
+                                        <th scope="col" >Poslednji GPS</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tripsRows" class="tw-divide-y tw-divide-pm-border">
+                                <tbody id="tripsRows" class="pm-trip-table-body">
                                     <tr>
-                                        <td colspan="6" class="tw-p-8 tw-text-center tw-text-sm tw-text-pm-muted">Učitavanje tura…
+                                        <td colspan="6" class="pm-trip-empty">Učitavanje tura…
                                         </td>
                                     </tr>
                                 </tbody>
