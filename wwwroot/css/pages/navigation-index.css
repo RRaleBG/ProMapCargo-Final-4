@@ -2192,26 +2192,70 @@ input
     }
 }
 
+@keyframes navFadeIn
+{
+    from
+    {
+        opacity: 0;
+        transform: translateY(8px);
+    }
 
-/* ProMap interaction primitives used by Navigation markup. */
-.pm-transition { transition: all var(--pm-motion-normal) var(--pm-motion-ease-soft); }
-.pm-transition-transform { transition: transform var(--pm-motion-normal) var(--pm-motion-ease-soft); }
-.pm-transition-opacity { transition: opacity var(--pm-motion-normal) var(--pm-motion-ease-soft); }
-.pm-hover-soften:hover { opacity: .9; }
-.pm-hover-scale:hover { transform: scale(1.1); }
-.pm-hover-scale-strong:hover { transform: scale(1.25); }
-.pm-press:active { transform: scale(.95); }
-.pm-press-small:active { transform: scale(.9); }
-.pm-press-tight:active { transform: scale(.99); }
-.pm-press-down:active { transform: translateY(0); }
-.pm-hover-lift:hover { transform: translateY(-2px); }
-.pm-hover-slide:hover { transform: translateX(4px); }
-.pm-hover-rotate:hover { transform: rotate(180deg); }
-.pm-hover-rotate-small:hover { transform: rotate(12deg); }
-.pm-hover-surface:hover { background: rgba(248, 250, 252, .08); }
-.pm-focus-ring:focus { outline: 2px solid rgba(59, 130, 246, .20); outline-offset: 2px; }
-.pm-shadow-soft { box-shadow: 0 8px 24px rgba(0, 0, 0, .16); }
-.pm-shadow-hover:hover { box-shadow: 0 16px 35px rgba(0, 0, 0, .20); }
-.pm-shadow-strong { box-shadow: 0 18px 45px rgba(0, 0, 0, .22); }
-.pm-pulse { animation: navPulseGlow 2s infinite ease-in-out; }
-.pm-label-wide { letter-spacing: .08em; }
+    to
+    {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes navSlideDown
+{
+    from
+    {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+
+    to
+    {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes navPulseGlow
+{
+    0%,
+    100%
+    {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50%
+    {
+        opacity: 0.7;
+        transform: scale(1.05);
+    }
+}
+
+/* Primenjivanje animacija na elemente */
+.nav-control-card
+{
+    animation: navFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .nav-control-card:hover
+    {
+        transform: translateY(-2px);
+    }
+
+.nav-next-overlay:not([hidden])
+{
+    animation: navSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.nav-live-chip-active
+{
+    animation: navPulseGlow 2s infinite ease-in-out;
+}

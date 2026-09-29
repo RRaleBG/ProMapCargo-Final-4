@@ -10,9 +10,9 @@
   --tw-skew-y: 0;
   --tw-scale-x: 1;
   --tw-scale-y: 1;
-  --tw-pan-x: ;
-  --tw-pan-y: ;
-  --tw-pinch-zoom: ;
+  --tw-pan-x:  0;
+  --tw-pan-y:  0;
+  --tw-pinch-zoom:  1;
   --tw-scroll-snap-strictness: proximity;
   --tw-gradient-from-position: ;
   --tw-gradient-via-position: ;
@@ -117,35 +117,20 @@ body,
 html {
   margin: 0;
 }
-body {
-  min-height: 100vh;
-  overflow: hidden;
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    Segoe UI,
-    sans-serif;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  line-height: 1.625;
-  --tw-text-opacity: 1;
-  color: rgb(217 248 237 / var(--tw-text-opacity, 1));
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background:
-    radial-gradient(
-      circle at 15% 20%,
-      rgba(16, 185, 129, 0.075),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 82% 15%,
-      rgba(45, 212, 191, 0.045),
-      transparent 25%
-    ),
-    linear-gradient(135deg, #010d0b, #021512 42%, #031d18);
+body
+{
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    line-height: 1.625;
+    --tw-text-opacity: 1;
+    color: rgb(217 248 237 / var(--tw-text-opacity, 1));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: radial-gradient( circle at 15% 20%, rgba(16, 185, 129, 0.075), transparent 28% ), radial-gradient( circle at 82% 15%, rgba(45, 212, 191, 0.045), transparent 25% ), linear-gradient(135deg, #010d0b, #021512 42%, #031d18);
 }
 ::-moz-selection {
   background-color: rgba(16, 185, 129, 0.3);

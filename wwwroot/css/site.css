@@ -722,11 +722,13 @@ svg.lucide {
    CONTENT
    ========================================================= */
 
-.pm-content {
-  flex: 1;
-  min-height: 0;
-  position: relative;
-  overflow: hidden;
+.pm-content
+{
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .pm-content::before {
