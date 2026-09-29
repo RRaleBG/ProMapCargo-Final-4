@@ -6,7 +6,6 @@ module.exports = {
         "./wwwroot/js/**/*.js",
         "./Styles/**/*.css"
     ],
-    // Uklonjen "tw-" prefiks jer u HTML/cshtml kodu koristite standardne Tailwind klase
     prefix: "",
     important: true,
     corePlugins: {
