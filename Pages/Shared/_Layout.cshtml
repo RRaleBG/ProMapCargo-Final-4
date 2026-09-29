@@ -173,13 +173,12 @@
                             </a>
                             @if (User.IsInRole("Administrator"))
                             {
-         
-                            }
-
-                                                   <a asp-page="/Account/Admin/Index"
+                                <a asp-page="/Account/Admin/Index"
                                    class="pm-nav-item @((currentPage == "/Account/Admin/Index" || currentPage == "/Account/Admin") ? "active" : "")">
-                                    <i class="pm-nav-icon" data-lucide="settings-2" aria-hidden="true"></i><span class="pm-nav-label">Administracija</span>
+                                    <i class="pm-nav-icon" data-lucide="settings-2" aria-hidden="true"></i>
+                                    <span class="pm-nav-label">Administracija</span>
                                 </a>
+                            }
 
 
                             <a asp-page="/Settings/Index"
