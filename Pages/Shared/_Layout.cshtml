@@ -20,11 +20,6 @@
         pageCssVirtualPath = "/css/pages/profile-index.css";
         pageCssPhysicalPath = System.IO.Path.Combine(webRootPath, "css", "pages", "profile-index.css");
     }
-    if (string.Equals(currentPage, "/Account/Manage/Index", StringComparison.OrdinalIgnoreCase))
-    {
-        pageCssVirtualPath = "/css/pages/profile-index.css";
-        pageCssPhysicalPath = System.IO.Path.Combine(webRootPath, "css", "pages", "profile-index.css");
-    }
     var pageJsPhysicalPath = string.IsNullOrWhiteSpace(pageAssetKey)
         ? null
         : System.IO.Path.Combine(webRootPath, "js", "pages", $"{pageAssetKey}.js");
@@ -71,7 +66,7 @@
 <body class="pm-body@(isEmbeddedNavigationShell ? " pm-embedded-mobile-shell" : string.Empty)">
     <input type="checkbox" id="pm-sidebar-toggle" class="pm-sidebar-toggle-input" aria-hidden="true" />
 
-    <div class="pm-app-shell@(isFullscreenWorkspace ? " tw-h-[100dvh] tw-min-h-0 tw-overflow-hidden" : string.Empty)">
+    <div class="pm-app-shell@(isFullscreenWorkspace ? " pm-fullscreen-shell" : string.Empty)">
         <label for="pm-sidebar-toggle" class="pm-mobile-backdrop" aria-label="Zatvori navigaciju"></label>
 
         <aside class="pm-sidebar">
@@ -214,7 +209,7 @@
             </div>
         </aside>
 
-        <div class="pm-main@(isFullscreenWorkspace ? " tw-h-[100dvh] tw-min-h-0 tw-overflow-hidden" : string.Empty)">
+        <div class="pm-main@(isFullscreenWorkspace ? " pm-fullscreen-shell" : string.Empty)">
             <header class="pm-topbar">
                 <div class="pm-topbar-left">
                     <label for="pm-sidebar-toggle" class="pm-menu-button" aria-label="Otvori navigaciju">
@@ -271,8 +266,8 @@
             </div>
         </header>
 
-        <main class="pm-content@(isFullscreenWorkspace ? " tw-min-h-0 tw-overflow-hidden tw-p-0 max-[1000px]:tw-overflow-y-auto" : string.Empty)">
-            <div class="pm-content-inner@(isFullscreenWorkspace ? " tw-flex tw-h-full tw-min-h-0 tw-w-full tw-flex-col tw-overflow-hidden tw-p-0 max-[1000px]:tw-h-auto max-[1000px]:tw-min-h-full max-[1000px]:tw-overflow-visible" : string.Empty)">
+        <main class="pm-content@(isFullscreenWorkspace ? " pm-fullscreen-content" : string.Empty)">
+            <div class="pm-content-inner@(isFullscreenWorkspace ? " pm-fullscreen-content-inner" : string.Empty)">
                 @RenderBody()
             </div>
         </main>
