@@ -1,6 +1,6 @@
 /* ProMap Cargo — canonical global UI stylesheet. */
 
-* ,
+*,
 *::before,
 *::after {
   box-sizing: border-box;
