@@ -14048,20 +14048,6 @@ textarea:valid {
 }
 
 
-.pm-field-valid-ring
-{
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, .18) !important;
-    animation: pmLoginInputValid .20s ease-out;
-}
-
-
-.pm-field-invalid-ring
-{
-    box-shadow: 0 0 0 3px rgba(244, 63, 94, .18) !important;
-    animation: pmLoginInputInvalid .22s ease-out;
-}
-
-
 /* =========================================================
    REMEMBER
    ========================================================= */
@@ -23063,7 +23049,8 @@ input
 }
 
 .pm-field-valid-ring {
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.20);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18) !important;
+  animation: pmLoginInputValid 0.20s ease-out;
 }
 
 .pm-field-invalid {
@@ -23071,7 +23058,8 @@ input
 }
 
 .pm-field-invalid-ring {
-  box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.20);
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.18) !important;
+  animation: pmLoginInputInvalid 0.22s ease-out;
 }
 
 
