@@ -11370,73 +11370,7 @@ textarea:valid {
 }
 
 
-:root {
-            --pm-bg: #021512;
-            --pm-bg-deep: #010b09;
-            --pm-bg-soft: #031c18;
-
-            --pm-surface: rgba(4, 31, 26, 0.76);
-            --pm-surface-strong: rgba(5, 39, 32, 0.90);
-            --pm-surface-soft: rgba(7, 52, 43, 0.52);
-
-            --pm-emerald-300: #6ee7b7;
-            --pm-emerald-400: #34d399;
-            --pm-emerald-500: #10b981;
-            --pm-emerald-600: #059669;
-
-            --pm-teal: #2dd4bf;
-            --pm-cyan: #22d3ee;
-
-            --pm-text: #f0fdf8;
-            --pm-text-soft: #d1fae5;
-            --pm-text-muted: #8eb8aa;
-            --pm-text-dim: #638b80;
-
-            --pm-border: rgba(79, 209, 169, 0.14);
-            --pm-border-strong: rgba(45, 212, 191, 0.30);
-            --pm-border-soft: rgba(255, 255, 255, 0.055);
-
-            --pm-danger: #fb7185;
-            --pm-warning: #fbbf24;
-            --pm-info: #38bdf8;
-
-            --pm-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
-            --pm-shadow-soft: 0 14px 45px rgba(0, 0, 0, 0.20);
-
-            --pm-radius-sm: 10px;
-            --pm-radius-md: 15px;
-            --pm-radius-lg: 21px;
-            --pm-radius-xl: 28px;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-            background: var(--pm-bg-deep);
-        }
-
-        body {
-            margin: 0;
-            min-width: 320px;
-            background:
-                radial-gradient(circle at 12% 5%, rgba(16, 185, 129, 0.12), transparent 28rem),
-                radial-gradient(circle at 88% 12%, rgba(45, 212, 191, 0.08), transparent 30rem),
-                var(--pm-bg-deep);
-            color: var(--pm-text);
-            font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            overflow-x: hidden;
-        }
-
-
-        button,
-        input {
-            font: inherit;
-        }
-
-        .pm-public-page {
+.pm-public-page {
             position: relative;
             min-height: 100vh;
             overflow-x: clip;
@@ -23100,19 +23034,6 @@ input
   .pm-trip-search {
     max-width: none;
   }
-}
-
-
-.pm-sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 
 .pm-trip-primary--medium {
