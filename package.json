@@ -2,9 +2,9 @@
     "name": "promap-cargo-ui",
     "private": true,
     "scripts": {
-        "css:build": "tailwindcss --config tailwind.config.cjs --input Styles/tailwind.css --output wwwroot/css/tailwind.generated.css --minify && node scripts/copy-lucide.cjs",
+        "css:build": "tailwindcss --config tailwind.config.cjs --input wwwroot/css/tailwind.css --output wwwroot/css/tailwind.generated.css --minify && node scripts/copy-lucide.cjs",
         "icons:build": "node scripts/copy-lucide.cjs",
-        "css:watch": "tailwindcss --config tailwind.config.cjs --input Styles/tailwind.css --output wwwroot/css/tailwind.generated.css --watch"
+        "css:watch": "tailwindcss --config tailwind.config.cjs --input wwwroot/css/tailwind.css --output wwwroot/css/tailwind.generated.css --watch"
     },
     "devDependencies": {
         "lucide": "^1.48.0",
