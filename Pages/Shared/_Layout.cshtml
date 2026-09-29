@@ -2,6 +2,7 @@
 @{
     var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
     var pageTitle = ViewData["Title"]?.ToString() ?? "ProMap Cargo";
+    var pageAssetKey = currentPage.Trim('/').Replace('/', '-').ToLowerInvariant();
     var webRootPath = string.IsNullOrWhiteSpace(Environment.WebRootPath)
         ? System.IO.Path.Combine(Environment.ContentRootPath, "wwwroot")
         : Environment.WebRootPath;
@@ -132,8 +133,6 @@
                     </div>
 
                 </nav>
-
-    
                 <div class="pm-sidebar-footer">
 
                     <div class="pm-nav-section">
@@ -233,8 +232,6 @@
                         <i data-lucide="log-in" aria-hidden="true"></i>
                     </a>
                 }
-
-                    
             </div>
         </header>
 
