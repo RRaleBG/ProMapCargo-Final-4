@@ -42,11 +42,11 @@
         suspended: "Obustavljena",
     };
     const tones = {
-        planned: "tw-border-sky-400/20 tw-bg-sky-500/10 tw-text-sky-200",
-        active: "tw-border-emerald-400/20 tw-bg-emerald-500/10 tw-text-emerald-200",
-        paused: "tw-border-amber-400/20 tw-bg-amber-500/10 tw-text-amber-200",
-        completed: "tw-border-pm-border tw-bg-pm-elevated tw-text-pm-muted",
-        cancelled: "tw-border-rose-400/20 tw-bg-rose-500/10 tw-text-rose-200",
+        planned: "pm-trip-status--planned",
+        active: "pm-trip-status--active",
+        paused: "pm-trip-status--paused",
+        completed: "pm-trip-status--completed",
+        cancelled: "pm-trip-status--cancelled",
     };
 
     const value = (record, camel, pascal = camel[0].toUpperCase() + camel.slice(1)) =>
@@ -82,13 +82,13 @@
     };
 
     const gpsState = (lastGpsAt) => {
-        if (!lastGpsAt) return { label: "Nema signala", tone: "tw-text-amber-200", date: "—" };
+        if (!lastGpsAt) return { label: "Nema signala", tone: "pm-trip-gps--none", date: "—" };
         const date = new Date(lastGpsAt);
-        if (Number.isNaN(date.getTime())) return { label: "Nepoznat", tone: "tw-text-pm-muted", date: "—" };
+        if (Number.isNaN(date.getTime())) return { label: "Nepoznat", tone: "pm-trip-gps--unknown", date: "—" };
         const fresh = Date.now() - date.getTime() <= 120_000;
         return {
             label: fresh ? "Aktivan" : "Zastareo",
-            tone: fresh ? "tw-text-emerald-300" : "tw-text-amber-200",
+            tone: fresh ? "pm-trip-gps--active" : "pm-trip-gps--stale",
             date: formatDate(date),
         };
     };
@@ -123,33 +123,33 @@
         return {
             status,
             searchable,
-            html: `<tr data-trip-status="${escapeHtml(status)}" data-trip-search="${escapeHtml(searchable)}" class="tw-transition-colors hover:tw-bg-white/[0.025]">
-                <td class="tw-px-4 tw-py-3">
-                    <div class="tw-font-semibold tw-text-pm-text">${escapeHtml(tripLabel)}</div>
-                    <div class="tw-mt-1 tw-text-xs tw-text-pm-muted">Nalog ${escapeHtml(orderNumber || (orderId ? orderId.slice(0, 8).toUpperCase() : "nije povezan"))}</div>
+            html: `<tr data-trip-status="${escapeHtml(status)}" data-trip-search="${escapeHtml(searchable)}" class="pm-trip-table-row">
+                <td >
+                    <div class="pm-trip-primary">${escapeHtml(tripLabel)}</div>
+                    <div class="pm-trip-secondary">Nalog ${escapeHtml(orderNumber || (orderId ? orderId.slice(0, 8).toUpperCase() : "nije povezan"))}</div>
                 </td>
-                <td class="tw-px-4 tw-py-3">
-                    <span class="tw-inline-flex tw-items-center tw-rounded-full tw-border tw-px-2.5 tw-py-1 tw-text-xs tw-font-semibold ${tones[status] ?? tones.completed}">${escapeHtml(statusLabels[status] ?? "Nepoznat status")}</span>
-                    <div class="tw-mt-1 tw-text-xs tw-text-pm-muted">${escapeHtml(executionLabels[execution] ?? "—")}${offRoute ? " · van rute" : ""}</div>
+                <td >
+                    <span class="pm-trip-status ${tones[status] ?? tones.completed}">${escapeHtml(statusLabels[status] ?? "Nepoznat status")}</span>
+                    <div class="pm-trip-secondary">${escapeHtml(executionLabels[execution] ?? "—")}${offRoute ? " · van rute" : ""}</div>
                 </td>
-                <td class="tw-px-4 tw-py-3">
-                    <div class="tw-font-medium tw-text-pm-text">${escapeHtml(value(driver, "fullName") || "Vozač nije dodeljen")}</div>
-                    <div class="tw-mt-1 tw-text-xs tw-text-pm-muted">${escapeHtml(value(vehicle, "registration") || "Vozilo nije dodeljeno")}</div>
+                <td >
+                    <div class="pm-trip-primary pm-trip-primary--medium">${escapeHtml(value(driver, "fullName") || "Vozač nije dodeljen")}</div>
+                    <div class="pm-trip-secondary">${escapeHtml(value(vehicle, "registration") || "Vozilo nije dodeljeno")}</div>
                 </td>
-                <td class="tw-px-4 tw-py-3">
-                    <div class="tw-flex tw-items-center tw-gap-2">
-                        <div class="tw-h-1.5 tw-w-24 tw-overflow-hidden tw-rounded-full tw-bg-white/10" role="progressbar" aria-label="Napredak ture" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}">
-                            <span class="tw-block tw-h-full tw-rounded-full tw-bg-gradient-to-r tw-from-emerald-500 tw-to-teal-300" style="width:${progress}%"></span>
+                <td >
+                    <div class="pm-trip-progress">
+                        <div class="pm-trip-progress-bar" role="progressbar" aria-label="Napredak ture" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}">
+                            <span  style="width:${progress}%"></span>
                         </div>
-                        <span class="tw-text-xs tw-font-semibold tw-tabular-nums tw-text-pm-text">${Math.round(progress)}%</span>
+                        <span class="pm-trip-progress-value">${Math.round(progress)}%</span>
                     </div>
-                    <div class="tw-mt-1 tw-text-xs tw-text-pm-muted">Pređeno ${escapeHtml(formatDistance(value(trip, "routeCoveredMeters")))}</div>
+                    <div class="pm-trip-secondary">Pređeno ${escapeHtml(formatDistance(value(trip, "routeCoveredMeters")))}</div>
                 </td>
-                <td class="tw-px-4 tw-py-3">
-                    <div class="tw-font-medium tw-text-pm-text">${escapeHtml(routeDistance)}</div>
-                    <div class="tw-mt-1 tw-text-xs tw-text-pm-muted">Preostalo ${escapeHtml(formatDistance(value(trip, "routeRemainingMeters")))}</div>
+                <td >
+                    <div class="pm-trip-primary pm-trip-primary--medium">${escapeHtml(routeDistance)}</div>
+                    <div class="pm-trip-secondary">Preostalo ${escapeHtml(formatDistance(value(trip, "routeRemainingMeters")))}</div>
                 </td>
-                <td class="tw-px-4 tw-py-3">
+                <td >
                     <div class="tw-font-medium ${gps.tone}">${escapeHtml(gps.label)}</div>
                     <div class="tw-mt-1 tw-whitespace-nowrap tw-text-xs tw-text-pm-muted">${escapeHtml(gps.date)}</div>
                 </td>
@@ -193,11 +193,11 @@
                 : "tura";
         resultCount.textContent = `${count} ${suffix}`;
         if (!state.trips.length) {
-            rows.innerHTML = '<tr><td colspan="6" class="tw-p-10 tw-text-center"><div class="tw-text-base tw-font-semibold tw-text-pm-text">Nema evidentiranih tura</div><p class="tw-mb-0 tw-mt-2 tw-text-sm tw-text-pm-muted">Kada se ture pojave u sistemu, biće prikazane ovde.</p></td></tr>';
+            rows.innerHTML = '<tr><td colspan="6" class="pm-trip-empty"><div class="pm-trip-empty-title">Nema evidentiranih tura</div><p class="pm-trip-empty-text">Kada se ture pojave u sistemu, biće prikazane ovde.</p></td></tr>';
             return;
         }
         if (!visibleRows.length) {
-            rows.innerHTML = '<tr><td colspan="6" class="tw-p-10 tw-text-center tw-text-sm tw-text-pm-muted">Nema tura koje odgovaraju izabranom filteru.</td></tr>';
+            rows.innerHTML = '<tr><td colspan="6" class="pm-trip-empty">Nema tura koje odgovaraju izabranom filteru.</td></tr>';
             return;
         }
         rows.innerHTML = visibleRows.map((item) => item.html).join("");
@@ -207,7 +207,7 @@
         if (!http?.get) {
             errorBox.hidden = false;
             errorBox.textContent = "HTTP servis nije dostupan. Osvežite stranicu i pokušajte ponovo.";
-            rows.innerHTML = '<tr><td colspan="6" class="tw-p-8 tw-text-center tw-text-sm tw-text-pm-muted">Podaci nisu dostupni.</td></tr>';
+            rows.innerHTML = '<tr><td colspan="6" class="pm-trip-empty">Podaci nisu dostupni.</td></tr>';
             return;
         }
 
@@ -239,7 +239,7 @@
             errorBox.hidden = false;
             errorBox.textContent = error?.message || "Ture trenutno nisu dostupne. Pokušajte ponovo.";
             resultCount.textContent = "Učitavanje nije uspelo";
-            rows.innerHTML = '<tr><td colspan="6" class="tw-p-8 tw-text-center tw-text-sm tw-text-rose-200">Nije moguće učitati ture.</td></tr>';
+            rows.innerHTML = '<tr><td colspan="6" class="pm-trip-empty pm-trip-error-text">Nije moguće učitati ture.</td></tr>';
         } finally {
             refreshButton.disabled = false;
             refreshButton.removeAttribute("aria-busy");
@@ -252,12 +252,12 @@
             root.querySelectorAll("[data-trip-filter]").forEach((item) => {
                 const selected = item === button;
                 item.setAttribute("aria-pressed", String(selected));
-                item.classList.toggle("tw-border-pm-teal/30", selected);
-                item.classList.toggle("tw-bg-pm-elevated", selected);
-                item.classList.toggle("tw-text-pm-text", selected);
-                item.classList.toggle("tw-border-transparent", !selected);
-                item.classList.toggle("tw-bg-transparent", !selected);
-                item.classList.toggle("tw-text-pm-muted", !selected);
+                item.classList.toggle("pm-trip-filter--active", selected);
+                
+                
+                
+                
+                
             });
             render();
         });
