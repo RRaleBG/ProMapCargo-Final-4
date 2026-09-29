@@ -1,83 +1,6 @@
 /* ProMap Cargo — canonical global UI stylesheet. */
 
-
-html
-{
-    color-scheme: dark;
-}
-
-body
-{
-    font-family: var(--pm-font-family);
-    font-size: var(--pm-font-md);
-    line-height: 1.5;
-}
-
-button, input, select, textarea
-{
-    font: inherit;
-}
-
-button, a, input, select, textarea
-{
-    -webkit-tap-highlight-color: transparent;
-}
-
-img, svg
-{
-    max-width: 100%;
-}
-
-[hidden]
-{
-    display: none !important;
-}
-
-:where(a, button, input, select, textarea, [tabindex]):focus-visible
-{
-    outline: none;
-    box-shadow: var(--pm-focus-ring);
-}
-
-.pm-sr-only
-{
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
-}
-
-.pm-text-muted
-{
-    color: var(--pm-text-muted) !important;
-}
-
-.pm-text-danger
-{
-    color: var(--pm-danger) !important;
-}
-
-.pm-text-warning
-{
-    color: var(--pm-warning) !important;
-}
-
-.pm-text-success
-{
-    color: var(--pm-success) !important;
-}
-
-.pm-text-info
-{
-    color: var(--pm-info) !important;
-}
-
-*,
+* ,
 *::before,
 *::after {
   box-sizing: border-box;
@@ -94,19 +17,35 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient( circle at 15% 20%, rgba(16, 185, 129, 0.075), transparent 28% ),
-              radial-gradient( circle at 82% 15%, rgba(45, 212, 191, 0.045), transparent 25% ),
-              linear-gradient(135deg, #010d0b 0%, #021512 42%, #031d18 100%);
+  background:
+    radial-gradient(circle at 15% 20%, rgba(16, 185, 129, 0.075), transparent 28%),
+    radial-gradient(circle at 82% 15%, rgba(45, 212, 191, 0.045), transparent 25%),
+    linear-gradient(135deg, #010d0b 0%, #021512 42%, #031d18 100%);
   color: var(--pm-text);
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 16px;
+  font-family: var(--pm-font-family);
+  font-size: var(--pm-font-md);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 button,
-a {
+a,
+input,
+select,
+textarea {
   -webkit-tap-highlight-color: transparent;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
 }
 
 a {
@@ -114,8 +53,18 @@ a {
   text-decoration: none;
 }
 
-button {
-  border: 0;
+img,
+svg {
+  max-width: 100%;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--pm-focus-ring);
 }
 
 ::selection {
@@ -139,6 +88,38 @@ button {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(52, 211, 153, 0.38);
+}
+
+.pm-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.pm-text-muted {
+  color: var(--pm-text-muted) !important;
+}
+
+.pm-text-danger {
+  color: var(--pm-danger) !important;
+}
+
+.pm-text-warning {
+  color: var(--pm-warning) !important;
+}
+
+.pm-text-success {
+  color: var(--pm-success) !important;
+}
+
+.pm-text-info {
+  color: var(--pm-info) !important;
 }
 
 /* =========================================================
