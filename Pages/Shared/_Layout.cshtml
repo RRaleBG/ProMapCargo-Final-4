@@ -10,9 +10,6 @@
         ? null
         : System.IO.Path.Combine(webRootPath, "js", "pages", $"{pageAssetKey}.js");
     var includePageJs = !string.IsNullOrWhiteSpace(pageJsPhysicalPath) && System.IO.File.Exists(pageJsPhysicalPath);
-    var isFullscreenWorkspace =
-        string.Equals(currentPage, "/Navigation/Index", StringComparison.OrdinalIgnoreCase) ||
-        string.Equals(currentPage, "/Trips/Index", StringComparison.OrdinalIgnoreCase);
     var request = ViewContext.HttpContext.Request;
     var isEmbeddedNavigationShell =
         string.Equals(currentPage, "/Navigation/Index", StringComparison.OrdinalIgnoreCase) &&
@@ -40,7 +37,7 @@
 <body class="pm-body@(isEmbeddedNavigationShell ? " pm-embedded-mobile-shell" : string.Empty)">
     <input type="checkbox" id="pm-sidebar-toggle" class="pm-sidebar-toggle-input" aria-hidden="true" />
 
-    <div class="pm-app-shell@(isFullscreenWorkspace ? " pm-fullscreen-shell" : string.Empty)">
+    <div class="pm-app-shell">
         <label for="pm-sidebar-toggle" class="pm-mobile-backdrop" aria-label="Zatvori navigaciju"></label>
 
         <aside class="pm-sidebar">
@@ -180,7 +177,7 @@
             </div>
         </aside>
 
-        <div class="pm-main@(isFullscreenWorkspace ? " pm-fullscreen-main" : string.Empty)">
+        <div class="pm-main">
             <header class="pm-topbar">
                 <div class="pm-topbar-left">
                     <label for="pm-sidebar-toggle" class="pm-menu-button" aria-label="Otvori navigaciju">
@@ -235,7 +232,7 @@
             </div>
         </header>
 
-        <main class="pm-content@(isFullscreenWorkspace ? " pm-fullscreen-content" : string.Empty)">
+        <main class="pm-content">
             <div class="pm-content-inner@(isFullscreenWorkspace ? " pm-fullscreen-content-inner" : string.Empty)">
                 @RenderBody()
             </div>
