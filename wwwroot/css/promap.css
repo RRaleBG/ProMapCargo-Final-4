@@ -4149,7 +4149,7 @@ textarea:valid {
     color-mix(in srgb, var(--pm-bg-deep) 97%, transparent)
   );
   box-shadow:
-    0 35px 100px color-mix(in srgb, #000 40%, transparent),
+    0 35px 100px color-mix(in srgb, var(--pm-bg-deep) 40%, transparent),
     0 0 45px color-mix(in srgb, var(--pm-emerald-500) 4%, transparent);
   overflow: hidden;
 }
@@ -13479,7 +13479,7 @@ textarea:valid {
     opacity: 0;
     animation:
         pm-login-route-signal
-        5.2s
+        var(--pm-motion-network)
         var(--pm-motion-ease-soft)
         infinite;
 }
@@ -13514,7 +13514,7 @@ textarea:valid {
         var(--pm-motion-ease)
         forwards,
         pm-login-node-pulse
-        var(--pm-motion-slow)
+        var(--pm-motion-pulse)
         var(--pm-motion-ease-soft)
         1.2s
         infinite;
@@ -13555,7 +13555,7 @@ textarea:valid {
     opacity: 0;
     animation:
         pm-login-node-ring
-        3.8s
+        var(--pm-motion-pulse)
         var(--pm-motion-ease-soft)
         1.2s
         infinite;
@@ -13572,7 +13572,7 @@ textarea:valid {
     opacity: .55;
     animation:
         pm-login-node-core
-        3.8s
+        var(--pm-motion-pulse)
         var(--pm-motion-ease-soft)
         1.2s
         infinite;
