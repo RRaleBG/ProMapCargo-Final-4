@@ -127,6 +127,8 @@
     --pm-motion-normal: 180ms;
     --pm-motion-slow: 260ms;
     --pm-motion-page: 420ms;
+    --pm-motion-network: 5200ms;
+    --pm-motion-pulse: 3800ms;
     --pm-motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --pm-motion-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
     /* =========================================================
