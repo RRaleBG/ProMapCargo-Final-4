@@ -1023,22 +1023,18 @@ svg.lucide {
   background: rgba(2, 23, 19, 0.88) !important;
   color: #86b3a7 !important;
 }
-
 .leaflet-control-zoom a:hover {
   background: rgba(8, 54, 44, 0.95) !important;
   color: var(--pm-teal) !important;
 }
-
 .leaflet-control-attribution {
   background: rgba(2, 19, 16, 0.72) !important;
   color: #486e64 !important;
   font-size: 7px !important;
 }
-
 .leaflet-control-attribution a {
   color: #67978a !important;
 }
-
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
   background: rgba(2, 28, 23, 0.95);
@@ -1046,13 +1042,11 @@ svg.lucide {
   border: 1px solid rgba(45, 212, 191, 0.16);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
-
 .leaflet-popup-content {
   margin: 12px;
   font-family: "Inter", sans-serif;
   font-size: 9px;
 }
-
 .leaflet-popup-close-button {
   color: #72988e !important;
 }
