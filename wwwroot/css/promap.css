@@ -400,12 +400,13 @@ svg {
   box-shadow: 0 0 12px rgba(45, 212, 191, 0.4);
 }
 
-.pm-nav-icon {
-  width: 22px;
-  height: 18px;
-  flex: 0 0 22px;
-  color: #6d9c90;
-  stroke-width: 1px;
+.pm-nav-icon
+{
+    width: 22px;
+    height: 18px;
+    flex: 0 0 22px;
+    color: var(--pm-teal);
+    stroke-width: 1px;
 }
 
 .pm-nav-item.active .pm-nav-icon {
@@ -13371,16 +13372,24 @@ textarea:valid {
    Matches Profile / Navigation visual system
    ========================================================= */
 
+
 .pm-login-page
 {
     position: relative;
-    min-height: 100vh;
-    margin: 0;
-    color: var(--pm-text, #e6f4ef);
-    background: radial-gradient( circle at 15% 15%, rgba(16,185,129,.08), transparent 32% ), radial-gradient( circle at 85% 75%, rgba(45,212,191,.055), transparent 30% ), linear-gradient( 145deg, #020b09 0%, #041612 48%, #061b17 100% );
-    font-family: Inter, "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    overflow: hidden;
 }
+    /* ---------------------------------------------------------
+   Decorative network layer
+   --------------------------------------------------------- */
 
+    .pm-login-page > div:first-of-type
+    {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
 
 /* =========================================================
    BACKGROUND
@@ -13393,8 +13402,6 @@ textarea:valid {
     overflow: hidden;
     pointer-events: none;
 }
-
-
 .pm-login-grid
 {
     position: absolute;
@@ -13405,37 +13412,41 @@ textarea:valid {
     mask-image: radial-gradient( ellipse at center, black 0%, transparent 75% );
 }
 
-
 /* ROUTE LINES */
 
 .pm-login-route
 {
     position: absolute;
-    width: 850px;
-    height: 850px;
-    border: 1px solid rgba(45,212,191,.07);
-    border-radius: 50%;
-    transform: rotate(-24deg);
+    display: block;
+    height: 2px;
+    transform-origin: left center;
+    border-radius: 999px;
+    background: linear-gradient( 90deg, transparent 0%, rgba(45, 212, 191, 0.08) 8%, rgba(45, 212, 191, 0.30) 42%, rgba(52, 211, 153, 0.62) 72%, rgba(52, 211, 153, 0.08) 100% );
+    box-shadow: 0 0 8px rgba(45, 212, 191, 0.08), 0 0 18px rgba(16, 185, 129, 0.04);
+    opacity: 0;
+    animation: pm-login-route-in var(--pm-motion-page) var(--pm-motion-ease) forwards;
 }
 
 
-.route-a
-{
-    top: -520px;
-    right: -210px;
-}
+    /* Route A */
 
-
-.route-b
-{
-    bottom: -590px;
-    left: -250px;
-    width: 760px;
-    height: 760px;
-    transform: rotate(22deg);
-}
-
-
+    .pm-login-route.route-a
+    {
+        width: 48vw;
+        left: -6vw;
+        top: 27vh;
+        transform: rotate(-18deg);
+        animation-delay: 120ms;
+    }
+    .pm-login-route.route-b
+    {
+        width: 42vw;
+        right: -4vw;
+        top: 67vh;
+        transform-origin: right center;
+        transform: rotate(-18deg);
+        animation-delay: 420ms;
+    }
 .pm-login-node
 {
     position: absolute;
@@ -13446,22 +13457,16 @@ textarea:valid {
     box-shadow: 0 0 0 4px rgba(52,211,153,.07), 0 0 18px rgba(52,211,153,.55);
     opacity: .75;
 }
-
-
 .node-a
 {
     top: 19%;
     left: 16%;
 }
-
-
 .node-b
 {
     top: 31%;
     right: 12%;
 }
-
-
 .node-c
 {
     bottom: 18%;
@@ -13486,16 +13491,12 @@ textarea:valid {
     background: rgba(2,12,10,.72);
     backdrop-filter: blur(18px);
 }
-
-
 .pm-login-brand-block
 {
     display: flex;
     align-items: center;
     gap: 15px;
 }
-
-
 .pm-login-brand
 {
     color: #f2faf7;
@@ -13503,14 +13504,10 @@ textarea:valid {
     font-weight: 900;
     letter-spacing: -.035em;
 }
-
-
     .pm-login-brand span
     {
         color: #2dd4bf;
     }
-
-
 .pm-login-kicker
 {
     padding-left: 15px;
@@ -13520,8 +13517,6 @@ textarea:valid {
     font-weight: 800;
     letter-spacing: .15em;
 }
-
-
 .pm-login-header-status
 {
     display: flex;
@@ -13532,8 +13527,6 @@ textarea:valid {
     font-weight: 800;
     letter-spacing: .1em;
 }
-
-
 .pm-login-status-dot
 {
     width: 6px;
@@ -13543,7 +13536,6 @@ textarea:valid {
     box-shadow: 0 0 10px rgba(52,211,153,.7);
     animation: loginPulse 2.4s ease-in-out infinite;
 }
-
 
 /* =========================================================
    MAIN
@@ -13559,8 +13551,6 @@ textarea:valid {
     justify-content: center;
     padding: 42px 30px;
 }
-
-
 .pm-login-shell
 {
     width: min(1080px, 100%);
@@ -13569,14 +13559,11 @@ textarea:valid {
     gap: 18px;
     align-items: stretch;
 }
-
-
 .pm-login-shell-single
 {
     width: min(520px, 100%);
     grid-template-columns: minmax(0, 1fr);
 }
-
 
 /* =========================================================
    LEFT INFORMATION
@@ -13595,8 +13582,6 @@ textarea:valid {
     box-shadow: 0 30px 90px rgba(0,0,0,.30);
     overflow: hidden;
 }
-
-
     .pm-login-info::before
     {
         content: "";
@@ -13609,15 +13594,11 @@ textarea:valid {
         background: radial-gradient( circle, rgba(16,185,129,.09), transparent 65% );
         pointer-events: none;
     }
-
-
 .pm-login-info-top
 {
     position: relative;
     z-index: 1;
 }
-
-
 .pm-login-eyebrow
 {
     margin-bottom: 14px;
@@ -13626,8 +13607,6 @@ textarea:valid {
     font-weight: 800;
     letter-spacing: .14em;
 }
-
-
 .pm-login-info h1
 {
     margin: 0;
@@ -13637,8 +13616,6 @@ textarea:valid {
     line-height: 1.02;
     letter-spacing: -.045em;
 }
-
-
 .pm-login-info p
 {
     max-width: 540px;
@@ -13664,8 +13641,6 @@ textarea:valid {
     background: rgba(2,18,15,.62);
     box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
 }
-
-
 .pm-login-system-head
 {
     display: flex;
@@ -13674,8 +13649,6 @@ textarea:valid {
     padding-bottom: 13px;
     border-bottom: 1px solid rgba(255,255,255,.05);
 }
-
-
 .pm-login-system-eyebrow
 {
     display: block;
@@ -13685,15 +13658,11 @@ textarea:valid {
     font-weight: 800;
     letter-spacing: .12em;
 }
-
-
 .pm-login-system-head strong
 {
     color: #cfe4de;
     font-size: 10px;
 }
-
-
 .pm-login-live
 {
     padding: 4px 7px;
@@ -13705,14 +13674,10 @@ textarea:valid {
     font-weight: 900;
     letter-spacing: .08em;
 }
-
-
 .pm-login-system-list
 {
     display: grid;
 }
-
-
 .pm-login-system-row
 {
     min-height: 57px;
@@ -13722,14 +13687,10 @@ textarea:valid {
     gap: 10px;
     border-bottom: 1px solid rgba(255,255,255,.045);
 }
-
-
     .pm-login-system-row:last-child
     {
         border-bottom: 0;
     }
-
-
 .pm-login-system-icon
 {
     width: 28px;
@@ -13742,36 +13703,48 @@ textarea:valid {
     color: #2dd4bf;
     font-size: 11px;
 }
-
-
 .pm-login-system-row strong,
 .pm-login-system-row small
 {
     display: block;
 }
-
-
 .pm-login-system-row strong
 {
     color: #c4dad4;
     font-size: 9px;
 }
-
-
 .pm-login-system-row small
 {
     margin-top: 3px;
     color: #617c74;
     font-size: 7px;
 }
-
-
 .pm-login-system-state
 {
     color: #34d399;
     font-size: 7px;
     font-weight: 900;
     letter-spacing: .08em;
+}
+
+/* ---------------------------------------------------------
+   Moving light / signal
+   --------------------------------------------------------- */
+
+.pm-login-route::after
+{
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -18%;
+    width: 18%;
+    height: 100%;
+    transform: translateY(-50%);
+    border-radius: inherit;
+    background: linear-gradient( 90deg, transparent, rgba(167, 243, 208, 0.95), rgba(45, 212, 191, 0.45), transparent );
+    filter: drop-shadow(0 0 5px rgba(45, 212, 191, 0.55)) drop-shadow(0 0 12px rgba(16, 185, 129, 0.25));
+    opacity: 0;
+    animation: pm-login-route-signal 4.8s var(--pm-motion-ease-soft) infinite;
 }
 
 
@@ -13788,8 +13761,6 @@ textarea:valid {
     gap: 7px;
     margin-top: 10px;
 }
-
-
 .pm-login-metric
 {
     padding: 11px;
@@ -13797,8 +13768,6 @@ textarea:valid {
     border-radius: 9px;
     background: rgba(255,255,255,.018);
 }
-
-
     .pm-login-metric span
     {
         display: block;
@@ -13808,16 +13777,12 @@ textarea:valid {
         font-weight: 800;
         letter-spacing: .1em;
     }
-
-
     .pm-login-metric strong
     {
         color: #7edcca;
         font-size: 8px;
         font-weight: 900;
     }
-
-
 .pm-login-footer-copy
 {
     position: relative;
@@ -13830,7 +13795,6 @@ textarea:valid {
     font-weight: 700;
     letter-spacing: .06em;
 }
-
 
 /* =========================================================
    LOGIN CARD
@@ -13847,8 +13811,6 @@ textarea:valid {
     box-shadow: 0 35px 100px rgba(0,0,0,.40), 0 0 45px rgba(16,185,129,.035);
     overflow: hidden;
 }
-
-
 .pm-login-card-glow
 {
     position: absolute;
@@ -13860,8 +13822,6 @@ textarea:valid {
     background: radial-gradient( circle, rgba(45,212,191,.075), transparent 68% );
     pointer-events: none;
 }
-
-
 .pm-login-card-header
 {
     position: relative;
@@ -13871,8 +13831,6 @@ textarea:valid {
     justify-content: space-between;
     margin-bottom: 28px;
 }
-
-
 .pm-login-card-eyebrow
 {
     margin-bottom: 7px;
@@ -13881,8 +13839,6 @@ textarea:valid {
     font-weight: 900;
     letter-spacing: .13em;
 }
-
-
 .pm-login-card h2
 {
     margin: 0;
@@ -13891,8 +13847,6 @@ textarea:valid {
     font-weight: 850;
     letter-spacing: -.035em;
 }
-
-
 .pm-login-card-header p
 {
     margin: 7px 0 0;
@@ -13900,8 +13854,6 @@ textarea:valid {
     font-size: 9px;
     line-height: 1.5;
 }
-
-
 .pm-login-lock
 {
     width: 35px;
@@ -13916,7 +13868,6 @@ textarea:valid {
     font-size: 13px;
 }
 
-
 /* =========================================================
    FORM
    ========================================================= */
@@ -13928,15 +13879,11 @@ textarea:valid {
     display: grid;
     gap: 16px;
 }
-
-
 .pm-login-field
 {
     display: grid;
     gap: 6px;
 }
-
-
     .pm-login-field label
     {
         color: #87a59d;
@@ -13944,16 +13891,12 @@ textarea:valid {
         font-weight: 800;
         letter-spacing: .04em;
     }
-
-
 .pm-login-label-row
 {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
-
-
 .pm-login-link
 {
     color: #2dd4bf;
@@ -13961,8 +13904,6 @@ textarea:valid {
     font-weight: 800;
     text-decoration: none;
 }
-
-
     .pm-login-link:hover
     {
         color: #5eead4;
@@ -13977,8 +13918,6 @@ textarea:valid {
     display: flex;
     align-items: center;
 }
-
-
 .pm-login-input-icon
 {
     position: absolute;
@@ -13987,8 +13926,6 @@ textarea:valid {
     font-size: 10px;
     pointer-events: none;
 }
-
-
 .pm-login-input-wrap input
 {
     width: 100%;
@@ -14005,20 +13942,14 @@ textarea:valid {
     transform: translateY(0) scale(1);
     transition: border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .18s ease;
 }
-
-
     .pm-login-input-wrap input::placeholder
     {
         color: #435d56;
     }
-
-
     .pm-login-input-wrap input:hover
     {
         border-color: rgba(255,255,255,.11);
     }
-
-
     .pm-login-input-wrap input:focus
     {
         border-color: rgba(45,212,191,.42);
@@ -14027,8 +13958,6 @@ textarea:valid {
         transform: translateY(-1px) scale(1.01);
         animation: pmLoginInputFocus .22s ease-out;
     }
-
-
 .pm-login-password-toggle
 {
     position: absolute;
@@ -14042,15 +13971,11 @@ textarea:valid {
     cursor: pointer;
     font-size: 10px;
 }
-
-
     .pm-login-password-toggle:hover
     {
         color: #2dd4bf;
         background: rgba(45,212,191,.055);
     }
-
-
 .pm-login-field-validation
 {
     min-height: 14px;
@@ -14059,15 +13984,11 @@ textarea:valid {
     font-weight: 700;
     letter-spacing: .02em;
 }
-
-
 .pm-login-validation ul
 {
     margin: 0;
     padding-left: 14px;
 }
-
-
 .pm-login-input-wrap input.input-validation-error
 {
     border-color: #fb7185;
@@ -14088,16 +14009,12 @@ textarea:valid {
     font-size: 8px;
     cursor: pointer;
 }
-
-
     .pm-login-remember input
     {
         position: absolute;
         opacity: 0;
         pointer-events: none;
     }
-
-
 .pm-login-check
 {
     width: 15px;
@@ -14107,16 +14024,12 @@ textarea:valid {
     border-radius: 4px;
     background: rgba(255,255,255,.025);
 }
-
-
 .pm-login-remember input:checked + .pm-login-check
 {
     border-color: #10b981;
     background: #10b981;
     box-shadow: 0 0 10px rgba(16,185,129,.22);
 }
-
-
     .pm-login-remember input:checked + .pm-login-check::after
     {
         content: "✓";
@@ -14151,29 +14064,21 @@ textarea:valid {
     box-shadow: 0 10px 30px rgba(16,185,129,.12);
     transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
 }
-
-
     .pm-login-submit:hover
     {
         transform: translateY(-1px);
         filter: brightness(1.06);
         box-shadow: 0 13px 35px rgba(16,185,129,.19);
     }
-
-
     .pm-login-submit:active
     {
         transform: translateY(0);
     }
-
-
 .pm-login-submit-arrow
 {
     font-size: 17px;
     transition: transform .18s ease;
 }
-
-
 .pm-login-submit:hover
 .pm-login-submit-arrow
 {
@@ -14195,8 +14100,6 @@ textarea:valid {
     font-weight: 800;
     letter-spacing: .1em;
 }
-
-
     .pm-login-divider::before,
     .pm-login-divider::after
     {
@@ -14222,8 +14125,6 @@ textarea:valid {
     border-radius: 9px;
     background: rgba(16,185,129,.025);
 }
-
-
 .pm-login-security-icon
 {
     width: 27px;
@@ -14237,22 +14138,16 @@ textarea:valid {
     font-size: 10px;
     font-weight: 900;
 }
-
-
 .pm-login-security strong,
 .pm-login-security span
 {
     display: block;
 }
-
-
 .pm-login-security strong
 {
     color: #9ab7af;
     font-size: 8px;
 }
-
-
 .pm-login-security span
 {
     margin-top: 3px;
@@ -14275,16 +14170,12 @@ textarea:valid {
     color: #536f67;
     font-size: 8px;
 }
-
-
     .pm-login-register a
     {
         color: #2dd4bf;
         font-weight: 800;
         text-decoration: none;
     }
-
-
         .pm-login-register a:hover
         {
             color: #5eead4;
@@ -14310,7 +14201,6 @@ textarea:valid {
     }
 }
 
-
 @keyframes pmLoginInputFocus
 {
     0%
@@ -14324,7 +14214,6 @@ textarea:valid {
     }
 }
 
-
 @keyframes pmLoginInputValid
 {
     0%
@@ -14337,7 +14226,6 @@ textarea:valid {
         box-shadow: 0 0 0 3px rgba(16, 185, 129, .18);
     }
 }
-
 
 @keyframes pmLoginInputInvalid
 {
