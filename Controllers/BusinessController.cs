@@ -61,6 +61,64 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
         }
     }
 
+
+
+    [HttpGet("orders/{orderId:guid}")]
+    public async Task<ActionResult<TransportOrder>> Order(Guid orderId, CancellationToken ct)
+    {
+        try
+        {
+            var order = await service.OrderAsync(orderId, ct);
+
+            return order is null ? NotFound() : Ok(order);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+    }
+
+
+    [HttpPost("orders")]
+    public async Task<ActionResult<TransportOrder>> CreateOrder( [FromBody] CreateTransportOrderRequest request,  CancellationToken ct)
+    {
+        try
+        {
+            var order =  await service.CreateOrderAsync(request, ct);
+
+            return CreatedAtAction(
+                nameof(Order),
+                new
+                {
+                    orderId = order.Id
+                },
+                order);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(
+                new
+                {
+                    code = "ValidationError",
+                    message = ex.Message
+                });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(
+                new
+                {
+                    code = "OrderConflict",
+                    message = ex.Message
+                });
+        }
+    }
+
+
     [HttpGet("trips")]
     public async Task<ActionResult<List<Trip>>> Trips(CancellationToken ct)
     {

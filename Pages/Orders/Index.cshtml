@@ -3,66 +3,42 @@
     ViewData["Title"] = "Transportni nalozi · ProMap Cargo";
 }
 
-<div class="pm-page" data-module="orders">
-    
+<div class="pm-page" data-module="orders">   
 
-    <div class="pm-content">
-
-        <header class="pm-header">
-
-            <div class="pm-heading">
-
-                <div class="pm-kicker">
-                    Operations · Cargo Management
-                </div>
-
-                <h1 class="pm-title">
-                    Transportni nalozi
-                </h1>
-
-                <div class="pm-subtitle">
-                    Planiranje pickup/delivery naloga, cargo statusa i izvršenja transporta
-                </div>
-
+    <header class="pm-header">
+        <div class="pm-heading">
+            <div class="pm-kicker">
+                Nalozi
+            </div>     
+                
+            <div class="pm-subtitle">
+                Planiranje pickup/delivery naloga, cargo statusa i izvršenja transporta
             </div>
+        </div>
 
-            <div class="pm-header-actions">
+        <div class="pm-header-actions">
 
-                <button type="button" class="pm-btn" id="ordersRefresh">
+            <button type="button" class="pm-btn" id="ordersRefresh">
+                <span class="pm-btn-icon">  ↻ </span>  Osveži
+            </button>
 
-                    <span class="pm-btn-icon">
-                        ↻
-                    </span>
+            <a asp-page="/dispatch" class="pm-btn">
+                <span class="pm-btn-icon"> ◈ </span>
+                Command Center
+            </a>
+                                 
+            <button type="button" class="pm-btn primary" id="newOrder">
+                <span class="pm-icon">+</span>
+                Novi nalog
+            </button>
+                       
+        </div>
+            <div></div>
+    </header>
 
-                    Osveži
-
-                </button>
-
-                <a href="/dispatch" class="pm-btn">
-
-                    <span class="pm-btn-icon">
-                        ◈
-                    </span>
-
-                    Command Center
-
-                </a>
-
-                <button type="button" class="pm-btn primary" id="newOrderButton">
-
-                    <span class="pm-btn-icon">
-                        +
-                    </span>
-
-                    Novi nalog
-
-                </button>
-
-            </div>
-
-        </header>
-
-        <section class="pm-orders-kpis">
+    <span></span>
+       
+    <section class="pm-orders-kpis">
 
             <article class="pm-kpi">
 
@@ -186,10 +162,7 @@
 
         </section>
 
-
-
-
-        <section class="pm-orders-filter-card">
+    <section class="pm-orders-filter-card">
 
             <div class="pm-orders-filter-head">
 
@@ -372,7 +345,7 @@
 
         </section>
 
-        <section class="pm-orders-main-grid">
+    <section class="pm-orders-main-grid">
 
             <article class="pm-orders-table-card">
 
@@ -1424,8 +1397,8 @@
 
         </section>
 
-    </div>
-
 </div>
 
-
+@section Scripts {
+    <script src="~/js/pages/orders-new.js"></script>
+}

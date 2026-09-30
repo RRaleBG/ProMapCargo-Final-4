@@ -37,6 +37,16 @@
 <body class="pm-body@(isEmbeddedNavigationShell ? " pm-embedded-mobile-shell" : string.Empty)">
     <input type="checkbox" id="pm-sidebar-toggle" class="pm-sidebar-toggle-input" aria-hidden="true" />
 
+    <div>
+
+        <div class="pm-login-route route-a"></div>
+        <div class="pm-login-route route-b"></div>
+
+        <div class="pm-login-node node-a"></div>
+        <div class="pm-login-node node-b"></div>
+        <div class="pm-login-node node-c"></div>
+    </div>
+
     <div class="pm-app-shell">
         <label for="pm-sidebar-toggle" class="pm-mobile-backdrop" aria-label="Zatvori navigaciju"></label>
 
@@ -167,8 +177,8 @@
                                 <i class="pm-nav-icon" data-lucide="log-in" aria-hidden="true"></i><span class="pm-nav-label">Prijava</span>
                             </a>
 
-                            <a asp-page="/Login/Register"
-                               class="pm-nav-item @(currentPage == "/Login/Register" ? "active" : "")">
+                            <a asp-page="/Account/Register"
+                               class="pm-nav-item @(currentPage == "/Account/Register" ? "active" : "")">
                                 <i class="pm-nav-icon" data-lucide="log-in" aria-hidden="true"></i><span class="pm-nav-label">Registracija</span>
                             </a>
                         }

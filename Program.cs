@@ -239,6 +239,7 @@ builder.Services.AddScoped<TruckEdgeEvaluator>();
 builder.Services.AddScoped<EdgeSnapper>();
 builder.Services.AddScoped<PostGisAStarRouter>();
 builder.Services.AddScoped<IPostGisRoutingService, PostGisRoutingService>();
+builder.Services.AddScoped<BusinessService>();
 
 
 // ============================================================
