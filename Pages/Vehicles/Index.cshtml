@@ -1,191 +1,128 @@
 @page
 @{
-    ViewData["Title"] = "Vozila · ProMap Cargo";
+    ViewData["Title"] = "ProMap Cargo · Vozila";
 }
 
+<!-- Page Content -->
 <div class="pm-page" data-module="vehicles">
-    <div class="pm-content">
-        <header class="pm-header">
-            <div class="pm-heading">
-                <div class="pm-page-kicker">Fleet · Vozila</div>                     
-                <p class="pm-page-subtitle ">
-                    Pregled kompletnog voznog parka, statusa vozila, dodeljenih vozača,
-                    aktivnih tura i GPS aktivnosti.
-                </p>
+          
+    <!-- Page Header -->
+    <header class="pm-header">
+        <div class="pm-heading">
+            <div class="pm-page-kicker">
+                <span class="pm-kicker-dot"></span>
+                Fleet · Vozila
+            </div>
+            <p class="pm-page-subtitle">
+                Pregled kompletnog voznog parka, statusa vozila, dodeljenih vozača,  aktivnih tura i GPS aktivnosti.
+            </p>
+        </div>
+        <div class="pm-header-actions">
+            <button class="pm-btn" type="button" id="refreshVehicles">
+                <i data-lucide="refresh-cw" class="compliance-kpi-icon" width="18" height="18"></i>
+                <small>Osveži</small>
+            </button>
+            <button class="pm-btn pm-btn-secondary" type="button" id="addVehicle">
+                <i data-lucide="plus" class="compliance-kpi-icon" width="18" height="18"></i>
+                <small>Novo vozilo</small>
+            </button>
+        </div>
+    </header>
+
+    <!-- KPI Grid -->
+    <section class="moderation-kpi-grid pm-kpi-grid" aria-label="Statistika vozila">
+
+        <article class="compliance-kpi compliance-kpi-total">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Total</span>               
+                <i data-lucide="truck" class="compliance-kpi-icon" stroke-width="0"></i>
+            </div>
+            <strong class="compliance-kpi-value" id="kpiTotal">-</strong>
+            <span class="compliance-kpi-meta"> registered  </span>
+        </article>
+
+        <article class="compliance-kpi compliance-kpi-good">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Active</span>            
+                <i data-lucide="check-check" class="compliance-kpi-icon" stroke-width="0"></i>
+            </div>
+            <strong class="compliance-kpi-value" id="activeVehicles">-</strong>
+            <span class="compliance-kpi-meta"> no critical issues   </span>
+        </article>
+
+        <article class="compliance-kpi compliance-kpi-warning">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Expiring Soon</span>
+                <i data-lucide="triangle-alert" class="compliance-kpi-icon" stroke-width="0"></i>
+            </div>
+            <strong class="compliance-kpi-value" id="expiringVehicles">-</strong>
+            <span class="compliance-kpi-meta">  documents in the next 30 days   </span>
+        </article>
+
+        <article class="compliance-kpi compliance-kpi-danger">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Inactive</span>
+                <i data-lucide="shield-x" class="compliance-kpi-icon" stroke-width="0"></i>
+            </div>
+            <strong class="compliance-kpi-value" id="inactiveVehicles">-</strong>
+            <span class="compliance-kpi-meta"> inactive vehicles   </span>
+        </article>
+
+        <article class="compliance-kpi compliance-kpi-info">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Trailers</span>
+                <i data-lucide="trailer" class="compliance-kpi-icon" stroke-width="3"></i>
+            </div>
+            <strong class="compliance-kpi-value">-</strong>
+            <span class="compliance-kpi-meta">  registered trailers    </span>
+        </article>
+
+        <article class="compliance-kpi compliance-kpi-neutral">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Service</span>
+                <i data-lucide="wrench" class="compliance-kpi-icon" stroke-width="2"></i>    
             </div>
 
+            <strong class="compliance-kpi-value">-</strong>
 
-            <div class="pm-actions">
-                <button type="button" class="pm-btn" id="refreshVehicles">
+            <span class="compliance-kpi-meta">  on service  </span>
+        </article>
 
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <path d="M20 11a8.1 8.1 0 0 0-14.8-4L3 10"></path>
-                        <path d="M3 4v6h6"></path>
-                        <path d="M4 13a8.1 8.1 0 0 0 14.8 4L21 14"></path>
-                        <path d="M21 20v-6h-6"></path>
-                    </svg>
-                    Osveži
-                </button>
+    </section>
 
-                <button type="button" class="pm-btn pm-btn-primary" id="addVehicle">
 
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path d="M12 5v14"></path>
-                        <path d="M5 12h14"></path>
-                    </svg>
+    <!-- FILTER TOOLBAR -->
+    <section class="moderation-toolbar pm-card">
+        <div class="moderation-search">          
+            <span>  
+                <i data-lucide="search" class="moderation-search-icon" width="20" height="20" aria-hidden="true"></i>
+            </span>
+            <input id="vehicleSearch" type="search" placeholder="Pretraži registraciju, marku, model ili VIN..." autocomplete="off" />
+        </div>
 
-                    Novo vozilo
+        <select id="vehicleStatusFilter" class="moderation-select" aria-label="Status vozila">
+            <option value="">Svi statusi</option>
+            <option value="Active">Aktivno</option>
+            <option value="Available">Dostupno</option>
+            <option value="Maintenance">Servis</option>
+            <option value="Inactive">Neaktivno</option>
+        </select>
 
-                </button>
-            </div>
-        </header>
+        <select id="vehicleGpsFilter" class="moderation-select" aria-label="GPS status">
+            <option value="">Svi GPS statusi</option>
+            <option value="online">GPS online</option>
+            <option value="stale">GPS zastareo</option>
+            <option value="offline">GPS offline</option>
+        </select>
+   
+        <p class="pm-vehicle-results" id="vehicleResults">
+            Učitavanje...
+        </p>
+    </section>
 
-        <section class="pm-kpi-grid" aria-label="Statistika vozila">
-
-            <article class="pm-kpi">
-
-                <div class="pm-kpi-header">
-                    <span class="pm-kpi-label">Ukupno vozila</span>
-
-                    <span class="pm-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                             aria-hidden="true">
-                            <path d="M3 17h3"></path>
-                            <path d="M18 17h3"></path>
-                            <path d="M5 17V9h10l4 4v4"></path>
-                            <circle cx="8" cy="17" r="2"></circle>
-                            <circle cx="17" cy="17" r="2"></circle>
-                            <path d="M15 9v4h4"></path>
-                        </svg>
-                    </span>
-                </div>
-
-                <div class="pm-kpi-value" id="kpiTotal">—</div>
-                <div class="pm-kpi-footer">registrovanih vozila</div>
-
-            </article>
-
-            <article class="pm-kpi">
-
-                <div class="pm-kpi-header">
-                    <span class="pm-kpi-label">Aktivna</span>
-
-                    <span class="pm-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                             aria-hidden="true">
-                            <path d="M20 6 9 17l-5-5"></path>
-                        </svg>
-                    </span>
-                </div>
-
-                <div class="pm-kpi-value" id="kpiActive">—</div>
-                <div class="pm-kpi-footer">u operativnom statusu</div>
-
-            </article>
-
-            <article class="pm-kpi">
-
-                <div class="pm-kpi-header">
-                    <span class="pm-kpi-label">Na turi</span>
-
-                    <span class="pm-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                             aria-hidden="true">
-                            <path d="M3 17h3"></path>
-                            <path d="M18 17h3"></path>
-                            <path d="M5 17V9h10l4 4v4"></path>
-                            <circle cx="8" cy="17" r="2"></circle>
-                            <circle cx="17" cy="17" r="2"></circle>
-                            <path d="M15 9v4h4"></path>
-                        </svg>
-                    </span>
-                </div>
-
-                <div class="pm-kpi-value" id="kpiTrips">—</div>
-                <div class="pm-kpi-footer">dodeljeno aktivnim turama</div>
-
-            </article>
-
-            <article class="pm-kpi">
-
-                <div class="pm-kpi-header">
-                    <span class="pm-kpi-label">GPS online</span>
-
-                    <span class="pm-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                             aria-hidden="true">
-                            <path d="M12 2v4"></path>
-                            <path d="M12 18v4"></path>
-                            <path d="M2 12h4"></path>
-                            <path d="M18 12h4"></path>
-                            <circle cx="12" cy="12" r="4"></circle>
-                        </svg>
-                    </span>
-                </div>
-
-                <div class="pm-kpi-value" id="kpiGps">—</div>
-                <div class="pm-kpi-footer">signal u poslednja 2 min</div>
-
-            </article>
-
-            <article class="pm-kpi">
-
-                <div class="pm-kpi-header">
-                    <span class="pm-kpi-label">Servis</span>
-
-                    <span class="pm-kpi-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                             aria-hidden="true">
-                            <path
-                                d="M14.7 6.3a4.5 4.5 0 0 0-5.9 5.9L3 18a2.1 2.1 0 0 0 3 3l5.8-5.8a4.5 4.5 0 0 0 5.9-5.9l-2.8 2.8-2.9-2.9 2.7-2.9Z">
-                            </path>
-                        </svg>
-                    </span>
-                </div>
-
-                <div class="pm-kpi-value" id="kpiMaintenance">—</div>
-                <div class="pm-kpi-footer">trenutno u servisu</div>
-
-            </article>
-
-        </section>
-
-        <section class="pm-toolbar" aria-label="Filteri vozila">
-
-            <div class="pm-vehicle-search">
-
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7"></circle>
-                    <path d="m20 20-4-4"></path>
-                </svg>
-
-                <input id="vehicleSearch" class="pm-vehicle-input" type="search" autocomplete="off"
-                       placeholder="Pretraži registraciju, marku, model ili VIN..." />
-
-            </div>
-
-            <select id="vehicleStatusFilter" class="pm-vehicle-select" aria-label="Status vozila">
-                <option value="">Svi statusi</option>
-                <option value="Active">Aktivno</option>
-                <option value="Available">Dostupno</option>
-                <option value="Maintenance">Servis</option>
-                <option value="Inactive">Neaktivno</option>
-            </select>
-
-            <select id="vehicleGpsFilter" class="pm-vehicle-select" aria-label="GPS status">
-                <option value="">Svi GPS statusi</option>
-                <option value="online">GPS online</option>
-                <option value="stale">GPS zastareo</option>
-                <option value="offline">GPS offline</option>
-            </select>
-
-            <div class="pm-vehicle-results" id="vehicleResults">
-                Učitavanje...
-            </div>
-
-        </section>
-
-        <section class="pm-vehicles-workspace">
+        
+   
+    <section class="pm-vehicles-workspace">
 
             <div class="pm-vehicles-card">
 
@@ -489,21 +426,6 @@
 
         </section>
 
-        <div class="pm-vehicles-footer-info">
-
-            <span>
-                <strong id="lastRefreshLabel">
-                    Podaci još nisu osveženi
-                </strong>
-            </span>
-
-            <span>
-                ProMap Cargo · Fleet Management
-            </span>
-
-        </div>
-
-    </div>
 
 </div>
 

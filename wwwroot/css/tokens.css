@@ -1,21 +1,41 @@
 :root
 {
+    /* =========================================================
+       Typography
+       ========================================================= */
+
     --pm-font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --pm-font-xs: 12px;
-    --pm-font-sm: 13px;
-    --pm-font-md: 16px;
-    --pm-font-size: var(--pm-font-sm);
-    --pm-font-base: 16px;
-    --pm-font-lg: 18px;
-    --pm-font-xl: 24px;
-    --pm-font-2xl: 32px;
-    --pm-bg: radial-gradient(circle at 15% 20%, rgba(16, 185, 129, 0.075), transparent 28%), radial-gradient(circle at 82% 15%, rgba(45, 212, 191, 0.045), transparent 25%), linear-gradient(135deg, #010d0b 0%, #021512 42%, #031d18 100%);    
+    --pm-font-xs: 11px;
+    --pm-font-sm: 12px;
+    --pm-font-md: 14px;
+    --pm-font-lg: 16px;
+    --pm-font-xl: 20px;
+    --pm-font-2xl: 28px;
+    --pm-font-3xl: 36px;
+    --pm-font-weight-regular: 400;
+    --pm-font-weight-medium: 500;
+    --pm-font-weight-semibold: 600;
+    --pm-font-weight-bold: 700;
+    /* =========================================================
+       Application Background
+       ========================================================= */
+
+    --pm-bg: radial-gradient( circle at 15% 20%, rgba(16, 185, 129, 0.075), transparent 28% ), radial-gradient( circle at 82% 15%, rgba(45, 212, 191, 0.045), transparent 25% ), linear-gradient( 135deg, #010d0b 0%, #021512 42%, #031d18 100% );
     --pm-bg-deep: #010d0b;
     --pm-bg-soft: #031c18;
+    /* =========================================================
+       Surfaces
+       ========================================================= */
+
     --pm-surface: rgba(4, 31, 26, 0.78);
     --pm-surface-strong: rgba(5, 39, 32, 0.88);
     --pm-surface-soft: rgba(7, 52, 43, 0.58);
     --pm-surface-hover: rgba(12, 70, 57, 0.72);
+    --pm-surface-solid: #061b17;
+    /* =========================================================
+       Brand / Emerald
+       ========================================================= */
+
     --pm-emerald-50: #ecfdf5;
     --pm-emerald-100: #d1fae5;
     --pm-emerald-200: #a7f3d0;
@@ -26,13 +46,28 @@
     --pm-emerald-700: #047857;
     --pm-teal: #2dd4bf;
     --pm-cyan: #22d3ee;
+    --pm-accent: var(--pm-teal);
+    --pm-accent-hover: var(--pm-emerald-400);
+    --pm-accent-strong: var(--pm-emerald-500);
+    /* =========================================================
+       Text
+       ========================================================= */
+
     --pm-text: #f0fdf8;
     --pm-text-soft: #d1fae5;
     --pm-text-muted: #8eb8aa;
     --pm-text-dim: #638b80;
+    /* =========================================================
+       Borders
+       ========================================================= */
+
     --pm-border: rgba(79, 209, 169, 0.14);
     --pm-border-strong: rgba(45, 212, 191, 0.30);
-    --pm-border-soft: rgba(255, 255, 255, 0.055);
+    --pm-border-subtle: rgba(255, 255, 255, 0.055);
+    /* =========================================================
+       Semantic Colors
+       ========================================================= */
+
     --pm-success: #34d399;
     --pm-success-bg: rgba(16, 185, 129, 0.13);
     --pm-warning: #fbbf24;
@@ -41,6 +76,10 @@
     --pm-danger-bg: rgba(244, 63, 94, 0.13);
     --pm-info: #38bdf8;
     --pm-info-bg: rgba(14, 165, 233, 0.13);
+    /* =========================================================
+       Spacing
+       ========================================================= */
+
     --pm-space-1: 4px;
     --pm-space-2: 8px;
     --pm-space-3: 12px;
@@ -49,26 +88,49 @@
     --pm-space-6: 24px;
     --pm-space-7: 32px;
     --pm-space-8: 40px;
-    --pm-radius-xs: 6px;
-    --pm-radius-sm: 9px;
-    --pm-radius-md: 13px;
-    --pm-radius-lg: 17px;
-    --pm-radius-xl: 22px;
+    /* =========================================================
+       Radius
+       ========================================================= */
+
+    --pm-radius-xs: 5px;
+    --pm-radius-sm: 8px;
+    --pm-radius-md: 12px;
+    --pm-radius-lg: 16px;
+    --pm-radius-xl: 20px;
+    /* =========================================================
+       Layout
+       ========================================================= */
+
     --pm-sidebar-width: 252px;
     --pm-topbar-height: 72px;
     --pm-footer-height: 42px;
+    /* =========================================================
+       Shadows
+       ========================================================= */
+
     --pm-shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.16);
+    --pm-shadow-md: 0 16px 45px rgba(0, 0, 0, 0.22);
     --pm-shadow: var(--pm-shadow-md);
     --pm-shadow-soft: var(--pm-shadow-sm);
-    --pm-blur: blur(18px);
-    --pm-accent: var(--pm-teal);
-    --pm-shadow-md: 0 16px 45px rgba(0, 0, 0, 0.22);
     --pm-shadow-glow: 0 0 35px rgba(16, 185, 129, 0.09);
+    /* =========================================================
+       Effects
+       ========================================================= */
+
+    --pm-blur: blur(18px);
+    /* =========================================================
+       Motion
+       ========================================================= */
+
     --pm-motion-fast: 140ms;
     --pm-motion-normal: 180ms;
     --pm-motion-slow: 260ms;
     --pm-motion-page: 420ms;
     --pm-motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --pm-motion-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+    /* =========================================================
+       Accessibility
+       ========================================================= */
+
     --pm-focus-ring: 0 0 0 3px rgba(45, 212, 191, 0.12), 0 0 0 1px rgba(45, 212, 191, 0.42);
 }

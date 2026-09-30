@@ -53,15 +53,19 @@
         <aside class="pm-sidebar">
             <div class="pm-sidebar-inner">
                 <div class="pm-brand-block">
-                    <a asp-page="/Dispatch/Index" class="pm-brand" aria-label="ProMap Cargo Command Center">
-                        <span class="pm-brand-mark"><span></span><span></span><span></span></span>
-                        <span class="pm-brand-copy">
-                            <strong>ProMap</strong>
-                            <b>Cargo</b>
-                            <small>SMART FLEET OPERATIONS</small>
+                    <a asp-page="/" class="pm-public-brand" aria-label="ProMap Cargo">
+                        <span class="pm-public-brand-mark"></span>
+
+                        <span class="pm-public-brand-name">
+                            ProMap <span>Cargo</span>
                         </span>
                     </a>
-                    <label for="pm-sidebar-toggle" class="pm-sidebar-close" aria-label="Zatvori meni">×</label>
+
+                    <label for="pm-sidebar-toggle"
+                           class="pm-sidebar-close"
+                           aria-label="Zatvori meni">
+                        ×
+                    </label>
                 </div>
 
                 <div class="pm-sidebar-status">

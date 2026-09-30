@@ -6,6 +6,17 @@
   box-sizing: border-box;
 }
 
+html,
+body
+{
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    color-scheme: dark;
+    scroll-behavior: smooth;
+}
+
+/*
 html {
   margin: 0;
   min-height: 100%;
@@ -25,7 +36,23 @@ body
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-y: hidden;
+    overflow-x: auto;
+}*/
+body
+{
+    min-height: 100%;
+    overflow: hidden;
+    background: var(--pm-bg);
+    font-family: var(--pm-font-family);
+    color: var(--pm-text);
+    line-height: 1.8;
+    font-size: var(--pm-font-md);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
+
+
 
 button,
 a,
@@ -124,19 +151,22 @@ svg {
    APP SHELL
    ========================================================= */
 
-.pm-app-shell {
-  min-height: 100vh;
-  display: flex;
-  position: relative;
+.pm-app-shell
+{
+    height: 100vh;
+    min-height: 0;
+    display: flex;
+    position: relative;
 }
 
-.pm-main {
-  min-width: 0;
-  min-height: 100vh;
-  width: calc(100% - var(--pm-sidebar-width));
-  margin-left: var(--pm-sidebar-width);
-  display: flex;
-  flex-direction: column;
+.pm-main
+{
+    min-width: 0;
+    min-height: 0;
+    width: calc(100% - var(--pm-sidebar-width));
+    margin-left: var(--pm-sidebar-width);
+    display: flex;
+    flex-direction: column;
 }
 
 
@@ -150,7 +180,7 @@ svg {
     inset: 0 auto 0 0;
     z-index: 1000;
     width: var(--pm-sidebar-width);
-    font-size: var(--pm-font-size);
+    font-size: var(--pm-font-md);
     height: 100vh;
     padding: 10px;
     background: linear-gradient(180deg, rgba(2, 28, 23, 0.94), rgba(1, 18, 15, 0.97));
@@ -166,96 +196,96 @@ svg {
   min-height: 0;
 }
 
-.pm-brand-block {
-  min-height: 70px;
-  display: flex;
-  align-items: center;
-  padding: 8px 10px 8px 8px;
+.pm-brand-block
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 22px 18px 18px;
 }
-
-.pm-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 11px;
-  min-width: 0;
+.pm-brand
+{
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+    text-decoration: none;
 }
-
-.pm-brand-mark {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  border-radius: 11px;
-  background: linear-gradient(
-    145deg,
-    rgba(45, 212, 191, 0.28),
-    rgba(16, 185, 129, 0.06)
-  );
-  border: 1px solid rgba(45, 212, 191, 0.24);
-  box-shadow:
-    0 0 22px rgba(16, 185, 129, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+.pm-brand-mark
+{
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(45, 212, 191, 0.24);
+    border-radius: 12px;
+    background: rgba(16, 185, 129, 0.08);
+    color: #2dd4bf;
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.04), 0 8px 24px rgba(0, 0, 0, 0.18);
 }
-
-.pm-brand-mark span {
-  position: absolute;
-  display: block;
-  height: 3px;
-  border-radius: 999px;
-  transform: skewX(-28deg);
-  background: linear-gradient(90deg, var(--pm-teal), var(--pm-emerald-400));
-  box-shadow: 0 0 8px rgba(45, 212, 191, 0.4);
+    .pm-brand-mark svg
+    {
+        width: 24px;
+        height: 24px;
+        stroke-width: 1.8;
+    }
+.pm-brand-copy
+{
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    column-gap: 5px;
+    line-height: 1;
 }
+    .pm-brand-copy strong,
+    .pm-brand-copy b
+    {
+        font-size: 20px;
+        letter-spacing: -0.04em;
+    }
+    .pm-brand-copy strong
+    {
+        color: #f1f5f9;
+    }
+    .pm-brand-copy b
+    {
+        color: #2dd4bf;
+    }
+    .pm-brand-copy small
+    {
+        flex-basis: 100%;
+        margin-top: 6px;
+        color: rgba(148, 163, 184, 0.72);
+        font-size: 7px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        white-space: nowrap;
+    }
 
-.pm-brand-mark span:nth-child(1) {
-  width: 22px;
-  left: 7px;
-  top: 11px;
+.pm-sidebar-close
+{
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    display: grid;
+    place-items: center;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    color: rgba(148, 163, 184, 0.7);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 }
-
-.pm-brand-mark span:nth-child(2) {
-  width: 18px;
-  left: 9px;
-  top: 17px;
-}
-
-.pm-brand-mark span:nth-child(3) {
-  width: 12px;
-  left: 12px;
-  top: 23px;
-}
-
-.pm-brand-copy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
-}
-
-.pm-brand-copy strong {
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.045em;
-  color: #f0fdf8;
-}
-
-.pm-brand-copy b {
-  margin-top: 2px;
-  font-size: 17px;
-  font-weight: 500;
-  color: var(--pm-teal);
-  letter-spacing: -0.035em;
-}
-
-.pm-brand-copy small {
-  margin-top: 6px;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--pm-text-dim);
-  white-space: nowrap;
-}
-
+    .pm-sidebar-close:hover
+    {
+        color: #f1f5f9;
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
 .pm-sidebar-close {
   display: none;
   margin-left: auto;
@@ -268,7 +298,6 @@ svg {
   cursor: pointer;
   font-size: 23px;
 }
-
 .pm-sidebar-status {
   height: 34px;
   margin: 4px 7px 11px;
@@ -283,7 +312,6 @@ svg {
   font-size: 10px;
   font-weight: 500;
 }
-
 .pm-sidebar-status strong {
   margin-left: auto;
   color: var(--pm-emerald-400);
@@ -291,7 +319,6 @@ svg {
   font-weight: 800;
   letter-spacing: 0.12em;
 }
-
 .pm-status-dot {
   width: 7px;
   height: 7px;
@@ -318,7 +345,7 @@ svg {
   padding: 0 11px;
   margin: 0 0 5px;
   color: #4f776c;
-  font-size: 9px;
+  font-size: var(--pm-font-sm);
   line-height: 18px;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -333,7 +360,7 @@ svg {
   margin: 2px 0;
   padding: 0 10px;
   border: 1px solid transparent;
-  border-radius: 9px;
+  border-radius: 2px 5px 3px 2px;
   color: #8eaea5;
   transition:
     background 160ms ease,
@@ -389,7 +416,7 @@ svg {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: 11px;
+  font-size: var(--pm-font-xs);
   font-weight: 600;
 }
 
@@ -768,11 +795,13 @@ svg.lucide {
    CONTENT
    ========================================================= */
 
-.pm-content {
-  flex: 1;
-  position: relative;
+.pm-content
+{
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    overflow: auto;
 }
-
 .pm-content::before {
   content: "";
   position: fixed;
