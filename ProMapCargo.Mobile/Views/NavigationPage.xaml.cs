@@ -8,6 +8,7 @@ public partial class MobileNavigationPage : ContentPage
     private bool _isTracking;
     private IDispatcherTimer _locationTimer;
     private const string NavigationUrl = "http://localhost:5090/Navigation?embedded=1&mobile=1";
+    private Location? _currentLocation;
 
     public MobileNavigationPage()
     {

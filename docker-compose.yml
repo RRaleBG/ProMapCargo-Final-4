@@ -1,24 +1,35 @@
+version: '3.8'
+
 services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: promap-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: promapcargo
+      POSTGRES_USER: promap
+      POSTGRES_PASSWORD: promap_dev_change_me
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U promap -d promapcargo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   osrm:
     image: osrm/osrm-backend:latest
     container_name: promap-osrm
     restart: unless-stopped
-    entrypoint:
-      [
-        "/bin/sh",
-        "/scripts/start-osrm.sh"
-      ]
-    environment:
-      OSRM_DATASET: serbia-latest
-      OSRM_ALGORITHM: mld
-      OSRM_PORT: 5090
+    command: ["osrm-routed", "--algorithm", "mld", "/data/serbia-latest.osrm"]
     ports:
-      - "5001:5090"
+      - "5001:5000"
     volumes:
       - ./osm:/data:ro
-      - ./scripts/start-osrm.sh:/scripts/start-osrm.sh:ro
-    networks:
-      - promaptruc-network
+    depends_on:
+      - postgres
 
   api:
     build:
@@ -26,31 +37,31 @@ services:
       dockerfile: Dockerfile
     container_name: promap-api
     restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Postgres: Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
+      PROMAP_POSTGRES: Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
+      Routing__OsrmBaseUrl: http://localhost:5001
+      Routing__OsrmFallbackBaseUrl: https://router.project-osrm.org
+      Cors__Origins__0: http://localhost:8080
+      Cors__Origins__1: http://localhost:3000
+      Cors__Origins__2: http://localhost:5173
+      MobileAuth__Issuer: ProMapCargo
+      MobileAuth__Audience: ProMapCargo.Mobile
+      MobileAuth__SigningKey: promapcargo-mobile-change-this-signing-key-2026
+      Seed__Enabled: "true"
+    ports:
+      - "8080:8080"
     volumes:
       - ./wwwroot/styles:/app/wwwroot/styles:ro
       - ./wwwroot/maps:/app/wwwroot/maps:ro
       - ./wwwroot/fonts:/app/wwwroot/fonts:ro
       - ./wwwroot/lib:/app/wwwroot/lib:ro
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Postgres: Host=promaptruc-postgres;Port=5432;Database=mapprotruc;Username=mapprotruc;Password=change-me-local-only
-      PROMAP_POSTGRES: Host=promaptruc-postgres;Port=5432;Database=mapprotruc;Username=mapprotruc;Password=change-me-local-only
-      Routing__OsrmBaseUrl: http://promaptruc-osrm:5000
-      Routing__OsrmFallbackBaseUrl: https://router.project-osrm.org
-      Cors__Origins__0: http://localhost:8080
-      Cors__Origins__1: http://localhost:8090
-      MobileAuth__Issuer: ProMapCargo
-      MobileAuth__Audience: ProMapCargo.Mobile
-      MobileAuth__SigningKey: promapcargo-mobile-change-this-signing-key-2026
-    ports:
-      - "8080:8080"
     depends_on:
-      osrm:
-        condition: service_started
-    networks:
-      - promaptruc-network
+      postgres:
+        condition: service_healthy
+    network_mode: host
 
-networks:
-  promaptruc-network:
-    external: true
+volumes:
+  postgres_data:

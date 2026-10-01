@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ProMapCargo.Mobile.Models;
 using ProMapCargo.Mobile.Services;
@@ -15,6 +15,7 @@ public static class MauiProgram
 
         builder
             .UseMauiApp<App>()
+            .UseMauiMaps()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -24,8 +25,8 @@ public static class MauiProgram
         builder.Services.Configure<MobileAppOptions>(options =>
         {
             options.ApiBaseUrl = DeviceInfo.Platform == DevicePlatform.Android
-                ? "http://10.0.2.2:8090/"   // Promenjeno sa 8080 na 8090
-                : "http://localhost:8090/";
+                ? "http://10.0.2.2:8080/"
+                : "http://localhost:8080/";
         });
 
         builder.Services.AddSingleton<TokenStore>();
