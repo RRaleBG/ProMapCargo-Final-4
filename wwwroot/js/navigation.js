@@ -277,9 +277,49 @@ window.ProMap = window.ProMap || {};
         window.proMapMobile.applyState = (payload) => {
             state.pendingMobilePayload = payload || {};
 
+            const current = normalizePoint(payload?.current);
+
+            if (current) {
+                updateGpsMarker({
+                    latitude: current.latitude,
+                    longitude: current.longitude,
+                    accuracy: Number(payload?.current?.accuracy) || undefined,
+                    speed: Number(payload?.current?.speed) || undefined,
+                    timestamp: Date.now(),
+                });
+
+                state.currentPosition = {
+                    latitude: current.latitude,
+                    longitude: current.longitude,
+                };
+            }
+
             if (state.localMap?.enhancements?.setRoute) {
                 applyPendingMobilePayload();
             }
+
+            return true;
+        };
+
+        window.proMapMobile.updateLocation = (payload) => {
+            const current = normalizePoint(payload);
+
+            if (!current) {
+                return false;
+            }
+
+            state.currentPosition = {
+                latitude: current.latitude,
+                longitude: current.longitude,
+            };
+
+            updateGpsMarker({
+                latitude: current.latitude,
+                longitude: current.longitude,
+                accuracy: Number(payload?.accuracy) || undefined,
+                speed: Number(payload?.speed) || undefined,
+                timestamp: Date.now(),
+            });
 
             return true;
         };

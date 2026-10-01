@@ -1,108 +1,165 @@
+using Microsoft.Extensions.DependencyInjection;
 using ProMapCargo.Mobile.ViewModels;
+using System.Text.Json;
 
 namespace ProMapCargo.Mobile.Views;
 
 public partial class MobileNavigationPage : ContentPage
 {
     private readonly NavigationViewModel viewModel;
-    private bool _isTracking;
-    private IDispatcherTimer _locationTimer;
-    private const string NavigationUrl = "http://localhost:5090/Navigation?embedded=1&mobile=1";
-    private Location? _currentLocation;
+    private bool pageActive;
+    private bool webViewReady;
+
+    private string NavigationUrl =>
+        DeviceInfo.Platform == DevicePlatform.Android
+            ? "http://10.0.2.2:8080/navigation?embedded=1&mobile=1"
+            : "http://localhost:8080/navigation?embedded=1&mobile=1";
 
     public MobileNavigationPage()
     {
         InitializeComponent();
 
-        // 1. Podesi timer koji će na svaku sekundu čitati GPS i slati u Web
-        _locationTimer = Dispatcher.CreateTimer();
-        _locationTimer.Interval = TimeSpan.FromSeconds(1);
-        _locationTimer.Tick += async (s, e) => await SendLocationToWebAsync();
+        viewModel = Application.Current?.Handler?.MauiContext?.Services
+            .GetRequiredService<NavigationViewModel>()
+            ?? throw new InvalidOperationException(
+                "NavigationViewModel nije registrovan u MAUI DI kontejneru.");
 
-        // 2. Skloni loading ekran kada se web stranica učita
-        NavigationWebView.Navigated += (s, e) =>
-        {
-            LoadingOverlay.IsVisible = false;
-            // Ovde počinjemo praćenje tek kad je mapa spremna
-            _isTracking = true;
-            _locationTimer.Start();
-        };
+        BindingContext = viewModel;
+
+        NavigationWebView.Navigated += OnWebViewNavigated;
+        viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        viewModel.RouteVisualizationChanged += OnRouteVisualizationChanged;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
 
-        // Zatraži dozvole od korisnika pri otvaranju stranice
-        var status = await CheckAndRequestLocationPermission();
-        if (status == PermissionStatus.Granted)
-        {
-            // Učitaj svoju web aplikaciju (Zameni URL sa svojim lokalnim ili produkcionim)
-            NavigationWebView.Source = "https://app.promapcargo.com/navigation-module";
-        }
-        else
-        {
-            await DisplayAlert("Greška", "Za navigaciju je neophodan pristup GPS-u.", "OK");
-        }
+        pageActive = true;
+        LoadingOverlay.IsVisible = true;
+        NavigationWebView.Source = NavigationUrl;
+
+        await viewModel.LoadInitialRouteAsync();
+
+        await PushStateToWebAsync();
     }
 
     protected override void OnDisappearing()
     {
+        pageActive = false;
+        webViewReady = false;
+
+        viewModel.StopGpsTracking();
+
         base.OnDisappearing();
-        // Zaustavi GPS kada korisnik izađe sa stranice da štediš bateriju
-        _isTracking = false;
-        _locationTimer.Stop();
     }
 
-    // --- METODA ZA ČITANJE GPS-a I SLANJE U WEB ---
-    private async Task SendLocationToWebAsync()
+    private async void OnWebViewNavigated(object? sender, WebNavigatedEventArgs e)
     {
-        if (!_isTracking) return;
+        LoadingOverlay.IsVisible = false;
+        webViewReady = e.Result == WebNavigationResult.Success;
 
-        try
+        if (webViewReady)
         {
-            var request = new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(2));
-            var location = await Geolocation.Default.GetLocationAsync(request);
+            await PushStateToWebAsync();
+        }
+    }
 
-            if (location != null)
+    private void OnRouteVisualizationChanged(object? sender, EventArgs e)
+    {
+        _ = PushStateToWebAsync();
+    }
+
+    private void OnViewModelPropertyChanged(
+        object? sender,
+        System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is
+            nameof(NavigationViewModel.CurrentLocation)
+            or nameof(NavigationViewModel.RouteStartPoint)
+            or nameof(NavigationViewModel.RouteDestinationPoint)
+            or nameof(NavigationViewModel.StatusText)
+            or nameof(NavigationViewModel.ErrorMessage))
+        {
+            _ = PushStateToWebAsync();
+        }
+    }
+
+    private async Task PushStateToWebAsync()
+    {
+        if (!pageActive || !webViewReady)
+        {
+            return;
+        }
+
+        var payload = new
+        {
+            start = ToWebPoint(viewModel.RouteStartPoint),
+            destination = ToWebPoint(viewModel.RouteDestinationPoint),
+            current = ToWebPoint(viewModel.CurrentLocation),
+
+            route = viewModel.RoutePolylinePoints
+                .Select(point => new
+                {
+                    latitude = point.Lat,
+                    longitude = point.Lon
+                })
+                .ToArray(),
+
+            maneuvers = viewModel.RouteManeuvers
+                .Select(maneuver => new
+                {
+                    type = maneuver.Type,
+                    instruction = maneuver.Instruction,
+                    latitude = maneuver.Latitude,
+                    longitude = maneuver.Longitude
+                })
+                .ToArray(),
+
+            restrictionCount = viewModel.RouteViolations.Count
+        };
+
+        var json = JsonSerializer.Serialize(payload);
+
+        for (var attempt = 0; attempt < 8; attempt++)
+        {
+            try
             {
-                var lat = location.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                var lng = location.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                var heading = location.Course?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "0";
-                var speed = (location.Speed * 3.6)?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "0";
+                var result = await NavigationWebView.EvaluateJavaScriptAsync(
+                    $"window.proMapMobile?.applyState?.({json}) ?? false;");
 
-                // Proveravamo da li funkcija postoji u JS okruženju pre nego što je pozovemo
-                var jsCode = $@"
-                if (typeof window.updateTruckLocation === 'function') {{
-                    window.updateTruckLocation({lat}, {lng}, {heading}, {speed});
-                }}
-            ";
-
-                await NavigationWebView.EvaluateJavaScriptAsync(jsCode);
+                if (string.Equals(
+                    result,
+                    "true",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
             }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"GPS Greška: {ex.Message}");
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"Mobile navigation bridge error: {ex.Message}");
+            }
+
+            if (!pageActive)
+            {
+                return;
+            }
+
+            await Task.Delay(250);
         }
     }
 
-
-
-    // --- METODA ZA DOZVOLE ---
-    private async Task<PermissionStatus> CheckAndRequestLocationPermission()
+    private static object? ToWebPoint(
+        ProMapCargo.Mobile.Models.GeoPoint? point)
     {
-        var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-
-        if (status == PermissionStatus.Granted)
-            return status;
-
-        if (Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>())
-        {
-            await DisplayAlert("GPS", "Morate odobriti lokaciju kako bi navigacija radila.", "OK");
-        }
-
-        status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-        return status;
+        return point is null
+            ? null
+            : new
+            {
+                latitude = point.Lat,
+                longitude = point.Lon
+            };
     }
 }
