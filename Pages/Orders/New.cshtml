@@ -7,36 +7,19 @@
 <div class="pm-page pm-order-new-page">
 
     <header class="pm-page-header">
-
         <div class="pm-page-heading">
-
-            <div class="pm-page-kicker">
-                <span class="pm-page-kicker-dot"></span>
-                Novi transportni nalog
-            </div>
-
-            <h1>
-                Kreiranje naloga
-            </h1>
-
-            <p>
-                Unesite podatke o transportu, teretu i transportnim tačkama.
+            <div class="pm-page-kicker">Novi transportni nalog</div>
+            <h1 class="pm-page-title">Kreiranje naloga</h1>
+            <p class="pm-page-subtitle">
+                Unesi osnovne podatke, teret i transportne tačke.
             </p>
 
         </div>
 
-        <div class="order-new-header-actions">
-
-            <a class="order-new-btn order-new-btn-secondary"
-               href="/orders">
-
-                <i data-lucide="arrow-left"
-                   width="17"
-                   height="17"
-                   aria-hidden="true"></i>
-
+        <div class="pm-page-actions">
+            <a class="pm-btn pm-btn-secondary" href="/orders">
+                <i data-lucide="arrow-left" aria-hidden="true"></i>
                 <span>Nazad na naloge</span>
-
             </a>
 
         </div>
@@ -126,801 +109,133 @@
                             <span>4</span>
                             Pregled
 
-                        </button>
-
-                    </div>
-
-                </section>
-
-
-                <!-- =====================================================
-                     TAB 1 — OSNOVNO
-                     ===================================================== -->
-
-                <section class="vehicle-card"
-                         data-order-panel="basic"
-                         role="tabpanel">
-
-                    <div class="vehicle-card-header">
-
-                        <div>
-
-                            <div class="vehicle-card-eyebrow">
-                                Korak 1
-                            </div>
-
-                            <h2>
-                                Osnovni podaci
-                            </h2>
-
-                            <p>
-                                Identifikacija naloga i kupac.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="vehicle-form-grid">
-
-                        <div class="vehicle-field">
-
-                            <label for="orderNumber">
-                                Broj naloga
-                                <span>*</span>
-                            </label>
-
-                            <input id="orderNumber"
-                                   maxlength="100"
-                                   autocomplete="off"
-                                   required />
-
-                        </div>
-
-
-                        <div class="vehicle-field">
-
-                            <label for="customerName">
-                                Kupac
-                                <span>*</span>
-                            </label>
-
-                            <input id="customerName"
-                                   maxlength="200"
-                                   autocomplete="organization"
-                                   required />
-
-                        </div>
-
-
-                        <div class="vehicle-field">
-
-                            <label for="priority">
-                                Prioritet
-                            </label>
-
-                            <select id="priority">
-
-                                <option value="Low">
-                                    Nizak
-                                </option>
-
-                                <option value="Normal"
-                                        selected>
-
-                                    Normalan
-
-                                </option>
-
-                                <option value="High">
-                                    Visok
-                                </option>
-
-                                <option value="Critical">
-                                    Kritičan
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="vehicle-actions-card">
-
-                        <div>
-
-                            <strong>
-                                Osnovni podaci
-                            </strong>
-
-                            <span>
-                                Nastavite na podatke o teretu.
-                            </span>
-
-                        </div>
-
-                        <div class="vehicle-actions">
-
-                            <button type="button"
-                                    class="vehicle-new-btn vehicle-new-btn-primary"
-                                    data-order-next="cargo">
-
-                                Nastavi
-                                <i data-lucide="arrow-right"
-                                   width="16"
-                                   height="16"
-                                   aria-hidden="true"></i>
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- =====================================================
-                     TAB 2 — TERET
-                     ===================================================== -->
-
-                <section class="vehicle-card"
-                         data-order-panel="cargo"
-                         role="tabpanel"
-                         hidden>
-
-                    <div class="vehicle-card-header">
-
-                        <div>
-
-                            <div class="vehicle-card-eyebrow">
-                                Korak 2
-                            </div>
-
-                            <h2>
-                                Podaci o teretu
-                            </h2>
-
-                            <p>
-                                Težina, zapremina, palete i ADR status.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="vehicle-form-grid">
-
-                        <div class="vehicle-field vehicle-field-wide">
-
-                            <label for="cargoDescription">
-                                Opis tereta
-                            </label>
-
-                            <textarea id="cargoDescription"
-                                      rows="4"
-                                      maxlength="1000"></textarea>
-
-                        </div>
-
-
-                        <div class="vehicle-field">
-
-                            <label for="cargoWeightTons">
-                                Težina
-                            </label>
-
-                            <div class="vehicle-input-unit">
-
-                                <input id="cargoWeightTons"
-                                       type="number"
-                                       min="0"
-                                       step="0.01" />
-
-                                <span>t</span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="vehicle-field">
-
-                            <label for="cargoVolumeM3">
-                                Zapremina
-                            </label>
-
-                            <div class="vehicle-input-unit">
-
-                                <input id="cargoVolumeM3"
-                                       type="number"
-                                       min="0"
-                                       step="0.01" />
-
-                                <span>m³</span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="vehicle-field">
-
-                            <label for="pallets">
-                                Palete
-                            </label>
-
-                            <div class="vehicle-input-unit">
-
-                                <input id="pallets"
-                                       type="number"
-                                       min="0"
-                                       step="1" />
-
-                                <span>kom</span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="vehicle-field vehicle-field-wide">
-
-                            <label>
-                                Bezbednost
-                            </label>
-
-                            <label class="vehicle-check-item complete">
-
-                                <input id="hazmat"
-                                       type="checkbox" />
-
-                                <span>
-                                    ADR / opasan teret
-                                </span>
-
-                            </label>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="vehicle-actions-card">
-
-                        <div>
-
-                            <strong>
-                                Podaci o teretu
-                            </strong>
-
-                            <span>
-                                Nakon toga unesite transportne tačke.
-                            </span>
-
-                        </div>
-
-                        <div class="vehicle-actions">
-
-                            <button type="button"
-                                    class="vehicle-new-btn vehicle-new-btn-secondary"
-                                    data-order-prev="basic">
-
-                                <i data-lucide="arrow-left"
-                                   width="16"
-                                   height="16"
-                                   aria-hidden="true"></i>
-
-                                Nazad
-
-                            </button>
-
-                            <button type="button"
-                                    class="vehicle-new-btn vehicle-new-btn-primary"
-                                    data-order-next="stops">
-
-                                Ruta
-
-                                <i data-lucide="arrow-right"
-                                   width="16"
-                                   height="16"
-                                   aria-hidden="true"></i>
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- =====================================================
-                     TAB 3 — RUTA
-                     ===================================================== -->
-
-                <section class="vehicle-card"
-                         data-order-panel="stops"
-                         role="tabpanel"
-                         hidden>
-
-                    <div class="vehicle-card-header">
-
-                        <div>
-
-                            <div class="vehicle-card-eyebrow">
-                                Korak 3
-                            </div>
-
-                            <h2>
-                                Transportna ruta
-                            </h2>
-
-                            <p>
-                                Dodajte najmanje utovarnu i istovarnu tačku.
-                            </p>
-
-                        </div>
-
-
-                        <button id="addStop"
-                                class="vehicle-new-btn vehicle-new-btn-secondary"
-                                type="button">
-
-                            <i data-lucide="plus"
-                               width="17"
-                               height="17"
-                               aria-hidden="true"></i>
-
-                            Dodaj tačku
-
-                        </button>
-
-                    </div>
-
-
-                    <div id="stops"
-                         class="vehicle-form-grid">
-                    </div>
-
-
-                    <div class="vehicle-actions-card">
-
-                        <div>
-
-                            <strong>
-                                Transportne tačke
-                            </strong>
-
-                            <span>
-                                Proverite redosled i koordinate.
-                            </span>
-
-                        </div>
-
-                        <div class="vehicle-actions">
-
-                            <button type="button"
-                                    class="vehicle-new-btn vehicle-new-btn-secondary"
-                                    data-order-prev="cargo">
-
-                                <i data-lucide="arrow-left"
-                                   width="16"
-                                   height="16"
-                                   aria-hidden="true"></i>
-
-                                Nazad
-
-                            </button>
-
-                            <button type="button"
-                                    class="vehicle-new-btn vehicle-new-btn-primary"
-                                    data-order-next="review">
-
-                                Pregled
-
-                                <i data-lucide="arrow-right"
-                                   width="16"
-                                   height="16"
-                                   aria-hidden="true"></i>
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- =====================================================
-                     TAB 4 — PREGLED
-                     ===================================================== -->
-
-                <section class="vehicle-card"
-                         data-order-panel="review"
-                         role="tabpanel"
-                         hidden>
-
-                    <div class="vehicle-card-header">
-
-                        <div>
-
-                            <div class="vehicle-card-eyebrow">
-                                Korak 4
-                            </div>
-
-                            <h2>
-                                Pregled naloga
-                            </h2>
-
-                            <p>
-                                Proverite podatke pre kreiranja naloga.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="vehicle-form-grid">
-
-                        <div class="vehicle-field">
-
-                            <label>
-                                Broj naloga
-                            </label>
-
-                            <input id="reviewOrderNumber"
-                                   readonly />
-
-                        </div>
-
-
-                        <div class="vehicle-field">
-
-                            <label>
-                                Kupac
-                            </label>
-
-                            <input id="reviewCustomerName"
-                                   readonly />
-
-                        </div>
-
-
-                        <div class="vehicle-field">
-
-                            <label>
-                                Prioritet
-                            </label>
-
-                            <input id="reviewPriority"
-                                   readonly />
-
-                        </div>
-
-
-                        <div class="vehicle-field">
-
-                            <label>
-                                Težina
-                            </label>
-
-                            <input id="reviewWeight"
-                                   readonly />
-
-                        </div>
-
-
-                        <div class="vehicle-field">
-
-                            <label>
-                                Zapremina
-                            </label>
-
-                            <input id="reviewVolume"
-                                   readonly />
-
-                        </div>
-
-
-                        <div class="vehicle-field">
-
-                            <label>
-                                Palete
-                            </label>
-
-                            <input id="reviewPallets"
-                                   readonly />
-
-                        </div>
-
-
-                        <div class="vehicle-field">
-
-                            <label>
-                                ADR
-                            </label>
-
-                            <input id="reviewHazmat"
-                                   readonly />
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="vehicle-info-panel">
-
-                        <div class="vehicle-info-icon">
-                            <i data-lucide="route"
-                               width="16"
-                               height="16"
-                               aria-hidden="true"></i>
-                        </div>
-
-                        <div>
-
-                            <strong>
-                                Transportne tačke
-                            </strong>
-
-                            <div id="reviewStops"
-                                 class="vehicle-checklist">
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div id="orderFormMessage"
-                         class="vehicle-info-panel"
-                         hidden
-                         aria-live="polite">
-
-                        <div class="vehicle-info-icon">
-                            !
-                        </div>
-
-                        <div>
-                            <strong></strong>
-                        </div>
-
-                    </div>
-
-
-                    <div class="vehicle-actions-card">
-
-                        <div>
-
-                            <strong>
-                                Kreiranje naloga
-                            </strong>
-
-                            <span>
-                                Nakon čuvanja nalog će biti dostupan na stranici Nalozi.
-                            </span>
-
-                        </div>
-
-                        <div class="vehicle-actions">
-
-                            <button type="button"
-                                    class="vehicle-new-btn vehicle-new-btn-secondary"
-                                    data-order-prev="stops">
-
-                                <i data-lucide="arrow-left"
-                                   width="16"
-                                   height="16"
-                                   aria-hidden="true"></i>
-
-                                Nazad
-
-                            </button>
-
-                            <button id="saveOrder"
-                                    class="vehicle-new-btn vehicle-new-btn-primary"
-                                    type="submit">
-
-                                <i data-lucide="save"
-                                   width="16"
-                                   height="16"
-                                   aria-hidden="true"></i>
-
-                                Sačuvaj nalog
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-            </main>
-
-
-            <!-- =========================================================
-                 SIDEBAR
-                 ========================================================= -->
-
-            <aside class="vehicle-new-sidebar">
-
-                <section class="vehicle-side-card vehicle-preview-card">
-
-                    <div class="vehicle-side-label">
-                        NOVI NALOG
-                    </div>
-
-                    <div class="vehicle-preview-icon">
-                        <i data-lucide="clipboard-list"
-                           width="34"
-                           height="34"
-                           aria-hidden="true"></i>
-                    </div>
-
-                    <div id="sidebarOrderNumber"
-                         class="vehicle-preview-name">
-
-                        Novi transportni nalog
-
-                    </div>
-
-                    <div id="sidebarCustomer"
-                         class="vehicle-preview-registration">
-
-                        Kupac nije unet
-
-                    </div>
-
-                    <div class="vehicle-preview-divider"></div>
-
-                    <div class="vehicle-preview-grid">
-
-                        <div>
-
-                            <span>
-                                PRIORITET
-                            </span>
-
-                            <strong id="sidebarPriority">
-
-                                Normalan
-
-                            </strong>
-
-                        </div>
-
-                        <div>
-
-                            <span>
-                                TAČKE
-                            </span>
-
-                            <strong id="sidebarStops">
-
-                                2
-
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <section class="vehicle-side-card">
-
-                    <div class="vehicle-side-header">
-
-                        <div class="vehicle-side-label">
-                            STATUS
-                        </div>
-
-                        <h3>
-                            Koraci
-                        </h3>
-
-                    </div>
-
-
-                    <div class="vehicle-flow">
-
-                        <div class="vehicle-flow-item active"
-                             data-flow-step="basic">
-
-                            <span>1</span>
-
-                            <div>
-                                <strong>
-                                    Osnovno
-                                </strong>
-
-                                <small>
-                                    Nalog i kupac
-                                </small>
-                            </div>
-
-                        </div>
-
-
-                        <div class="vehicle-flow-line"></div>
-
-
-                        <div class="vehicle-flow-item"
-                             data-flow-step="cargo">
-
-                            <span>2</span>
-
-                            <div>
-                                <strong>
-                                    Teret
-                                </strong>
-
-                                <small>
-                                    Teret i ADR
-                                </small>
-                            </div>
-
-                        </div>
-
-
-                        <div class="vehicle-flow-line"></div>
-
-
-                        <div class="vehicle-flow-item"
-                             data-flow-step="stops">
-
-                            <span>3</span>
-
-                            <div>
-                                <strong>
-                                    Ruta
-                                </strong>
-
-                                <small>
-                                    Transportne tačke
-                                </small>
-                            </div>
-
-                        </div>
-
-
-                        <div class="vehicle-flow-line"></div>
-
-
-                        <div class="vehicle-flow-item"
-                             data-flow-step="review">
-
-                            <span>4</span>
-
-                            <div>
-                                <strong>
-                                    Pregled
-                                </strong>
-
-                                <small>
-                                    Provera i čuvanje
-                                </small>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-            </aside>
-
+        <div class="pm-tabs" role="tablist" aria-label="Sekcije transportnog naloga">
+            <button type="button" class="pm-tab is-active" role="tab"
+                    aria-selected="true" aria-controls="order-tab-basic"
+                    data-tab-target="basic">Osnovno</button>
+
+            <button type="button" class="pm-tab" role="tab"
+                    aria-selected="false" aria-controls="order-tab-cargo"
+                    data-tab-target="cargo">Teret</button>
+
+            <button type="button" class="pm-tab" role="tab"
+                    aria-selected="false" aria-controls="order-tab-stops"
+                    data-tab-target="stops">Transportne tačke</button>
         </div>
 
-    </form>
+        <section id="order-tab-basic" class="pm-tab-panel is-active"
+                 role="tabpanel" data-tab-panel="basic">
+            <header class="pm-card-header">
+                <div>
+                    <h2 class="pm-card-title">Osnovni podaci</h2>
+                    <p class="pm-card-subtitle">Identifikacija naloga i poslovni podaci.</p>
+                </div>
+            </header>
 
+            <div class="pm-card-body">
+                <div class="pm-grid pm-grid-3">
+                    <div class="pm-field">
+                        <label class="pm-label" for="orderNumber">Broj naloga *</label>
+                        <input id="orderNumber" class="pm-input" maxlength="100"
+                               autocomplete="off" required />
+                    </div>
+
+                    <div class="pm-field">
+                        <label class="pm-label" for="customerName">Kupac *</label>
+                        <input id="customerName" class="pm-input" maxlength="200"
+                               autocomplete="organization" required />
+                    </div>
+
+                    <div class="pm-field">
+                        <label class="pm-label" for="priority">Prioritet</label>
+                        <select id="priority" class="pm-select">
+                            <option value="Low">Nizak</option>
+                            <option value="Normal" selected>Normalan</option>
+                            <option value="High">Visok</option>
+                            <option value="Critical">Kritičan</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="order-tab-cargo" class="pm-tab-panel"
+                 role="tabpanel" data-tab-panel="cargo" hidden>
+            <header class="pm-card-header">
+                <div>
+                    <h2 class="pm-card-title">Teret</h2>
+                    <p class="pm-card-subtitle">Masa, zapremina, palete i ADR status.</p>
+                </div>
+            </header>
+
+            <div class="pm-card-body">
+                <div class="pm-grid pm-grid-4">
+                    <div class="pm-field">
+                        <label class="pm-label" for="cargoDescription">Opis tereta</label>
+                        <input id="cargoDescription" class="pm-input" maxlength="1000"
+                               autocomplete="off" />
+                    </div>
+
+                    <div class="pm-field">
+                        <label class="pm-label" for="cargoWeightTons">Težina (t)</label>
+                        <input id="cargoWeightTons" class="pm-input" type="number"
+                               min="0" step="0.01" />
+                    </div>
+
+                    <div class="pm-field">
+                        <label class="pm-label" for="cargoVolumeM3">Zapremina (m³)</label>
+                        <input id="cargoVolumeM3" class="pm-input" type="number"
+                               min="0" step="0.01" />
+                    </div>
+
+                    <div class="pm-field">
+                        <label class="pm-label" for="pallets">Palete</label>
+                        <input id="pallets" class="pm-input" type="number"
+                               min="0" step="1" />
+                    </div>
+                </div>
+
+                <div class="pm-field">
+                    <label class="pm-check" for="hazmat">
+                        <input id="hazmat" type="checkbox" />
+                        <span>ADR / opasan teret</span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <section id="order-tab-stops" class="pm-tab-panel"
+                 role="tabpanel" data-tab-panel="stops" hidden>
+            <header class="pm-card-header">
+                <div>
+                    <h2 class="pm-card-title">Transportne tačke</h2>
+                    <p class="pm-card-subtitle">Utovar, istovar i ostale operativne tačke.</p>
+                </div>
+
+                <div class="pm-card-actions">
+                    <button id="addStop" class="pm-btn pm-btn-secondary" type="button">
+                        <i data-lucide="plus" aria-hidden="true"></i>
+                        <span>Dodaj tačku</span>
+                    </button>
+                </div>
+            </header>
+
+            <div id="stops" class="pm-card-body"></div>
+        </section>
+
+        <div class="pm-card-body">
+            <div id="formMessage" class="pm-alert" hidden aria-live="polite"></div>
+        </div>
+
+        <footer class="pm-card-footer">
+            <div class="pm-page-actions">
+                <a class="pm-btn pm-btn-secondary" href="/orders">Otkaži</a>
+                <button id="saveOrder" class="pm-btn pm-btn-primary" type="submit">
+                    <i data-lucide="save" aria-hidden="true"></i>
+                    <span>Sačuvaj nalog</span>
+                </button>
+            </div>
+        </footer>
+
+    </form>
 </div>
