@@ -132,6 +132,7 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
         }
     }
 
+
     [HttpGet("trips/{tripId}/route")]
     public async Task<ActionResult<TripRoute>> ActiveRoute(Guid tripId, CancellationToken ct)
     {

@@ -7,7 +7,7 @@ using ProMapCargo.Api.Services;
 namespace ProMapCargo.Api.Controllers;
 
 [ApiController]
-//[Authorize(Roles = "Driver")]
+[Authorize(Roles = "Administrator")]
 [Route("api/driver")]
 public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContext current) : ControllerBase
 {
@@ -35,6 +35,7 @@ public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContex
         }
         );
     }
+
     [HttpPost("routes/{dispatchId}/accept")] 
     public async Task<IActionResult> Accept(Guid dispatchId, CancellationToken ct) => await SetDispatch(dispatchId, RouteDispatchStatus.Accepted, ct) ? Ok(new { status = "accepted" }) : NotFound();
 
@@ -53,6 +54,7 @@ public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContex
         await db.SaveChangesAsync(ct);
         return Ok(new { status = "rejected", reason = req.Reason });
     }
+  
     [HttpPost("trips/{tripId}/start")]
     public async Task<IActionResult> Start(Guid tripId, CancellationToken ct)
     {
@@ -67,7 +69,9 @@ public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContex
         await db.SaveChangesAsync(ct);
         return Ok(t);
     }
+
     Guid DriverId() => db.Drivers.AsNoTracking().Where(x => x.CompanyId == current.CompanyId && x.UserId == current.UserId).Select(x => x.Id).First();
+
     async Task<bool> SetDispatch(Guid id, RouteDispatchStatus status, CancellationToken ct)
     {
         var c = current.CompanyId ?? throw new UnauthorizedAccessException();
@@ -79,4 +83,5 @@ public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContex
         return true;
     }
 }
+
 public sealed record RejectRequest(string? Reason);

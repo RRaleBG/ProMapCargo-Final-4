@@ -371,43 +371,26 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
 public sealed record CreateTransportOrderRequest
 {
     public string OrderNumber { get; init; } = "";
-
     public string CustomerName { get; init; } = "";
-
     public TransportOrderPriority Priority { get; init; } = TransportOrderPriority.Normal;
-
     public string? CargoDescription { get; init; }
-
     public decimal? CargoWeightTons { get; init; }
-
     public decimal? CargoVolumeM3 { get; init; }
-
     public int? Pallets { get; init; }
-
     public bool Hazmat { get; init; }
-
     public List<CreateTransportStopRequest> Stops { get; init; } = [];
 }
 
 public sealed record CreateTransportStopRequest
 {
     public TransportStopType Type { get; init; }
-
     public string Name { get; init; } = "";
-
     public string? Address { get; init; }
-
     public string? City { get; init; }
-
     public string? CountryCode { get; init; }
-
     public double Latitude { get; init; }
-
     public double Longitude { get; init; }
-
     public DateTimeOffset? PlannedAt { get; init; }
-
     public int ServiceMinutes { get; init; }
-
     public string? Notes { get; init; }
 }
