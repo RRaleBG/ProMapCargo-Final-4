@@ -62,6 +62,7 @@ window.ProMap = window.ProMap || {};
             new URLSearchParams(window.location.search).get("mobile") === "1",
 
         pendingMobilePayload: null,
+        mobileMode: false,
 
         localMap: {
             host: null,
@@ -247,12 +248,26 @@ window.ProMap = window.ProMap || {};
             setDestination(destination);
         }
 
+        state.mobileMode = toBoolean(payload.mobile, false);
+
+        if (state.mobileMode) {
+            state.live = true;
+            state.liveFollow = payload.follow !== false;
+            state.lastRerouteAt = 0;
+
+            setHidden("startLiveNavigation", true);
+            setHidden("stopLiveNavigation", true);
+            setGpsStatus("ON", "ready");
+            setText("liveChip", "GPS ON");
+        }
+
         if (current && state.map) {
             updateGpsMarker({
                 latitude: current.latitude,
                 longitude: current.longitude,
                 accuracy: Number(payload?.current?.accuracy) || undefined,
-                speed: Number(payload?.current?.speed) || undefined,
+                speed: Number(payload?.speedKph) / 3.6 || undefined,
+                heading: Number(payload?.heading),
                 timestamp: Date.now(),
             });
         }
@@ -3808,6 +3823,7 @@ window.ProMap = window.ProMap || {};
         }
 
         if (
+            !state.mobileMode &&
             state.live &&
             state.routeResponse &&
             offRoute != null &&
