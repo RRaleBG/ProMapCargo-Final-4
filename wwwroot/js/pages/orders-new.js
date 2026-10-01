@@ -18,17 +18,14 @@
         ]
     };
 
+    const tabs = ["basic", "cargo", "stops", "review"];
     const $ = id => document.getElementById(id);
 
     function toast(type, message) {
         const service = root.toast;
-
         if (service?.[type]) {
             service[type](message);
-            return;
         }
-
-        console[type === "error" ? "error" : "log"](message);
     }
 
     function validation() {
@@ -36,22 +33,7 @@
     }
 
     function setFieldError(input, message) {
-        const service = validation();
-
-        if (service?.setFieldError) {
-            service.setFieldError(input, message);
-            return;
-        }
-
-        if (!input) return;
-
-        input.setAttribute("aria-invalid", message ? "true" : "false");
-        const error = $(input.id + "-error");
-
-        if (error) {
-            error.textContent = message || "";
-            error.hidden = !message;
-        }
+        validation()?.setFieldError(input, message);
     }
 
     function clearErrors() {
@@ -60,9 +42,7 @@
     }
 
     function setActiveTab(tabName) {
-        const validTabs = ["basic", "cargo", "stops", "review"];
-
-        if (!validTabs.includes(tabName)) {
+        if (!tabs.includes(tabName)) {
             tabName = "basic";
         }
 
@@ -81,12 +61,18 @@
             panel.classList.toggle("is-active", active);
         });
 
+        const step = tabs.indexOf(tabName) + 1;
+        const status = $("orderStepStatus");
+        if (status) {
+            status.textContent = `Korak ${step} od ${tabs.length}`;
+        }
+
         if (tabName === "review") {
             updateReview();
         }
     }
 
-    function validateBasic() {
+    function validateBasic(showToast = true) {
         let valid = true;
         const orderNumber = $("orderNumber");
         const customerName = $("customerName");
@@ -101,7 +87,7 @@
             valid = false;
         }
 
-        if (!valid) {
+        if (!valid && showToast) {
             setActiveTab("basic");
             toast("warning", "Popunite obavezna polja u osnovnim podacima.");
         }
@@ -109,34 +95,26 @@
         return valid;
     }
 
-    function validateCargo() {
+    function validateCargo(showToast = true) {
         let valid = true;
 
-        const weight = $("cargoWeightTons");
-        const volume = $("cargoVolumeM3");
-        const pallets = $("pallets");
-
-        const numericFields = [
-            [weight, "Težina ne može biti negativna."],
-            [volume, "Zapremina ne može biti negativna."],
-            [pallets, "Broj paleta ne može biti negativan."]
-        ];
-
-        numericFields.forEach(([input, message]) => {
-            if (!input?.value) {
-                setFieldError(input, "");
+        [
+            [$("cargoWeightTons"), "Težina ne može biti negativna."],
+            [$("cargoVolumeM3"), "Zapremina ne može biti negativna."],
+            [$("pallets"), "Broj paleta ne može biti negativan."]
+        ].forEach(([input, message]) => {
+            if (!input?.value.trim()) {
                 return;
             }
 
             const value = Number(input.value);
-
             if (!Number.isFinite(value) || value < 0) {
                 setFieldError(input, message);
                 valid = false;
             }
         });
 
-        if (!valid) {
+        if (!valid && showToast) {
             setActiveTab("cargo");
             toast("warning", "Proverite podatke o teretu.");
         }
@@ -148,23 +126,24 @@
         return [...document.querySelectorAll("[data-stop-card]")];
     }
 
-    function readStop(card) {
-        const value = field =>
-            card.querySelector("[data-stop-field="" + field + ""]")?.value.trim() ?? "";
+    function stopValue(card, field) {
+        return card.querySelector(`[data-stop-field="${field}"]`)?.value.trim() ?? "";
+    }
 
-        const planned = value("planned");
+    function readStop(card) {
+        const planned = stopValue(card, "planned");
 
         return {
-            type: value("type") || "Other",
-            name: value("name"),
-            address: value("address"),
-            city: value("city"),
-            countryCode: value("country").toUpperCase() || null,
-            latitude: Number(value("latitude")),
-            longitude: Number(value("longitude")),
+            type: stopValue(card, "type") || "Other",
+            name: stopValue(card, "name"),
+            address: stopValue(card, "address"),
+            city: stopValue(card, "city"),
+            countryCode: stopValue(card, "country").toUpperCase() || null,
+            latitude: Number(stopValue(card, "latitude")),
+            longitude: Number(stopValue(card, "longitude")),
             plannedAt: planned ? new Date(planned).toISOString() : null,
-            serviceMinutes: Number(value("service") || 0),
-            notes: value("notes")
+            serviceMinutes: Number(stopValue(card, "service") || 0),
+            notes: stopValue(card, "notes")
         };
     }
 
@@ -172,12 +151,14 @@
         return getStopCards().map(readStop);
     }
 
-    function validateStops() {
+    function validateStops(showToast = true) {
         const cards = getStopCards();
 
         if (cards.length < 2) {
-            setActiveTab("stops");
-            toast("warning", "Nalog mora imati najmanje dve transportne tačke.");
+            if (showToast) {
+                setActiveTab("stops");
+                toast("warning", "Nalog mora imati najmanje dve transportne tačke.");
+            }
             return false;
         }
 
@@ -185,164 +166,164 @@
         let valid = true;
 
         const hasLoading = stops.some(stop =>
-            stop.type === "Loading" ||
-            stop.type === "LoadingAndUnloading"
+            stop.type === "Loading" || stop.type === "LoadingAndUnloading"
         );
-
         const hasUnloading = stops.some(stop =>
-            stop.type === "Unloading" ||
-            stop.type === "LoadingAndUnloading"
+            stop.type === "Unloading" || stop.type === "LoadingAndUnloading"
         );
 
         if (!hasLoading || !hasUnloading) {
-            toast("warning", "Ruta mora imati najmanje jedan utovar i jedan istovar.");
             valid = false;
+            toast("warning", "Ruta mora imati najmanje jedan utovar i jedan istovar.");
         }
 
         cards.forEach((card, index) => {
             const stop = stops[index];
-            const number = index + 1;
 
-            const name = card.querySelector("[data-stop-field="name"]");
-            const country = card.querySelector("[data-stop-field="country"]");
-            const latitude = card.querySelector("[data-stop-field="latitude"]");
-            const longitude = card.querySelector("[data-stop-field="longitude"]");
-            const service = card.querySelector("[data-stop-field="service"]");
+            const fields = {
+                name: card.querySelector('[data-stop-field="name"]'),
+                country: card.querySelector('[data-stop-field="country"]'),
+                latitude: card.querySelector('[data-stop-field="latitude"]'),
+                longitude: card.querySelector('[data-stop-field="longitude"]'),
+                service: card.querySelector('[data-stop-field="service"]')
+            };
 
             if (!validation()?.required(stop.name)) {
-                setFieldError(name, "Naziv je obavezan.");
+                setFieldError(fields.name, "Naziv je obavezan.");
                 valid = false;
             }
 
             if (!validation()?.lat(stop.latitude)) {
-                setFieldError(latitude, "Latitude mora biti između -90 i 90.");
+                setFieldError(fields.latitude, "Latitude mora biti između -90 i 90.");
                 valid = false;
             }
 
             if (!validation()?.lon(stop.longitude)) {
-                setFieldError(longitude, "Longitude mora biti između -180 i 180.");
+                setFieldError(fields.longitude, "Longitude mora biti između -180 i 180.");
                 valid = false;
             }
 
             if (!/^[A-Z]{2}$/.test(stop.countryCode || "")) {
-                setFieldError(country, "Država mora biti ISO kod od 2 slova.");
+                setFieldError(fields.country, "Država mora biti ISO kod od 2 slova.");
                 valid = false;
             }
 
             if (!Number.isInteger(stop.serviceMinutes) ||
                 stop.serviceMinutes < 0 ||
                 stop.serviceMinutes > 1440) {
-                setFieldError(service, "Vreme servisa mora biti 0–1440 minuta.");
+                setFieldError(fields.service, "Vreme servisa mora biti 0–1440 minuta.");
                 valid = false;
-            }
-
-            if (!valid && index === 0) {
-                // Validation summary is handled by the toast; field errors remain visible.
             }
         });
 
-        if (!valid) {
+        if (!valid && showToast) {
             setActiveTab("stops");
-            toast("warning", "Proverite označena polja u transportnim tačkama.");
+            toast("warning", "Proverite označena polja u transportnoj ruti.");
         }
 
         return valid;
     }
 
-    function validateAll() {
+    function validateAll(showToast = true) {
         clearErrors();
 
-        if (!validateBasic()) return false;
-        if (!validateCargo()) return false;
-        if (!validateStops()) return false;
+        if (!validateBasic(showToast)) return false;
+        if (!validateCargo(showToast)) return false;
+        if (!validateStops(showToast)) return false;
 
         return true;
     }
 
     function createStop(data = {}) {
         const container = $("stops");
-
         if (!container) return null;
 
-        state.stopIndex += 1;
-
+        const index = state.stopIndex++;
         const card = document.createElement("article");
         card.className = "pm-card";
         card.dataset.stopCard = "true";
 
-        const options = state.stopTypes.map(([value, label]) => {
-            const selected = value === (data.type || "Other") ? " selected" : "";
-            return "<option value="" + value + """ + selected + ">" + label + "</option>";
-        }).join("");
+        const header = document.createElement("header");
+        header.className = "pm-card-header";
 
-        card.innerHTML = [
-            "<header class="pm-card-header">",
-            "  <div>",
-            "    <h3 class="pm-card-title">Transportna tačka <span data-stop-number></span></h3>",
-            "    <p class="pm-card-subtitle">Lokacija, vreme i operacija.</p>",
-            "  </div>",
-            "  <div class="pm-card-actions">",
-            "    <button type="button" class="pm-btn pm-btn-danger pm-btn-sm" data-remove-stop>",
-            "      Ukloni",
-            "    </button>",
-            "  </div>",
-            "</header>",
-            "<div class="pm-card-body">",
-            "  <div class="pm-form-grid pm-form-grid-3">",
-            "    <div class="pm-field">",
-            "      <label class="pm-label">Tip *</label>",
-            "      <select class="pm-select" data-stop-field="type">" + options + "</select>",
-            "    </div>",
-            "    <div class="pm-field">",
-            "      <label class="pm-label">Naziv *</label>",
-            "      <input class="pm-input" maxlength="200" data-stop-field="name" required />",
-            "    </div>",
-            "    <div class="pm-field">",
-            "      <label class="pm-label">Grad</label>",
-            "      <input class="pm-input" data-stop-field="city" />",
-            "    </div>",
-            "  </div>",
-            "  <div class="pm-form-grid pm-form-grid-3 pm-mt-4">",
-            "    <div class="pm-field">",
-            "      <label class="pm-label">Adresa</label>",
-            "      <input class="pm-input" data-stop-field="address" />",
-            "    </div>",
-            "    <div class="pm-field">",
-            "      <label class="pm-label">Država *</label>",
-            "      <input class="pm-input" maxlength="2" value="RS" data-stop-field="country" />",
-            "    </div>",
-            "    <div class="pm-field">",
-            "      <label class="pm-label">Servis (min) *</label>",
-            "      <input class="pm-input" type="number" min="0" max="1440" step="1" value="30" data-stop-field="service" />",
-            "    </div>",
-            "  </div>",
-            "  <div class="pm-form-grid pm-form-grid-3 pm-mt-4">",
-            "    <div class="pm-field">",
-            "      <label class="pm-label">Planirano vreme</label>",
-            "      <input class="pm-input" type="datetime-local" data-stop-field="planned" />",
-            "    </div>",
-            "    <div class="pm-field">",
-            "      <label class="pm-label">Latitude *</label>",
-            "      <input class="pm-input" type="number" step="any" data-stop-field="latitude" />",
-            "    </div>",
-            "    <div class="pm-field">",
-            "      <label class="pm-label">Longitude *</label>",
-            "      <input class="pm-input" type="number" step="any" data-stop-field="longitude" />",
-            "    </div>",
-            "  </div>",
-            "  <div class="pm-field pm-mt-4">",
-            "    <label class="pm-label">Napomena</label>",
-            "    <textarea class="pm-textarea" rows="3" data-stop-field="notes"></textarea>",
-            "  </div>",
-            "</div>"
-        ].join("");
+        const heading = document.createElement("div");
+
+        const title = document.createElement("h3");
+        title.className = "pm-card-title";
+        title.textContent = "Transportna tačka ";
+
+        const number = document.createElement("span");
+        number.dataset.stopNumber = "true";
+        title.appendChild(number);
+
+        const subtitle = document.createElement("p");
+        subtitle.className = "pm-card-subtitle";
+        subtitle.textContent = "Lokacija, operacija i planirano vreme.";
+
+        heading.append(title, subtitle);
+
+        const actions = document.createElement("div");
+        actions.className = "pm-card-actions";
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "pm-btn pm-btn-danger pm-btn-sm";
+        remove.textContent = "Ukloni";
+        remove.dataset.removeStop = "true";
+        actions.appendChild(remove);
+
+        header.append(heading, actions);
+
+        const body = document.createElement("div");
+        body.className = "pm-card-body";
+
+        const grid1 = document.createElement("div");
+        grid1.className = "pm-form-grid pm-form-grid-3";
+
+        const type = createField(index, "type", "Tip *", "select");
+        state.stopTypes.forEach(([value, label]) => {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = label;
+            type.input.appendChild(option);
+        });
+
+        const name = createField(index, "name", "Naziv *");
+        const city = createField(index, "city", "Grad");
+        grid1.append(type.wrapper, name.wrapper, city.wrapper);
+
+        const grid2 = document.createElement("div");
+        grid2.className = "pm-form-grid pm-form-grid-3 pm-mt-4";
+        const address = createField(index, "address", "Adresa");
+        const country = createField(index, "country", "Država *");
+        const service = createField(index, "service", "Servis (min) *", "number");
+        service.input.min = "0";
+        service.input.max = "1440";
+        service.input.step = "1";
+        service.input.value = "30";
+        country.input.maxLength = 2;
+        country.input.value = "RS";
+        grid2.append(address.wrapper, country.wrapper, service.wrapper);
+
+        const grid3 = document.createElement("div");
+        grid3.className = "pm-form-grid pm-form-grid-3 pm-mt-4";
+        const planned = createField(index, "planned", "Planirano vreme", "datetime-local");
+        const latitude = createField(index, "latitude", "Latitude *", "number");
+        const longitude = createField(index, "longitude", "Longitude *", "number");
+        latitude.input.step = "any";
+        longitude.input.step = "any";
+        grid3.append(planned.wrapper, latitude.wrapper, longitude.wrapper);
+
+        const notes = createField(index, "notes", "Napomena", "textarea");
+        notes.input.rows = 3;
+
+        body.append(grid1, grid2, grid3, notes.wrapper);
+        card.append(header, body);
 
         setStopValues(card, data);
 
-        card.querySelector("[data-remove-stop]").addEventListener("click", () => {
-            const cards = getStopCards();
-
-            if (cards.length <= 2) {
+        remove.addEventListener("click", () => {
+            if (getStopCards().length <= 2) {
                 toast("warning", "Nalog mora zadržati najmanje dve transportne tačke.");
                 return;
             }
@@ -354,21 +335,54 @@
 
         container.appendChild(card);
         renumberStops();
-
         return card;
+    }
+
+    function createField(index, field, label, type = "text") {
+        const wrapper = document.createElement("div");
+        wrapper.className = "pm-field";
+
+        const inputId = `stop-${index}-${field}`;
+
+        const labelElement = document.createElement("label");
+        labelElement.className = "pm-label";
+        labelElement.htmlFor = inputId;
+        labelElement.textContent = label;
+
+        let input;
+        if (type === "select") {
+            input = document.createElement("select");
+            input.className = "pm-select";
+        } else if (type === "textarea") {
+            input = document.createElement("textarea");
+            input.className = "pm-textarea";
+        } else {
+            input = document.createElement("input");
+            input.className = "pm-input";
+            input.type = type;
+        }
+
+        input.id = inputId;
+        input.dataset.stopField = field;
+
+        const error = document.createElement("div");
+        error.id = `${inputId}-error`;
+        error.className = "pm-error";
+        error.hidden = true;
+
+        wrapper.append(labelElement, input, error);
+        return { wrapper, input };
     }
 
     function setStopValues(card, data) {
         const set = (field, value) => {
-            const element = card.querySelector(
-                "[data-stop-field="" + field + ""]"
-            );
-
+            const element = card.querySelector(`[data-stop-field="${field}"]`);
             if (element && value !== undefined && value !== null) {
                 element.value = value;
             }
         };
 
+        set("type", data.type || "Other");
         set("name", data.name || "");
         set("address", data.address || "");
         set("city", data.city || "");
@@ -380,15 +394,9 @@
 
         if (data.plannedAt) {
             const date = new Date(data.plannedAt);
-
             if (!Number.isNaN(date.getTime())) {
                 const offset = date.getTimezoneOffset();
-                set(
-                    "planned",
-                    new Date(date.getTime() - offset * 60000)
-                        .toISOString()
-                        .slice(0, 16)
-                );
+                set("planned", new Date(date.getTime() - offset * 60000).toISOString().slice(0, 16));
             }
         }
     }
@@ -396,68 +404,57 @@
     function renumberStops() {
         getStopCards().forEach((card, index) => {
             const number = card.querySelector("[data-stop-number]");
-
-            if (number) {
-                number.textContent = String(index + 1);
-            }
+            if (number) number.textContent = String(index + 1);
         });
     }
 
     function updateReview() {
         const priority = $("priority");
-        const priorityText =
-            priority?.options[priority.selectedIndex]?.text || "Normalan";
+        const priorityText = priority?.options[priority.selectedIndex]?.text || "Normalan";
 
         $("reviewOrderNumber").value = $("orderNumber")?.value.trim() || "—";
         $("reviewCustomerName").value = $("customerName")?.value.trim() || "—";
         $("reviewPriority").value = priorityText;
-        $("reviewWeight").value =
-            $("cargoWeightTons")?.value ? $("cargoWeightTons").value + " t" : "—";
-        $("reviewVolume").value =
-            $("cargoVolumeM3")?.value ? $("cargoVolumeM3").value + " m³" : "—";
-        $("reviewPallets").value =
-            $("pallets")?.value ? $("pallets").value : "—";
+        $("reviewWeight").value = $("cargoWeightTons")?.value ? `${$("cargoWeightTons").value} t` : "—";
+        $("reviewVolume").value = $("cargoVolumeM3")?.value ? `${$("cargoVolumeM3").value} m³` : "—";
+        $("reviewPallets").value = $("pallets")?.value || "—";
         $("reviewHazmat").value = $("hazmat")?.checked ? "Da" : "Ne";
 
         const reviewStops = $("reviewStops");
-
         if (!reviewStops) return;
 
         reviewStops.replaceChildren();
 
         collectStops().forEach((stop, index) => {
-            const item = document.createElement("div");
+            const item = document.createElement("article");
             item.className = "pm-card";
-            item.innerHTML =
-                "<div class="pm-card-body">" +
-                "<div class="pm-label">Tačka " + (index + 1) + " · " +
-                escapeHtml(stop.type) + "</div>" +
-                "<strong>" + escapeHtml(stop.name || "Bez naziva") + "</strong>" +
-                "<div class="pm-help">" +
-                escapeHtml([stop.address, stop.city, stop.countryCode].filter(Boolean).join(", ")) +
-                "</div>" +
-                "</div>";
 
+            const body = document.createElement("div");
+            body.className = "pm-card-body";
+
+            const label = document.createElement("div");
+            label.className = "pm-label";
+            label.textContent = `Tačka ${index + 1} · ${stop.type}`;
+
+            const name = document.createElement("strong");
+            name.textContent = stop.name || "Bez naziva";
+
+            const address = document.createElement("div");
+            address.className = "pm-help";
+            address.textContent = [stop.address, stop.city, stop.countryCode]
+                .filter(Boolean)
+                .join(", ") || "Lokacija nije navedena";
+
+            body.append(label, name, address);
+            item.appendChild(body);
             reviewStops.appendChild(item);
         });
     }
 
-    function escapeHtml(value) {
-        return String(value ?? "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll(""", "&quot;")
-            .replaceAll("'", "&#039;");
-    }
-
     function buildPayload() {
-        const number = valueOf("orderNumber");
-        const customer = valueOf("customerName");
-
         return {
-            orderNumber: number,
-            customerName: customer,
+            orderNumber: valueOf("orderNumber"),
+            customerName: valueOf("customerName"),
             priority: $("priority")?.value || "Normal",
             cargoDescription: valueOf("cargoDescription") || null,
             cargoWeightTons: nullableNumber("cargoWeightTons"),
@@ -485,17 +482,14 @@
     async function saveOrder(event) {
         event.preventDefault();
 
-        if (!validateAll()) {
-            return;
-        }
+        if (!validateAll(true)) return;
 
         const button = $("saveOrder");
-
         if (!button) return;
 
         const original = button.innerHTML;
         button.disabled = true;
-        button.innerHTML = "Čuvanje…";
+        button.textContent = "Čuvanje…";
 
         try {
             const response = await fetch("/api/business/orders", {
@@ -529,27 +523,41 @@
         } finally {
             button.disabled = false;
             button.innerHTML = original;
-            window.ProMapCargo.icons?.refresh?.(button);
+            root.icons?.refresh?.(button);
         }
     }
 
     function nextTab(tabName) {
-        if (tabName === "cargo" && !validateBasic()) return;
-        if (tabName === "stops" && (!validateBasic() || !validateCargo())) return;
-        if (tabName === "review" && !validateAll()) return;
+        if (tabName === "cargo" && !validateBasic(true)) return;
+        if (tabName === "stops" && (!validateBasic(true) || !validateCargo(true))) return;
+        if (tabName === "review" && !validateAll(true)) return;
 
         setActiveTab(tabName);
     }
 
     function bind() {
         const form = $("orderForm");
-
         if (!form || state.initialized) return;
 
         state.initialized = true;
 
         document.querySelectorAll("[data-order-tab]").forEach(tab => {
             tab.addEventListener("click", () => nextTab(tab.dataset.orderTab));
+            tab.addEventListener("keydown", event => {
+                if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+                    event.preventDefault();
+                    const index = tabs.indexOf(tab.dataset.orderTab);
+                    nextTab(tabs[(index + 1) % tabs.length]);
+                    document.querySelector(`[data-order-tab="${tabs[(index + 1) % tabs.length]}"]`)?.focus();
+                }
+
+                if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+                    event.preventDefault();
+                    const index = tabs.indexOf(tab.dataset.orderTab);
+                    nextTab(tabs[(index - 1 + tabs.length) % tabs.length]);
+                    document.querySelector(`[data-order-tab="${tabs[(index - 1 + tabs.length) % tabs.length]}"]`)?.focus();
+                }
+            });
         });
 
         document.querySelectorAll("[data-order-next]").forEach(button => {
@@ -589,7 +597,6 @@
 
         createStop({ type: "Loading" });
         createStop({ type: "Unloading" });
-
         updateReview();
         setActiveTab("basic");
     }
