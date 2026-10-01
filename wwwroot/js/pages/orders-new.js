@@ -19,10 +19,6 @@
         return document.getElementById(id);
     }
 
-    function getModal() {
-        return getElement("ordersNewModal");
-    }
-
     function getForm() {
         return getElement("orderForm");
     }
@@ -108,53 +104,6 @@
 
         element.classList.remove("error");
         element.classList.remove("success");
-    }
-
-    function openModal() {
-        const modal = getModal();
-
-        if (!modal) {
-            console.error(
-                "[Orders New] Existing #ordersNewModal was not found."
-            );
-
-            return;
-        }
-
-        resetForm();
-
-        modal.hidden = false;
-        modal.setAttribute(
-            "aria-hidden",
-            "false"
-        );
-
-        document.body.classList.add(
-            "has-modal"
-        );
-
-        window.setTimeout(() => {
-            getElement("orderNumber")?.focus();
-        }, 0);
-    }
-
-    function closeModal() {
-        const modal = getModal();
-
-        if (!modal) {
-            return;
-        }
-
-        modal.hidden = true;
-
-        modal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-        document.body.classList.remove(
-            "has-modal"
-        );
     }
 
     function resetForm() {
@@ -902,9 +851,7 @@
 
             window.setTimeout(
                 () => {
-                    closeModal();
-
-                    window.location.reload();
+                    window.location.href = "/orders";
                 },
                 500
             );
@@ -984,98 +931,6 @@
         );
     }
 
-    function bindCloseButtons() {
-        const modal =
-            getModal();
-
-        if (!modal) {
-            return;
-        }
-
-        modal
-            .querySelectorAll(
-                "[data-modal-close]"
-            )
-            .forEach(button => {
-
-                if (
-                    button.dataset
-                        .ordersNewBound ===
-                    "true"
-                ) {
-                    return;
-                }
-
-                button.dataset
-                    .ordersNewBound =
-                    "true";
-
-                button.addEventListener(
-                    "click",
-                    event => {
-                        event.preventDefault();
-                        closeModal();
-                    }
-                );
-            });
-    }
-
-    function bindEscape() {
-        if (
-            document.body.dataset
-                .ordersNewEscapeBound ===
-            "true"
-        ) {
-            return;
-        }
-
-        document.body.dataset
-            .ordersNewEscapeBound =
-            "true";
-
-        document.addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    event.key !== "Escape"
-                ) {
-                    return;
-                }
-
-                const modal =
-                    getModal();
-
-                if (
-                    modal &&
-                    !modal.hidden
-                ) {
-                    closeModal();
-                }
-            }
-        );
-    }
-
-    function bindOpenButton() {
-        const button = getElement("newOrder");
-
-        if (!button) {
-            return;
-        }
-
-        if (button.dataset.ordersNewBound === "true") {
-            return;
-        }
-
-        button.dataset.ordersNewBound = "true";
-
-        button.addEventListener("click", event => {
-                event.preventDefault();
-                openModal();
-            }
-        );
-    }
-
     function initialize() {
         if (state.initialized) {
             return;
@@ -1083,11 +938,9 @@
 
         state.initialized = true;
 
-        bindOpenButton();
+        resetForm();
         bindForm();
         bindAddStop();
-        bindCloseButtons();
-        bindEscape();
     }
 
     if (document.readyState === "loading") {
@@ -1099,8 +952,6 @@
     }
 
     window.ProMapOrdersNew = {
-        open: openModal,
-        close: closeModal,
         reset: resetForm,
         addStop,
         collectStops,
