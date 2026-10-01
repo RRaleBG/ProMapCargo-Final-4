@@ -24,8 +24,8 @@ public static class MauiProgram
         builder.Services.Configure<MobileAppOptions>(options =>
         {
             options.ApiBaseUrl = DeviceInfo.Platform == DevicePlatform.Android
-                ? "http://10.0.2.2:8080/"
-                : "http://localhost:8080/";
+                ? "http://10.0.2.2:8090/"   // Promenjeno sa 8080 na 8090
+                : "http://localhost:8090/";
         });
 
         builder.Services.AddSingleton<TokenStore>();

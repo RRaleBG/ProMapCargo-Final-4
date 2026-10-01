@@ -9,7 +9,7 @@ services:
         "/scripts/start-osrm.sh"
       ]
     environment:
-      OSRM_DATASET: europe-truck
+      OSRM_DATASET: serbia-latest
       OSRM_ALGORITHM: mld
       OSRM_PORT: 5090
     ports:
@@ -17,6 +17,8 @@ services:
     volumes:
       - ./osm:/data:ro
       - ./scripts/start-osrm.sh:/scripts/start-osrm.sh:ro
+    networks:
+      - promaptruc-network
 
   api:
     build:
@@ -32,9 +34,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Postgres: ${ConnectionStrings__Postgres}
-      PROMAP_POSTGRES: ${PROMAP_POSTGRES:-}
-      Routing__OsrmBaseUrl: http://osrm:5090
+      ConnectionStrings__Postgres: Host=promaptruc-postgres;Port=5432;Database=mapprotruc;Username=mapprotruc;Password=change-me-local-only
+      PROMAP_POSTGRES: Host=promaptruc-postgres;Port=5432;Database=mapprotruc;Username=mapprotruc;Password=change-me-local-only
+      Routing__OsrmBaseUrl: http://promaptruc-osrm:5000
       Routing__OsrmFallbackBaseUrl: https://router.project-osrm.org
       Cors__Origins__0: http://localhost:8080
       Cors__Origins__1: http://localhost:8090
@@ -46,3 +48,9 @@ services:
     depends_on:
       osrm:
         condition: service_started
+    networks:
+      - promaptruc-network
+
+networks:
+  promaptruc-network:
+    external: true

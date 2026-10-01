@@ -19,14 +19,30 @@
                 Stroke="#1C5448"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Spacing="10">
-                    <Label FontAttributes="Bold" FontSize="16" Text="Appearance" TextColor="#ECFDF5" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        Text="Appearance"
+                        TextColor="#ECFDF5" />
                     <HorizontalStackLayout Spacing="10">
-                        <Label Text="Dark theme" TextColor="#ECFDF5" VerticalOptions="Center" />
-                        <Switch IsToggled="{Binding UseDarkTheme}" HorizontalOptions="EndAndExpand" OnColor="#10B981" />
+                        <Label
+                            Text="Dark theme"
+                            TextColor="#ECFDF5"
+                            VerticalOptions="Center" />
+                        <Switch
+                            HorizontalOptions="EndAndExpand"
+                            IsToggled="{Binding UseDarkTheme}"
+                            OnColor="#10B981" />
                     </HorizontalStackLayout>
                     <HorizontalStackLayout Spacing="10">
-                        <Label Text="Compact navigation layout" TextColor="#ECFDF5" VerticalOptions="Center" />
-                        <Switch IsToggled="{Binding CompactNavigationLayout}" HorizontalOptions="EndAndExpand" OnColor="#10B981" />
+                        <Label
+                            Text="Compact navigation layout"
+                            TextColor="#ECFDF5"
+                            VerticalOptions="Center" />
+                        <Switch
+                            HorizontalOptions="EndAndExpand"
+                            IsToggled="{Binding CompactNavigationLayout}"
+                            OnColor="#10B981" />
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Border>
@@ -37,10 +53,20 @@
                 Stroke="#1C5448"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Spacing="10">
-                    <Label FontAttributes="Bold" FontSize="16" Text="Capabilities" TextColor="#ECFDF5" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        Text="Capabilities"
+                        TextColor="#ECFDF5" />
                     <HorizontalStackLayout Spacing="10">
-                        <Label Text="Enable offline routing features" TextColor="#ECFDF5" VerticalOptions="Center" />
-                        <Switch IsToggled="{Binding EnableOfflineRoutingFeatures}" HorizontalOptions="EndAndExpand" OnColor="#10B981" />
+                        <Label
+                            Text="Enable offline routing features"
+                            TextColor="#ECFDF5"
+                            VerticalOptions="Center" />
+                        <Switch
+                            HorizontalOptions="EndAndExpand"
+                            IsToggled="{Binding EnableOfflineRoutingFeatures}"
+                            OnColor="#10B981" />
                     </HorizontalStackLayout>
                     <Button
                         BackgroundColor="#0EA5E9"
@@ -58,7 +84,11 @@
                 Stroke="#1C5448"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Spacing="8">
-                    <Label FontAttributes="Bold" FontSize="16" Text="Account" TextColor="#ECFDF5" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        Text="Account"
+                        TextColor="#ECFDF5" />
                     <Label Text="{Binding AccountStatusText}" TextColor="#94A3B8" />
                 </VerticalStackLayout>
             </Border>

@@ -1,8 +1,7 @@
-using System.Collections.ObjectModel;
-using System.Windows.Input;
-using Microsoft.Maui.ApplicationModel;
 using ProMapCargo.Mobile.Models;
 using ProMapCargo.Mobile.Services;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace ProMapCargo.Mobile.ViewModels;
 

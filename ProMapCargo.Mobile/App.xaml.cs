@@ -23,29 +23,29 @@ public partial class App : Application
 		return window;
 	}
 
-	private async void HandleWindowCreated(object? sender, EventArgs e)
-	{
-		if (initialNavigationApplied)
-		{
-			return;
-		}
+    private async void HandleWindowCreated(object? sender, EventArgs e)
+    {
+        if (initialNavigationApplied) return;
+        initialNavigationApplied = true;
 
-		initialNavigationApplied = true;
+        try
+        {
+            // Stvaramo CancellationToken koji prekida provere posle 3 sekunde ako backend ne odgovara
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
 
-		try
-		{
-			var hasInstalledMaps = await offlineMapService.HasInstalledMapsAsync(CancellationToken.None).ConfigureAwait(false);
-			if (!hasInstalledMaps)
-			{
-				await MainThread.InvokeOnMainThreadAsync(() => appShell.GoToAsync("//install-maps"));
-				return;
-			}
+            var hasInstalledMaps = await offlineMapService.HasInstalledMapsAsync(cts.Token).ConfigureAwait(false);
+            if (!hasInstalledMaps)
+            {
+                await MainThread.InvokeOnMainThreadAsync(() => appShell.GoToAsync("//install-maps"));
+                return;
+            }
 
-			await MainThread.InvokeOnMainThreadAsync(() => appShell.GoToAsync("//dashboard"));
-		}
-		catch
-		{
-			await MainThread.InvokeOnMainThreadAsync(() => appShell.GoToAsync("//install-maps"));
-		}
-	}
+            await MainThread.InvokeOnMainThreadAsync(() => appShell.GoToAsync("//dashboard"));
+        }
+        catch
+        {
+            // Ako backend padne ili izbaci timeout, bezbedno preusmeri na install-maps
+            await MainThread.InvokeOnMainThreadAsync(() => appShell.GoToAsync("//install-maps"));
+        }
+    }
 }

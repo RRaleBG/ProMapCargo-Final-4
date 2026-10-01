@@ -28,4 +28,9 @@
         ContentTemplate="{DataTemplate views:LoginPage}"
         Route="login" />
 
+    <ShellContent
+        Title="Settings"
+        ContentTemplate="{DataTemplate views:SettingsPage}"
+        Route="settings" />
+
 </Shell>
