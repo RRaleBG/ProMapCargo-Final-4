@@ -899,20 +899,6 @@ svg.lucide {
 }
 
 @media (max-width: 760px) {
-  .pm-page-header {
-    flex-direction: column;
-  }
-
-  .pm-page-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .pm-grid-3,
-  .pm-grid-4 {
-    grid-template-columns: 1fr;
-  }
-
   .pm-tab {
     min-height: 36px;
     padding: 0 11px;
