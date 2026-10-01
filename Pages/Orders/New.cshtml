@@ -8,17 +8,17 @@
 
     <header class="pm-page-header">
         <div class="pm-page-heading">
-            <div class="pm-page-kicker">Transportni nalozi</div>
+            <div class="pm-page-kicker">Transportni nalozi · Kreiranje</div>
             <h1 class="pm-page-title">Novi transportni nalog</h1>
             <p class="pm-page-subtitle">
-                Unesite osnovne podatke, teret i transportne tačke.
+                Kreirajte nalog kroz četiri koraka: osnovni podaci, teret, transportna ruta i završna provera.
             </p>
         </div>
 
         <div class="pm-page-actions">
             <a class="pm-btn pm-btn-secondary" href="/orders">
                 <i data-lucide="arrow-left" aria-hidden="true"></i>
-                <span>Nazad na naloge</span>
+                Nazad na naloge
             </a>
         </div>
     </header>
@@ -27,54 +27,64 @@
         <section class="pm-card">
 
             <header class="pm-card-header">
-                <div>
-                    <h2 class="pm-card-title">Kreiranje naloga</h2>
+                <div class="pm-page-heading">
+                    <div class="pm-page-kicker">Novi nalog</div>
+                    <h2 class="pm-card-title">Kreiranje transportnog naloga</h2>
                     <p class="pm-card-subtitle">
-                        Popunite korake redom. Pre čuvanja biće provereni svi obavezni podaci.
+                        Podaci se proveravaju pre slanja na server. Obavezna polja su označena zvezdicom.
                     </p>
+                </div>
+
+                <div class="pm-page-actions">
+                    <span class="pm-help" id="orderStepStatus">Korak 1 od 4</span>
                 </div>
             </header>
 
-            <div class="pm-tabs" role="tablist" aria-label="Koraci transportnog naloga">
+            <nav class="pm-tabs" role="tablist" aria-label="Koraci transportnog naloga">
                 <button type="button" class="pm-tab is-active" role="tab"
                         aria-selected="true" tabindex="0"
                         data-order-tab="basic"
                         aria-controls="order-panel-basic">
-                    <span>1</span> Osnovno
+                    <span>1</span>
+                    Osnovno
                 </button>
 
                 <button type="button" class="pm-tab" role="tab"
                         aria-selected="false" tabindex="-1"
                         data-order-tab="cargo"
                         aria-controls="order-panel-cargo">
-                    <span>2</span> Teret
+                    <span>2</span>
+                    Teret
                 </button>
 
                 <button type="button" class="pm-tab" role="tab"
                         aria-selected="false" tabindex="-1"
                         data-order-tab="stops"
                         aria-controls="order-panel-stops">
-                    <span>3</span> Ruta
+                    <span>3</span>
+                    Ruta
                 </button>
 
                 <button type="button" class="pm-tab" role="tab"
                         aria-selected="false" tabindex="-1"
                         data-order-tab="review"
                         aria-controls="order-panel-review">
-                    <span>4</span> Pregled
+                    <span>4</span>
+                    Pregled
                 </button>
-            </div>
+            </nav>
 
             <section id="order-panel-basic"
                      class="pm-tab-panel is-active"
                      data-order-panel="basic"
-                     role="tabpanel">
-                <header class="pm-card-header">
+                     role="tabpanel"
+                     aria-labelledby="order-tab-basic">
+                <div class="pm-card-header">
                     <div>
                         <h2 class="pm-card-title">Osnovni podaci</h2>
-                        <p class="pm-card-subtitle">Identifikacija naloga i kupac.</p>
+                        <p class="pm-card-subtitle">Identifikacija transportnog naloga i kupca.</p>
                     </div>
-                </header>
+                </div>
 
                 <div class="pm-card-body">
                     <div class="pm-form-grid pm-form-grid-3">
@@ -106,8 +116,7 @@
 
                 <footer class="pm-card-footer">
                     <div class="pm-page-actions">
-                        <button type="button" class="pm-btn pm-btn-primary"
-                                data-order-next="cargo">
+                        <button type="button" class="pm-btn pm-btn-primary" data-order-next="cargo">
                             Nastavi
                             <i data-lucide="arrow-right" aria-hidden="true"></i>
                         </button>
@@ -120,12 +129,12 @@
                      data-order-panel="cargo"
                      role="tabpanel"
                      hidden>
-                <header class="pm-card-header">
+                <div class="pm-card-header">
                     <div>
                         <h2 class="pm-card-title">Podaci o teretu</h2>
                         <p class="pm-card-subtitle">Težina, zapremina, palete i ADR status.</p>
                     </div>
-                </header>
+                </div>
 
                 <div class="pm-card-body">
                     <div class="pm-form-grid pm-form-grid-3">
@@ -157,7 +166,7 @@
                         </div>
 
                         <div class="pm-field">
-                            <label class="pm-label">Bezbednost</label>
+                            <span class="pm-label">Bezbednost</span>
                             <label class="pm-check" for="hazmat">
                                 <input id="hazmat" type="checkbox" />
                                 <span>ADR / opasan teret</span>
@@ -168,14 +177,11 @@
 
                 <footer class="pm-card-footer">
                     <div class="pm-page-actions">
-                        <button type="button" class="pm-btn pm-btn-secondary"
-                                data-order-prev="basic">
+                        <button type="button" class="pm-btn pm-btn-secondary" data-order-prev="basic">
                             <i data-lucide="arrow-left" aria-hidden="true"></i>
                             Nazad
                         </button>
-
-                        <button type="button" class="pm-btn pm-btn-primary"
-                                data-order-next="stops">
+                        <button type="button" class="pm-btn pm-btn-primary" data-order-next="stops">
                             Ruta
                             <i data-lucide="arrow-right" aria-hidden="true"></i>
                         </button>
@@ -188,7 +194,7 @@
                      data-order-panel="stops"
                      role="tabpanel"
                      hidden>
-                <header class="pm-card-header">
+                <div class="pm-card-header">
                     <div>
                         <h2 class="pm-card-title">Transportna ruta</h2>
                         <p class="pm-card-subtitle">
@@ -202,20 +208,17 @@
                             Dodaj tačku
                         </button>
                     </div>
-                </header>
+                </div>
 
                 <div id="stops" class="pm-card-body"></div>
 
                 <footer class="pm-card-footer">
                     <div class="pm-page-actions">
-                        <button type="button" class="pm-btn pm-btn-secondary"
-                                data-order-prev="cargo">
+                        <button type="button" class="pm-btn pm-btn-secondary" data-order-prev="cargo">
                             <i data-lucide="arrow-left" aria-hidden="true"></i>
                             Nazad
                         </button>
-
-                        <button type="button" class="pm-btn pm-btn-primary"
-                                data-order-next="review">
+                        <button type="button" class="pm-btn pm-btn-primary" data-order-next="review">
                             Pregled
                             <i data-lucide="arrow-right" aria-hidden="true"></i>
                         </button>
@@ -228,12 +231,12 @@
                      data-order-panel="review"
                      role="tabpanel"
                      hidden>
-                <header class="pm-card-header">
+                <div class="pm-card-header">
                     <div>
                         <h2 class="pm-card-title">Pregled naloga</h2>
                         <p class="pm-card-subtitle">Proverite podatke pre kreiranja naloga.</p>
                     </div>
-                </header>
+                </div>
 
                 <div class="pm-card-body">
                     <div class="pm-form-grid pm-form-grid-3">
@@ -281,12 +284,10 @@
 
                 <footer class="pm-card-footer">
                     <div class="pm-page-actions">
-                        <button type="button" class="pm-btn pm-btn-secondary"
-                                data-order-prev="stops">
+                        <button type="button" class="pm-btn pm-btn-secondary" data-order-prev="stops">
                             <i data-lucide="arrow-left" aria-hidden="true"></i>
                             Nazad
                         </button>
-
                         <button id="saveOrder" class="pm-btn pm-btn-primary" type="submit">
                             <i data-lucide="save" aria-hidden="true"></i>
                             Sačuvaj nalog
