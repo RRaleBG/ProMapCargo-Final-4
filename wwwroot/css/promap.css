@@ -18627,6 +18627,10 @@ input
     animation: navPulseGlow 2s infinite ease-in-out;
 }
 
+/**
+    ============================================================
+    PM ORDERS PAGE
+    ============================================================ */
 
 .pm-orders-page {
   --orders-card: rgba(5, 31, 25, 0.88);
@@ -19671,6 +19675,486 @@ input
   }
 }
 
+
+/* =========================================================
+   ProMap Cargo · Orders / New
+   Tabbed form
+   ========================================================= */
+
+.pm-orders-new-shell
+{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: var(--pm-space-6, 24px);
+    align-items: start;
+}
+
+.pm-orders-new-main
+{
+    min-width: 0;
+}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+
+.pm-orders-tabs
+{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--pm-space-2, 8px);
+    margin-bottom: var(--pm-space-4, 16px);
+}
+
+.pm-orders-tab
+{
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--pm-space-3, 12px);
+    min-width: 0;
+    padding: var(--pm-space-3, 12px);
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius-md, 12px);
+    background: var(--pm-surface);
+    color: var(--pm-text);
+    cursor: pointer;
+    text-align: left;
+    transition: background var(--pm-motion-fast, 160ms) ease, border-color var(--pm-motion-fast, 160ms) ease, transform var(--pm-motion-fast, 160ms) ease;
+}
+
+    .pm-orders-tab:hover
+    {
+        border-color: var(--pm-border-strong);
+        background: var(--pm-surface-hover);
+        transform: translateY(-1px);
+    }
+
+    .pm-orders-tab.is-active
+    {
+        border-color: var(--pm-accent);
+        background: var(--pm-accent-soft);
+    }
+
+    .pm-orders-tab.is-complete .pm-orders-tab-number
+    {
+        border-color: var(--pm-accent);
+        background: var(--pm-accent-soft);
+        color: var(--pm-accent);
+    }
+
+.pm-orders-tab-number
+{
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--pm-border);
+    border-radius: 50%;
+    background: var(--pm-surface-raised);
+    color: var(--pm-text-muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.pm-orders-tab.is-active .pm-orders-tab-number
+{
+    border-color: var(--pm-accent);
+    background: var(--pm-accent-soft);
+    color: var(--pm-accent);
+}
+
+.pm-orders-tab-content
+{
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+    .pm-orders-tab-content strong
+    {
+        color: var(--pm-text);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .pm-orders-tab-content small
+    {
+        overflow: hidden;
+        color: var(--pm-text-muted);
+        font-size: 11px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+/* =========================================================
+   TAB PANELS
+   ========================================================= */
+
+.pm-orders-tab-panel
+{
+    display: none;
+}
+
+    .pm-orders-tab-panel.is-active
+    {
+        display: block;
+        animation: pm-orders-tab-in var(--pm-motion-fast, 160ms) ease both;
+    }
+
+@keyframes pm-orders-tab-in
+{
+    from
+    {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to
+    {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   PANEL HEADER
+   ========================================================= */
+
+.pm-orders-tab-panel .vehicle-card-header
+{
+    display: flex;
+    align-items: flex-start;
+    gap: var(--pm-space-3, 12px);
+}
+
+    .pm-orders-tab-panel .vehicle-card-header > div:nth-child(2)
+    {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .pm-orders-tab-panel .vehicle-card-header h2
+    {
+        margin: 2px 0 4px;
+    }
+
+    .pm-orders-tab-panel .vehicle-card-header p
+    {
+        margin: 0;
+    }
+
+/* =========================================================
+   TAB ACTIONS
+   ========================================================= */
+
+.pm-orders-tab-actions
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--pm-space-3, 12px);
+    margin-top: var(--pm-space-4, 16px);
+}
+
+/* =========================================================
+   ADR / CHECKBOX
+   ========================================================= */
+
+.pm-orders-checkbox
+{
+    display: flex;
+    align-items: center;
+    gap: var(--pm-space-3, 12px);
+    min-height: 48px;
+    cursor: pointer;
+}
+
+    .pm-orders-checkbox input
+    {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+.pm-orders-checkbox-box
+{
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius-sm, 6px);
+    background: var(--pm-surface-raised);
+}
+
+    .pm-orders-checkbox-box svg
+    {
+        width: 14px;
+        height: 14px;
+        opacity: 0;
+        color: var(--pm-accent);
+    }
+
+.pm-orders-checkbox input:checked + .pm-orders-checkbox-box
+{
+    border-color: var(--pm-accent);
+    background: var(--pm-accent-soft);
+}
+
+    .pm-orders-checkbox input:checked + .pm-orders-checkbox-box svg
+    {
+        opacity: 1;
+    }
+
+.pm-orders-checkbox > span:last-child
+{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pm-orders-checkbox strong
+{
+    color: var(--pm-text);
+    font-size: 13px;
+}
+
+.pm-orders-checkbox small
+{
+    color: var(--pm-text-muted);
+    font-size: 11px;
+}
+
+/* =========================================================
+   STOPS
+   ========================================================= */
+
+.pm-orders-stops
+{
+    display: flex;
+    flex-direction: column;
+    gap: var(--pm-space-3, 12px);
+}
+
+    .pm-orders-stops:empty::before
+    {
+        content: "Dodajte najmanje jedno mesto utovara i jedno mesto istovara.";
+        display: block;
+        padding: var(--pm-space-6, 24px);
+        border: 1px dashed var(--pm-border);
+        border-radius: var(--pm-radius-md, 12px);
+        color: var(--pm-text-muted);
+        text-align: center;
+        font-size: 13px;
+    }
+
+/* =========================================================
+   REVIEW
+   ========================================================= */
+
+.pm-orders-review
+{
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius-md, 12px);
+}
+
+.pm-orders-review-section
+{
+    padding: var(--pm-space-5, 20px);
+    background: var(--pm-surface);
+}
+
+    .pm-orders-review-section + .pm-orders-review-section
+    {
+        border-top: 1px solid var(--pm-border);
+    }
+
+.pm-orders-review-label
+{
+    display: block;
+    margin-bottom: var(--pm-space-3, 12px);
+    color: var(--pm-accent);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.pm-orders-review-grid
+{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--pm-space-4, 16px);
+}
+
+    .pm-orders-review-grid > div
+    {
+        min-width: 0;
+    }
+
+    .pm-orders-review-grid small
+    {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--pm-text-muted);
+        font-size: 11px;
+    }
+
+    .pm-orders-review-grid strong
+    {
+        display: block;
+        overflow: hidden;
+        color: var(--pm-text);
+        font-size: 13px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+.pm-orders-review-stops
+{
+    display: flex;
+    flex-direction: column;
+    gap: var(--pm-space-2, 8px);
+}
+
+.pm-orders-review-stop
+{
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: var(--pm-space-3, 12px);
+    align-items: center;
+}
+
+.pm-orders-review-stop-number
+{
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--pm-accent-soft);
+    color: var(--pm-accent);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.pm-orders-review-stop strong
+{
+    display: block;
+    color: var(--pm-text);
+    font-size: 13px;
+}
+
+.pm-orders-review-stop small
+{
+    color: var(--pm-text-muted);
+    font-size: 11px;
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.pm-orders-new-sidebar
+{
+    position: sticky;
+    top: var(--pm-space-5, 20px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--pm-space-4, 16px);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px)
+{
+
+    .pm-orders-new-shell
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .pm-orders-new-sidebar
+    {
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px)
+{
+
+    .pm-orders-tabs
+    {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pm-orders-tab
+    {
+        padding: var(--pm-space-3, 12px);
+    }
+
+    .pm-orders-tab-content small
+    {
+        display: none;
+    }
+
+    .pm-orders-review-grid
+    {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pm-orders-new-sidebar
+    {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px)
+{
+
+    .pm-orders-tabs
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .pm-orders-tab-content small
+    {
+        display: block;
+    }
+
+    .pm-orders-tab-actions
+    {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+        .pm-orders-tab-actions > *
+        {
+            width: 100%;
+        }
+
+    .pm-orders-review-grid
+    {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+/* =========================================================
+   PM PROFILE PAGE
+   ========================================================= */
 
 .pm-profile-page {
   position: relative;
