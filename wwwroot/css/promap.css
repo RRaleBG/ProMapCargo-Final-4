@@ -850,6 +850,75 @@ svg.lucide {
   border-top: 1px solid var(--pm-border-soft);
 }
 
+
+/* =========================================================
+   GENERIC TABS
+   ========================================================= */
+
+.pm-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 6px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--pm-border-soft);
+  background: rgba(2, 25, 21, 0.42);
+}
+
+.pm-tab {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--pm-radius-sm);
+  background: transparent;
+  color: var(--pm-text-muted);
+  font-size: var(--pm-font-sm);
+  font-weight: 750;
+  cursor: pointer;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.pm-tab:hover {
+  color: var(--pm-text);
+  background: rgba(16, 185, 129, 0.055);
+}
+
+.pm-tab.is-active {
+  color: var(--pm-text);
+  background: rgba(16, 185, 129, 0.10);
+  border-color: var(--pm-border);
+}
+
+.pm-tab-panel {
+  display: none;
+}
+
+.pm-tab-panel.is-active {
+  display: block;
+}
+
+@media (max-width: 760px) {
+  .pm-page-header {
+    flex-direction: column;
+  }
+
+  .pm-page-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .pm-grid-3,
+  .pm-grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .pm-tab {
+    min-height: 36px;
+    padding: 0 11px;
+  }
+}
+
 /* =========================================================
    BUTTONS
    ========================================================= */
