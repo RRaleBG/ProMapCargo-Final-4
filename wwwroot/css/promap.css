@@ -23357,3 +23357,222 @@ select:focus-visible {
     color 160ms ease,
     background-color 160ms ease;
 }
+
+/* =========================================================
+   EMBEDDED MOBILE NAVIGATION
+   Native MAUI hosts the navigation page in a fullscreen WebView.
+   Keep the desktop application shell out of the mobile viewport.
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .pm-body.pm-embedded-mobile-shell {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+    background: #010d0b;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .pm-app-shell {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .pm-sidebar,
+  .pm-body.pm-embedded-mobile-shell .pm-topbar,
+  .pm-body.pm-embedded-mobile-shell .pm-mobile-backdrop {
+    display: none;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .pm-main {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    margin-left: 0;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .pm-content {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .pm-content-inner {
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 0;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .pm-navigation-page {
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 0;
+    overflow: hidden;
+    background: var(--nav-bg-deep);
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-page-header {
+    display: none;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .navigation-workspace {
+    position: absolute;
+    inset: 0;
+    display: block;
+    height: 100%;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .navigation-map-section {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    z-index: 1;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .navigation-map-shell {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-map-topbar {
+    top: max(10px, env(safe-area-inset-top));
+    left: 10px;
+    right: 10px;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-map-mode-tabs {
+    max-width: calc(100% - 74px);
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-map-controls {
+    top: 58px;
+    right: 10px;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-next-overlay {
+    top: max(62px, calc(env(safe-area-inset-top) + 52px));
+    left: 10px;
+    right: 10px;
+    width: auto;
+    transform: none;
+    z-index: 40;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-map-route-card {
+    left: 10px;
+    right: 10px;
+    bottom: calc(34dvh + 18px);
+    width: auto;
+    max-width: none;
+    z-index: 25;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .navigation-control-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    width: 100%;
+    max-height: 34dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid rgba(45, 212, 191, 0.2);
+    background: linear-gradient(
+      180deg,
+      rgba(2, 21, 18, 0.86),
+      rgba(1, 13, 11, 0.97)
+    );
+    box-shadow: 0 -18px 45px rgba(0, 0, 0, 0.34);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+  }
+
+  .pm-body.pm-embedded-mobile-shell .navigation-control-panel::before {
+    content: "";
+    width: 42px;
+    height: 4px;
+    flex: 0 0 4px;
+    align-self: center;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.4);
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-control-card {
+    padding: 11px;
+    border-radius: 12px;
+    background: rgba(3, 30, 25, 0.72);
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-control-card-header {
+    margin-bottom: 8px;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-control-card-header h2 {
+    font-size: 11px;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-route-input-row {
+    gap: 7px;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-input,
+  .pm-body.pm-embedded-mobile-shell .nav-select {
+    min-height: 42px;
+    height: 42px;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-spec-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-mode-switch {
+    gap: 6px;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-mode-button {
+    min-height: 42px;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-route-action {
+    padding: 0;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-calculate-button {
+    min-height: 54px;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-location-button {
+    min-height: 42px;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-live-panel {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: calc(34dvh + 8px);
+    z-index: 45;
+    margin: 0;
+    max-width: none;
+  }
+
+  .pm-body.pm-embedded-mobile-shell .nav-mobile-bottom-space {
+    display: none;
+  }
+}
