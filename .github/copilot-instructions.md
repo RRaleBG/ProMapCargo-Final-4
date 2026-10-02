@@ -523,8 +523,8 @@ Local development stack (`docker-compose.yml`):
 
 **Environment Variables** (`.env`):
 - `ConnectionStrings__Postgres` — API database connection
-- `OSRM_URL` — OSRM service endpoint
-- `NOMINATIM_URL` — Nominatim geocoding
+- `OSM_URL` — ORM service endpoint from local  only !!
+- `NOMINATIM_URL` — Nominatim geocoding  local endpoint
 
 **Important**: 
 - Container-to-container: use service name (`postgres`), not `localhost`
@@ -731,8 +731,8 @@ ProMapCargo.Api/
 	│   ├── base.css, site.css
 	│   ├── animations.css, compat.css
 	│   ├── components.css, forms.css, tables.css
-	│   ├── tokens.css
-	│   └── pages/                       ← Per-page styles
+	│   ├── tokens.css									
+	│                             
 	│
 	├── js/
 	│   ├── app.js                       ← Init

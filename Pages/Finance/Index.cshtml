@@ -3,7 +3,7 @@
     ViewData["Title"] = "Finansije · ProMap Cargo";
 }
 
-<div class="pm-page pm-finance-page" data-module="finance">
+<div class="pm-page" data-module="finance">
 
     <div class="finance-bg-orb finance-bg-orb-one"></div>
     <div class="finance-bg-orb finance-bg-orb-two"></div>
@@ -11,23 +11,23 @@
     <!-- =========================================================
          PAGE HEADER
     ========================================================== -->
-    <section class="finance-page-header finance-reveal">
+    <section class="finance-page-header finance-reveal pm-page-header pm-header">
   
             <div class="finance-kicker">
               
             </div> 
    
 
-        <div class="finance-header-actions">
+        <div class="finance-header-actions pm-page-actions">
             <button type="button"
-                    class="finance-btn"
+                    class="finance-btn pm-btn"
                     id="financeRefreshButton">
                 <span>↻</span>
                 Osveži
             </button>
 
             <button type="button"
-                    class="finance-btn finance-btn-primary"
+                    class="finance-btn finance-btn-primary pm-btn pm-btn-primary"
                     id="openExpenseModal">
                 <span>＋</span>
                 Novi trošak
@@ -38,7 +38,7 @@
     <!-- =========================================================
          CONTEXT BAR
     ========================================================== -->
-    <section class="finance-context-bar finance-reveal finance-delay-1">
+    <section class="finance-context-bar finance-reveal finance-delay-1 pm-panel">
 
         <div class="finance-context-main">
             <div class="finance-context-icon">
@@ -80,9 +80,9 @@
     <!-- =========================================================
          KPI
     ========================================================== -->
-    <section class="finance-kpi-grid finance-reveal finance-delay-2">
+    <section class="finance-kpi-grid finance-reveal finance-delay-2 pm-kpi-grid">
 
-        <article class="finance-kpi finance-kpi-balance">
+        <article class="finance-kpi finance-kpi-balance pm-kpi">
             <div class="finance-kpi-top">
                 <span class="finance-kpi-label">Apsolutni saldo</span>
                 <span class="finance-kpi-icon">€</span>
@@ -102,7 +102,7 @@
             </div>
         </article>
 
-        <article class="finance-kpi">
+        <article class="finance-kpi pm-kpi">
             <div class="finance-kpi-top">
                 <span class="finance-kpi-label">Aktivna tura</span>
                 <span class="finance-kpi-icon">↗</span>
@@ -120,7 +120,7 @@
             </div>
         </article>
 
-        <article class="finance-kpi">
+        <article class="finance-kpi pm-kpi">
             <div class="finance-kpi-top">
                 <span class="finance-kpi-label">Prethodna tura</span>
                 <span class="finance-kpi-icon">✓</span>
@@ -138,7 +138,7 @@
             </div>
         </article>
 
-        <article class="finance-kpi">
+        <article class="finance-kpi pm-kpi">
             <div class="finance-kpi-top">
                 <span class="finance-kpi-label">Troškovi ture</span>
                 <span class="finance-kpi-icon">−</span>
@@ -154,7 +154,7 @@
             </div>
         </article>
 
-        <article class="finance-kpi">
+        <article class="finance-kpi pm-kpi">
             <div class="finance-kpi-top">
                 <span class="finance-kpi-label">Na čekanju</span>
                 <span class="finance-kpi-icon">!</span>
@@ -185,9 +185,9 @@
         <div class="finance-main-column">
 
             <!-- CURRENT TRIP -->
-            <article class="finance-card finance-trip-card finance-reveal finance-delay-3">
+            <article class="finance-card finance-trip-card finance-reveal finance-delay-3 pm-panel">
 
-                <header class="finance-card-header">
+                <header class="finance-card-header pm-panel-heading">
                     <div>
                         <div class="finance-card-kicker">
                             AKTIVNA TURA
@@ -278,9 +278,9 @@
             </article>
 
             <!-- FUEL CARD -->
-            <article class="finance-card finance-reveal finance-delay-4">
+            <article class="finance-card finance-reveal finance-delay-4 pm-panel">
 
-                <header class="finance-card-header">
+                <header class="finance-card-header pm-panel-heading">
                     <div>
                         <div class="finance-card-kicker">
                             FUEL CONTROL
@@ -293,7 +293,7 @@
                         </p>
                     </div>
 
-                    <button class="finance-icon-button"
+                    <button class="finance-icon-button pm-btn pm-btn-ghost"
                             type="button"
                             title="Detalji kartice">
                         ⋯
@@ -867,9 +867,9 @@
             </article>
 
             <!-- PREVIOUS TRIP -->
-            <article class="finance-card finance-reveal finance-delay-4">
+            <article class="finance-card finance-reveal finance-delay-4 pm-panel">
 
-                <header class="finance-card-header compact">
+                <header class="finance-card-header compact pm-panel-heading">
                     <div>
                         <div class="finance-card-kicker">
                             PRETHODNA TURA

@@ -12,6 +12,7 @@
             Title="Operations"
             ContentTemplate="{DataTemplate views:DashboardPage}"
             Route="dashboard-home" />
+
         <ShellContent
             Title="Navigation"
             ContentTemplate="{DataTemplate views:MobileNavigationPage}"

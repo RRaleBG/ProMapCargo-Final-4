@@ -74,7 +74,11 @@ builder.Services.AddDbContext<ProMapCargoDbContext>(
             .UseNpgsql(
                 connectionString,
                 npgsql => npgsql.UseNetTopologySuite())
-            .UseSnakeCaseNamingConvention());
+            .UseSnakeCaseNamingConvention()
+            .LogTo(
+                Console.WriteLine,
+                [DbLoggerCategory.Database.Command.Name],
+                LogLevel.Information));
 
 
 // ============================================================
@@ -259,6 +263,8 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+var startupLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Startup.Database");
+startupLogger.LogInformation("Resolved PostgreSQL target: {DatabaseTarget}", DescribeConnectionTarget(connectionString));
 await InitializeDatabaseAsync(app);
 await SeedDefaultMobileUserAsync(app);
 await SeedAdministratorUserAsync(app);
@@ -667,4 +673,19 @@ static string? GetDotEnvValue(IReadOnlyDictionary<string, string> values, string
     return values.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value)
         ? value
         : null;
+}
+
+static string DescribeConnectionTarget(string connectionString)
+{
+    ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+
+    try
+    {
+        var builder = new NpgsqlConnectionStringBuilder(connectionString);
+        return $"Host={builder.Host};Port={builder.Port};Database={builder.Database};Username={builder.Username}";
+    }
+    catch (ArgumentException)
+    {
+        return "Invalid connection string format";
+    }
 }

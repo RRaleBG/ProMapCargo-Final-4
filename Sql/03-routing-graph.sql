@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS compiled_turn_restrictions(
     restriction TEXT NOT NULL,
     from_edge_id BIGINT NOT NULL,
     to_edge_id BIGINT NOT NULL,
-    via_edge_ids BIGINT[] NOT NULL DEFAULT '{{}}',
+    via_edge_ids BIGINT[] NOT NULL DEFAULT '{}',
     except_values TEXT,
     conditional TEXT,
     tags JSONB

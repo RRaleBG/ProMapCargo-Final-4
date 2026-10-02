@@ -6,6 +6,9 @@ namespace ProMapCargo.Api.Services;
 
 public sealed class OsrmRoutingService(HttpClient http, IConfiguration config) : IRoutingService
 {
+    private static readonly TimeSpan PrimaryTimeout = TimeSpan.FromSeconds(12);
+    private static readonly TimeSpan RetryTimeout = TimeSpan.FromSeconds(8);
+
     public async Task<OsrmResponse> RouteAsync(RouteRequest request, CancellationToken ct)
     {
         var profile =
@@ -48,22 +51,37 @@ public sealed class OsrmRoutingService(HttpClient http, IConfiguration config) :
 
         var primaryRoutePath = $"route/v1/{profile}/{coordinates}?{string.Join("&", primaryQuery)}";
 
-        return await SendAsync(primaryBaseUrl, primaryRoutePath, ct, TimeSpan.FromSeconds(15));
+        return await SendWithRetryAsync(primaryBaseUrl, primaryRoutePath, ct).ConfigureAwait(false);
     }
 
-    private async Task<OsrmResponse> SendAsync(string baseUrl, string routePath, CancellationToken ct, TimeSpan? timeout)
+    private async Task<OsrmResponse> SendWithRetryAsync(string baseUrl, string routePath, CancellationToken ct)
+    {
+        try
+        {
+            return await SendAsync(baseUrl, routePath, ct, PrimaryTimeout).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        {
+            await Task.Delay(150, ct).ConfigureAwait(false);
+            return await SendAsync(baseUrl, routePath, ct, RetryTimeout).ConfigureAwait(false);
+        }
+        catch (HttpRequestException)
+        {
+            await Task.Delay(150, ct).ConfigureAwait(false);
+            return await SendAsync(baseUrl, routePath, ct, RetryTimeout).ConfigureAwait(false);
+        }
+    }
+
+    private async Task<OsrmResponse> SendAsync(string baseUrl, string routePath, CancellationToken ct, TimeSpan timeout)
     {
         var normalizedBaseUrl = baseUrl.TrimEnd('/');
         var url = $"{normalizedBaseUrl}/{routePath}";
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        if (timeout.HasValue)
-        {
-            cts.CancelAfter(timeout.Value);
-        }
+        cts.CancelAfter(timeout);
 
-        using var response = await http.GetAsync(url, cts.Token);
-        var content = await response.Content.ReadAsStringAsync(cts.Token);
+        using var response = await http.GetAsync(url, cts.Token).ConfigureAwait(false);
+        var content = await response.Content.ReadAsStringAsync(cts.Token).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -82,5 +100,4 @@ public sealed class OsrmRoutingService(HttpClient http, IConfiguration config) :
 
         return result;
     }
-
 }

@@ -92,15 +92,15 @@
 
 
     <!-- FILTER TOOLBAR -->
-    <section class="moderation-toolbar pm-card">
+    <section class="moderation-toolbar pm-card pm-toolbar">
         <div class="moderation-search">          
             <span>  
                 <i data-lucide="search" class="moderation-search-icon" width="20" height="20" aria-hidden="true"></i>
             </span>
-            <input id="vehicleSearch" type="search" placeholder="Pretraži registraciju, marku, model ili VIN..." autocomplete="off" />
+            <input id="vehicleSearch" class="pm-search-input" type="search" placeholder="Pretraži registraciju, marku, model ili VIN..." autocomplete="off" />
         </div>
 
-        <select id="vehicleStatusFilter" class="moderation-select" aria-label="Status vozila">
+        <select id="vehicleStatusFilter" class="moderation-select pm-select" aria-label="Status vozila">
             <option value="">Svi statusi</option>
             <option value="Active">Aktivno</option>
             <option value="Available">Dostupno</option>
@@ -108,7 +108,7 @@
             <option value="Inactive">Neaktivno</option>
         </select>
 
-        <select id="vehicleGpsFilter" class="moderation-select" aria-label="GPS status">
+        <select id="vehicleGpsFilter" class="moderation-select pm-select" aria-label="GPS status">
             <option value="">Svi GPS statusi</option>
             <option value="online">GPS online</option>
             <option value="stale">GPS zastareo</option>
@@ -122,8 +122,8 @@
        
    
     <section class="pm-vehicles-workspace">
-            <div class="pm-vehicles-card">
-                <div class="pm-vehicles-card-head">
+            <div class="pm-vehicles-card pm-panel">
+                <div class="pm-vehicles-card-head pm-panel-heading">
                     <div class="pm-vehicles-card-title-wrap">
                         <h2 class="pm-vehicles-card-title">
                             Operativni spisak vozila
@@ -193,7 +193,7 @@
 
             </div>
 
-            <aside class="pm-vehicles-card pm-vehicle-details" id="vehicleDetails">
+            <aside class="pm-vehicles-card pm-vehicle-details pm-panel" id="vehicleDetails">
 
                 <div class="pm-vehicle-profile">
 

@@ -27,15 +27,15 @@
                 Osveži
             </button>
           
-            <button type="button" class="pm-btn">
-                <a asp-page="/navigation"> Nova ruta  </a>               
-            </button>
+            <a asp-page="/Navigation/Index" class="pm-btn pm-btn-primary">
+                Nova ruta
+            </a>
         </div>
     </header>
 
 
 
-    <div class="pm-content">
+    <div class="pm-page-content">
 
         <section class="pm-kpi-grid">
 
@@ -126,11 +126,11 @@
                     </div>
 
                     <div class="pm-dispatch-card-actions">
-                        <button type="button" class="pm-dispatch-small-btn active" data-map-filter="all"> Sva vozila
+                        <button type="button" class="pm-dispatch-small-btn pm-filter-btn active" data-map-filter="all"> Sva vozila
                         </button>
-                        <button type="button" class="pm-dispatch-small-btn" data-map-filter="active"> Aktivna
+                        <button type="button" class="pm-dispatch-small-btn pm-filter-btn" data-map-filter="active"> Aktivna
                         </button>
-                        <button type="button" class="pm-dispatch-small-btn" data-map-filter="alerts"> Alerts
+                        <button type="button" class="pm-dispatch-small-btn pm-filter-btn" data-map-filter="alerts"> Alerts
                         </button>
                     </div>
                 </div>
@@ -168,13 +168,13 @@
                     <div id="dispatchMap" class="pm-map" data-map-archive="/maps/europe.pmtiles" data-map-max-zoom="19">
                     </div>
 
-                    <div class="pm-dispatch-map-controls">
+                    <div class="pm-dispatch-map-controls pm-map-controls">
 
-                        <button type="button" class="pm-dispatch-map-control" id="dispatchFitMap" title="Cela flota">
+                        <button type="button" class="pm-dispatch-map-control pm-map-control pm-btn pm-btn-secondary" id="dispatchFitMap" title="Cela flota">
                             ⛶
                         </button>
 
-                        <button type="button" class="pm-dispatch-map-control" id="dispatchCenterMap"
+                        <button type="button" class="pm-dispatch-map-control pm-map-control pm-btn pm-btn-secondary" id="dispatchCenterMap"
                                 title="Centar Srbije">
                             ◎
                         </button>
@@ -201,7 +201,7 @@
 
                     </div>
 
-                    <a class="pm-dispatch-small-btn" href="/trips">
+                    <a class="pm-dispatch-small-btn pm-filter-btn" href="/trips">
                         Otvori ture
                     </a>
 

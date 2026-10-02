@@ -4,19 +4,15 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     Title="Sign in"
-    BackgroundColor="#061B17">
+    BackgroundColor="{StaticResource SurfaceBase}">
     <ScrollView>
         <VerticalStackLayout Padding="24,40" Spacing="20">
             <VerticalStackLayout Spacing="6">
-                <Label
-                    FontAttributes="Bold"
-                    FontSize="28"
-                    Text="ProMap Cargo"
-                    TextColor="#ECFDF5" />
+                <Label Style="{StaticResource PmPageTitleLabel}" Text="ProMap Cargo" />
                 <Label
                     FontSize="14"
-                    Text="Native operations access for Navigation, Monitoring, and Dispatch."
-                    TextColor="#94A3B8" />
+                    Style="{StaticResource PmMutedLabel}"
+                    Text="Native operations access for Navigation, Monitoring, and Dispatch." />
                 <Label
                     FontSize="12"
                     Text="Use a valid ProMapCargo account from the API system (no default seeded mobile user)."
@@ -25,9 +21,8 @@
 
             <Border
                 Padding="20"
-                BackgroundColor="#0B2D26"
-                Stroke="#1C5448"
-                StrokeShape="RoundRectangle 20">
+                StrokeShape="RoundRectangle 20"
+                Style="{StaticResource PmCardBorder}">
                 <VerticalStackLayout Spacing="14">
                     <Label
                         FontAttributes="Bold"
@@ -55,12 +50,10 @@
                         TextColor="#FB7185" />
 
                     <Button
-                        BackgroundColor="#10B981"
                         Command="{Binding LoginCommand}"
-                        CornerRadius="14"
                         HeightRequest="52"
-                        Text="Sign in"
-                        TextColor="#031712" />
+                        Style="{StaticResource PmPrimaryButton}"
+                        Text="Sign in" />
 
                     <ActivityIndicator
                         HorizontalOptions="Center"

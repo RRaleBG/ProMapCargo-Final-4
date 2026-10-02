@@ -10,18 +10,18 @@
     <linearGradient id="bg"
                     x1="0" y1="0"
                     x2="1" y2="1">
-      <stop offset="0%" stop-color="#061F19"/>
-      <stop offset="55%" stop-color="#031712"/>
-      <stop offset="100%" stop-color="#02100D"/>
+      <stop offset="0%" stop-color="#0A2A23"/>
+      <stop offset="46%" stop-color="#031712"/>
+      <stop offset="100%" stop-color="#010C0A"/>
     </linearGradient>
 
     <!-- Map glow -->
     <radialGradient id="mapGlow"
                     cx="50%"
-                    cy="48%"
-                    r="55%">
-      <stop offset="0%" stop-color="#10B981" stop-opacity="0.18"/>
-      <stop offset="55%" stop-color="#10B981" stop-opacity="0.055"/>
+                    cy="46%"
+                    r="58%">
+      <stop offset="0%" stop-color="#34D399" stop-opacity="0.24"/>
+      <stop offset="50%" stop-color="#10B981" stop-opacity="0.09"/>
       <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
     </radialGradient>
 
@@ -94,7 +94,7 @@
       height="420"
       rx="82"
       fill="none"
-      stroke="#123D32"
+      stroke="#1A584A"
       stroke-width="2"/>
 
   <rect
@@ -181,8 +181,8 @@
            C318 153 349 157 378 122"
       fill="none"
       stroke="#10B981"
-      stroke-width="16"
-      opacity="0.14"
+      stroke-width="18"
+      opacity="0.18"
       filter="url(#routeGlow)"/>
 
   <!-- main route -->

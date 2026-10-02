@@ -4,10 +4,7 @@ using System.Diagnostics;
 
 namespace ProMapCargo.Api.Routing;
 
-public sealed class PostGisAStarRouter(
-    PostGisRoutingRepository repo,
-    TruckEdgeEvaluator evaluator,
-    TurnRestrictionMatcher restrictions)
+public sealed class PostGisAStarRouter(PostGisRoutingRepository repo, TruckEdgeEvaluator evaluator, TurnRestrictionMatcher restrictions)
 {
     private const int MaxExpandedStates = 1_000_000;
 
@@ -15,16 +12,14 @@ public sealed class PostGisAStarRouter(
         long Node,
         long? PreviousWay);
 
-    private sealed record PreviousEntry(
-        SearchState Previous,
-        RoutedTraversal Traversal);
+    private sealed record PreviousEntry(SearchState Previous, RoutedTraversal Traversal);
 
     public async Task<PostGisRouteResult> RouteAsync(
-        SnapResult start,
-        SnapResult end,
-        TruckProfile truck,
-        long version,
-        CancellationToken ct)
+                                                    SnapResult start,
+                                                    SnapResult end,
+                                                    TruckProfile truck,
+                                                    long version,
+                                                    CancellationToken ct)
     {
         var searchTimeBudget = TimeSpan.FromSeconds(240);
 
@@ -340,18 +335,24 @@ public sealed class PostGisAStarRouter(
         var goalPoint =
             end.SnappedPoint.Coordinate;
 
-        foreach (var state in dist.Keys.ToArray())
+        var heuristicCache = new Dictionary<long, double>();
+
+        foreach (var pair in dist)
         {
+            var state = pair.Key;
+            var baseDistance = pair.Value;
+
             var h =
-                HeuristicSeconds(
+                GetHeuristicSeconds(
                     state.Node,
                     nodeCoordinates,
                     goalPoint,
-                    maxTruckSpeedKmh);
+                    maxTruckSpeedKmh,
+                    heuristicCache);
 
             queue.Enqueue(
                 state,
-                dist[state] + h);
+                baseDistance + h);
         }
 
         var outgoingCache =
@@ -423,11 +424,12 @@ public sealed class PostGisAStarRouter(
 
             var currentPriority =
                 baseCost +
-                HeuristicSeconds(
+                GetHeuristicSeconds(
                     state.Node,
                     nodeCoordinates,
                     goalPoint,
-                    maxTruckSpeedKmh);
+                    maxTruckSpeedKmh,
+                    heuristicCache);
 
             /*
              * Ignore stale PriorityQueue entries.
@@ -551,7 +553,7 @@ public sealed class PostGisAStarRouter(
 
                 var prefetchedOutgoing =
                     await repo.GetOutgoingBatchAsync(
-                        frontierPrefetchNodes.ToArray(),
+                        [.. frontierPrefetchNodes],
                         version,
                         ct);
 
@@ -643,11 +645,12 @@ public sealed class PostGisAStarRouter(
                     nextState);
 
                 var heuristic =
-                    HeuristicSeconds(
+                    GetHeuristicSeconds(
                         nextNode,
                         nodeCoordinates,
                         goalPoint,
-                        maxTruckSpeedKmh);
+                        maxTruckSpeedKmh,
+                        heuristicCache);
 
                 queue.Enqueue(
                     nextState,
@@ -862,12 +865,18 @@ public sealed class PostGisAStarRouter(
         return distanceMeters / speedMs;
     }
 
-    private static double HeuristicSeconds(
+    private static double GetHeuristicSeconds(
         long node,
         Dictionary<long, Coordinate> coordinates,
         Coordinate goal,
-        double maxSpeedKmh)
+        double maxSpeedKmh,
+        Dictionary<long, double> heuristicCache)
     {
+        if (heuristicCache.TryGetValue(node, out var cachedSeconds))
+        {
+            return cachedSeconds;
+        }
+
         if (!coordinates.TryGetValue(
                 node,
                 out var current))
@@ -882,9 +891,12 @@ public sealed class PostGisAStarRouter(
                 goal.Y,
                 goal.X);
 
-        return DurationSeconds(
+        var seconds = DurationSeconds(
             distance,
             maxSpeedKmh);
+
+        heuristicCache[node] = seconds;
+        return seconds;
     }
 
     private static double GreatCircleDistanceMeters(

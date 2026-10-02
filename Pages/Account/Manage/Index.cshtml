@@ -4,11 +4,11 @@
     ViewData["Title"] = "Nalog · ProMap Cargo";
 }
 
-<div class="pm-profile-page" data-module="profile">
+<div class="pm-page" data-module="profile">
 
-    <header class="pm-profile-header">
+    <header class="pm-profile-header pm-page-header">
 
-        <div class="pm-profile-heading">
+        <div class="pm-profile-heading pm-page-heading">
         
             <h2 class="pm-text-warning">@User.Identity?.Name</h2>
 
@@ -18,18 +18,18 @@
 
         </div>
 
-        <div class="pm-profile-header-actions">
+        <div class="pm-profile-header-actions pm-header-actions">
 
             <div class="pm-profile-status">
                 <span class="pm-profile-status-dot"></span>
                 <span>Nalog aktivan</span>
             </div>
 
-            <button type="button" class="pm-profile-btn pm-profile-btn-secondary" data-action="discard">
+            <button type="button" class="pm-profile-btn pm-profile-btn-secondary pm-btn pm-btn-secondary" data-action="discard">
                 Poništi izmene
             </button>
 
-            <button type="button" class="pm-profile-btn pm-profile-btn-primary" data-action="save">
+            <button type="button" class="pm-profile-btn pm-profile-btn-primary pm-btn pm-btn-primary" data-action="save">
                 Sačuvaj profil
             </button>
 
@@ -72,7 +72,7 @@
                     </label>
 
                     <input asp-for="ProfileImage" id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" hidden />
-                    <button type="submit" class="pm-profile-btn pm-profile-btn-primary">Sačuvaj sliku</button>
+                    <button type="submit" class="pm-profile-btn pm-profile-btn-primary pm-btn pm-btn-primary">Sačuvaj sliku</button>
                     </form>
 
                 </div>
@@ -1266,7 +1266,7 @@
         "use strict";
 
         const root =
-            document.querySelector(".pm-profile-page");
+            document.querySelector('[data-module="profile"]');
 
         if (!root) {
             return;

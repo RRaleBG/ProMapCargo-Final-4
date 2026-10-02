@@ -8,7 +8,10 @@ using ProMapCargo.Api.Models;
 namespace ProMapCargo.Api.Pages.Login;
 
 [AllowAnonymous]
-public sealed class IndexModel(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager) : PageModel
+public sealed class IndexModel(
+    SignInManager<ApplicationUser> signInManager,
+    UserManager<ApplicationUser> userManager,
+    ILogger<IndexModel> logger) : PageModel
 {
     [BindProperty]
     public LoginInput Input { get; set; } = new();
@@ -34,11 +37,24 @@ public sealed class IndexModel(SignInManager<ApplicationUser> signInManager, Use
             return Page();
         }
 
-        var result = await signInManager.PasswordSignInAsync(
-            user.UserName ?? user.Email ?? Input.Email,
-            Input.Password,
-            Input.RememberMe,
-            lockoutOnFailure: true).ConfigureAwait(false);
+        Microsoft.AspNetCore.Identity.SignInResult result;
+
+        try
+        {
+            result = await signInManager.PasswordSignInAsync(
+                user.UserName ?? user.Email ?? Input.Email,
+                Input.Password,
+                Input.RememberMe,
+                lockoutOnFailure: true).ConfigureAwait(false);
+        }
+        catch (FormatException ex)
+        {
+            logger.LogWarning(ex,
+                "Login failed due to legacy/invalid password hash format for user {UserEmail}.",
+                user.Email);
+            ModelState.AddModelError(string.Empty, "Email ili lozinka nisu ispravni.");
+            return Page();
+        }
 
         if (result.Succeeded)
         {

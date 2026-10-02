@@ -1,9 +1,7 @@
-using System.Collections.ObjectModel;
-using System.Windows.Input;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls;
 using ProMapCargo.Mobile.Models;
 using ProMapCargo.Mobile.Services;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace ProMapCargo.Mobile.ViewModels;
 
@@ -11,6 +9,8 @@ public sealed class DashboardViewModel : ViewModelBase
 {
     private readonly ApiClient apiClient;
     private readonly MobileSessionService sessionService;
+    private readonly IMobileNotifier notifier;
+    private CancellationTokenSource? loadCancellationTokenSource;
     private bool isBusy;
     private string statusText = "Ready";
     private string routeSummary = "No route loaded.";
@@ -21,19 +21,19 @@ public sealed class DashboardViewModel : ViewModelBase
     private string routeEndSnap = "—";
     private string routeFailureReason = "—";
 
-    public DashboardViewModel(
-        ApiClient apiClient,
-        MobileSessionService sessionService)
+
+    public DashboardViewModel(ApiClient apiClient, MobileSessionService sessionService, IMobileNotifier notifier)
     {
         this.apiClient = apiClient;
         this.sessionService = sessionService;
+        this.notifier = notifier;
 
-        Vehicles = [];
-        Drivers = [];
-        Orders = [];
-        Trips = [];
-        RouteHighlights = [];
-        RouteManeuvers = [];
+        Vehicles = new ObservableCollection<VehicleItem>();
+        Drivers = new ObservableCollection<DriverItem>();
+        Orders = new ObservableCollection<TransportOrderItem>();
+        Trips = new ObservableCollection<TripItem>();
+        RouteHighlights = new ObservableCollection<string>();
+        RouteManeuvers = new ObservableCollection<RouteManeuver>();
         QuickLinks =
         [
             new DashboardLink("Navigation", "Truck-aware route planning and maneuver guidance", "//dashboard/mobile-navigation"),
@@ -135,20 +135,33 @@ public sealed class DashboardViewModel : ViewModelBase
 
     public async Task LoadAsync()
     {
+        loadCancellationTokenSource?.Cancel();
+        loadCancellationTokenSource?.Dispose();
+        loadCancellationTokenSource = new CancellationTokenSource();
+
         try
         {
-            await SetBusyAsync(true);
+            await SetBusyAsync(true).ConfigureAwait(false);
             StatusText = "Loading operations data...";
 
-            var vehicles = await apiClient.GetVehiclesAsync(CancellationToken.None).ConfigureAwait(false);
-            var drivers = await apiClient.GetDriversAsync(CancellationToken.None).ConfigureAwait(false);
-            var orders = await apiClient.GetOrdersAsync(CancellationToken.None).ConfigureAwait(false);
-            var trips = await apiClient.GetTripsAsync(CancellationToken.None).ConfigureAwait(false);
-            var route = await apiClient.GetRouteAsync(
+            var cancellationToken = loadCancellationTokenSource.Token;
+            var vehiclesTask = apiClient.GetVehiclesAsync(cancellationToken);
+            var driversTask = apiClient.GetDriversAsync(cancellationToken);
+            var ordersTask = apiClient.GetOrdersAsync(cancellationToken);
+            var tripsTask = apiClient.GetTripsAsync(cancellationToken);
+            var routeTask = apiClient.GetRouteAsync(
                 new RouteRequest(
                     new GeoPoint(44.8176, 20.4633),
                     new GeoPoint(45.2671, 19.8335)),
-                CancellationToken.None).ConfigureAwait(false);
+                cancellationToken);
+
+            await Task.WhenAll(vehiclesTask, driversTask, ordersTask, tripsTask, routeTask).ConfigureAwait(false);
+
+            var vehicles = await vehiclesTask.ConfigureAwait(false);
+            var drivers = await driversTask.ConfigureAwait(false);
+            var orders = await ordersTask.ConfigureAwait(false);
+            var trips = await tripsTask.ConfigureAwait(false);
+            var route = await routeTask.ConfigureAwait(false);
 
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
@@ -158,8 +171,28 @@ public sealed class DashboardViewModel : ViewModelBase
                 ReplaceItems(Trips, trips);
                 ApplyRoute(route);
                 RaisePropertyChanged(nameof(WelcomeText));
-                StatusText = $"Synced {DateTime.Now:t}";
+                StatusText = $"Synced {DateTime.Now:t} · {sessionService.LastStatus}";
             });
+
+            await notifier.ShowSuccessAsync("Operations synced successfully.").ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                StatusText = "Sync canceled.";
+            });
+
+            await notifier.ShowInfoAsync("Sync canceled.").ConfigureAwait(false);
+        }
+        catch (HttpRequestException ex)
+        {
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                StatusText = $"Sync failed: {ex.Message} · {sessionService.LastStatus}";
+            });
+
+            await notifier.ShowErrorAsync("Sync failed due to network/API error.").ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -167,15 +200,18 @@ public sealed class DashboardViewModel : ViewModelBase
             {
                 StatusText = $"Sync failed: {ex.Message}";
             });
+
+            await notifier.ShowWarningAsync("Sync failed with unexpected issue.").ConfigureAwait(false);
         }
         finally
         {
-            await SetBusyAsync(false);
+            await SetBusyAsync(false).ConfigureAwait(false);
+            loadCancellationTokenSource?.Dispose();
+            loadCancellationTokenSource = null;
         }
     }
 
-    private Task SetBusyAsync(bool value)
-        => MainThread.InvokeOnMainThreadAsync(() => IsBusy = value);
+    private Task SetBusyAsync(bool value) => MainThread.InvokeOnMainThreadAsync(() => IsBusy = value);
 
     private void ApplyRoute(RouteResponse? route)
     {
@@ -255,6 +291,7 @@ public sealed class DashboardViewModel : ViewModelBase
         if (string.IsNullOrWhiteSpace(link.ShellRoute))
         {
             StatusText = $"{link.Title} is available on the web portal. Native mobile screen is coming soon.";
+            await notifier.ShowInfoAsync(StatusText).ConfigureAwait(false);
             return;
         }
 

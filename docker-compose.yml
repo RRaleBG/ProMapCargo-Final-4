@@ -13,11 +13,15 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    shm_size: "512m"
+    mem_limit: "2g"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U promap -d promapcargo"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - promap-network
 
   osrm:
     image: osrm/osrm-backend:latest
@@ -28,8 +32,11 @@ services:
       - "5001:5000"
     volumes:
       - ./osm:/data:ro
+    mem_limit: "2g"
     depends_on:
       - postgres
+    networks:
+      - promap-network
 
   api:
     build:
@@ -40,9 +47,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Postgres: Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
-      PROMAP_POSTGRES: Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
-      Routing__OsrmBaseUrl: http://localhost:5001
+      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
+      PROMAP_POSTGRES: Host=postgres;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
+      Routing__OsrmBaseUrl: http://osrm:5000
       Routing__OsrmFallbackBaseUrl: https://router.project-osrm.org
       Cors__Origins__0: http://localhost:8080
       Cors__Origins__1: http://localhost:3000
@@ -51,6 +58,9 @@ services:
       MobileAuth__Audience: ProMapCargo.Mobile
       MobileAuth__SigningKey: promapcargo-mobile-change-this-signing-key-2026
       Seed__Enabled: "true"
+      DOTNET_gcServer: "1"
+      DOTNET_GCHeapHardLimitPercent: "75"
+      DOTNET_ThreadPool_MinThreads: "8"
     ports:
       - "8080:8080"
     volumes:
@@ -58,10 +68,20 @@ services:
       - ./wwwroot/maps:/app/wwwroot/maps:ro
       - ./wwwroot/fonts:/app/wwwroot/fonts:ro
       - ./wwwroot/lib:/app/wwwroot/lib:ro
+      - dataprotection_keys:/root/.aspnet/DataProtection-Keys
+    mem_limit: "1g"
     depends_on:
       postgres:
         condition: service_healthy
-    network_mode: host
+      osrm:
+        condition: service_started
+    networks:
+      - promap-network
+
+networks:
+  promap-network:
+    driver: bridge
 
 volumes:
   postgres_data:
+  dataprotection_keys:

@@ -15,6 +15,7 @@ public class NavigationViewModel : ViewModelBase
     private static readonly TimeSpan AutoRerouteCooldown = TimeSpan.FromSeconds(20);
     private readonly ApiClient apiClient;
     private readonly OfflineRoutingBundleService offlineRoutingBundleService;
+    private readonly IMobileNotifier notifier;
     private CancellationTokenSource? gpsTrackingCts;
     private DateTimeOffset lastAutoRerouteAt = DateTimeOffset.MinValue;
     private string startLatitude = "44.8176";
@@ -63,10 +64,11 @@ public class NavigationViewModel : ViewModelBase
     private GeoPoint? routeDestinationPoint;
     private GeoPoint? currentLocation;
 
-    public NavigationViewModel(ApiClient apiClient, OfflineRoutingBundleService offlineRoutingBundleService)
+    public NavigationViewModel(ApiClient apiClient, OfflineRoutingBundleService offlineRoutingBundleService, IMobileNotifier notifier)
     {
         this.apiClient = apiClient;
         this.offlineRoutingBundleService = offlineRoutingBundleService;
+        this.notifier = notifier;
 
         RouteHighlights = [];
         RouteManeuvers = [];
@@ -450,6 +452,7 @@ public class NavigationViewModel : ViewModelBase
         if (permissionStatus != PermissionStatus.Granted)
         {
             OffRouteStatusText = "Location permission denied. Off-route monitoring disabled.";
+            await notifier.ShowWarningAsync(OffRouteStatusText).ConfigureAwait(false);
             return;
         }
 
@@ -499,24 +502,28 @@ public class NavigationViewModel : ViewModelBase
         if (!TryParseCoordinate(StartLatitude, out var startLat) || !TryParseCoordinate(StartLongitude, out var startLon))
         {
             ErrorMessage = "Start coordinate is invalid.";
+            await notifier.ShowWarningAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }
 
         if (!TryParseCoordinate(DestinationLatitude, out var destinationLat) || !TryParseCoordinate(DestinationLongitude, out var destinationLon))
         {
             ErrorMessage = "Destination coordinate is invalid.";
+            await notifier.ShowWarningAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }
 
         if (!IsValidLatitude(startLat) || !IsValidLatitude(destinationLat) || !IsValidLongitude(startLon) || !IsValidLongitude(destinationLon))
         {
             ErrorMessage = "Coordinates are outside valid latitude/longitude ranges.";
+            await notifier.ShowWarningAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }
 
         if (string.IsNullOrWhiteSpace(Profile))
         {
             ErrorMessage = "Profile is required.";
+            await notifier.ShowWarningAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }
 
@@ -526,6 +533,7 @@ public class NavigationViewModel : ViewModelBase
         if (string.Equals(effectiveMode, "offline", StringComparison.OrdinalIgnoreCase) && !OfflineRoutingAvailable)
         {
             ErrorMessage = "Offline mode is selected but no installed routing bundle is available.";
+            await notifier.ShowWarningAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }
 
@@ -546,6 +554,7 @@ public class NavigationViewModel : ViewModelBase
                 CancellationToken.None).ConfigureAwait(false);
 
             await MainThread.InvokeOnMainThreadAsync(() => ApplyRoute(response, requestStart.Lat, requestStart.Lon, destinationLat, destinationLon));
+            await notifier.ShowSuccessAsync(autoReroute ? "Route rerouted from current location." : "Route calculated successfully.").ConfigureAwait(false);
         }
         catch (HttpRequestException ex)
         {
@@ -554,6 +563,8 @@ public class NavigationViewModel : ViewModelBase
                 ErrorMessage = ex.Message;
                 StatusText = "Route request failed.";
             });
+
+            await notifier.ShowErrorAsync("Route request failed. Check network/API availability.").ConfigureAwait(false);
         }
         catch (InvalidOperationException ex)
         {
@@ -562,6 +573,8 @@ public class NavigationViewModel : ViewModelBase
                 ErrorMessage = ex.Message;
                 StatusText = "Route response is invalid.";
             });
+
+            await notifier.ShowErrorAsync("Route response is invalid.").ConfigureAwait(false);
         }
         finally
         {
@@ -574,6 +587,7 @@ public class NavigationViewModel : ViewModelBase
         if (CurrentLocation is null)
         {
             ErrorMessage = "Current GPS location is unavailable for reroute.";
+            await notifier.ShowInfoAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }
 

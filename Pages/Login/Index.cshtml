@@ -17,8 +17,8 @@
     <link rel="stylesheet" href="~/css/promap.css" asp-append-version="true" />
 
 </head>
-<body class="pm-login-page">
-<div>
+<body class="pm-page">
+<div class="pm-login-decor-layer">
 
     <div class="pm-login-route route-a"></div>
     <div class="pm-login-route route-b"></div>
@@ -183,11 +183,11 @@
 
 </div>
 
-@if (TempData["Toast.Success"] is string toastSuccess)
+@if (TempData["ToastSuccess"] is string toastSuccess)
 {
     <div id="pm-server-toast" data-toast-type="success" hidden>@toastSuccess</div>
 }
-@if (TempData["Toast.Error"] is string toastError)
+@if (TempData["ToastError"] is string toastError)
 {
     <div id="pm-server-toast" data-toast-type="danger" hidden>@toastError</div>
 }

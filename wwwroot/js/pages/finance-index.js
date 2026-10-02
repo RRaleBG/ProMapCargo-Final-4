@@ -2,7 +2,7 @@
 
     "use strict";
 
-    const page = document.querySelector(".pm-finance-page");
+    const page = document.querySelector('[data-module="finance"]');
 
     if (!page) {
         return;

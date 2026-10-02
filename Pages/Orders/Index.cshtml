@@ -24,7 +24,7 @@
                 <small>Osveži</small>
             </button>
 
-            <a class="pm-btn primary" href="/orders/new" id="newOrder">
+            <a class="pm-btn pm-btn-primary" href="/orders/new" id="newOrder">
                 <span> <i data-lucide="plus" class="compliance-kpi-icon" width="18" height="18"></i> </span>
                 <small>Novi nalog</small>
             </a>
@@ -33,7 +33,7 @@
 
 
        
-    <section class="pm-orders-kpis">
+    <section class="pm-orders-kpis pm-kpi-grid">
 
             <article class="pm-kpi">
 
@@ -157,23 +157,23 @@
 
         </section>
 
-    <section class="pm-orders-filter-card">
+    <section class="pm-orders-filter-card pm-panel">
 
-            <div class="pm-orders-filter-head">
+            <div class="pm-orders-filter-head pm-toolbar">
 
                 <div>
 
-                    <div class="pm-orders-filter-title">
+                    <div class="pm-orders-filter-title pm-panel-title">
                         Pretraga i filteri
                     </div>
 
-                    <div class="pm-orders-filter-subtitle">
+                    <div class="pm-orders-filter-subtitle pm-panel-subtitle">
                         Filtriraj naloge prema kupcu, relaciji, statusu i datumu
                     </div>
 
                 </div>
 
-                <button type="button" class="pm-orders-filter-reset" id="resetFilters">
+                <button type="button" class="pm-orders-filter-reset pm-btn pm-btn-ghost" id="resetFilters">
                     Resetuj filtere
                 </button>
 
@@ -183,22 +183,22 @@
 
                 <div class="pm-orders-field">
 
-                    <label class="pm-orders-label" for="orderSearch">
+                    <label class="pm-orders-label pm-label" for="orderSearch">
                         Pretraga
                     </label>
 
-                    <input id="orderSearch" class="pm-orders-input" type="search"
+                    <input id="orderSearch" class="pm-orders-input pm-input" type="search"
                            placeholder="ID naloga, kupac, referenca..." autocomplete="off" />
 
                 </div>
 
                 <div class="pm-orders-field">
 
-                    <label class="pm-orders-label" for="orderCustomer">
+                    <label class="pm-orders-label pm-label" for="orderCustomer">
                         Kupac
                     </label>
 
-                    <select id="orderCustomer" class="pm-orders-select">
+                    <select id="orderCustomer" class="pm-orders-select pm-select">
 
                         <option value="">Svi kupci</option>
                         <option value="ACME Logistics">ACME Logistics</option>
@@ -213,11 +213,11 @@
 
                 <div class="pm-orders-field">
 
-                    <label class="pm-orders-label" for="orderPickup">
+                    <label class="pm-orders-label pm-label" for="orderPickup">
                         Pickup
                     </label>
 
-                    <select id="orderPickup" class="pm-orders-select">
+                    <select id="orderPickup" class="pm-orders-select pm-select">
 
                         <option value="">Sve lokacije</option>
                         <option value="Beograd">Beograd</option>
@@ -232,11 +232,11 @@
 
                 <div class="pm-orders-field">
 
-                    <label class="pm-orders-label" for="orderStatus">
+                    <label class="pm-orders-label pm-label" for="orderStatus">
                         Status
                     </label>
 
-                    <select id="orderStatus" class="pm-orders-select">
+                    <select id="orderStatus" class="pm-orders-select pm-select">
 
                         <option value="">Svi statusi</option>
                         <option value="in-transit">In Transit</option>
@@ -251,11 +251,11 @@
 
                 <div class="pm-orders-field">
 
-                    <label class="pm-orders-label" for="orderDate">
+                    <label class="pm-orders-label pm-label" for="orderDate">
                         Datum
                     </label>
 
-                    <select id="orderDate" class="pm-orders-select">
+                    <select id="orderDate" class="pm-orders-select pm-select">
 
                         <option value="">Svi datumi</option>
                         <option value="today">Danas</option>
@@ -266,7 +266,7 @@
 
                 </div>
 
-                <button type="button" class="pm-orders-btn primary pm-orders-filter-action" id="applyFilters">
+                <button type="button" class="pm-orders-filter-action pm-btn pm-btn-primary" id="applyFilters">
 
                     Primeni
 
@@ -274,9 +274,9 @@
 
             </div>
 
-            <div class="pm-orders-status-row">
+            <div class="pm-orders-status-row pm-filter-group">
 
-                <button type="button" class="pm-orders-status-chip active" data-status="all">
+                <button type="button" class="pm-orders-status-chip pm-filter-btn active" data-status="all">
 
                     Svi
 
@@ -286,7 +286,7 @@
 
                 </button>
 
-                <button type="button" class="pm-orders-status-chip" data-status="planned">
+                <button type="button" class="pm-orders-status-chip pm-filter-btn" data-status="planned">
 
                     Planned
 
@@ -296,7 +296,7 @@
 
                 </button>
 
-                <button type="button" class="pm-orders-status-chip" data-status="loading">
+                <button type="button" class="pm-orders-status-chip pm-filter-btn" data-status="loading">
 
                     Loading
 
@@ -306,7 +306,7 @@
 
                 </button>
 
-                <button type="button" class="pm-orders-status-chip" data-status="in-transit">
+                <button type="button" class="pm-orders-status-chip pm-filter-btn" data-status="in-transit">
 
                     In Transit
 
@@ -316,7 +316,7 @@
 
                 </button>
 
-                <button type="button" class="pm-orders-status-chip" data-status="delivered">
+                <button type="button" class="pm-orders-status-chip pm-filter-btn" data-status="delivered">
 
                     Delivered
 
@@ -326,7 +326,7 @@
 
                 </button>
 
-                <button type="button" class="pm-orders-status-chip" data-status="delayed">
+                <button type="button" class="pm-orders-status-chip pm-filter-btn" data-status="delayed">
 
                     Delayed
 
@@ -342,9 +342,9 @@
 
     <section class="pm-orders-main-grid">
 
-            <article class="pm-orders-table-card">
+            <article class="pm-orders-table-card pm-panel">
 
-                <div class="pm-orders-table-head">
+                <div class="pm-orders-table-head pm-panel-heading">
 
                     <div>
 
@@ -368,7 +368,7 @@
 
                 </div>
 
-                <div class="pm-orders-table-scroll">
+                <div class="pm-orders-table-scroll pm-panel-body">
 
                     <table class="pm-orders-table">
 
@@ -1118,39 +1118,39 @@
 
                 </div>
 
-                <div class="pm-orders-pagination">
+                <div class="pm-orders-pagination pm-toolbar">
 
                     <div class="pm-orders-pagination-info">
                         Prikaz 1–5 od 128 naloga
                     </div>
 
-                    <div class="pm-orders-pagination-actions">
+                    <div class="pm-orders-pagination-actions pm-filter-group">
 
-                        <button type="button" class="pm-orders-page-btn">
+                        <button type="button" class="pm-pagination-btn">
                             ‹
                         </button>
 
-                        <button type="button" class="pm-orders-page-btn active">
+                        <button type="button" class="pm-pagination-btn active">
                             1
                         </button>
 
-                        <button type="button" class="pm-orders-page-btn">
+                        <button type="button" class="pm-pagination-btn">
                             2
                         </button>
 
-                        <button type="button" class="pm-orders-page-btn">
+                        <button type="button" class="pm-pagination-btn">
                             3
                         </button>
 
-                        <button type="button" class="pm-orders-page-btn">
+                        <button type="button" class="pm-pagination-btn">
                             …
                         </button>
 
-                        <button type="button" class="pm-orders-page-btn">
+                        <button type="button" class="pm-pagination-btn">
                             26
                         </button>
 
-                        <button type="button" class="pm-orders-page-btn">
+                        <button type="button" class="pm-pagination-btn">
                             ›
                         </button>
 
@@ -1160,9 +1160,9 @@
 
             </article>
 
-            <aside class="pm-orders-detail-card">
+            <aside class="pm-orders-detail-card pm-panel">
 
-                <div class="pm-orders-detail-head">
+                <div class="pm-orders-detail-head pm-panel-heading">
 
                     <div class="pm-orders-detail-kicker">
                         Selected order
@@ -1186,11 +1186,11 @@
 
                 </div>
 
-                <div class="pm-orders-detail-body">
+                <div class="pm-orders-detail-body pm-panel-body">
 
                     <section class="pm-orders-detail-section">
 
-                        <div class="pm-orders-detail-section-title">
+                        <div class="pm-orders-detail-section-title pm-panel-title">
                             Transport route
                         </div>
 
@@ -1240,7 +1240,7 @@
 
                     <section class="pm-orders-detail-section">
 
-                        <div class="pm-orders-detail-section-title">
+                        <div class="pm-orders-detail-section-title pm-panel-title">
                             Cargo
                         </div>
 
@@ -1300,7 +1300,7 @@
 
                     <section class="pm-orders-detail-section">
 
-                        <div class="pm-orders-detail-section-title">
+                        <div class="pm-orders-detail-section-title pm-panel-title">
                             Execution
                         </div>
 
@@ -1360,11 +1360,11 @@
 
                     <section class="pm-orders-detail-section">
 
-                        <div class="pm-orders-detail-section-title">
+                        <div class="pm-orders-detail-section-title pm-panel-title">
                             Actions
                         </div>
 
-                        <div class="pm-orders-detail-actions">
+                        <div class="pm-orders-detail-actions pm-card-actions pm-filter-group">
 
                             <a href="/trips" class="pm-orders-btn primary">
                                 Otvori turu

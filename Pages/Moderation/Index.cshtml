@@ -4,7 +4,7 @@
     ViewData["Title"] = "Moderacija · ProMap Cargo";
 }
 
-<div class="pm-page pm-moderation-page" data-module="moderation">
+<div class="pm-page" data-module="moderation">
 
     <!-- HEADER -->
     <header class="moderation-header pm-page-header">
@@ -100,43 +100,43 @@
 
 
     <!-- FILTER TOOLBAR -->
-    <section class="moderation-toolbar pm-card">
+    <section class="moderation-toolbar pm-card pm-toolbar">
 
         <div class="moderation-search">
             <span>⌕</span>
 
-            <input id="moderationSearch" type="search" placeholder="Pretraži ID, vozilo, turu, operatora..."
+            <input id="moderationSearch" class="pm-search-input" type="search" placeholder="Pretraži ID, vozilo, turu, operatora..."
                    autocomplete="off" />
         </div>
 
-        <div class="moderation-filter-group">
+        <div class="moderation-filter-group pm-filter-group">
 
-            <button class="moderation-filter active" data-status="all" type="button">
+            <button class="moderation-filter pm-filter-btn active" data-status="all" type="button">
                 Svi <b>6</b>
             </button>
 
-            <button class="moderation-filter" data-status="pending" type="button">
+            <button class="moderation-filter pm-filter-btn" data-status="pending" type="button">
                 Na čekanju <b>3</b>
             </button>
 
-            <button class="moderation-filter" data-status="approved" type="button">
+            <button class="moderation-filter pm-filter-btn" data-status="approved" type="button">
                 Odobreno <b>1</b>
             </button>
 
-            <button class="moderation-filter" data-status="rejected" type="button">
+            <button class="moderation-filter pm-filter-btn" data-status="rejected" type="button">
                 Odbijeno <b>2</b>
             </button>
 
         </div>
 
-        <select id="riskFilter" class="moderation-select">
+        <select id="riskFilter" class="moderation-select pm-select">
             <option value="all">Svi rizici</option>
             <option value="high">Visok rizik</option>
             <option value="medium">Srednji rizik</option>
             <option value="low">Nizak rizik</option>
         </select>
 
-        <select id="domainFilter" class="moderation-select">
+        <select id="domainFilter" class="moderation-select pm-select">
             <option value="all">Svi domeni</option>
             <option value="routing">Routing</option>
             <option value="safety">Safety</option>
@@ -148,12 +148,12 @@
 
 
     <!-- MAIN WORKSPACE -->
-    <section class="moderation-workspace">
+    <section class="moderation-workspace pm-workspace-split">
 
         <!-- QUEUE -->
-        <div class="moderation-queue-panel pm-card">
+        <div class="moderation-queue-panel pm-card pm-panel">
 
-            <div class="panel-heading">
+            <div class="panel-heading pm-panel-heading">
 
                 <div>
                     <span class="panel-kicker">

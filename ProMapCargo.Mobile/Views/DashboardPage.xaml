@@ -4,14 +4,13 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     Title="Operations"
-    BackgroundColor="#061B17">
+    BackgroundColor="{StaticResource SurfaceBase}">
     <Grid Padding="18,24" RowDefinitions="Auto,*">
         <VerticalStackLayout Spacing="4">
             <Label
-                FontAttributes="Bold"
                 FontSize="24"
-                Text="{Binding WelcomeText}"
-                TextColor="#ECFDF5" />
+                Style="{StaticResource PmPageTitleLabel}"
+                Text="{Binding WelcomeText}" />
             <Label
                 FontSize="13"
                 Text="{Binding StatusText}"
@@ -25,12 +24,10 @@
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="0,20,0,20" Spacing="18">
                 <Button
-                    BackgroundColor="#10B981"
                     Command="{Binding RefreshCommand}"
-                    CornerRadius="14"
                     HeightRequest="50"
-                    Text="Refresh"
-                    TextColor="#031712" />
+                    Style="{StaticResource PmPrimaryButton}"
+                    Text="Refresh" />
 
                 <Border
                     Padding="16"
@@ -38,11 +35,7 @@
                     Stroke="#1C5448"
                     StrokeShape="RoundRectangle 18">
                     <VerticalStackLayout Spacing="10">
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="18"
-                            Text="ProMapCargo Quick Links"
-                            TextColor="#F8FAFC" />
+                        <Label Style="{StaticResource PmSectionTitleLabel}" Text="ProMapCargo Quick Links" />
                         <CollectionView
                             HeightRequest="300"
                             ItemsSource="{Binding QuickLinks}"

@@ -1,9 +1,11 @@
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ProMapCargo.Mobile.Models;
 using ProMapCargo.Mobile.Services;
 using ProMapCargo.Mobile.ViewModels;
 using ProMapCargo.Mobile.Views;
+using UraniumUI;
 
 namespace ProMapCargo.Mobile;
 
@@ -15,6 +17,9 @@ public static class MauiProgram
 
         builder
             .UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
+            .UseUraniumUI()
+            .UseUraniumUIMaterial()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -31,6 +36,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<TokenStore>();
         builder.Services.AddSingleton<ApiAuthHandler>();
         builder.Services.AddSingleton<MobileSessionService>();
+        builder.Services.AddSingleton<IMobileNotifier, MobileNotifier>();
         builder.Services.AddHttpClient<ApiClient>((services, client) =>
         {
             var options = services.GetRequiredService<IOptions<MobileAppOptions>>().Value;

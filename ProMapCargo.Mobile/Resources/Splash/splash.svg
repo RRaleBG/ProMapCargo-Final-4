@@ -15,19 +15,19 @@
         x2="456"
         y2="456"
         gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#061F19"/>
-      <stop offset="0.55" stop-color="#031712"/>
-      <stop offset="1" stop-color="#02100D"/>
+      <stop offset="0" stop-color="#0A2A23"/>
+      <stop offset="0.50" stop-color="#031712"/>
+      <stop offset="1" stop-color="#010C0A"/>
     </linearGradient>
 
     <radialGradient
         id="glow"
         cx="228"
-        cy="215"
-        r="170"
+        cy="210"
+        r="178"
         gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#10B981" stop-opacity="0.16"/>
-      <stop offset="0.55" stop-color="#10B981" stop-opacity="0.045"/>
+      <stop offset="0" stop-color="#34D399" stop-opacity="0.22"/>
+      <stop offset="0.52" stop-color="#10B981" stop-opacity="0.07"/>
       <stop offset="1" stop-color="#10B981" stop-opacity="0"/>
     </radialGradient>
 
@@ -75,6 +75,17 @@
       height="456"
       rx="42"
       fill="url(#bg)"/>
+
+  <rect
+      x="8"
+      y="8"
+      width="440"
+      height="440"
+      rx="36"
+      fill="none"
+      stroke="#1A584A"
+      stroke-width="1"
+      opacity="0.55"/>
 
   <rect
       x="18"
@@ -161,8 +172,8 @@
            C324 171 349 163 380 139"
       fill="none"
       stroke="#10B981"
-      stroke-width="17"
-      opacity="0.10"/>
+      stroke-width="19"
+      opacity="0.13"/>
 
   <path
       d="M78 322

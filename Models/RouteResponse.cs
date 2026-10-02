@@ -6,19 +6,19 @@ public sealed class RouteResponse
 
     public string? Message { get; init; }
 
-    public List<RouteCandidate> Routes { get; init; } = [];
+    public IReadOnlyList<RouteCandidate> Routes { get; init; } = [];
 
     public int SelectedRouteIndex { get; init; }
 
     public bool IsTruckSafe { get; init; }
 
-    public List<RestrictionViolation> Violations { get; init; } = [];
+    public IReadOnlyList<RestrictionViolation> Violations { get; init; } = [];
 
     public RouteSummary? Summary { get; init; }
 
     public RouteDiagnostics Diagnostics { get; init; } = new();
 
-    public List<RouteManeuverDto> Maneuvers { get; init; } = [];
+    public IReadOnlyList<RouteManeuverDto> Maneuvers { get; init; } = [];
 }
 
 public sealed class RouteCandidate
@@ -40,7 +40,7 @@ public sealed class RouteAnalysis
 
     public int Score { get; init; }
 
-    public List<RestrictionViolation> Violations { get; init; } = [];
+    public IReadOnlyList<RestrictionViolation> Violations { get; init; } = [];
 
     public RouteDebug? Debug { get; init; }
 }
@@ -55,7 +55,7 @@ public sealed class RouteDebug
 
     public int TraversalCount { get; init; }
 
-    public List<string> Highlights { get; init; } = [];
+    public IReadOnlyList<string> Highlights { get; init; } = [];
 }
 
 public sealed class RestrictionViolation
@@ -92,7 +92,7 @@ public sealed class RouteDiagnostics
 
     public int TraversalCount { get; set; }
 
-    public List<string> Highlights { get; set; } = [];
+    public IReadOnlyList<string> Highlights { get; set; } = [];
 }
 
 public sealed record RouteManeuverDto(

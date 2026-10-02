@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+	<linearGradient id="wave" x1="0" y1="0" x2="1" y2="1">
+	  <stop offset="0%" stop-color="#34D399"/>
+	  <stop offset="100%" stop-color="#2DD4BF"/>
+	</linearGradient>
+  </defs>
+  <path d="M14 37V27H24L34 18V46L24 37H14Z" fill="#ECFDF5"/>
+  <path d="M41 24C44 27 45.5 29.5 45.5 32C45.5 34.5 44 37 41 40" fill="none" stroke="url(#wave)" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M47 19C51.5 24 54 28 54 32C54 36 51.5 40 47 45" fill="none" stroke="url(#wave)" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="32" cy="32" r="26" fill="none" stroke="#1C5448" stroke-width="2"/>
+</svg>

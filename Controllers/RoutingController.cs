@@ -189,6 +189,23 @@ public sealed class RoutingController(
             postGisResult.Diagnostics.FailureReason
         );
 
+        if (!ShouldUseOsrmFallback(postGisResult))
+        {
+            logger.LogWarning(
+                "OSRM fallback skipped. PostGIS failure is not eligible. Code={Code} FailureReason={FailureReason}",
+                postGisResult.Code,
+                postGisResult.Diagnostics.FailureReason);
+
+            return StatusCode(
+                StatusCodes.Status422UnprocessableEntity,
+                new
+                {
+                    code = postGisResult.Code,
+                    message = postGisResult.Message ?? "PostGIS routing failed and fallback is not eligible for this failure type.",
+                    diagnostics = postGisResult.Diagnostics
+                });
+        }
+
         /*
          * ============================================================
          * 2. FALLBACK ENGINE: OSRM
@@ -202,6 +219,11 @@ public sealed class RoutingController(
 
         try
         {
+            logger.LogInformation(
+                "OSRM fallback started. TriggerCode={TriggerCode} TriggerReason={TriggerReason}",
+                postGisResult.Code,
+                postGisResult.Diagnostics.FailureReason);
+
             osrm =
                 await legacy.RouteAsync(
                     normalizedRequest,
@@ -484,6 +506,23 @@ public sealed class RoutingController(
         );
 
         return Ok(response);
+    }
+
+    private static bool ShouldUseOsrmFallback(RouteResponse postGisResult)
+    {
+        var code = postGisResult.Code;
+
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return false;
+        }
+
+        return code.Equals("NoGraph", StringComparison.OrdinalIgnoreCase)
+               || code.Equals("GraphError", StringComparison.OrdinalIgnoreCase)
+               || code.Equals("RoutingError", StringComparison.OrdinalIgnoreCase)
+               || code.Equals("NoPath", StringComparison.OrdinalIgnoreCase)
+               || code.Equals("SnapFailed", StringComparison.OrdinalIgnoreCase)
+               || code.Equals("InvalidRouteGeometry", StringComparison.OrdinalIgnoreCase);
     }
 
     private static RouteResponse BuildEmergencyFallbackResponse(

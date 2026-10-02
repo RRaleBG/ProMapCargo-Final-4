@@ -3,21 +3,21 @@
     ViewData["Title"] = "Monitoring · ProMap Cargo";
 }
 
-<div class="pm-page pm-monitoring-page" data-module="monitoring">
+<div class="pm-page" data-module="monitoring">
       
 
     <div class="monitoring-shell">
-        <header class="monitoring-header">
+        <header class="monitoring-header pm-header pm-page-header">
             <div> </div>
-            <div class="monitoring-header-actions">
+            <div class="monitoring-header-actions pm-header-actions">
                 <div id="monitoringLiveBadge" class="monitoring-live">
                     <span class="monitoring-live-dot"></span>
                     <span id="monitoringLiveText">LIVE CONNECTING</span>
                 </div>
-                <button id="refreshMonitoring" class="monitoring-btn" type="button">
+                <button id="refreshMonitoring" class="monitoring-btn pm-btn" type="button">
                     ↻ Osveži
                 </button>
-                <button id="fitMonitoringMap" class="monitoring-btn" type="button">
+                <button id="fitMonitoringMap" class="monitoring-btn pm-btn" type="button">
                     ⌖ Cela flota
                 </button>
             </div>
@@ -73,11 +73,11 @@
 
         </section>
 
-        <div class="monitoring-main">
+        <div class="monitoring-main pm-workspace-split">
 
-            <section class="monitoring-map-card">
+            <section class="monitoring-map-card pm-panel">
 
-                <div class="monitoring-card-header">
+                <div class="monitoring-card-header pm-panel-heading">
 
                     <div class="monitoring-map-title">
                         <strong>Fleet Map</strong>
@@ -93,17 +93,17 @@
                 <div id="monitoringMap" class="pm-map" data-map-archive="/maps/serbia.pmtiles" data-map-max-zoom="18">
                 </div>
 
-                <div class="monitoring-map-controls">
+                <div class="monitoring-map-controls pm-map-controls">
 
-                    <button id="centerSerbia" class="monitoring-map-control" type="button">
+                    <button id="centerSerbia" class="monitoring-map-control pm-map-control pm-btn pm-btn-secondary" type="button">
                         Srbija
                     </button>
 
-                    <button id="fitFleet" class="monitoring-map-control" type="button">
+                    <button id="fitFleet" class="monitoring-map-control pm-map-control pm-btn pm-btn-secondary" type="button">
                         Cela flota
                     </button>
 
-                    <button id="toggleDarkMap" class="monitoring-map-control" type="button">
+                    <button id="toggleDarkMap" class="monitoring-map-control pm-map-control pm-btn pm-btn-secondary" type="button">
                         Evropa mapa
                     </button>
 
@@ -139,9 +139,9 @@
 
             <aside class="monitoring-side">
 
-                <section class="monitoring-side-card">
+                <section class="monitoring-side-card pm-panel">
 
-                    <div class="monitoring-section-head">
+                    <div class="monitoring-section-head pm-panel-heading">
                         <h2 class="monitoring-section-title">
                             Live Fleet
                         </h2>
@@ -151,21 +151,21 @@
                         </span>
                     </div>
 
-                    <div class="monitoring-filters">
+                    <div class="monitoring-filters pm-filter-group">
 
-                        <button type="button" class="monitoring-filter active" data-filter="all">
+                        <button type="button" class="monitoring-filter pm-filter-btn active" data-filter="all">
                             Sva
                         </button>
 
-                        <button type="button" class="monitoring-filter" data-filter="moving">
+                        <button type="button" class="monitoring-filter pm-filter-btn" data-filter="moving">
                             Vožnja
                         </button>
 
-                        <button type="button" class="monitoring-filter" data-filter="idle">
+                        <button type="button" class="monitoring-filter pm-filter-btn" data-filter="idle">
                             Idle
                         </button>
 
-                        <button type="button" class="monitoring-filter" data-filter="offline">
+                        <button type="button" class="monitoring-filter pm-filter-btn" data-filter="offline">
                             Offline
                         </button>
 
@@ -175,9 +175,9 @@
 
                 </section>
 
-                <section class="monitoring-side-card monitoring-detail-card">
+                <section class="monitoring-side-card monitoring-detail-card pm-panel">
 
-                    <div class="monitoring-section-head">
+                    <div class="monitoring-section-head pm-panel-heading">
                         <h2 class="monitoring-section-title">
                             Vehicle telemetry
                         </h2>
@@ -203,9 +203,9 @@
 
                 </section>
 
-                <section class="monitoring-side-card">
+                <section class="monitoring-side-card pm-panel">
 
-                    <div class="monitoring-section-head">
+                    <div class="monitoring-section-head pm-panel-heading">
                         <h2 class="monitoring-section-title">
                             Operativni alerts
                         </h2>

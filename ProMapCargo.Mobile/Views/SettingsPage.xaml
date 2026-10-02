@@ -7,17 +7,9 @@
     BackgroundColor="#061B17">
     <ScrollView>
         <VerticalStackLayout Padding="18,22" Spacing="14">
-            <Label
-                FontAttributes="Bold"
-                FontSize="28"
-                Text="Settings"
-                TextColor="#ECFDF5" />
+            <Label Style="{StaticResource PmPageTitleLabel}" Text="Settings" />
 
-            <Border
-                Padding="14"
-                BackgroundColor="#0B2D26"
-                Stroke="#1C5448"
-                StrokeShape="RoundRectangle 14">
+            <Border Padding="14" Style="{StaticResource PmCardBorder}">
                 <VerticalStackLayout Spacing="10">
                     <Label
                         FontAttributes="Bold"
@@ -30,7 +22,7 @@
                             TextColor="#ECFDF5"
                             VerticalOptions="Center" />
                         <Switch
-                            HorizontalOptions="EndAndExpand"
+                            HorizontalOptions="End"
                             IsToggled="{Binding UseDarkTheme}"
                             OnColor="#10B981" />
                     </HorizontalStackLayout>
@@ -40,7 +32,7 @@
                             TextColor="#ECFDF5"
                             VerticalOptions="Center" />
                         <Switch
-                            HorizontalOptions="EndAndExpand"
+                            HorizontalOptions="End"
                             IsToggled="{Binding CompactNavigationLayout}"
                             OnColor="#10B981" />
                     </HorizontalStackLayout>
@@ -64,15 +56,15 @@
                             TextColor="#ECFDF5"
                             VerticalOptions="Center" />
                         <Switch
-                            HorizontalOptions="EndAndExpand"
+                            HorizontalOptions="End"
                             IsToggled="{Binding EnableOfflineRoutingFeatures}"
                             OnColor="#10B981" />
                     </HorizontalStackLayout>
                     <Button
                         BackgroundColor="#0EA5E9"
                         Command="{Binding OpenMapManagementCommand}"
-                        CornerRadius="12"
                         HeightRequest="42"
+                        Style="{StaticResource PmSecondaryButton}"
                         Text="Open map &amp; bundle manager"
                         TextColor="White" />
                 </VerticalStackLayout>

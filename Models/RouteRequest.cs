@@ -4,6 +4,8 @@ namespace ProMapCargo.Api.Models;
 
 public sealed class RouteRequest
 {
+    private static readonly GeoPoint EmptyPoint = new(0, 0);
+
     [JsonPropertyName("start")]
     public GeoPoint? Start { get; init; }
 
@@ -45,7 +47,7 @@ public sealed class RouteRequest
         Start
         ?? (StartLat.HasValue && StartLon.HasValue
             ? new GeoPoint(StartLat.Value, StartLon.Value)
-            : new GeoPoint(0, 0));
+            : EmptyPoint);
 
     [JsonIgnore]
     public GeoPoint Target =>
@@ -53,7 +55,7 @@ public sealed class RouteRequest
         ?? End
         ?? (EndLat.HasValue && EndLon.HasValue
             ? new GeoPoint(EndLat.Value, EndLon.Value)
-            : new GeoPoint(0, 0));
+            : EmptyPoint);
 
     [JsonIgnore]
     public TruckProfile? ResolvedTruck => Truck ?? TruckProfile;

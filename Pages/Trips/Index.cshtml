@@ -4,37 +4,28 @@
     ViewData["Title"] = "Ture";
 }
 
-<div id="tripsPage" data-module="trips"
-     class="pm-page pm-trips-page">
-
-    <header
-        class="pm-page-header pm-header pm-trip-header">
+<div id="tripsPage" data-module="trips" class="pm-page">
+    <header class="pm-page-header pm-header pm-trip-header">
         <div class="pm-trip-heading">
-            <div
-                class="pm-page-kicker pm-trip-kicker">
-                Operacije
-                flote</div>
-                <h1 class="pm-page-title pm-trip-title">Sve ture</h1>
+            <div class="pm-page-kicker pm-trip-kicker"> Operacije flote</div>
+                <h1 class="pm-page-title pm-trip-title"></h1>
                 <p class="pm-page-subtitle pm-trip-subtitle">Pregled statusa, dodela, napretka i
                     poslednje GPS aktivnosti.
                 </p>
             </div>
-            <button id="refreshTrips" type="button"
-                    class="pm-btn pm-btn--secondary pm-trip-refresh">
+            <button id="refreshTrips" type="button" class="pm-btn pm-btn--secondary pm-trip-refresh">
                 <i data-lucide="refresh-cw" aria-hidden="true"></i> Osveži ture
             </button>
         </header>
 
-        <section aria-label="Sažetak tura"
-                 class="pm-trip-kpis">
+        <section aria-label="Sažetak tura" class="pm-trip-kpis pm-kpi-grid">
             <article class="pm-kpi">
                 <div class="pm-trip-kpi-label">Ukupno tura</div>
                 <strong data-trip-kpi="total" class="pm-trip-kpi-value">—</strong>
             </article>
             <article class="pm-kpi pm-kpi--success">
                 <div class="pm-trip-kpi-label">Aktivne</div>
-                <strong data-trip-kpi="active"
-                        class="pm-trip-kpi-value pm-trip-kpi-value--active">—</strong>
+                <strong data-trip-kpi="active" class="pm-trip-kpi-value pm-trip-kpi-value--active">—</strong>
             </article>
             <article class="pm-kpi pm-kpi--info">
                 <div class="pm-trip-kpi-label">Planirane</div>
@@ -42,103 +33,92 @@
             </article>
             <article class="pm-kpi">
                 <div class="pm-trip-kpi-label">Završene</div>
-                <strong data-trip-kpi="completed"
-                        class="pm-trip-kpi-value">—</strong>
+                <strong data-trip-kpi="completed" class="pm-trip-kpi-value">—</strong>
             </article>
         </section>
 
-        <div
-            class="pm-trip-layout">
-            <aside aria-label="Filteri tura"
-                   class="pm-card pm-trip-filters">
+        <div class="pm-trip-layout">
+            <aside aria-label="Filteri tura" class="pm-card pm-trip-filters pm-panel">
                 <div>
-                    <h2 class="pm-trip-filter-title">Status ture
-                    </h2>
-                    <nav class="pm-trip-filter-nav"
-                         aria-label="Filtriraj po statusu">
-                        <button type="button" data-trip-filter="all" aria-pressed="true"
-                                class="pm-trip-filter pm-trip-filter--active">
+                     <h2 class="pm-trip-filter-title">Status ture  </h2>
+                    <nav class="pm-trip-filter-nav pm-filter-group" aria-label="Filtriraj po statusu">
+                        <button type="button" data-trip-filter="all" aria-pressed="true" class="pm-trip-filter pm-trip-filter--active pm-filter-btn">
                             Sve ture <span data-trip-filter-count="all"
                                            class="pm-trip-filter-count">—</span>
                         </button>
                         <button type="button" data-trip-filter="active" aria-pressed="false"
-                                class="pm-trip-filter">
+                                class="pm-trip-filter pm-filter-btn">
                             Aktivne <span data-trip-filter-count="active"
                                           class="pm-trip-filter-count">—</span>
                         </button>
                         <button type="button" data-trip-filter="planned" aria-pressed="false"
-                                class="pm-trip-filter">
+                                class="pm-trip-filter pm-filter-btn">
                             Planirane <span data-trip-filter-count="planned"
                                             class="pm-trip-filter-count">—</span>
                         </button>
                         <button type="button" data-trip-filter="paused" aria-pressed="false"
-                                class="pm-trip-filter">
+                                class="pm-trip-filter pm-filter-btn">
                             Pauzirane <span data-trip-filter-count="paused"
                                             class="pm-trip-filter-count">—</span>
                         </button>
                         <button type="button" data-trip-filter="completed" aria-pressed="false"
-                                class="pm-trip-filter">
+                                class="pm-trip-filter pm-filter-btn">
                             Završene <span data-trip-filter-count="completed"
                                            class="pm-trip-filter-count">—</span>
                         </button>
                         <button type="button" data-trip-filter="cancelled" aria-pressed="false"
-                                class="pm-trip-filter">
+                                class="pm-trip-filter pm-filter-btn">
                             Otkazane <span data-trip-filter-count="cancelled"
                                            class="pm-trip-filter-count">—</span>
                         </button>
                     </nav>
                 </div>
-                <div
-                    class="pm-trip-live-note">
+                <div class="pm-trip-live-note">
                     <div class="pm-trip-live-note-title">Podaci u realnom vremenu</div>
                     <p class="pm-trip-live-note-text">Prikaz koristi ture i dodele
                         iz sistema. GPS status se računa prema poslednjem primljenom signalu.</p>
                     </div>
-                </aside>
+            </aside>
 
-                <section aria-label="Lista svih tura" class="pm-card pm-trip-list">
-                    <header
-                        class="pm-trip-list-header">
+                <section aria-label="Lista svih tura" class="pm-card pm-trip-list pm-panel">
+                    <header class="pm-trip-list-header pm-toolbar pm-panel-heading">
                         <div>
                             <h2 class="pm-trip-list-title">Evidencija tura</h2>
-                            <p class="pm-trip-list-subtitle"><span
-                                id="tripsResultCount">Učitavanje…</span> · poslednjih do 500 tura</p>
-                            </div>
-                            <label
-                                class="pm-trip-search">
-                                <span aria-hidden="true" class="pm-trip-search-icon">⌕</span>
-                                <span class="pm-sr-only">Pretraži ture</span>
-                                <input id="tripsSearch" type="search" autocomplete="off"
-                                       placeholder="Tura, nalog, vozač ili vozilo…"
-                                        />
-                            </label>
-                        </header>
+                            <p class="pm-trip-list-subtitle">
+                                <span id="tripsResultCount">Učitavanje…</span> · poslednjih do 500 tura
+                            </p>
+                         </div>
+                        <label class="pm-trip-search">
+                            <span aria-hidden="true" class="pm-trip-search-icon">⌕</span>
+                            <span class="pm-sr-only">Pretraži ture</span>
+                            <input id="tripsSearch" class="pm-search-input" type="search" autocomplete="off"  placeholder="Tura, nalog, vozač ili vozilo…"/>
+                        </label>
+                    </header>
 
-                        <div id="tripsError" role="alert" hidden
-                             class="pm-trip-error">
-                        </div>
-                        <div class="pm-trip-table-wrap">
-                            <table class="pm-trip-table">
-                                <thead class="pm-trip-table-head">
-                                    <tr
-                                        >
-                                        <th scope="col" >Tura / nalog</th>
-                                        <th scope="col" >Status</th>
-                                        <th scope="col" >Vozač / vozilo</th>
-                                        <th scope="col" >Napredak</th>
-                                        <th scope="col" >Ruta</th>
-                                        <th scope="col" >Poslednji GPS</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tripsRows" class="pm-trip-table-body">
-                                    <tr>
-                                        <td colspan="6" class="pm-trip-empty">Učitavanje tura…
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-                </div>
+                    <div id="tripsError" role="alert" hidden class="pm-trip-error"> </div>
+
+                    <div class="pm-trip-table-wrap">
+                        <table class="pm-trip-table">
+                            <thead class="pm-trip-table-head">
+                                <tr>
+                                    <th scope="col" >Tura / nalog</th>
+                                    <th scope="col" >Status</th>
+                                    <th scope="col" >Vozač / vozilo</th>
+                                    <th scope="col" >Napredak</th>
+                                    <th scope="col" >Ruta</th>
+                                    <th scope="col" >Poslednji GPS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tripsRows" class="pm-trip-table-body">
+                                <tr>
+                                    <td colspan="6" class="pm-trip-empty">Učitavanje tura…
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
             </div>
+        </div>
         

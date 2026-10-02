@@ -1,27 +1,26 @@
-﻿using Microsoft.Maui.ApplicationModel;
-using ProMapCargo.Mobile.Services;
+﻿using ProMapCargo.Mobile.Services;
 
 namespace ProMapCargo.Mobile;
 
 public partial class App : Application
 {
-	private readonly OfflineMapService offlineMapService;
-	private readonly AppShell appShell;
-	private bool initialNavigationApplied;
+    private readonly OfflineMapService offlineMapService;
+    private readonly AppShell appShell;
+    private bool initialNavigationApplied;
 
-	public App(OfflineMapService offlineMapService, AppShell appShell)
-	{
-		InitializeComponent();
-		this.offlineMapService = offlineMapService;
-		this.appShell = appShell;
-	}
+    public App(OfflineMapService offlineMapService, AppShell appShell)
+    {
+        InitializeComponent();
+        this.offlineMapService = offlineMapService;
+        this.appShell = appShell;
+    }
 
-	protected override Window CreateWindow(IActivationState? activationState)
-	{
-		var window = new Window(appShell);
-		window.Created += HandleWindowCreated;
-		return window;
-	}
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+        var window = new Window(appShell);
+        window.Created += HandleWindowCreated;
+        return window;
+    }
 
     private async void HandleWindowCreated(object? sender, EventArgs e)
     {

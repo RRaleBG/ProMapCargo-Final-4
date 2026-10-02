@@ -4,21 +4,18 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     Title="Navigacija"
-    BackgroundColor="#031712"
+    BackgroundColor="{StaticResource SurfaceBase}"
     Shell.NavBarIsVisible="False">
-    <Grid BackgroundColor="#031712" RowDefinitions="*">
-        <!--  ProMap Cargo navigation is rendered by the web application. MAUI: - hosts WebView - handles native lifecycle - provides GPS / permissions - provides native bridge / TTS when required WEB: - map - route planning - truck profile - route calculation - navigation - maneuvers - ETA - KRENI - rerouting - PMTiles / OSM / PostGIS / OSRM  -->
+    <Grid BackgroundColor="{StaticResource SurfaceBase}">
         <WebView
             x:Name="NavigationWebView"
-            Grid.Row="0"
-            BackgroundColor="#031712"
+            BackgroundColor="{StaticResource SurfaceBase}"
             HorizontalOptions="Fill"
             VerticalOptions="Fill" />
-        <!--  Native loading screen shown only while WebView initializes.  -->
+
         <Grid
             x:Name="LoadingOverlay"
-            Grid.Row="0"
-            BackgroundColor="#031712"
+            BackgroundColor="#D9031712"
             InputTransparent="False"
             IsVisible="True"
             ZIndex="100">
@@ -28,26 +25,187 @@
                 VerticalOptions="Center">
                 <Border
                     Padding="14"
-                    BackgroundColor="#061F19"
                     HeightRequest="64"
-                    Stroke="#10B981"
-                    StrokeShape="RoundRectangle 18"
-                    StrokeThickness="1"
+                    Style="{StaticResource PmMapGlassCard}"
                     WidthRequest="64">
                     <ActivityIndicator IsRunning="True" Color="#10B981" />
                 </Border>
                 <Label
-                    FontAttributes="Bold"
                     FontSize="17"
                     HorizontalTextAlignment="Center"
-                    Text="ProMap Cargo"
-                    TextColor="#F8FAFC" />
+                    Style="{StaticResource PmSectionTitleLabel}"
+                    Text="ProMap Cargo" />
                 <Label
                     FontSize="11"
                     HorizontalTextAlignment="Center"
                     Text="Pokretanje truck navigacije..."
                     TextColor="#94A3B8" />
             </VerticalStackLayout>
+        </Grid>
+
+        <Grid
+            Padding="16,14,16,20"
+            InputTransparent="True"
+            RowDefinitions="Auto,*,Auto"
+            ZIndex="20">
+            <Border
+                Grid.Row="0"
+                InputTransparent="False"
+                StrokeShape="RoundRectangle 16"
+                Style="{StaticResource PmMapGlassCard}">
+                <Grid
+                    ColumnDefinitions="*,Auto"
+                    RowDefinitions="Auto,Auto"
+                    RowSpacing="4">
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Style="{StaticResource PmSectionTitleLabel}"
+                        Text="{Binding NextManeuverInstruction}" />
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        HorizontalOptions="End"
+                        Style="{StaticResource PmMapBadgeLabel}"
+                        Text="{Binding RouteEngine}" />
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        FontSize="12"
+                        Text="{Binding NextManeuverDistanceText}"
+                        TextColor="#A7F3D0" />
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        FontSize="11"
+                        HorizontalOptions="End"
+                        Text="{Binding CurrentLocationText}"
+                        TextColor="#94A3B8" />
+                </Grid>
+            </Border>
+
+            <Grid
+                Grid.Row="2"
+                InputTransparent="False">
+                <VerticalStackLayout
+                    HorizontalOptions="End"
+                    Spacing="10">
+                    <ImageButton
+                        x:Name="RecenterButton"
+                        Command="{Binding RerouteCommand}"
+                        Source="nav_recenter.svg"
+                        Style="{StaticResource PmMapFloatingButton}" />
+                    <ImageButton
+                        x:Name="VoicePromptButton"
+                        Command="{Binding SpeakNextPromptCommand}"
+                        Source="nav_voice.svg"
+                        Style="{StaticResource PmMapFloatingButton}" />
+                    <Button
+                        Command="{Binding ToggleRouteInputCommand}"
+                        Style="{StaticResource PmMapMiniButton}"
+                        Text="{Binding RouteInputButtonText}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border
+                x:Name="RoutePopupPanel"        
+                Grid.Row="1"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                MaximumWidthRequest="350"
+                InputTransparent="True"
+                IsVisible="False"
+                Opacity="0"
+                TranslationY="28"
+                StrokeShape="RoundRectangle 16"
+                Style="{StaticResource PmBottomPanel}">
+                <VerticalStackLayout Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <Label Style="{StaticResource PmSectionTitleLabel}" Text="Route popup" />
+                        <Button
+                            Grid.Column="1"
+                            Command="{Binding ToggleRouteInputCommand}"
+                            Style="{StaticResource PmMapMiniButton}"
+                            Text="Close" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <VerticalStackLayout Spacing="1">
+                            <Label Style="{StaticResource PmRouteDataCaption}" Text="ROUTE" />
+                            <Label Style="{StaticResource PmRouteDataLabel}" Text="{Binding RouteSummary}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" Style="{StaticResource PmStatusChip}">
+                            <Label Style="{StaticResource PmStatusChipLabel}" Text="{Binding RouteEstimatedArrival}" />
+                        </Border>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="6">
+                        <Border Style="{StaticResource PmStatusChip}">
+                            <Label Style="{StaticResource PmStatusChipLabel}" Text="{Binding NextManeuverStepText}" />
+                        </Border>
+                        <Border Grid.Column="1" Style="{StaticResource PmStatusChip}">
+                            <Label Style="{StaticResource PmStatusChipLabel}" Text="{Binding RouteSafety}" />
+                        </Border>
+                        <Label
+                            Grid.Column="2"
+                            HorizontalTextAlignment="End"
+                            Style="{StaticResource PmRouteDataCaption}"
+                            Text="{Binding RouteDiagnosticsSummary}" />
+                    </Grid>
+
+                    <ProgressBar
+                        BackgroundColor="#204A3E"
+                        HeightRequest="6"
+                        Progress="{Binding NextManeuverProgress}"
+                        ProgressColor="#10B981" />
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Switch IsToggled="{Binding AvoidRestricted}" />
+                        <Label
+                            Grid.Column="1"
+                            Style="{StaticResource PmRouteDataLabel}"
+                            Text="Avoid restricted roads"
+                            VerticalTextAlignment="Center" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                        <Entry
+                            Keyboard="Numeric"
+                            Placeholder="Start lat"
+                            Text="{Binding StartLatitude}" />
+                        <Entry
+                            Grid.Column="1"
+                            Keyboard="Numeric"
+                            Placeholder="Start lon"
+                            Text="{Binding StartLongitude}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                        <Entry
+                            Keyboard="Numeric"
+                            Placeholder="Destination lat"
+                            Text="{Binding DestinationLatitude}" />
+                        <Entry
+                            Grid.Column="1"
+                            Keyboard="Numeric"
+                            Placeholder="Destination lon"
+                            Text="{Binding DestinationLongitude}" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <Label
+                            FontSize="11"
+                            IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                            Text="{Binding ErrorMessage}"
+                            TextColor="#FB7185"
+                            VerticalTextAlignment="Center" />
+                        <Button
+                            Grid.Column="1"
+                            Command="{Binding CalculateRouteCommand}"
+                            Style="{StaticResource PmMapMiniButton}"
+                            Text="Calculate" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
         </Grid>
     </Grid>
 </ContentPage>

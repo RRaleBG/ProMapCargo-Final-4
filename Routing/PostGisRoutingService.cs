@@ -1,5 +1,6 @@
 using Npgsql;
 using ProMapCargo.Api.Models;
+
 namespace ProMapCargo.Api.Routing;
 
 
@@ -9,8 +10,12 @@ public interface IPostGisRoutingService
 }
 
 
-public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSnapper snapper, PostGisAStarRouter
-    router, ManeuverBuilder maneuvers) : IPostGisRoutingService
+public sealed class PostGisRoutingService(
+    PostGisRoutingRepository repo,
+    EdgeSnapper snapper,
+    PostGisAStarRouter router,
+    ManeuverBuilder maneuvers,
+    ILogger<PostGisRoutingService> logger) : IPostGisRoutingService
 {
     /// <summary>
     /// Extract the coordinate at a fraction along a line that is closest to that fraction.
@@ -82,7 +87,14 @@ public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSna
 
     public async Task<RouteResponse> CalculateAsync(RouteRequest request, CancellationToken ct)
     {
-        Console.WriteLine($"[ROUTING] CalculateAsync START - Start:[{request?.Start?.Lat:F6}, {request?.Start?.Lon:F6}], Target:[{request.Target.Lat:F6}, {request.Target.Lon:F6}]");
+        ArgumentNullException.ThrowIfNull(request);
+
+        logger.LogInformation(
+            "PostGIS routing started. Start={StartLat},{StartLon} Target={TargetLat},{TargetLon}",
+            request.ResolvedStart.Lat,
+            request.ResolvedStart.Lon,
+            request.Target.Lat,
+            request.Target.Lon);
 
         var truck = request.Truck ?? new TruckProfile
         {
@@ -95,10 +107,10 @@ public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSna
 
         try
         {
-            var canConnect = await repo.CanConnectAsync(ct);
+            var canConnect = await repo.CanConnectAsync(ct).ConfigureAwait(false);
             if (!canConnect)
             {
-                Console.WriteLine("[ROUTING] ERROR: PostGIS connectivity probe failed");
+                logger.LogWarning("PostGIS connectivity probe failed.");
                 return new RouteResponse
                 {
                     Code = "RoutingError",
@@ -115,7 +127,7 @@ public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSna
         }
         catch (NpgsqlException ex)
         {
-            Console.WriteLine($"[ROUTING] ERROR: PostGIS connection failed: {ex.Message}");
+            logger.LogError(ex, "PostGIS database connection failed.");
             return new RouteResponse
             {
                 Code = "RoutingError",
@@ -131,7 +143,7 @@ public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSna
         }
         catch (TimeoutException ex)
         {
-            Console.WriteLine($"[ROUTING] ERROR: PostGIS connection timeout: {ex.Message}");
+            logger.LogError(ex, "PostGIS database connection timed out.");
             return new RouteResponse
             {
                 Code = "RoutingError",
@@ -146,10 +158,10 @@ public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSna
             };
         }
 
-        var version = await repo.GetActiveGraphVersionAsync(ct);
+        var version = await repo.GetActiveGraphVersionAsync(ct).ConfigureAwait(false);
         if (version is null)
         {
-            Console.WriteLine($"[ROUTING] ERROR: No active graph version found");
+            logger.LogWarning("No active graph version found.");
             return new RouteResponse
             {
                 Code = "NoGraph",
@@ -163,46 +175,67 @@ public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSna
                 }
             };
         }
-        var s = await snapper.SnapAsync(request.Start, truck, version.Value, ct);
-        var e = await snapper.SnapAsync(request.Target, truck, version.Value, ct);
+
+        var startPoint = request.ResolvedStart;
+        var targetPoint = request.Target;
+
+        var s = await snapper.SnapAsync(startPoint, truck, version.Value, ct).ConfigureAwait(false);
+        var e = await snapper.SnapAsync(targetPoint, truck, version.Value, ct).ConfigureAwait(false);
 
         if (s is not null)
-            Console.WriteLine($"[ROUTING] Start snap: EdgeId={s.EdgeId}, Fraction={s.Fraction:F4}, Distance={s.DistanceToEdgeM:F1}m");
+        {
+            logger.LogInformation(
+                "Start snap resolved. EdgeId={EdgeId} Fraction={Fraction} DistanceMeters={DistanceMeters}",
+                s.EdgeId,
+                s.Fraction,
+                s.DistanceToEdgeM);
+        }
         else
-            Console.WriteLine($"[ROUTING] ERROR: Start snap failed");
+        {
+            logger.LogWarning("Start snap failed.");
+        }
 
         if (e is not null)
-            Console.WriteLine($"[ROUTING] Target snap: EdgeId={e.EdgeId}, Fraction={e.Fraction:F4}, Distance={e.DistanceToEdgeM:F1}m");
-        else
-            Console.WriteLine($"[ROUTING] ERROR: Target snap failed");
-
-        return new RouteResponse
         {
-            Code = "SnapFailed",
-            Message = s is null && e is null
+            logger.LogInformation(
+                "Destination snap resolved. EdgeId={EdgeId} Fraction={Fraction} DistanceMeters={DistanceMeters}",
+                e.EdgeId,
+                e.Fraction,
+                e.DistanceToEdgeM);
+        }
+        else
+        {
+            logger.LogWarning("Destination snap failed.");
+        }
+
+        if (s is null || e is null)
+        {
+            var failureReason = s is null && e is null
                 ? "Start and destination could not be snapped to the active graph."
                 : s is null
                     ? "Start could not be snapped to the active graph."
-                    : "Destination could not be snapped to the active graph.",
-            IsTruckSafe = false,
-            Diagnostics = new RouteDiagnostics
-            {
-                Engine = "PostGIS-AStar",
-                UsedFallback = false,
-                GraphVersion = version,
-                FailureReason = s is null && e is null
-                    ? "Start and destination could not be snapped to the active graph."
-                    : s is null
-                        ? "Start could not be snapped to the active graph."
-                        : "Destination could not be snapped to the active graph."
-            }
-        };
+                    : "Destination could not be snapped to the active graph.";
 
-        var r = await router.RouteAsync(s, e, truck, version.Value, ct);
+            return new RouteResponse
+            {
+                Code = "SnapFailed",
+                Message = failureReason,
+                IsTruckSafe = false,
+                Diagnostics = new RouteDiagnostics
+                {
+                    Engine = "PostGIS-AStar",
+                    UsedFallback = false,
+                    GraphVersion = version,
+                    FailureReason = failureReason
+                }
+            };
+        }
+
+        var r = await router.RouteAsync(s, e, truck, version.Value, ct).ConfigureAwait(false);
 
         if (!r.Success)
         {
-            Console.WriteLine($"[ROUTING] ERROR: Routing failed - {r.FailureReason}");
+            logger.LogWarning("Routing failed. Reason={FailureReason}", r.FailureReason);
             return new RouteResponse
             {
                 Code = "NoPath",
@@ -218,25 +251,33 @@ public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSna
                     StartSnap = r.StartSnap,
                     EndSnap = r.EndSnap,
                     TraversalCount = r.Traversals.Count,
-                    Highlights = r.DebugHighlights.ToList()
+                    Highlights = r.DebugHighlights
                 }
             };
         }
 
-        Console.WriteLine($"[ROUTING] Routing SUCCESS: {r.Traversals.Count} traversals, Distance={r.DistanceM:F0}m, Duration={r.DurationS:F0}s");
+        logger.LogInformation(
+            "Routing succeeded. Traversals={TraversalCount} DistanceMeters={DistanceMeters} DurationSeconds={DurationSeconds}",
+            r.Traversals.Count,
+            r.DistanceM,
+            r.DurationS);
 
         var edgeIds = r.Traversals.Select(x => x.EdgeId).ToArray();
-        var edges = await repo.GetEdgesByIdsAsync(edgeIds, version.Value, ct);
+        var edges = await repo.GetEdgesByIdsAsync(edgeIds, version.Value, ct).ConfigureAwait(false);
         var byId = edges.ToDictionary(x => x.Id);
 
         var geometry = RouteGeometryBuilder.Build(r.Traversals, byId, s, e);
 
-        Console.WriteLine(
-            $"[GEOMETRY] original={geometry.OriginalPointCount} oriented={geometry.OrientedPointCount} trimmed={geometry.TrimmedPointCount} final={geometry.FinalPointCount}");
+        logger.LogInformation(
+            "Route geometry built. OriginalPoints={OriginalPoints} OrientedPoints={OrientedPoints} TrimmedPoints={TrimmedPoints} FinalPoints={FinalPoints}",
+            geometry.OriginalPointCount,
+            geometry.OrientedPointCount,
+            geometry.TrimmedPointCount,
+            geometry.FinalPointCount);
 
         if (!geometry.Success)
         {
-            Console.WriteLine($"[ROUTING] ERROR: Invalid route geometry - {geometry.FailureReason}");
+            logger.LogWarning("Invalid route geometry. Reason={FailureReason}", geometry.FailureReason);
 
             return new RouteResponse
             {
@@ -253,7 +294,7 @@ public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSna
                     StartSnap = r.StartSnap,
                     EndSnap = r.EndSnap,
                     TraversalCount = r.Traversals.Count,
-                    Highlights = r.DebugHighlights.ToList()
+                    Highlights = r.DebugHighlights
                 }
             };
         }
@@ -301,7 +342,7 @@ public sealed class PostGisRoutingService(PostGisRoutingRepository repo, EdgeSna
             }
         };
 
-        Console.WriteLine($"[ROUTING] CalculateAsync COMPLETE - Returning Ok with {r.DistanceM:F0}m route");
+        logger.LogInformation("PostGIS routing completed successfully. DistanceMeters={DistanceMeters}", r.DistanceM);
 
         var maneuverDtos = maneuvers.Build(r.Traversals, edges);
 

@@ -29,12 +29,13 @@
 
     <link rel="stylesheet" href="~/lib/leaflet/leaflet.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tailwind.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/promap.css" asp-append-version="true" />
 
     @await RenderSectionAsync("Head", required: false)
 </head>
 
-<body class="pm-body@(isEmbeddedNavigationShell ? " pm-embedded-mobile-shell" : string.Empty)">
+<body class="pm-body antialiased text-pm-text @(isEmbeddedNavigationShell ? " pm-embedded-mobile-shell" : string.Empty)">
     <input type="checkbox" id="pm-sidebar-toggle" class="pm-sidebar-toggle-input" aria-hidden="true" />
 
     <div>
@@ -46,10 +47,10 @@
         <div class="pm-login-node node-c"></div>
     </div>
 
-    <div class="pm-app-shell">
+    <div class="pm-app-shell bg-transparent">
         <label for="pm-sidebar-toggle" class="pm-mobile-backdrop" aria-label="Zatvori navigaciju"></label>
 
-        <aside class="pm-sidebar">
+        <aside class="pm-sidebar pm-tw-glass">
             <div class="pm-sidebar-inner">
                 <div class="pm-brand-block">
                     <a asp-page="/" class="pm-public-brand" aria-label="ProMap Cargo">
@@ -100,9 +101,9 @@
                             <i class="pm-nav-icon" data-lucide="users-round" aria-hidden="true"></i><span class="pm-nav-label">Vozači</span>
                         </a>
                         <a asp-page="/Navigation/Index"
-                           class="pm-nav-item @(currentPage == "/Navigation/Index" ? "active" : "")">
-                            <i class="pm-nav-icon" data-lucide="navigation" aria-hidden="true"></i><span class="pm-nav-label">Navigacija</span><span class="pm-nav-live">GPS</span>
-                        </a>
+                               class="pm-nav-item @(currentPage == "/Navigation/Index" ? "active" : "")">
+                                <i class="pm-nav-icon" data-lucide="navigation" aria-hidden="true"></i><span class="pm-nav-label">Navigacija</span><span class="pm-nav-live pm-tw-chip-live">GPS</span>
+                            </a>
                     </div>
 
                     <div class="pm-nav-section">
@@ -190,8 +191,8 @@
             </div>
         </aside>
 
-        <div class="pm-main">
-            <header class="pm-topbar">
+        <div class="pm-main flex min-h-screen flex-col">
+            <header class="pm-topbar sticky top-0 z-30 border-b border-pm-border/60 bg-[color:rgba(1,13,11,0.65)] backdrop-blur-pm">
                 <div class="pm-topbar-left">
                     <label for="pm-sidebar-toggle" class="pm-menu-button" aria-label="Otvori navigaciju">
                         <i data-lucide="menu" aria-hidden="true"></i>
@@ -199,7 +200,7 @@
                     <div class="pm-breadcrumb"><span>ProMap Cargo</span><i>/</i><strong>@pageTitle</strong></div>
                 </div>
 
-                <div class="pm-topbar-center">
+                <div class="pm-topbar-center hidden lg:block">
                     <div class="pm-global-search">
                         <i class="pm-search-icon" data-lucide="search" aria-hidden="true"></i>
                         <input type="search" placeholder="Pretraga vozila, vozača, naloga, lokacija..."
@@ -245,8 +246,8 @@
             </div>
         </header>
 
-        <main class="pm-content">
-            <div class="pm-content-inner">
+        <main class="pm-content flex-1">
+            <div class="pm-content-inner mx-auto w-full max-w-[1800px] px-4 pb-6 pt-5 md:px-6 md:pt-6">
                 @RenderBody()
             </div>
         </main>

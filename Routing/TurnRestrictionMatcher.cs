@@ -3,24 +3,39 @@ using Npgsql;
 
 namespace ProMapCargo.Api.Routing;
 
-public sealed class TurnRestrictionMatcher(NpgsqlDataSource ds)
+public sealed class TurnRestrictionMatcher(
+    NpgsqlDataSource ds,
+    ILogger<TurnRestrictionMatcher> logger)
 {
     public async Task<RestrictionSet> LoadAsync(long version, CancellationToken ct)
     {
-        await using var c = await ds.OpenConnectionAsync(ct);
-        var rows = await c.QueryAsync<dynamic>(new CommandDefinition(
-            "SELECT restriction,from_way_id,to_way_id,via_node_ids FROM turn_restrictions WHERE graph_version=@version",
-            new
-            {
-                version
-            },
-            cancellationToken: ct));
+        logger.LogInformation("PostGIS query started: turn restriction load. GraphVersion={GraphVersion}", version);
 
-        return new RestrictionSet(rows.Select(r => new Rule(
-            (string?)r.restriction,
-            (long?)r.from_way_id,
-            (long?)r.to_way_id,
-            ((long[]?)r.via_node_ids) ?? [])).ToList());
+        try
+        {
+            await using var c = await ds.OpenConnectionAsync(ct);
+            var rows = await c.QueryAsync<dynamic>(new CommandDefinition(
+                "SELECT restriction,from_way_id,to_way_id,via_node_ids FROM turn_restrictions WHERE graph_version=@version",
+                new
+                {
+                    version
+                },
+                cancellationToken: ct));
+
+            var rules = rows.Select(r => new Rule(
+                (string?)r.restriction,
+                (long?)r.from_way_id,
+                (long?)r.to_way_id,
+                ((long[]?)r.via_node_ids) ?? [])).ToList();
+
+            logger.LogInformation("PostGIS query completed: turn restriction load. GraphVersion={GraphVersion} Rules={Rules}", version, rules.Count);
+            return new RestrictionSet(rules);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "PostGIS query failed: turn restriction load. GraphVersion={GraphVersion}", version);
+            throw;
+        }
     }
 }
 

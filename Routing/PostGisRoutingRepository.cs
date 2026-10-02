@@ -1,10 +1,12 @@
 using Dapper;
 using NetTopologySuite.Geometries;
 using Npgsql;
+
 namespace ProMapCargo.Api.Routing;
 
-
-public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
+public sealed class PostGisRoutingRepository(
+    NpgsqlDataSource dataSource,
+    ILogger<PostGisRoutingRepository> logger)
 {
     private const string EdgeColumns = "id, way_id, source_node, target_node, direction, highway, name, ref, length_m, speed_kmh, routable, ST_AsText(geom) AS wkt, access, vehicle, motor_vehicle, hgv, goods, hazmat, maxheight, maxwidth, maxlength, maxweight, maxaxleload, graph_version, country_code";
 
@@ -13,35 +15,69 @@ public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
 
     public async Task<bool> CanConnectAsync(CancellationToken ct)
     {
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        const string sql = "SELECT 1;";
-        var probe = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, cancellationToken: ct));
-        return probe == 1;
+        logger.LogInformation("PostGIS connectivity check started.");
+
+        try
+        {
+            await using var connection = await dataSource.OpenConnectionAsync(ct);
+            const string sql = "SELECT 1;";
+            var probe = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, cancellationToken: ct));
+            var connected = probe == 1;
+
+            logger.LogInformation("PostGIS connectivity check completed. Connected={Connected}", connected);
+            return connected;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "PostGIS connectivity check failed.");
+            throw;
+        }
     }
 
 
     public async Task<long?> GetActiveGraphVersionAsync(CancellationToken ct)
     {
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
+        logger.LogInformation("PostGIS query started: active graph version lookup.");
 
-        const string sql = """
-            SELECT graph_version
-            FROM routing_graph_versions
-            WHERE status = 'ready' AND activated_at IS NOT NULL
-            ORDER BY activated_at DESC
-            LIMIT 1;
-            """;
+        try
+        {
+            await using var connection = await dataSource.OpenConnectionAsync(ct);
 
-        return await connection.ExecuteScalarAsync<long?>(new CommandDefinition(sql, cancellationToken: ct));
+            const string sql = """
+                SELECT graph_version
+                FROM routing_graph_versions
+                WHERE status = 'ready' AND activated_at IS NOT NULL
+                ORDER BY activated_at DESC
+                LIMIT 1;
+                """;
+
+            var graphVersion = await connection.ExecuteScalarAsync<long?>(new CommandDefinition(sql, cancellationToken: ct));
+            logger.LogInformation("PostGIS query completed: active graph version lookup. GraphVersion={GraphVersion}", graphVersion);
+            return graphVersion;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "PostGIS query failed: active graph version lookup.");
+            throw;
+        }
     }
 
 
 
     public async Task<IReadOnlyList<RoadEdge>> FindNearestEdgesAsync(double lat, double lon, long version, double radius, CancellationToken ct)
     {
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
+        logger.LogInformation(
+            "PostGIS query started: nearest edges. Lat={Lat} Lon={Lon} GraphVersion={GraphVersion} RadiusMeters={RadiusMeters}",
+            lat,
+            lon,
+            version,
+            radius);
 
-        const string sql = """
+        try
+        {
+            await using var connection = await dataSource.OpenConnectionAsync(ct);
+
+            const string sql = """
         WITH p AS
         (
             SELECT
@@ -118,49 +154,79 @@ public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
         LIMIT 24;
         """;
 
-        var rows = await connection.QueryAsync<dynamic>(
-            new CommandDefinition(
-                sql,
-                new
-                {
+                var rows = await connection.QueryAsync<dynamic>(
+                    new CommandDefinition(
+                        sql,
+                        new
+                        {
+                            lat,
+                            lon,
+                            version,
+                            radius
+                        },
+                        commandTimeout: 120,
+                        cancellationToken: ct));
+
+                var edges = rows.Select(Map).ToList();
+                logger.LogInformation(
+                    "PostGIS query completed: nearest edges. GraphVersion={GraphVersion} ReturnedEdges={ReturnedEdges}",
+                    version,
+                    edges.Count);
+                return edges;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "PostGIS query failed: nearest edges. Lat={Lat} Lon={Lon} GraphVersion={GraphVersion} RadiusMeters={RadiusMeters}",
                     lat,
                     lon,
                     version,
-                    radius
-                },
-                commandTimeout: 120,
-                cancellationToken: ct));
-
-        return rows.Select(Map).ToList();
-    }
+                    radius);
+                throw;
+            }
+        }
 
 
     public async Task<IReadOnlyList<RoadEdge>> GetEdgesByIdsAsync(IReadOnlyCollection<long> ids, long version, CancellationToken ct)
     {
         if (ids.Count == 0)
         {
+            logger.LogInformation("PostGIS query skipped: get edges by ids called with empty id set. GraphVersion={GraphVersion}", version);
             return [];
         }
 
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
+        logger.LogInformation("PostGIS query started: get edges by ids. GraphVersion={GraphVersion} RequestedIds={RequestedIds}", version, ids.Count);
 
-        var sql = $"""
-            SELECT {EdgeColumns}
-            FROM road_edges
-            WHERE graph_version = @version
-              AND id = ANY(@ids);
-            """;
-        var rows = await connection.QueryAsync<dynamic>(
-        new CommandDefinition(
-        sql,
-        new
+        try
         {
-            ids = ids.ToArray(),
-            version
+            await using var connection = await dataSource.OpenConnectionAsync(ct);
+
+            var sql = $"""
+                SELECT {EdgeColumns}
+                FROM road_edges
+                WHERE graph_version = @version
+                  AND id = ANY(@ids);
+                """;
+            var rows = await connection.QueryAsync<dynamic>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        ids = ids.ToArray(),
+                        version
+                    },
+                    cancellationToken: ct));
+
+            var edges = rows.Select(Map).ToList();
+            logger.LogInformation("PostGIS query completed: get edges by ids. GraphVersion={GraphVersion} ReturnedEdges={ReturnedEdges}", version, edges.Count);
+            return edges;
         }
-        ,
-        cancellationToken: ct));
-        return rows.Select(Map).ToList();
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "PostGIS query failed: get edges by ids. GraphVersion={GraphVersion} RequestedIds={RequestedIds}", version, ids.Count);
+            throw;
+        }
     }
 
 
@@ -180,51 +246,74 @@ public sealed class PostGisRoutingRepository(NpgsqlDataSource dataSource)
     {
         if (nodes.Count == 0)
         {
+            logger.LogInformation("PostGIS query skipped: outgoing batch called with empty node set. GraphVersion={GraphVersion}", version);
             return new Dictionary<long, IReadOnlyList<(RoadEdge Edge, bool Forward)>>();
         }
 
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        var sql = $"""
-            SELECT {OutgoingEdgeColumns}
-            FROM road_edges
-            WHERE graph_version = @version
-              AND routable
-              AND (source_node = ANY(@nodes) OR target_node = ANY(@nodes));
-            """;
-        var rows = await connection.QueryAsync<dynamic>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    nodes = nodes.ToArray(),
-                    version
-                },
-                cancellationToken: ct));
+        logger.LogInformation("PostGIS query started: outgoing batch. GraphVersion={GraphVersion} RequestedNodes={RequestedNodes}", version, nodes.Count);
 
-        var result = nodes.ToDictionary<long, long, List<(RoadEdge Edge, bool Forward)>>(
-            node => node,
-            _ => []);
-
-        foreach (var row in rows)
+        try
         {
-            RoadEdge edge = Map(row);
+            await using var connection = await dataSource.OpenConnectionAsync(ct);
+            var sql = $"""
+                SELECT {OutgoingEdgeColumns}
+                FROM road_edges
+                WHERE graph_version = @version
+                  AND routable
+                  AND (source_node = ANY(@nodes) OR target_node = ANY(@nodes));
+                """;
+            var rows = await connection.QueryAsync<dynamic>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        nodes = nodes.ToArray(),
+                        version
+                    },
+                    cancellationToken: ct));
 
-            if (edge.Direction >= 0 && result.ContainsKey(edge.SourceNode))
+            var result = nodes.ToDictionary<long, long, List<(RoadEdge Edge, bool Forward)>>(
+                node => node,
+                _ => []);
+
+            foreach (var row in rows)
             {
-                result[edge.SourceNode].Add((edge, true));
+                var edge = Map(row);
+
+                if (edge.Direction >= 0 && result.ContainsKey(edge.SourceNode))
+                {
+                    result[edge.SourceNode].Add((edge, true));
+                }
+
+                if (edge.Direction <= 0 && result.ContainsKey(edge.TargetNode))
+                {
+                    result[edge.TargetNode].Add((edge, false));
+                }
             }
 
-            if (edge.Direction <= 0 && result.ContainsKey(edge.TargetNode))
-            {
-                result[edge.TargetNode].Add((edge, false));
-            }
+            var finalResult = result.ToDictionary(
+                pair => pair.Key,
+                pair => (IReadOnlyList<(RoadEdge Edge, bool Forward)>)pair.Value);
+
+            var traversableOptions = finalResult.Sum(pair => pair.Value.Count);
+            logger.LogInformation(
+                "PostGIS query completed: outgoing batch. GraphVersion={GraphVersion} RequestedNodes={RequestedNodes} TraversableOptions={TraversableOptions}",
+                version,
+                nodes.Count,
+                traversableOptions);
+
+            return finalResult;
         }
-
-        return result.ToDictionary(
-            pair => pair.Key,
-            pair => (IReadOnlyList<(RoadEdge Edge, bool Forward)>)pair.Value);
+        catch (Exception ex)
+        {
+            logger.LogError(
+                ex,
+                "PostGIS query failed: outgoing batch. GraphVersion={GraphVersion} RequestedNodes={RequestedNodes}",
+                version,
+                nodes.Count);
+            throw;
+        }
     }
-
 
 
     private static RoadEdge Map(dynamic row)

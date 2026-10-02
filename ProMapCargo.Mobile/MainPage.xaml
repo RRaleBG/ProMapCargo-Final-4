@@ -2,27 +2,94 @@
 <ContentPage
     x:Class="ProMapCargo.Mobile.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="{StaticResource SurfaceBase}"
+    Shell.NavBarIsVisible="False">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="30,0" Spacing="25">
-            <Image
-                Aspect="AspectFit"
-                HeightRequest="185"
-                SemanticProperties.Description="dot net bot in a submarine number ten"
-                Source="dotnet_bot.png" />
+    <Grid RowDefinitions="*">
+        <BoxView>
+            <BoxView.Background>
+                <RadialGradientBrush Center="0.5,0.26" Radius="0.95">
+                    <GradientStop Offset="0.00" Color="#123E35" />
+                    <GradientStop Offset="0.42" Color="#082720" />
+                    <GradientStop Offset="1.00" Color="#031712" />
+                </RadialGradientBrush>
+            </BoxView.Background>
+        </BoxView>
 
-            <Label
-                SemanticProperties.HeadingLevel="Level1"
-                Style="{StaticResource Headline}"
-                Text="Hello, World!" />
+        <ScrollView>
+            <VerticalStackLayout Padding="24,32,24,28" Spacing="20">
+                <Border
+                    BackgroundColor="#B1061F19"
+                    StrokeShape="RoundRectangle 24"
+                    Style="{StaticResource PmCardBorder}">
+                    <VerticalStackLayout Spacing="14">
+                        <Image
+                            Aspect="AspectFit"
+                            HeightRequest="108"
+                            HorizontalOptions="Center"
+                            SemanticProperties.Description="ProMap Cargo premium navigation"
+                            Source="splash.svg"
+                            WidthRequest="108" />
 
-            <Label
-                SemanticProperties.Description="Welcome to ProMapCargo Navigation"
-                SemanticProperties.HeadingLevel="Level2"
-                Style="{StaticResource SubHeadline}"
-                Text="ProMapCargo Navigation " />
-        </VerticalStackLayout>
-    </ScrollView>
+                        <Label
+                            HorizontalTextAlignment="Center"
+                            SemanticProperties.HeadingLevel="Level1"
+                            Style="{StaticResource PmPageTitleLabel}"
+                            Text="ProMap Cargo" />
+
+                        <Label
+                            HorizontalTextAlignment="Center"
+                            SemanticProperties.HeadingLevel="Level2"
+                            Style="{StaticResource PmMutedLabel}"
+                            Text="Truck-aware dispatch, routing, and live navigation in one native experience." />
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                            <Label
+                                FontSize="12"
+                                Text="●"
+                                TextColor="#10B981"
+                                VerticalTextAlignment="Center" />
+                            <Label
+                                Grid.Column="1"
+                                Style="{StaticResource PmMutedLabel}"
+                                Text="PostGIS primary routing + OSRM fallback" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                            <Label
+                                FontSize="12"
+                                Text="●"
+                                TextColor="#2DD4BF"
+                                VerticalTextAlignment="Center" />
+                            <Label
+                                Grid.Column="1"
+                                Style="{StaticResource PmMutedLabel}"
+                                Text="Fleet telemetry, maneuvers, and off-route awareness" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource PmMapGlassCard}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Style="{StaticResource PmSectionTitleLabel}" Text="Quick start" />
+                        <Button
+                            Clicked="OnOpenOperationsClicked"
+                            Style="{StaticResource PmPrimaryButton}"
+                            Text="Open operations" />
+                        <Button
+                            Clicked="OnOpenNavigationClicked"
+                            Style="{StaticResource PmSecondaryButton}"
+                            Text="Open navigation" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label
+                    HorizontalTextAlignment="Center"
+                    Style="{StaticResource PmMutedLabel}"
+                    Text="Sovereign maps · PMTiles · Real-time fleet intelligence" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 
 </ContentPage>

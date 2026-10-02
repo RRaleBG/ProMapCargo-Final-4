@@ -6,17 +6,15 @@
 }
 
 
-<div id="navigationPage" class="pm-page pm-navigation-page" data-module="navigation">
-    <div class="nav-page-header"></div>
-    <!-- ===================================================== MAIN WORKSPACE ===================================================== -->
+<div id="navigationPage" class="pm-page" data-module="navigation">
+    <div class="nav-page-header pm-page-header"></div>
     <div class="navigation-workspace">
-        <!-- ================================================= MAP ================================================= -->
         <section class="navigation-map-section">
             <div class="navigation-map-shell">
-                <div id="navMap" class="pm-map" data-map-archive="/maps/europe.pmtiles" data-map-max-zoom="19">
-                    <!-- MAP TOP BAR -->
+                <div id="navMap" class="pm-map" data-map-archive="/maps/europe.pmtiles" data-map-max-zoom="19">   
                     <div class="nav-map-topbar">
-                        <div class="nav-map-mode-tabs"> <button type="button"
+                        <div class="nav-map-mode-tabs"> 
+<button type="button"
                                                                     class="nav-map-tab active hover:pm-hover-soften active:pm-press"
                                                                     id="mapRouteTab">Ruta</button> <button type="button"
                                                                    class="nav-map-tab hover:pm-hover-soften active:pm-press"
@@ -29,11 +27,12 @@
                         <div class="nav-next-copy"> <small class="pm-label-wide">NAREDNI MANEVAR</small> <strong
                             id="nextInstructionText">—</strong> <span id="nextInstructionDistance">—</span> </div>
                         </div> <!-- MAP CONTROLS -->
-                        <div class="nav-map-controls"> <button type="button" id="fitRoute"
-                                                                   class="nav-map-control hover:pm-hover-scale active:pm-press-small pm-shadow-soft"
+
+                        <div class="nav-map-controls pm-map-controls"> <button type="button" id="fitRoute"
+                                                                   class="nav-map-control pm-map-control hover:pm-hover-scale active:pm-press-small pm-shadow-soft"
                                                                    title="Prikaži celu rutu">⤢</button> <button type="button" id="centerGps"
-                                                                         class="nav-map-control hover:pm-hover-scale active:pm-press-small pm-shadow-soft"
-                                                                         title="Centriraj GPS">◎</button> </div> <!-- ACTIVE ROUTE CARD -->
+                                                                          class="nav-map-control pm-map-control hover:pm-hover-scale active:pm-press-small pm-shadow-soft"
+                                                                          title="Centriraj GPS">◎</button> </div> <!-- ACTIVE ROUTE CARD -->
                             <div class="nav-map-route-card" id="mapRouteCard" hidden>
                                 <div class="nav-map-route-card-head">
                                     <div> <small class="pm-label-wide">AKTIVNA RUTA</small> <strong id="mapRouteTitle">Beograd →

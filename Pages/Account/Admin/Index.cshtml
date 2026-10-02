@@ -4,7 +4,7 @@
     ViewData["Title"] = "Account Admin · ProMap Cargo";
 }
 
-<div class="pm-page pm-account-admin-page" data-module="account-admin">
+<div class="pm-page" data-module="account-admin">
     <section class="pm-kpi-grid" aria-label="Account admin pregled">
 
         <article class="pm-kpi">
@@ -37,11 +37,11 @@
 
     </section>
 
-    <section class="pm-card pm-account-admin-tabs-shell">
-        <div class="pm-account-admin-tabs" role="tablist" aria-label="Admin sekcije">
-            <button type="button" class="pm-account-admin-tab is-active" role="tab" aria-selected="true" data-tab-target="users">Korisnici</button>
-            <button type="button" class="pm-account-admin-tab" role="tab" aria-selected="false" data-tab-target="roles">Role i dozvole</button>
-            <button type="button" class="pm-account-admin-tab" role="tab" aria-selected="false" data-tab-target="audit">Audit</button>
+    <section class="pm-card pm-panel pm-account-admin-tabs-shell">
+        <div class="pm-account-admin-tabs pm-filter-group" role="tablist" aria-label="Admin sekcije">
+            <button type="button" class="pm-account-admin-tab pm-filter-btn is-active" role="tab" aria-selected="true" data-tab-target="users">Korisnici</button>
+            <button type="button" class="pm-account-admin-tab pm-filter-btn" role="tab" aria-selected="false" data-tab-target="roles">Role i dozvole</button>
+            <button type="button" class="pm-account-admin-tab pm-filter-btn" role="tab" aria-selected="false" data-tab-target="audit">Audit</button>
         </div>
 
         <section class="pm-account-admin-tab-panel is-active" data-tab-panel="users">
@@ -52,7 +52,7 @@
                 </div>
             </header>
 
-            <form method="get" class="pm-account-admin-toolbar">
+            <form method="get" class="pm-account-admin-toolbar pm-toolbar">
                 <input type="search" name="Search" value="@Model.Search" placeholder="Pretraga korisnika (ime/email)" class="pm-input" />
                 <select name="Status" class="pm-select">
                     <option value="all" selected="@(Model.Status == "all")">Svi statusi</option>
@@ -181,9 +181,9 @@
                 </table>
             </div>
 
-            <div class="pm-account-admin-pager">
-                <span>Strana @Model.Pager.Page od @Model.Pager.TotalPages · @Model.Pager.TotalItems korisnika</span>
-                <div class="pm-account-admin-pager-actions">
+            <div class="pm-account-admin-pager pm-toolbar">
+                <span class="pm-text-muted">Strana @Model.Pager.Page od @Model.Pager.TotalPages · @Model.Pager.TotalItems korisnika</span>
+                <div class="pm-account-admin-pager-actions pm-filter-group">
                     @if (Model.Pager.Page > 1)
                     {
                         <a class="pm-btn pm-btn-sm" asp-page="./Index" asp-route-Search="@Model.Search" asp-route-Status="@Model.Status" asp-route-Role="@Model.Role" asp-route-Page="@(Model.Pager.Page - 1)" asp-route-PageSize="@Model.PageSize">Prethodna</a>

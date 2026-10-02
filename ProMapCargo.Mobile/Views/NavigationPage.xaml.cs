@@ -1,5 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using ProMapCargo.Mobile.Models;
+using ProMapCargo.Mobile.Services;
 using ProMapCargo.Mobile.ViewModels;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -8,9 +8,15 @@ namespace ProMapCargo.Mobile.Views;
 
 public partial class MobileNavigationPage : ContentPage
 {
+    private const uint PanelEnterDurationMs = 220;
+    private const uint PanelExitDurationMs = 180;
+
     private readonly NavigationViewModel viewModel;
+    private readonly IMobileNotifier notifier;
     private bool pageActive;
     private bool webViewReady;
+    private bool routePopupOpen;
+    private bool panelAnimating;
     private DateTimeOffset lastWebPushAt = DateTimeOffset.MinValue;
     private WebPoint? lastWebLocation;
     private DateTimeOffset? lastWebLocationAt;
@@ -24,16 +30,25 @@ public partial class MobileNavigationPage : ContentPage
     {
         InitializeComponent();
 
-        viewModel = Application.Current?.Handler?.MauiContext?.Services
-            .GetRequiredService<NavigationViewModel>()
-            ?? throw new InvalidOperationException(
-                "NavigationViewModel nije registrovan u MAUI DI kontejneru.");
+        var services = Application.Current?.Handler?.MauiContext?.Services
+            ?? IPlatformApplication.Current?.Services
+            ?? throw new InvalidOperationException("MAUI service provider is unavailable.");
+
+        viewModel = services
+            .GetRequiredService<NavigationViewModel>();
+
+        notifier = services
+            .GetRequiredService<IMobileNotifier>();
 
         BindingContext = viewModel;
 
         NavigationWebView.Navigated += OnWebViewNavigated;
         viewModel.PropertyChanged += OnViewModelPropertyChanged;
         viewModel.RouteVisualizationChanged += OnRouteVisualizationChanged;
+
+        RoutePopupPanel.IsVisible = false;
+        RoutePopupPanel.Opacity = 0;
+        RoutePopupPanel.TranslationY = 28;
     }
 
     protected override async void OnAppearing()
@@ -69,8 +84,13 @@ public partial class MobileNavigationPage : ContentPage
 
         if (webViewReady)
         {
+            await ApplyEmbeddedMobileLayoutTweaksAsync();
+            await notifier.ShowSuccessAsync("Navigation map is ready.");
             await PushStateToWebAsync(force: true);
+            return;
         }
+
+        await notifier.ShowErrorAsync("Unable to load navigation map. Check API availability.");
     }
 
     private void OnRouteVisualizationChanged(object? sender, EventArgs e)
@@ -92,6 +112,11 @@ public partial class MobileNavigationPage : ContentPage
             or nameof(NavigationViewModel.ErrorMessage))
         {
             _ = PushStateToWebAsync();
+        }
+
+        if (e.PropertyName == nameof(NavigationViewModel.IsRouteInputVisible))
+        {
+            _ = ToggleRoutePopupAsync(viewModel.IsRouteInputVisible);
         }
     }
 
@@ -172,6 +197,65 @@ public partial class MobileNavigationPage : ContentPage
         }
     }
 
+    private async Task ToggleRoutePopupAsync(bool open)
+    {
+        if (panelAnimating || routePopupOpen == open)
+        {
+            return;
+        }
+
+        panelAnimating = true;
+
+        try
+        {
+            if (open)
+            {
+                routePopupOpen = true;
+                RoutePopupPanel.IsVisible = true;
+                RoutePopupPanel.InputTransparent = false;
+                RoutePopupPanel.TranslationY = 28;
+                RoutePopupPanel.Opacity = 0;
+
+                await Task.WhenAll(
+                    RoutePopupPanel.TranslateTo(0, 0, PanelEnterDurationMs, Easing.CubicOut),
+                    RoutePopupPanel.FadeTo(1, PanelEnterDurationMs, Easing.CubicOut));
+
+                return;
+            }
+
+            await Task.WhenAll(
+                RoutePopupPanel.TranslateTo(0, 28, PanelExitDurationMs, Easing.CubicIn),
+                RoutePopupPanel.FadeTo(0, PanelExitDurationMs, Easing.CubicIn));
+
+            RoutePopupPanel.InputTransparent = true;
+            RoutePopupPanel.IsVisible = false;
+            routePopupOpen = false;
+        }
+        finally
+        {
+            panelAnimating = false;
+        }
+    }
+
+    private async Task ApplyEmbeddedMobileLayoutTweaksAsync()
+    {
+        if (!webViewReady)
+        {
+            return;
+        }
+
+        const string cleanupScript = "(function(){try{var selectors=['.route-planner','.route-input','.route-form','.route-card','.route-panel','.mobile-route-panel','.pm-route-panel','.panel-bottom','.navigation-bottom','.planner-card','.planner-panel'];selectors.forEach(function(sel){document.querySelectorAll(sel).forEach(function(el){if(el){el.style.display='none';el.style.visibility='hidden';el.style.opacity='0';el.style.pointerEvents='none';}});});var mapHosts=['#map','.map-container','.leaflet-container','.navigation-map'];mapHosts.forEach(function(sel){document.querySelectorAll(sel).forEach(function(el){if(el){el.style.bottom='0';el.style.height='100%';}});});return true;}catch(e){return false;}})();";
+
+        try
+        {
+            await NavigationWebView.EvaluateJavaScriptAsync(cleanupScript);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Mobile embedded layout tweak failed: {ex.Message}");
+        }
+    }
+
     private MotionSnapshot CalculateMotion(WebPoint? current)
     {
         if (current is null)
@@ -194,17 +278,21 @@ public partial class MobileNavigationPage : ContentPage
             current.Latitude,
             current.Longitude);
 
-        var heading = distanceMeters >= 2
-            ? InitialBearing(
+        double? heading = null;
+        if (distanceMeters >= 2)
+        {
+            heading = InitialBearing(
                 lastWebLocation.Latitude,
                 lastWebLocation.Longitude,
                 current.Latitude,
-                current.Longitude)
-            : null;
+                current.Longitude);
+        }
 
-        var speedKph = elapsedSeconds > 0.5 && distanceMeters >= 1
-            ? distanceMeters / elapsedSeconds * 3.6
-            : null;
+        double? speedKph = null;
+        if (elapsedSeconds > 0.5 && distanceMeters >= 1)
+        {
+            speedKph = distanceMeters / elapsedSeconds * 3.6;
+        }
 
         lastWebLocation = current;
         lastWebLocationAt = now;

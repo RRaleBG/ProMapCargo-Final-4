@@ -148,23 +148,24 @@
 
     <!-- SEARCH / FILTER -->
 
-    <section class="compliance-toolbar">
+    <section class="compliance-toolbar pm-toolbar">
 
         <div class="compliance-search">
             <span class="compliance-search-icon">⌕</span>
 
             <input
+                class="pm-search-input"
                 type="search"
                 id="vehicleSearch"
                 placeholder="Pretraži registraciju, VIN, model ili prikolicu..."
                 autocomplete="off" />
         </div>
 
-        <div class="compliance-filter-group">
+        <div class="compliance-filter-group pm-filter-group">
 
             <button
                 type="button"
-                class="compliance-filter active"
+                class="compliance-filter pm-filter-btn active"
                 data-status-filter="all">
                 Sva vozila
                 <span>42</span>
@@ -172,7 +173,7 @@
 
             <button
                 type="button"
-                class="compliance-filter"
+                class="compliance-filter pm-filter-btn"
                 data-status-filter="compliant">
                 Compliant
                 <span>31</span>
@@ -180,7 +181,7 @@
 
             <button
                 type="button"
-                class="compliance-filter"
+                class="compliance-filter pm-filter-btn"
                 data-status-filter="expiring">
                 Ističe
                 <span>7</span>
@@ -188,7 +189,7 @@
 
             <button
                 type="button"
-                class="compliance-filter"
+                class="compliance-filter pm-filter-btn"
                 data-status-filter="blocked">
                 Blokirana
                 <span>4</span>
@@ -196,7 +197,7 @@
 
         </div>
 
-        <select class="compliance-select" id="vehicleTypeFilter">
+        <select class="compliance-select pm-select" id="vehicleTypeFilter">
             <option value="all">Sva vozila</option>
             <option value="truck">Kamioni</option>
             <option value="trailer">Prikolice</option>
@@ -207,15 +208,15 @@
 
     <!-- MAIN WORKSPACE -->
 
-    <section class="compliance-workspace">
+    <section class="compliance-workspace pm-workspace-split">
 
         <!-- VEHICLE LIST -->
 
-        <div class="vehicle-list-panel">
+        <div class="vehicle-list-panel pm-panel">
 
-            <div class="panel-heading">
+            <div class="panel-heading pm-panel-heading">
                 <div>
-                    <span class="panel-kicker">FLEET</span>
+                    <span class="panel-kicker pm-page-kicker">FLEET</span>
                     <h2>Vozila</h2>
                 </div>
 

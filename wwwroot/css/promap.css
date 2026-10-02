@@ -21,10 +21,11 @@ body {
   background: var(--pm-bg);
   font-family: var(--pm-font-family);
   color: var(--pm-text);
-  line-height: 1.8;
+  line-height: var(--pm-font-line-height-base);
   font-size: var(--pm-font-md);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-optical-sizing: auto;
 }
 
 button,
@@ -318,6 +319,7 @@ svg {
   line-height: 18px;
   font-weight: 800;
   letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .pm-nav-item {
@@ -1022,18 +1024,14 @@ svg.lucide {
    NAVIGATION PAGE
    ========================================================= */
 
-[data-module="navigation"] {
-  --nav-gap: 13px;
-}
-
-[data-module="navigation"] .pm-page-header {
+.nav-page-header {
   margin-bottom: 14px;
 }
 
 .nav-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
-  gap: var(--nav-gap);
+  gap: 13px;
   align-items: stretch;
 }
 
@@ -1051,7 +1049,7 @@ svg.lucide {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--nav-gap);
+  gap: 13px;
 }
 
 .nav-route-card {
@@ -1949,11 +1947,9 @@ svg.lucide {
   }
 }
 
-/* =========================================================
-           NAVIGATION PAGE
-           ========================================================= */
 
-.pm-navigation-page {
+
+.pm-page {
   --nav-bg: #021512;
   --nav-bg-deep: #010d0b;
   --nav-panel: rgba(3, 30, 25, 0.86);
@@ -3292,11 +3288,11 @@ svg.lucide {
            CUSTOM LEAFLET
            ===================================================== */
 
-.pm-navigation-page .leaflet-container {
+.pm-map .leaflet-container {
   background: #061713;
 }
 
-.pm-navigation-page .leaflet-control-zoom {
+.pm-map .leaflet-control-zoom {
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -3305,7 +3301,7 @@ svg.lucide {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25) !important;
 }
 
-.pm-navigation-page .leaflet-control-zoom a {
+.pm-map .leaflet-control-zoom a {
   width: 31px !important;
   height: 31px !important;
   line-height: 31px !important;
@@ -3314,7 +3310,7 @@ svg.lucide {
   color: #85afa4 !important;
 }
 
-.pm-navigation-page .leaflet-control-zoom a:hover {
+.pm-map .leaflet-control-zoom a:hover {
   color: var(--nav-teal) !important;
   background: rgba(5, 51, 42, 0.95) !important;
 }
@@ -4755,9 +4751,6 @@ textarea:valid {
   font-size: max(12px, 0.75rem);
 }
 
-.pm-page[data-module="trips"] {
-  background: transparent;
-}
 
 /* Existing page buttons inherit the same interaction quality without requiring immediate markup changes. */
 :is(
@@ -4796,10 +4789,6 @@ textarea:valid {
   box-shadow: var(--pm-focus-ring), var(--pm-shadow-md);
 }
 
-.pm-account-admin-page {
-  display: grid;
-  gap: 14px;
-}
 
 .pm-account-admin-header {
   margin-bottom: 2px;
@@ -4989,23 +4978,10 @@ textarea:valid {
 }
 
 .pm-account-admin-pager {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
   padding: 12px 14px;
   border-top: 1px solid var(--pm-border-soft);
 }
 
-.pm-account-admin-pager span {
-  color: var(--pm-text-muted);
-  font-size: 11px;
-}
-
-.pm-account-admin-pager-actions {
-  display: flex;
-  gap: 6px;
-}
 
 .pm-kpi {
   position: relative;
@@ -5024,11 +5000,6 @@ textarea:valid {
 @media (max-width: 980px) {
   .pm-account-admin-toolbar {
     grid-template-columns: 1fr 1fr;
-  }
-
-  .pm-account-admin-pager {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .pm-account-admin-tabs {
@@ -5160,11 +5131,6 @@ textarea:valid {
   }
 }
 
-.pm-alerts-page {
-  width: 100%;
-  min-width: 0;
-  color: var(--pm-text);
-}
 
 .pm-alerts-header {
   display: flex;
@@ -6126,11 +6092,6 @@ textarea:valid {
   }
 }
 
-.pm-compliance-page {
-  width: 100%;
-  max-width: 100%;
-  padding: 28px 30px 50px;
-}
 
 .compliance-header {
   display: flex;
@@ -7900,10 +7861,6 @@ textarea:valid {
 }
 
 @media (max-width: 850px) {
-  .pm-compliance-page {
-    padding: 22px 17px 40px;
-  }
-
   .compliance-header {
     align-items: flex-start;
     flex-direction: column;
@@ -8045,26 +8002,6 @@ textarea:valid {
   }
 }
 
-.pm-dispatch-page {
-  --dispatch-card: rgba(5, 31, 25, 0.88);
-  --dispatch-card-2: rgba(7, 39, 31, 0.96);
-  --dispatch-border: rgba(45, 212, 191, 0.14);
-  --dispatch-border-strong: rgba(45, 212, 191, 0.28);
-  --dispatch-text: #ecfdf5;
-  --dispatch-muted: #7da99f;
-  --dispatch-dim: #5f877d;
-  --dispatch-green: #10b981;
-  --dispatch-green-soft: rgba(16, 185, 129, 0.12);
-  --dispatch-teal: #2dd4bf;
-  --dispatch-yellow: #f59e0b;
-  --dispatch-yellow-soft: rgba(245, 158, 11, 0.12);
-  --dispatch-red: #ef4444;
-  --dispatch-red-soft: rgba(239, 68, 68, 0.12);
-  --dispatch-blue: #38bdf8;
-  --dispatch-blue-soft: rgba(56, 189, 248, 0.12);
-  width: 100%;
-  min-width: 0;
-}
 
 .pm-dispatch-content {
   width: 100%;
@@ -8770,52 +8707,52 @@ textarea:valid {
   text-align: center;
 }
 
-.pm-dispatch-page .leaflet-container {
+.pm-map .leaflet-container {
   font-family: inherit;
 }
 
-.pm-dispatch-page .leaflet-control-zoom a,
-.pm-dispatch-page .leaflet-control-layers {
+.pm-map .leaflet-control-zoom a,
+.pm-map .leaflet-control-layers {
   border-color: rgba(45, 212, 191, 0.18) !important;
   background: rgba(2, 21, 18, 0.92) !important;
   color: var(--dispatch-text) !important;
 }
 
-.pm-dispatch-page .leaflet-control-zoom a {
+.pm-map .leaflet-control-zoom a {
   width: 34px;
   height: 34px;
   line-height: 32px;
   font-size: 17px;
 }
 
-.pm-dispatch-page .leaflet-control-zoom {
+.pm-map .leaflet-control-zoom {
   border: 1px solid rgba(45, 212, 191, 0.18);
   border-radius: 9px;
   overflow: hidden;
 }
 
-.pm-dispatch-page .leaflet-control-zoom a:hover {
+.pm-map .leaflet-control-zoom a:hover {
   background: rgba(7, 52, 43, 0.95) !important;
 }
 
-.pm-dispatch-page .leaflet-control-layers {
+.pm-map .leaflet-control-layers {
   border-radius: 9px;
   overflow: hidden;
 }
 
-.pm-dispatch-page .leaflet-popup-content-wrapper,
-.pm-dispatch-page .leaflet-popup-tip {
+.pm-map .leaflet-popup-content-wrapper,
+.pm-map .leaflet-popup-tip {
   background: #05251e;
   color: #ecfdf5;
 }
 
-.pm-dispatch-page .leaflet-popup-content {
+.pm-map .leaflet-popup-content {
   margin: 12px 14px;
   font-size: 11px;
   line-height: 1.55;
 }
 
-.pm-dispatch-page .leaflet-marker-icon {
+.pm-map .leaflet-marker-icon {
   filter: drop-shadow(0 2px 7px rgba(0, 0, 0, 0.4));
 }
 
@@ -9704,10 +9641,6 @@ textarea:valid {
 }
 
 @media (max-width: 800px) {
-  .pm-drivers-page {
-    padding: 20px 16px 28px;
-  }
-
   .pm-drivers-header {
     align-items: flex-start;
     flex-direction: column;
@@ -9771,11 +9704,6 @@ textarea:valid {
        PAGE
     ========================================================== */
 
-.pm-finance-page {
-  position: relative;
-  isolation: isolate;
-  padding: 28px;
-}
 
 .finance-bg-orb {
   position: fixed;
@@ -9982,17 +9910,12 @@ textarea:valid {
   grid-template-columns: 1fr auto;
   gap: 20px;
   align-items: center;
-  padding: 13px 14px;
   margin-bottom: 14px;
-  border: 1px solid var(--pm-border);
-  border-radius: var(--pm-radius-lg);
   background: linear-gradient(
     135deg,
     rgba(4, 31, 26, 0.94),
     rgba(4, 31, 26, 0.72)
   );
-  backdrop-filter: var(--pm-blur);
-  box-shadow: var(--pm-shadow-sm);
 }
 
 .finance-context-main {
@@ -10085,20 +10008,15 @@ textarea:valid {
 
 .finance-card,
 .finance-kpi {
-  border: 1px solid var(--pm-border);
   background: linear-gradient(
     145deg,
     rgba(5, 39, 32, 0.86),
     rgba(2, 21, 18, 0.88)
   );
-  backdrop-filter: var(--pm-blur);
-  box-shadow:
-    var(--pm-shadow-sm),
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
 }
 
 .finance-card {
-  border-radius: var(--pm-radius-lg);
   padding: 18px;
 }
 
@@ -10107,10 +10025,6 @@ textarea:valid {
 }
 
 .finance-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
   margin-bottom: 17px;
 }
 
@@ -10144,9 +10058,7 @@ textarea:valid {
     ========================================================== */
 
 .finance-kpi-grid {
-  display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
   margin-bottom: 14px;
 }
 
@@ -11412,7 +11324,7 @@ textarea:valid {
        DISPATCH MODE
     ========================================================== */
 
-.pm-finance-page.finance-dispatch-mode .finance-context-icon {
+.finance-dispatch-mode .finance-context-icon {
   color: var(--pm-cyan);
   background: rgba(34, 211, 238, 0.08);
   border-color: rgba(34, 211, 238, 0.14);
@@ -11441,10 +11353,6 @@ textarea:valid {
 }
 
 @media (max-width: 1050px) {
-  .pm-finance-page {
-    padding: 20px;
-  }
-
   .finance-main-grid {
     grid-template-columns: 1fr;
   }
@@ -11465,10 +11373,6 @@ textarea:valid {
 }
 
 @media (max-width: 760px) {
-  .pm-finance-page {
-    padding: 14px;
-  }
-
   .finance-page-header {
     align-items: stretch;
     flex-direction: column;
@@ -11605,11 +11509,6 @@ textarea:valid {
   }
 }
 
-.pm-public-page {
-  position: relative;
-  min-height: 100vh;
-  overflow-x: clip;
-}
 
 /* =========================================================
            BACKGROUND
@@ -13639,7 +13538,7 @@ textarea:valid {
    Matches Profile / Navigation visual system
    ========================================================= */
 
-.pm-login-page {
+body.pm-page {
   position: relative;
   overflow: hidden;
 }
@@ -13647,7 +13546,7 @@ textarea:valid {
    Decorative network layer
    --------------------------------------------------------- */
 
-.pm-login-page > div:first-of-type {
+.pm-login-decor-layer {
   position: fixed;
   inset: 0;
   z-index: 0;
@@ -14677,22 +14576,16 @@ textarea:valid {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pm-login-page *,
-  .pm-login-page *::before,
-  .pm-login-page *::after {
+  .pm-login-main *,
+  .pm-login-main *::before,
+  .pm-login-main *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
 
-.pm-moderation-page {
-  display: grid;
-  gap: 18px;
-  min-width: 0;
-}
-
-.pm-moderation-page .moderation-header {
+.moderation-header {
   align-items: flex-end;
   margin: 0;
 }
@@ -14728,7 +14621,7 @@ textarea:valid {
   flex-shrink: 0;
 }
 
-.pm-moderation-page .moderation-critical-banner {
+.moderation-critical-banner {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -14783,56 +14676,56 @@ textarea:valid {
   font-weight: 750;
   cursor: pointer;
 }
-.pm-moderation-page .moderation-kpi-grid {
+.moderation-kpi-grid {
   grid-template-columns: repeat(6, minmax(0, 1fr));
   margin: 0;
 }
 
-.pm-moderation-page .moderation-kpi {
+.moderation-kpi {
   position: relative;
   overflow: hidden;
 }
 
 /* KPI value colors */
-.pm-moderation-page .moderation-kpi.kpi-risk .pm-kpi-value,
-.pm-moderation-page .moderation-kpi.kpi-rejected .pm-kpi-value {
+.moderation-kpi.kpi-risk .pm-kpi-value,
+.moderation-kpi.kpi-rejected .pm-kpi-value {
   color: var(--pm-danger);
 }
 
-.pm-moderation-page .moderation-kpi.kpi-approved .pm-kpi-value {
+.moderation-kpi.kpi-approved .pm-kpi-value {
   color: var(--pm-success);
 }
 
-.pm-moderation-page .moderation-kpi.kpi-changes .pm-kpi-value {
+.moderation-kpi.kpi-changes .pm-kpi-value {
   color: var(--pm-info);
 }
 
-.pm-moderation-page .kpi-pending .moderation-kpi-icon {
+.kpi-pending .moderation-kpi-icon {
   color: var(--pm-warning);
 }
 
-.pm-moderation-page .kpi-risk .moderation-kpi-icon {
+.kpi-risk .moderation-kpi-icon {
   color: var(--pm-danger);
 }
 
-.pm-moderation-page .kpi-approved .moderation-kpi-icon {
+.kpi-approved .moderation-kpi-icon {
   color: var(--pm-success);
 }
 
-.pm-moderation-page .kpi-rejected .moderation-kpi-icon {
+.kpi-rejected .moderation-kpi-icon {
   color: var(--pm-danger);
 }
 
-.pm-moderation-page .kpi-today .moderation-kpi-icon {
+.kpi-today .moderation-kpi-icon {
   color: var(--pm-info);
 }
 
-.pm-moderation-page .kpi-time .moderation-kpi-icon {
+.kpi-time .moderation-kpi-icon {
   color: var(--pm-accent);
 }
 
 /* Lucide icon */
-.pm-moderation-page .moderation-kpi-icon {
+.moderation-kpi-icon {
   position: absolute;
   top: 16px;
   right: 16px;
@@ -14997,7 +14890,7 @@ textarea:valid {
   gap: 9px;
 }
 
-.pm-moderation-page .moderation-request {
+.moderation-request {
   min-width: 0;
   padding: 14px;
   border-radius: 13px;
@@ -15009,8 +14902,8 @@ textarea:valid {
   cursor: pointer;
 }
 
-.pm-moderation-page .moderation-request:hover,
-.pm-moderation-page .moderation-request.selected {
+.moderation-request:hover,
+.moderation-request.selected {
   border-color: var(--pm-border-strong);
   background: linear-gradient(
     145deg,
@@ -15019,7 +14912,7 @@ textarea:valid {
   );
 }
 
-.pm-moderation-page .moderation-request.selected {
+.moderation-request.selected {
   box-shadow:
     inset 3px 0 0 var(--pm-emerald-400),
     var(--pm-shadow-sm);
@@ -15397,7 +15290,7 @@ textarea:valid {
 }
 
 @media (max-width: 1400px) {
-  .pm-moderation-page .moderation-kpi-grid {
+  .moderation-kpi-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .moderation-workspace {
@@ -15406,7 +15299,7 @@ textarea:valid {
 }
 
 @media (max-width: 1050px) {
-  .pm-moderation-page .moderation-kpi-grid {
+  .moderation-kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .moderation-workspace {
@@ -15453,7 +15346,7 @@ textarea:valid {
 }
 
 @media (max-width: 520px) {
-  .pm-moderation-page .moderation-kpi-grid {
+  .moderation-kpi-grid {
     grid-template-columns: 1fr 1fr;
   }
   .moderation-toolbar {
@@ -15479,7 +15372,7 @@ textarea:valid {
   }
 }
 
-.pm-monitoring-page {
+.monitoring-shell {
   --monitor-green: #10b981;
   --monitor-teal: #2dd4bf;
   --monitor-cyan: #22d3ee;
@@ -16546,7 +16439,7 @@ textarea:valid {
    PAGE
    ============================================================ */
 
-.pm-navigation-page {
+.navigation-workspace {
   width: 100%;
   min-width: 0;
   max-width: 100%;
@@ -17937,7 +17830,7 @@ textarea:valid {
    ============================================================ */
 
 @media (max-width: 900px) {
-  .pm-navigation-page {
+  .navigation-workspace {
     padding-bottom: calc(76px + var(--nav-safe-bottom));
   }
 
@@ -18165,7 +18058,7 @@ textarea:valid {
    ============================================================ */
 
 @media (max-width: 600px) {
-  .pm-navigation-page {
+  .navigation-workspace {
     padding-left: 0;
     padding-right: 0;
   }
@@ -18348,11 +18241,11 @@ textarea:valid {
    ============================================================ */
 
 @media (max-width: 900px) {
-  .pm-navigation-page.live-navigation-active .nav-page-header {
+  .live-navigation-active .nav-page-header {
     display: none;
   }
 
-  .pm-navigation-page.live-navigation-active .navigation-map-shell {
+  .live-navigation-active .navigation-map-shell {
     height: calc(100dvh - var(--nav-safe-top) - 92px);
     min-height: 500px;
     border-radius: 0;
@@ -18360,11 +18253,11 @@ textarea:valid {
     border-right: 0;
   }
 
-  .pm-navigation-page.live-navigation-active .navigation-control-panel {
+  .live-navigation-active .navigation-control-panel {
     display: none;
   }
 
-  .pm-navigation-page.live-navigation-active .nav-live-panel {
+  .live-navigation-active .nav-live-panel {
     position: fixed;
     z-index: 5000;
     left: 8px;
@@ -18377,7 +18270,7 @@ textarea:valid {
        U live modu banner ostaje centralan,
        odmah ispod gornjeg dela mape.
     */
-  .pm-navigation-page.live-navigation-active .nav-next-overlay {
+  .live-navigation-active .nav-next-overlay {
     top: calc(10px + var(--nav-safe-top));
     left: 50%;
     right: auto;
@@ -18385,11 +18278,11 @@ textarea:valid {
     width: calc(100% - 16px);
   }
 
-  .pm-navigation-page.live-navigation-active .nav-map-controls {
+  .live-navigation-active .nav-map-controls {
     bottom: 95px;
   }
 
-  .pm-navigation-page.live-navigation-active #navMap .leaflet-control-zoom {
+  .live-navigation-active #navMap .leaflet-control-zoom {
     margin-top: 120px;
   }
 }
@@ -18490,7 +18383,7 @@ select:focus-visible {
     PM ORDERS PAGE
     ============================================================ */
 
-.pm-orders-page {
+.pm-orders-content {
   --orders-card: rgba(5, 31, 25, 0.88);
   --orders-card-strong: rgba(7, 39, 31, 0.96);
   --orders-card-soft: rgba(7, 52, 43, 0.55);
@@ -19193,10 +19086,6 @@ select:focus-visible {
 }
 
 .pm-orders-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
   min-height: 56px;
   padding: 10px 17px;
 }
@@ -19208,12 +19097,10 @@ select:focus-visible {
 }
 
 .pm-orders-pagination-actions {
-  display: flex;
-  align-items: center;
   gap: 5px;
 }
 
-.pm-orders-page-btn {
+.pm-pagination-btn {
   width: 30px;
   height: 30px;
   display: inline-flex;
@@ -19228,8 +19115,8 @@ select:focus-visible {
   cursor: pointer;
 }
 
-.pm-orders-page-btn:hover,
-.pm-orders-page-btn.active {
+.pm-pagination-btn:hover,
+.pm-pagination-btn.active {
   border-color: rgba(45, 212, 191, 0.24);
   background: rgba(16, 185, 129, 0.1);
   color: var(--orders-text);
@@ -19949,12 +19836,6 @@ select:focus-visible {
    PM PROFILE PAGE
    ========================================================= */
 
-.pm-profile-page {
-  position: relative;
-  width: 100%;
-  min-height: 100%;
-  color: var(--pm-text);
-}
 
 .pm-profile-header {
   position: relative;
@@ -21381,9 +21262,9 @@ select:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pm-profile-page *,
-  .pm-profile-page *::before,
-  .pm-profile-page *::after {
+  .pm-profile-grid *,
+  .pm-profile-grid *::before,
+  .pm-profile-grid *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -21663,12 +21544,7 @@ select:focus-visible {
 }
 
 .pm-vehicles-card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 16px;
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--pm-border-soft);
 }
 
 .pm-vehicles-card-title-wrap {
@@ -22162,10 +22038,6 @@ select:focus-visible {
 }
 
 @media (max-width: 800px) {
-  .pm-vehicles-page {
-    padding: 20px 16px 28px;
-  }
-
   .pm-vehicles-header {
     align-items: flex-start;
     flex-direction: column;
@@ -22225,12 +22097,6 @@ select:focus-visible {
   }
 }
 
-.pm-vehicle-new-page {
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 30px 34px 60px;
-}
 
 .vehicle-new-header {
   display: flex;
@@ -22376,14 +22242,11 @@ select:focus-visible {
 .vehicle-card,
 .vehicle-side-card,
 .vehicle-actions-card {
-  border: 1px solid var(--pm-border);
   background: linear-gradient(
     145deg,
     rgba(5, 39, 32, 0.91),
     rgba(2, 21, 18, 0.88)
   );
-  border-radius: var(--pm-radius-lg);
-  box-shadow: var(--pm-shadow-sm);
   overflow: hidden;
 }
 
@@ -22889,10 +22752,6 @@ select:focus-visible {
 }
 
 @media (max-width: 900px) {
-  .pm-vehicle-new-page {
-    padding: 24px 20px 45px;
-  }
-
   .vehicle-new-header {
     align-items: flex-start;
     flex-direction: column;
@@ -22933,10 +22792,6 @@ select:focus-visible {
 }
 
 @media (max-width: 600px) {
-  .pm-vehicle-new-page {
-    padding: 20px 14px 35px;
-  }
-
   .vehicle-new-header-actions {
     flex-direction: column;
   }
@@ -22968,16 +22823,6 @@ select:focus-visible {
 
 /* Trips page: semantic ProMap UI layer. Visual values intentionally mirror the existing Trips layout. */
 
-.pm-trips-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--pm-space-4);
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-  padding: var(--pm-space-5);
-  color: var(--pm-text);
-}
 
 .pm-trip-header {
   flex-shrink: 0;
@@ -23021,10 +22866,8 @@ select:focus-visible {
 }
 
 .pm-trip-kpis {
-  display: grid;
   flex-shrink: 0;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--pm-space-3);
 }
 
 .pm-trip-kpi-label {
@@ -23407,7 +23250,7 @@ select:focus-visible {
     padding: 0;
   }
 
-  .pm-body.pm-embedded-mobile-shell .pm-navigation-page {
+  .pm-body.pm-embedded-mobile-shell .pm-content-inner > .pm-page {
     position: relative;
     width: 100%;
     height: 100dvh;
