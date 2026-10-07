@@ -351,21 +351,32 @@ static async Task InitializeDatabaseAsync(WebApplication app)
         : false;
     var schemaExists = await SchemaExistsAsync(db).ConfigureAwait(false);
 
-    if (hasMigrations && (appliedMigrations || !schemaExists))
+    if (!schemaExists)
     {
-        await db.Database.MigrateAsync().ConfigureAwait(false);
+        if (app.Environment.IsDevelopment())
+        {
+            logger.LogWarning(
+                "The PostgreSQL schema is missing ASP.NET Identity tables. Resetting the local database to create the required schema.");
+            await db.Database.EnsureDeletedAsync().ConfigureAwait(false);
+            await db.Database.EnsureCreatedAsync().ConfigureAwait(false);
+        }
+        else
+        {
+            throw new InvalidOperationException(
+                "The configured PostgreSQL database is missing the ASP.NET Identity tables. Recreate or migrate the database before starting the app.");
+        }
     }
-    else if (!schemaExists)
-    {
-        await db.Database.EnsureCreatedAsync().ConfigureAwait(false);
-    }
-    else if (hasMigrations)
+    else if (hasMigrations && !appliedMigrations)
     {
         // The schema predates migrations (created by EnsureCreated). Applying
         // migrations here would attempt to recreate existing objects, so the
         // migration history has to be baselined manually instead.
         logger.LogWarning(
             "Skipping MigrateAsync: the database schema already exists but has no migration history. Baseline the migration history before enabling migrations.");
+    }
+    else if (hasMigrations)
+    {
+        await db.Database.MigrateAsync().ConfigureAwait(false);
     }
 
     await db.Database.ExecuteSqlRawAsync("""
