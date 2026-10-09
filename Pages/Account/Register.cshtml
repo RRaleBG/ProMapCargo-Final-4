@@ -1,65 +1,177 @@
 @page "/Account/Register"
 @model ProMapCargo.Api.Pages.Account.RegisterModel
 @{
-    ViewData["Title"] = "Kreiranje naloga · ProMap Cargo";
+    Layout = null;
+    ViewData["Title"] = "Registracija · ProMap Cargo";
 }
 
-<div class="pm-auth-main">
-    <section class="pm-auth-card">
-        <div class="pm-auth-card-glow"></div>
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#031c18" />
+    <title>@ViewData["Title"]</title>
 
-        <header class="pm-auth-header">
-            <div>
-                <div class="pm-auth-eyebrow">Account · Registration</div>
-                <h1>Kreiranje naloga</h1>
-                <p>Registrujte korisnika za pristup ProMap Cargo platformi.</p>
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/promap.css" asp-append-version="true" />
+</head>
+<body class="pm-page pm-auth-page">
+    <div class="pm-auth-backdrop" aria-hidden="true">
+        <div class="pm-auth-route route-a"></div>
+        <div class="pm-auth-route route-b"></div>
+        <div class="pm-auth-node node-a"></div>
+        <div class="pm-auth-node node-b"></div>
+        <div class="pm-auth-node node-c"></div>
+    </div>
+
+    <main class="pm-auth-shell">
+        <section class="pm-card pm-auth-card" aria-label="Registracija">
+            <header class="pm-card-header pm-auth-header">
+                <div>
+                    <div class="pm-eyebrow">Account · Registration</div>
+                    <h2 class="pm-card-title">Kreiranje naloga</h2>
+                    <p class="pm-card-subtitle">Napravite nalog za pristup ProMap Cargo platformi.</p>
+                </div>
+                <div class="pm-auth-lock" aria-hidden="true">◈</div>
+            </header>
+
+            <div class="pm-card-body">
+                <form method="post" class="pm-form-stack" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="pm-error"></div>
+
+                    <div class="pm-field">
+                        <label for="displayName">Ime i prezime</label>
+                        <div class="pm-input-wrap">
+                            <span class="pm-input-icon">◎</span>
+                            <input asp-for="Input.DisplayName" id="displayName" type="text" autocomplete="name"
+                                   maxlength="120" placeholder="Marko Marković" required class="pm-input" />
+                        </div>
+                        <span asp-validation-for="Input.DisplayName" class="pm-field-error"></span>
+                    </div>
+
+                    <div class="pm-field">
+                        <label for="registerEmail">Email adresa</label>
+                        <div class="pm-input-wrap">
+                            <span class="pm-input-icon">@@</span>
+                            <input asp-for="Input.Email" id="registerEmail" type="email" autocomplete="email"
+                                   maxlength="256" placeholder="operator@promapcargo.com" required class="pm-input" />
+                        </div>
+                        <span asp-validation-for="Input.Email" class="pm-field-error"></span>
+                    </div>
+
+                    <div class="pm-field">
+                        <label for="registerPassword">Lozinka</label>
+                        <div class="pm-input-wrap">
+                            <span class="pm-input-icon">●</span>
+                            <input asp-for="Input.Password" id="registerPassword" type="password" autocomplete="new-password"
+                                   minlength="8" maxlength="128" required class="pm-input" />
+                            <button type="button" class="pm-password-toggle" data-toggle-password="registerPassword" aria-label="Prikaži lozinku">◉</button>
+                        </div>
+                        <span class="pm-field-hint">Najmanje 8 karaktera, sa velikim i malim slovom i brojem.</span>
+                        <span asp-validation-for="Input.Password" class="pm-field-error"></span>
+                    </div>
+
+                    <div class="pm-field">
+                        <label for="registerConfirmPassword">Potvrda lozinke</label>
+                        <div class="pm-input-wrap">
+                            <span class="pm-input-icon">●</span>
+                            <input asp-for="Input.ConfirmPassword" id="registerConfirmPassword" type="password" autocomplete="new-password"
+                                   minlength="8" maxlength="128" required class="pm-input" />
+                            <button type="button" class="pm-password-toggle" data-toggle-password="registerConfirmPassword" aria-label="Prikaži lozinku">◉</button>
+                        </div>
+                        <span asp-validation-for="Input.ConfirmPassword" class="pm-field-error"></span>
+                    </div>
+
+                    <button type="submit" class="pm-btn pm-btn-primary pm-btn-lg pm-btn-full">
+                        <span>Kreiraj nalog</span>
+                        <span class="pm-btn-arrow" aria-hidden="true">→</span>
+                    </button>
+                </form>
             </div>
-            <div class="pm-auth-mark"><i data-lucide="user-plus"></i></div>
-        </header>
 
-        <form method="post" class="pm-auth-form" novalidate>
-            <div asp-validation-summary="ModelOnly" class="pm-validation-summary"></div>
+            <footer class="pm-card-footer">
+                <div class="pm-divider"><span>SECURE IDENTITY ACCESS</span></div>
 
-            <div class="pm-auth-field">
-                <label asp-for="Input.DisplayName">Ime i prezime</label>
-                <input asp-for="Input.DisplayName" type="text" autocomplete="name"
-                       maxlength="120" placeholder="Marko Marković" required />
-                <span asp-validation-for="Input.DisplayName" class="field-validation-error"></span>
-            </div>
+                <div class="pm-status-row">
+                    <span class="pm-status-mark" aria-hidden="true">✓</span>
+                    <div>
+                        <strong>Zaštićen pristup</strong>
+                        <small>ASP.NET Core Identity · Secure registration</small>
+                    </div>
+                </div>
 
-            <div class="pm-auth-field">
-                <label asp-for="Input.Email">Email adresa</label>
-                <input asp-for="Input.Email" type="email" autocomplete="email"
-                       maxlength="256" placeholder="operator@promapcargo.com" required />
-                <span asp-validation-for="Input.Email" class="field-validation-error"></span>
-            </div>
+                <div class="pm-signup-row">
+                    <span>Već imate nalog?</span>
+                    <a href="/login">Prijavite se</a>
+                </div>
+            </footer>
+        </section>
+    </main>
 
-            <div class="pm-auth-field">
-                <label asp-for="Input.Password">Lozinka</label>
-                <input asp-for="Input.Password" type="password" autocomplete="new-password"
-                       minlength="8" maxlength="128" required />
-                <span class="pm-auth-hint">Najmanje 8 karaktera, sa velikim i malim slovom i brojem.</span>
-                <span asp-validation-for="Input.Password" class="field-validation-error"></span>
-            </div>
+    <script src="~/lib/lucide.min.js" asp-append-version="true" defer></script>
+    <script src="~/js/core/icons.js" asp-append-version="true" defer></script>
+    <script src="~/js/core/toast.js" asp-append-version="true" defer></script>
 
-            <div class="pm-auth-field">
-                <label asp-for="Input.ConfirmPassword">Potvrda lozinke</label>
-                <input asp-for="Input.ConfirmPassword" type="password" autocomplete="new-password"
-                       minlength="8" maxlength="128" required />
-                <span asp-validation-for="Input.ConfirmPassword" class="field-validation-error"></span>
-            </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleButtons = document.querySelectorAll("[data-toggle-password]");
+            toggleButtons.forEach(function (toggleButton) {
+                toggleButton.addEventListener("click", function () {
+                    const inputId = toggleButton.getAttribute("data-toggle-password");
+                    const passwordInput = document.getElementById(inputId);
+                    if (!passwordInput) {
+                        return;
+                    }
 
-            <div class="pm-auth-actions">
-                <button class="pm-btn pm-btn-primary" type="submit">
-                    <i data-lucide="user-check"></i>
-                    <span>Kreiraj nalog</span>
-                </button>
-            </div>
-        </form>
+                    const visible = passwordInput.type === "text";
+                    passwordInput.type = visible ? "password" : "text";
+                    toggleButton.textContent = visible ? "◉" : "◎";
+                    toggleButton.setAttribute("aria-label", visible ? "Prikaži lozinku" : "Sakrij lozinku");
+                });
+            });
 
-        <div class="pm-auth-footer">
-            <span>Već imate nalog?</span>
-            <a asp-page="/Login/Index">Prijavite se</a>
-        </div>
-    </section>
-</div>
+            const form = document.querySelector(".pm-form-stack");
+            if (!form) {
+                return;
+            }
+
+            const inputs = Array.from(form.querySelectorAll("input[type='text'], input[type='email'], input[type='password']"));
+
+            const applyValidationState = function (input) {
+                const hasValue = (input.value || "").trim().length > 0;
+                const isValid = input.checkValidity();
+
+                input.classList.remove("pm-field-valid", "pm-field-ring", "pm-field-valid-ring", "pm-field-invalid", "pm-field-invalid-ring");
+
+                if (!hasValue) {
+                    return;
+                }
+
+                if (isValid) {
+                    input.classList.add("pm-field-valid", "pm-field-ring", "pm-field-valid-ring");
+                    input.setAttribute("aria-invalid", "false");
+                    return;
+                }
+
+                input.classList.add("pm-field-invalid", "pm-field-ring", "pm-field-invalid-ring");
+                input.setAttribute("aria-invalid", "true");
+            };
+
+            inputs.forEach(function (input) {
+                input.addEventListener("input", function () {
+                    applyValidationState(input);
+                });
+                input.addEventListener("blur", function () {
+                    applyValidationState(input);
+                });
+                applyValidationState(input);
+            });
+
+            form.addEventListener("submit", function () {
+                inputs.forEach(applyValidationState);
+            });
+        });
+    </script>
+</body>
+</html>

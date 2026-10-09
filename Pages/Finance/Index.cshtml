@@ -22,14 +22,14 @@
             <button type="button"
                     class="finance-btn pm-btn"
                     id="financeRefreshButton">
-                <span>↻</span>
+                <i data-lucide="rotate-cw" class="pm-icon" aria-hidden="true"></i>
                 Osveži
             </button>
 
             <button type="button"
                     class="finance-btn finance-btn-primary pm-btn pm-btn-primary"
                     id="openExpenseModal">
-                <span>＋</span>
+                <i data-lucide="plus" class="pm-icon" aria-hidden="true"></i>
                 Novi trošak
             </button>
         </div>
@@ -476,16 +476,17 @@
                     </div>
                 </header>
 
-                <div class="finance-filters">
+                <div class="pm-toolbar finance-filters">
 
-                    <label class="finance-search">
-                        <span>⌕</span>
+                    <label class="pm-search-wrap finance-search">
+                        <i data-lucide="search" class="pm-search-icon pm-icon" aria-hidden="true"></i>
                         <input id="financeSearch"
+                               class="pm-search-input"
                                type="search"
                                placeholder="Pretraži transakcije..." />
                     </label>
 
-                    <select id="financeCategoryFilter">
+                    <select id="financeCategoryFilter" class="pm-select finance-select">
                         <option value="all">Sve kategorije</option>
                         <option value="fuel">Gorivo</option>
                         <option value="toll">Putarina</option>
@@ -495,7 +496,7 @@
                         <option value="other">Ostalo</option>
                     </select>
 
-                    <select id="financeStatusFilter">
+                    <select id="financeStatusFilter" class="pm-select finance-select">
                         <option value="all">Svi statusi</option>
                         <option value="approved">Approved</option>
                         <option value="pending">Pending</option>

@@ -7,8 +7,8 @@
 <div id="tripsPage" data-module="trips" class="pm-page">
     <header class="pm-page-header pm-header pm-trip-header">
         <div class="pm-trip-heading">
-            <div class="pm-page-kicker pm-trip-kicker"> Operacije flote</div>
-                <h1 class="pm-page-title pm-trip-title"></h1>
+            <div class="pm-page-kicker pm-trip-kicker">Operacije flote</div>
+                <h1 class="pm-page-title pm-trip-title">Ture</h1>
                 <p class="pm-page-subtitle pm-trip-subtitle">Pregled statusa, dodela, napretka i
                     poslednje GPS aktivnosti.
                 </p>
@@ -77,48 +77,46 @@
                     <div class="pm-trip-live-note-title">Podaci u realnom vremenu</div>
                     <p class="pm-trip-live-note-text">Prikaz koristi ture i dodele
                         iz sistema. GPS status se računa prema poslednjem primljenom signalu.</p>
-                    </div>
+                </div>
             </aside>
 
-                <section aria-label="Lista svih tura" class="pm-card pm-trip-list pm-panel">
-                    <header class="pm-trip-list-header pm-toolbar pm-panel-heading">
-                        <div>
-                            <h2 class="pm-trip-list-title">Evidencija tura</h2>
-                            <p class="pm-trip-list-subtitle">
-                                <span id="tripsResultCount">Učitavanje…</span> · poslednjih do 500 tura
-                            </p>
-                         </div>
-                        <label class="pm-trip-search">
-                            <span aria-hidden="true" class="pm-trip-search-icon">⌕</span>
-                            <span class="pm-sr-only">Pretraži ture</span>
-                            <input id="tripsSearch" class="pm-search-input" type="search" autocomplete="off"  placeholder="Tura, nalog, vozač ili vozilo…"/>
-                        </label>
-                    </header>
-
-                    <div id="tripsError" role="alert" hidden class="pm-trip-error"> </div>
-
-                    <div class="pm-trip-table-wrap">
-                        <table class="pm-trip-table">
-                            <thead class="pm-trip-table-head">
-                                <tr>
-                                    <th scope="col" >Tura / nalog</th>
-                                    <th scope="col" >Status</th>
-                                    <th scope="col" >Vozač / vozilo</th>
-                                    <th scope="col" >Napredak</th>
-                                    <th scope="col" >Ruta</th>
-                                    <th scope="col" >Poslednji GPS</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tripsRows" class="pm-trip-table-body">
-                                <tr>
-                                    <td colspan="6" class="pm-trip-empty">Učitavanje tura…
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+            <section aria-label="Lista svih tura" class="pm-card pm-trip-list pm-panel">
+                <header class="pm-trip-list-header pm-toolbar pm-panel-heading">
+                    <div>
+                        <h2 class="pm-trip-list-title">Evidencija tura</h2>
+                        <p class="pm-trip-list-subtitle">
+                            <span id="tripsResultCount">Učitavanje…</span> · poslednjih do 500 tura
+                        </p>
                     </div>
-                </section>
+                    <label class="pm-search-wrap pm-trip-search">
+                        <i data-lucide="search" class="pm-search-icon pm-icon" aria-hidden="true"></i>
+                        <span class="pm-sr-only">Pretraži ture</span>
+                        <input id="tripsSearch" class="pm-search-input" type="search" autocomplete="off" placeholder="Tura, nalog, vozač ili vozilo…" />
+                    </label>
+                </header>
 
-            </div>
+                <div id="tripsError" role="alert" hidden class="pm-trip-error"> </div>
+
+                <div class="pm-trip-table-wrap">
+                    <table class="pm-trip-table">
+                        <thead class="pm-trip-table-head">
+                            <tr>
+                                <th scope="col">Tura / nalog</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Vozač / vozilo</th>
+                                <th scope="col">Napredak</th>
+                                <th scope="col">Ruta</th>
+                                <th scope="col">Poslednji GPS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tripsRows" class="pm-trip-table-body">
+                            <tr>
+                                <td colspan="6" class="pm-trip-empty">Učitavanje tura…</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
+    </div>
         

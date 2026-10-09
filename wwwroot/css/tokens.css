@@ -5,13 +5,13 @@
        ========================================================= */
 
     --pm-font-family: "Inter", "Noto Sans", "Open Sans", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    --pm-font-xs: 11px;
-    --pm-font-sm: 12px;
-    --pm-font-md: 14px;
-    --pm-font-lg: 16px;
-    --pm-font-xl: 20px;
-    --pm-font-2xl: 28px;
-    --pm-font-3xl: 36px;
+    --pm-font-xs: 13px;
+    --pm-font-sm: 14px;
+    --pm-font-md: 15px;
+    --pm-font-lg: 18px;
+    --pm-font-xl: 24px;
+    --pm-font-2xl: 34px;
+    --pm-font-3xl: 40px;
     --pm-font-line-height-base: 1.58;
     --pm-font-line-height-compact: 1.45;
     --pm-font-weight-regular: 400;
@@ -104,8 +104,8 @@
        Layout
        ========================================================= */
 
-    --pm-sidebar-width: 252px;
-    --pm-topbar-height: 72px;
+    --pm-sidebar-width: 280px;
+    --pm-topbar-height: 80px;
     --pm-footer-height: 42px;
     /* =========================================================
        Shadows

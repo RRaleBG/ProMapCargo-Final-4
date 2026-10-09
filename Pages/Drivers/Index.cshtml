@@ -131,17 +131,17 @@
 
         <section class="pm-toolbar" aria-label="Filteri vozača">
 
-            <div class="pm-driver-search">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <div class="pm-search-wrap pm-driver-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="pm-search-icon">
                     <circle cx="11" cy="11" r="7"></circle>
                     <path d="m20 20-4-4"></path>
                 </svg>
 
-                <input id="driverSearch" class="pm-driver-input" type="search" autocomplete="off"
-                       placeholder="Pretraži ime, telefon ili broj licence..." />
+                <input id="driverSearch" class="pm-search-input pm-driver-input" type="search" autocomplete="off"
+                        placeholder="Pretraži ime, telefon ili broj licence..." />
             </div>
 
-            <select id="driverStatusFilter" class="pm-driver-select" aria-label="Status vozača">
+            <select id="driverStatusFilter" class="pm-select pm-driver-select" aria-label="Status vozača">
                 <option value="">Svi statusi</option>
                 <option value="Active">Aktivan</option>
                 <option value="Inactive">Neaktivan</option>
@@ -149,7 +149,7 @@
                 <option value="Suspended">Suspendovan</option>
             </select>
 
-            <select id="driverGpsFilter" class="pm-driver-select" aria-label="GPS status">
+            <select id="driverGpsFilter" class="pm-select pm-driver-select" aria-label="GPS status">
                 <option value="">Svi GPS statusi</option>
                 <option value="online">GPS online</option>
                 <option value="stale">GPS zastareo</option>

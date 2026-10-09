@@ -19,11 +19,11 @@
         </div>
         <div class="pm-header-actions">
             <button class="pm-btn" type="button" id="refreshVehicles">
-                <span> <i data-lucide="refresh-cw" class="compliance-kpi-icon" width="18" height="18"></i> </span>
+                <span> <i data-lucide="refresh-cw" class="compliance-kpi-icon"></i> </span>
                 <small>Osveži</small>
             </button>
             <button class="pm-btn pm-btn-secondary" type="button" id="addVehicle">
-                <span> <i data-lucide="plus" class="compliance-kpi-icon" width="18" height="18"></i> </span>
+                <span> <i data-lucide="plus" class="compliance-kpi-icon"></i> </span>
                 <small>Novo vozilo</small>
             </button>
         </div>
@@ -35,7 +35,7 @@
         <article class="compliance-kpi compliance-kpi-total">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Total</span>               
-                <i data-lucide="truck" class="compliance-kpi-icon" stroke-width="0"></i>
+                <i data-lucide="truck" class="compliance-kpi-icon"></i>
             </div>
             <strong class="compliance-kpi-value" id="kpiTotal">-</strong>
             <span class="compliance-kpi-meta"> registered  </span>
@@ -44,7 +44,7 @@
         <article class="compliance-kpi compliance-kpi-good">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Active</span>            
-                <i data-lucide="check-check" class="compliance-kpi-icon" stroke-width="0"></i>
+                <i data-lucide="check-check" class="compliance-kpi-icon"></i>
             </div>
             <strong class="compliance-kpi-value" id="activeVehicles">-</strong>
             <span class="compliance-kpi-meta"> no critical issues   </span>
@@ -53,7 +53,7 @@
         <article class="compliance-kpi compliance-kpi-warning">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Expiring Soon</span>
-                <i data-lucide="triangle-alert" class="compliance-kpi-icon" stroke-width="0"></i>
+                <i data-lucide="triangle-alert" class="compliance-kpi-icon"></i>
             </div>
             <strong class="compliance-kpi-value" id="expiringVehicles">-</strong>
             <span class="compliance-kpi-meta">  documents in the next 30 days   </span>
@@ -62,7 +62,7 @@
         <article class="compliance-kpi compliance-kpi-danger">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Inactive</span>
-                <i data-lucide="shield-x" class="compliance-kpi-icon" stroke-width="0"></i>
+                <i data-lucide="shield-x" class="compliance-kpi-icon"></i>
             </div>
             <strong class="compliance-kpi-value" id="inactiveVehicles">-</strong>
             <span class="compliance-kpi-meta"> inactive vehicles   </span>
@@ -71,7 +71,7 @@
         <article class="compliance-kpi compliance-kpi-info">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Trailers</span>
-                <i data-lucide="trailer" class="compliance-kpi-icon" stroke-width="3"></i>
+                <i data-lucide="trailer" class="compliance-kpi-icon"></i>
             </div>
             <strong class="compliance-kpi-value">-</strong>
             <span class="compliance-kpi-meta">  registered trailers    </span>
@@ -80,7 +80,7 @@
         <article class="compliance-kpi compliance-kpi-neutral">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Service</span>
-                <i data-lucide="wrench" class="compliance-kpi-icon" stroke-width="2"></i>    
+                <i data-lucide="wrench" class="compliance-kpi-icon"></i>
             </div>
 
             <strong class="compliance-kpi-value">-</strong>
@@ -92,15 +92,13 @@
 
 
     <!-- FILTER TOOLBAR -->
-    <section class="moderation-toolbar pm-card pm-toolbar">
-        <div class="moderation-search">          
-            <span>  
-                <i data-lucide="search" class="moderation-search-icon" width="20" height="20" aria-hidden="true"></i>
-            </span>
+    <section class="pm-toolbar moderation-toolbar pm-card">
+        <div class="pm-search-wrap moderation-search">
+            <i data-lucide="search" class="pm-search-icon pm-icon" aria-hidden="true"></i>
             <input id="vehicleSearch" class="pm-search-input" type="search" placeholder="Pretraži registraciju, marku, model ili VIN..." autocomplete="off" />
         </div>
 
-        <select id="vehicleStatusFilter" class="moderation-select pm-select" aria-label="Status vozila">
+        <select id="vehicleStatusFilter" class="pm-select moderation-select" aria-label="Status vozila">
             <option value="">Svi statusi</option>
             <option value="Active">Aktivno</option>
             <option value="Available">Dostupno</option>
@@ -108,13 +106,13 @@
             <option value="Inactive">Neaktivno</option>
         </select>
 
-        <select id="vehicleGpsFilter" class="moderation-select pm-select" aria-label="GPS status">
+        <select id="vehicleGpsFilter" class="pm-select moderation-select" aria-label="GPS status">
             <option value="">Svi GPS statusi</option>
             <option value="online">GPS online</option>
             <option value="stale">GPS zastareo</option>
             <option value="offline">GPS offline</option>
         </select>
-   
+
         <p class="pm-vehicle-results" id="vehicleResults">
             Učitavanje...
         </p>
@@ -133,7 +131,7 @@
                         </p>
                     </div>
                     <button type="button" class="pm-vehicles-refresh" id="refreshVehiclesSmall" title="Osveži podatke" aria-label="Osveži podatke">
-                         <span> <i data-lucide="refresh-cw" height="20" width="20" ></i> </span>
+                         <span> <i data-lucide="refresh-cw"></i> </span>
                     </button>
 
                 </div>

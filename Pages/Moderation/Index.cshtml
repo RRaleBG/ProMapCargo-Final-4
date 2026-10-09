@@ -100,43 +100,43 @@
 
 
     <!-- FILTER TOOLBAR -->
-    <section class="moderation-toolbar pm-card pm-toolbar">
+    <section class="pm-toolbar moderation-toolbar pm-card">
 
-        <div class="moderation-search">
-            <span>⌕</span>
+        <div class="pm-search-wrap moderation-search">
+            <i data-lucide="search" class="pm-search-icon pm-icon" aria-hidden="true"></i>
 
             <input id="moderationSearch" class="pm-search-input" type="search" placeholder="Pretraži ID, vozilo, turu, operatora..."
-                   autocomplete="off" />
+                    autocomplete="off" />
         </div>
 
-        <div class="moderation-filter-group pm-filter-group">
+        <div class="pm-filter-group moderation-filter-group">
 
-            <button class="moderation-filter pm-filter-btn active" data-status="all" type="button">
+            <button class="pm-filter-btn moderation-filter active" data-status="all" type="button">
                 Svi <b>6</b>
             </button>
 
-            <button class="moderation-filter pm-filter-btn" data-status="pending" type="button">
+            <button class="pm-filter-btn moderation-filter" data-status="pending" type="button">
                 Na čekanju <b>3</b>
             </button>
 
-            <button class="moderation-filter pm-filter-btn" data-status="approved" type="button">
+            <button class="pm-filter-btn moderation-filter" data-status="approved" type="button">
                 Odobreno <b>1</b>
             </button>
 
-            <button class="moderation-filter pm-filter-btn" data-status="rejected" type="button">
+            <button class="pm-filter-btn moderation-filter" data-status="rejected" type="button">
                 Odbijeno <b>2</b>
             </button>
 
         </div>
 
-        <select id="riskFilter" class="moderation-select pm-select">
+        <select id="riskFilter" class="pm-select moderation-select">
             <option value="all">Svi rizici</option>
             <option value="high">Visok rizik</option>
             <option value="medium">Srednji rizik</option>
             <option value="low">Nizak rizik</option>
         </select>
 
-        <select id="domainFilter" class="moderation-select pm-select">
+        <select id="domainFilter" class="pm-select moderation-select">
             <option value="all">Svi domeni</option>
             <option value="routing">Routing</option>
             <option value="safety">Safety</option>

@@ -17,171 +17,86 @@
     <link rel="stylesheet" href="~/css/promap.css" asp-append-version="true" />
 
 </head>
-<body class="pm-page">
-<div class="pm-login-decor-layer">
+<body class="pm-page pm-auth-page">
+    <div class="pm-auth-backdrop" aria-hidden="true">
+        <div class="pm-auth-route route-a"></div>
+        <div class="pm-auth-route route-b"></div>
+        <div class="pm-auth-node node-a"></div>
+        <div class="pm-auth-node node-b"></div>
+        <div class="pm-auth-node node-c"></div>
+    </div>
 
-    <div class="pm-login-route route-a"></div>
-    <div class="pm-login-route route-b"></div>
-
-    <div class="pm-login-node node-a"></div>
-    <div class="pm-login-node node-b"></div>
-    <div class="pm-login-node node-c"></div>
-</div>
-
-<div class="pm-login-main">
-    <section class="pm-login-shell pm-login-shell-single">
-
-        <!-- =====================================================
-                 RIGHT / LOGIN
-                 ===================================================== -->
-
-        <section class="pm-login-card">
-            <div class="pm-login-card-glow"></div>
-            <div class="pm-login-card-header">
+    <main class="pm-auth-shell">
+        <section class="pm-card pm-auth-card" aria-label="Prijava">
+            <header class="pm-card-header pm-auth-header">
                 <div>
-                    <div class="pm-login-card-eyebrow">
-                        ACCOUNT · ACCESS
+                    <div class="pm-eyebrow">Account · Access</div>
+                    <h2 class="pm-card-title">Prijava</h2>
+                    <p class="pm-card-subtitle">Unesite podatke za pristup vašem nalogu.</p>
+                </div>
+                <div class="pm-auth-lock" aria-hidden="true">◈</div>
+            </header>
+
+            <div class="pm-card-body">
+                <form method="post" class="pm-form-stack" novalidate>
+                    <input asp-for="Input.ReturnUrl" type="hidden" />
+                    <div asp-validation-summary="ModelOnly" class="pm-error"></div>
+
+                    <div class="pm-field">
+                        <label for="email">Email adresa</label>
+                        <div class="pm-input-wrap">
+                            <span class="pm-input-icon">@@</span>
+                            <input asp-for="Input.Email" id="email" type="email" autocomplete="username"
+                                   placeholder="operator@promapcargo.com" required class="pm-input" />
+                        </div>
+                        <span asp-validation-for="Input.Email" class="pm-field-error"></span>
                     </div>
-                    <h2>
-                        Prijava
-                    </h2>
-                    <p>
-                        Unesite podatke za pristup vašem nalogu.
-                    </p>
-                </div>
-                <div class="pm-login-lock">
-                    ◈
-                </div>
+
+                    <div class="pm-field">
+                        <div class="pm-field-row">
+                            <label for="password">Lozinka</label>
+                            <a href="/Account/ForgotPassword" class="pm-link-inline">Zaboravljena lozinka?</a>
+                        </div>
+                        <div class="pm-input-wrap">
+                            <span class="pm-input-icon">●</span>
+                            <input asp-for="Input.Password" id="password" type="password" autocomplete="current-password"
+                                   placeholder="Unesite lozinku" required class="pm-input" />
+                            <button type="button" class="pm-password-toggle" id="togglePassword" aria-label="Prikaži lozinku">◉</button>
+                        </div>
+                        <span asp-validation-for="Input.Password" class="pm-field-error"></span>
+                    </div>
+
+                    <label class="pm-check">
+                        <input asp-for="Input.RememberMe" type="checkbox" />
+                        <span class="pm-check-box"></span>
+                        <span>Zapamti me na ovom uređaju</span>
+                    </label>
+
+                    <button type="submit" class="pm-btn pm-btn-primary pm-btn-lg pm-btn-full">
+                        <span>Prijavi se</span>
+                        <span class="pm-btn-arrow" aria-hidden="true">→</span>
+                    </button>
+                </form>
             </div>
 
+            <footer class="pm-card-footer">
+                <div class="pm-divider"><span>SECURE IDENTITY ACCESS</span></div>
 
-            <form method="post" class="pm-login-form" novalidate>
-                <input asp-for="Input.ReturnUrl" type="hidden" />
-                <div asp-validation-summary="ModelOnly" class="pm-login-validation"></div>
-
-                <div class="pm-login-field">
-                    <label for="email">
-                        Email adresa
-                    </label>
-                    <div class="pm-login-input-wrap">
-                        <span class="pm-login-input-icon">
-                            @@
-                        </span>
-                        <input asp-for="Input.Email" id="email" type="email" autocomplete="username"
-                               placeholder="operator@promapcargo.com" required class="pm-login-input-transition" />
-                    </div>
-                    <span asp-validation-for="Input.Email" class="pm-login-field-validation"></span>
-                </div>
-
-
-                <div class="pm-login-field">
-                    <div class="pm-login-label-row">
-                        <label for="password">
-                            Lozinka
-                        </label>
-
-                        <a href="/Account/ForgotPassword" class="pm-login-link">
-                            Zaboravljena lozinka?
-                        </a>
-
-                    </div>
-
-
-                    <div class="pm-login-input-wrap">
-
-                        <span class="pm-login-input-icon">
-                            ●
-                        </span>
-
-                        <input asp-for="Input.Password" id="password" type="password" autocomplete="current-password"
-                               placeholder="Unesite lozinku" required class="pm-login-input-transition" />
-
-                        <button type="button" class="pm-login-password-toggle" id="togglePassword"
-                                aria-label="Prikaži lozinku">
-                            ◉
-                        </button>
-
-                    </div>
-                    <span asp-validation-for="Input.Password" class="pm-login-field-validation"></span>
-
-                </div>
-
-
-                <label class="pm-login-remember">
-
-                    <input asp-for="Input.RememberMe" />
-
-                    <span class="pm-login-check"></span>
-
-                    <span>
-                        Zapamti me na ovom uređaju
-                    </span>
-
-                </label>
-
-
-                <button type="submit" class="pm-login-submit">
-
-                    <span>
-                        Prijavi se
-                    </span>
-
-                    <span class="pm-login-submit-arrow">
-                        →
-                    </span>
-
-                </button>
-
-
-                <div class="pm-login-divider">
-
-                    <span>
-                        SECURE IDENTITY ACCESS
-                    </span>
-
-                </div>
-
-
-                <div class="pm-login-security">
-
-                    <div class="pm-login-security-icon">
-                        ✓
-                    </div>
-
+                <div class="pm-status-row">
+                    <span class="pm-status-mark" aria-hidden="true">✓</span>
                     <div>
-
-                        <strong>
-                            Zaštićen pristup
-                        </strong>
-
-                        <span>
-                            ASP.NET Core Identity · Secure session
-                        </span>
-
+                        <strong>Zaštićen pristup</strong>
+                        <small>ASP.NET Core Identity · Secure session</small>
                     </div>
-
                 </div>
 
-
-                <div class="pm-login-register">
-
-                    <span>
-                        Nemate nalog?
-                    </span>
-
-                    <a href="/Account/Register">
-                        Kreirajte nalog
-                    </a>
-
+                <div class="pm-signup-row">
+                    <span>Nemate nalog?</span>
+                    <a href="/Account/Register">Kreirajte nalog</a>
                 </div>
-
-            </form>
-
+            </footer>
         </section>
-
-    </section>
-
-</div>
+    </main>
 
 @if (TempData["ToastSuccess"] is string toastSuccess)
 {
@@ -229,7 +144,7 @@
 
         }
 
-        const form = document.querySelector(".pm-login-form");
+        const form = document.querySelector(".pm-form-stack");
         if (!form) {
             return;
         }
