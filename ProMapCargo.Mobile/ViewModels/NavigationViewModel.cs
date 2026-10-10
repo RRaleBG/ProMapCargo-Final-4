@@ -12,6 +12,8 @@ public class NavigationViewModel : ViewModelBase
     private const double OffRouteThresholdMeters = 120;
     private const double ManeuverArrivalThresholdMeters = 35;
     private const string MyLocationLabel = "Moja lokacija";
+    // A maneuver counts as passed once the truck is this far beyond it along the route.
+    private const double ManeuverPassedToleranceMeters = 10;
     private static readonly TimeSpan GpsPollInterval = TimeSpan.FromSeconds(4);
     private static readonly TimeSpan AutoRerouteCooldown = TimeSpan.FromSeconds(20);
     private readonly ApiClient apiClient;
@@ -1123,6 +1125,47 @@ public class NavigationViewModel : ViewModelBase
         return OfflineRoutingAvailable ? "offline" : "online";
     }
 
+    private double[] routeCumulativeMeters = [];
+    private int routeCumulativeForCount = -1;
+
+    /// <summary>
+    /// Distance travelled along the route: the cumulative length up to the route
+    /// point nearest the truck. Null when the truck is more than 60 m off the route.
+    /// </summary>
+    private double? RouteProgressMeters(GeoPoint position)
+    {
+        var points = RoutePolylinePoints;
+        if (points.Count < 2)
+        {
+            return null;
+        }
+
+        if (routeCumulativeForCount != points.Count)
+        {
+            routeCumulativeMeters = new double[points.Count];
+            for (var i = 1; i < points.Count; i++)
+            {
+                routeCumulativeMeters[i] = routeCumulativeMeters[i - 1] + Location.CalculateDistance(
+                    points[i - 1].Lat, points[i - 1].Lon, points[i].Lat, points[i].Lon, DistanceUnits.Kilometers) * 1000;
+            }
+            routeCumulativeForCount = points.Count;
+        }
+
+        var nearest = 0;
+        var nearestDistance = double.MaxValue;
+        for (var i = 0; i < points.Count; i++)
+        {
+            var d = Location.CalculateDistance(position.Lat, position.Lon, points[i].Lat, points[i].Lon, DistanceUnits.Kilometers) * 1000;
+            if (d < nearestDistance)
+            {
+                nearestDistance = d;
+                nearest = i;
+            }
+        }
+
+        return nearestDistance <= 60 ? routeCumulativeMeters[nearest] : null;
+    }
+
     private GeoPoint? speedSamplePoint;
     private DateTimeOffset speedSampleAt;
 
@@ -1210,37 +1253,61 @@ public class NavigationViewModel : ViewModelBase
             return;
         }
 
-        var closestIndex = 0;
-        var closestDistance = double.MaxValue;
+        // TomTom-style: the next maneuver is the first one AHEAD of the truck along
+        // the route, not the nearest one (the nearest is often the turn just passed).
+        int nextIndex;
+        double nextDistance;
+        var progress = RouteProgressMeters(CurrentLocation);
 
-        for (var i = 0; i < RouteManeuvers.Count; i++)
+        if (progress is { } travelled)
         {
-            var maneuver = RouteManeuvers[i];
-            var distance = Location.CalculateDistance(
+            nextIndex = RouteManeuvers.Count - 1;
+            for (var i = 0; i < RouteManeuvers.Count; i++)
+            {
+                if (RouteManeuvers[i].DistanceFromRouteStartMeters > travelled + ManeuverPassedToleranceMeters)
+                {
+                    nextIndex = i;
+                    break;
+                }
+            }
+
+            nextDistance = Math.Max(0, RouteManeuvers[nextIndex].DistanceFromRouteStartMeters - travelled);
+        }
+        else
+        {
+            // Off the route: fall back to the nearest maneuver in a straight line.
+            var closestIndex = 0;
+            var closestDistance = double.MaxValue;
+
+            for (var i = 0; i < RouteManeuvers.Count; i++)
+            {
+                var maneuver = RouteManeuvers[i];
+                var distance = Location.CalculateDistance(
+                    CurrentLocation.Lat,
+                    CurrentLocation.Lon,
+                    maneuver.Latitude,
+                    maneuver.Longitude,
+                    DistanceUnits.Kilometers) * 1000;
+
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestIndex = i;
+                }
+            }
+
+            nextIndex = closestDistance <= ManeuverArrivalThresholdMeters && closestIndex + 1 < RouteManeuvers.Count
+                ? closestIndex + 1
+                : closestIndex;
+            nextDistance = Location.CalculateDistance(
                 CurrentLocation.Lat,
                 CurrentLocation.Lon,
-                maneuver.Latitude,
-                maneuver.Longitude,
+                RouteManeuvers[nextIndex].Latitude,
+                RouteManeuvers[nextIndex].Longitude,
                 DistanceUnits.Kilometers) * 1000;
-
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestIndex = i;
-            }
         }
 
-        var nextIndex = closestDistance <= ManeuverArrivalThresholdMeters && closestIndex + 1 < RouteManeuvers.Count
-            ? closestIndex + 1
-            : closestIndex;
-
         var nextManeuver = RouteManeuvers[nextIndex];
-        var nextDistance = Location.CalculateDistance(
-            CurrentLocation.Lat,
-            CurrentLocation.Lon,
-            nextManeuver.Latitude,
-            nextManeuver.Longitude,
-            DistanceUnits.Kilometers) * 1000;
 
         var maneuverChanged = NextManeuverIndex != nextIndex + 1;
         if (maneuverChanged)
