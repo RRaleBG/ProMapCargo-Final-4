@@ -241,3 +241,32 @@
   background: #ecfdf5;
   border-color: #10b981;
 }
+
+/* ---- Embedded mobile: truck marker for the driver's position ---- */
+.pm-mobile-truck-marker {
+  width: 34px;
+  height: 54px;
+  pointer-events: none;
+  filter: drop-shadow(0 0 6px rgba(3, 23, 18, 0.85));
+}
+
+.pm-mobile-truck-marker svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pm-mobile-truck-marker .trailer {
+  fill: #ecfdf5;
+  stroke: #031712;
+  stroke-width: 2;
+}
+
+.pm-mobile-truck-marker .cab {
+  fill: #10b981;
+  stroke: #031712;
+  stroke-width: 2;
+}
+
+.pm-mobile-truck-marker .glass {
+  fill: #031712;
+}

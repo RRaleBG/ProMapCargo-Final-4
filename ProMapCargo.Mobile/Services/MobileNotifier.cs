@@ -79,7 +79,7 @@ public sealed class MobileNotifier : IMobileNotifier
         });
     }
 
-    private static Task AnimateToastAsync(
+    private static async Task AnimateToastAsync(
         VisualElement element,
         double targetOpacity,
         double targetTranslationX,
@@ -89,7 +89,7 @@ public sealed class MobileNotifier : IMobileNotifier
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var completionSource = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var completionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         var animation = new Animation();
 
         animation.Add(
@@ -124,10 +124,10 @@ public sealed class MobileNotifier : IMobileNotifier
                     return;
                 }
 
-                completionSource.TrySetResult(null);
+                completionSource.TrySetResult(true);
             });
 
-        return completionSource.Task;
+        await completionSource.Task;
     }
 
     private static Grid BuildToast(string message, Color accentColor)

@@ -240,19 +240,29 @@ window.ProMap = window.ProMap || {};
         const destination = normalizePoint(payload.destination);
         const current = normalizePoint(payload.current);
 
-        if (start) {
+        // Set before the markers are created: mobile markers are icon-only.
+        state.mobileMode = toBoolean(payload.mobile, false);
+
+        if (start && !state.mobileMode) {
             setStart(start);
+        } else if (state.mobileMode) {
+            // The truck marker shows where the driver is; no separate start pin.
+            state.startMarker?.remove();
+            state.startMarker = null;
         }
 
-        if (destination) {
+        if (destination && !samePoint(destination, state.destination)) {
             setDestination(destination);
         }
 
-        state.mobileMode = toBoolean(payload.mobile, false);
-
         if (state.mobileMode) {
             state.live = true;
-            state.liveFollow = payload.follow !== false;
+            // Follow is switched on once; afterwards the driver's pan pauses it
+            // and window.proMapMobile.recenter() resumes it.
+            if (!state.mobileCameraStarted) {
+                state.liveFollow = payload.follow !== false;
+                attachMobileCameraGestures();
+            }
             state.lastRerouteAt = 0;
 
             setHidden("startLiveNavigation", true);
@@ -274,11 +284,15 @@ window.ProMap = window.ProMap || {};
 
         if (state.localMap?.enhancements?.setRoute) {
             const response = buildMobileRouteResponse(payload);
+            const signature = routeSignature(payload);
 
-            if (response) {
+            // The app pushes its state on every GPS fix; redraw only when the route
+            // itself changed, otherwise the map jumps on every update.
+            if (response && (!state.mobileMode || signature !== state.mobileRouteSignature)) {
+                state.mobileRouteSignature = signature;
                 renderRouteResponse(response);
                 // In the app the camera follows the driver instead of showing the whole route.
-                selectRoute(0, !(state.mobileMode && current && state.liveFollow));
+                selectRoute(0, !state.mobileMode);
             }
         }
 
@@ -312,6 +326,7 @@ window.ProMap = window.ProMap || {};
 
         window.proMapMobile.applyState = (payload) => {
             state.pendingMobilePayload = payload || {};
+            state.mobileMode = toBoolean(payload?.mobile, state.mobileMode);
 
             const current = normalizePoint(payload?.current);
 
@@ -1788,6 +1803,11 @@ window.ProMap = window.ProMap || {};
 
         element.className =
             `promap-nav-marker promap-nav-marker-${type}`;
+
+        // In the app the map stays clean: icon-only markers, no label or popup.
+        if (state.mobileMode) {
+            html = "";
+        }
 
         element.innerHTML = html;
 
@@ -3411,6 +3431,11 @@ window.ProMap = window.ProMap || {};
     function fitRoute() {
         const map = state.map;
 
+        // In the app the driving camera owns the view while it follows the truck.
+        if (state.mobileMode && state.liveFollow) {
+            return;
+        }
+
         if (
             !map ||
             typeof map.fitBounds !== "function"
@@ -3738,8 +3763,113 @@ window.ProMap = window.ProMap || {};
 
     // Driving camera for the MAUI app (TomTom-style): close zoom, tilted,
     // map rotated to the direction of travel, vehicle in the lower third.
-    const MOBILE_FOLLOW_ZOOM = 17;
-    const MOBILE_FOLLOW_PITCH = 55;
+    const MOBILE_FOLLOW_ZOOM = 18;
+    const MOBILE_FOLLOW_PITCH = 60;
+
+    // Direction of the route where the truck is (TomTom snaps the view to the road):
+    // bearing from the nearest route point to a point ~40 m further along.
+    // Returns null when the truck is more than 60 m off the route.
+    function routeBearingAt(latitude, longitude) {
+        const route = state.routeCoordinates;
+
+        if (!Array.isArray(route) || route.length < 2) {
+            return null;
+        }
+
+        let nearest = 0;
+        let nearestDistance = Infinity;
+
+        for (let i = 0; i < route.length; i++) {
+            const d = haversineMeters(latitude, longitude, route[i][0], route[i][1]);
+            if (d < nearestDistance) {
+                nearestDistance = d;
+                nearest = i;
+            }
+        }
+
+        if (nearestDistance > 60) {
+            return null;
+        }
+
+        let ahead = nearest;
+        let travelled = 0;
+        while (ahead < route.length - 1 && travelled < 40) {
+            travelled += haversineMeters(route[ahead][0], route[ahead][1], route[ahead + 1][0], route[ahead + 1][1]);
+            ahead++;
+        }
+
+        if (ahead === nearest) {
+            return null;
+        }
+
+        const toRad = Math.PI / 180;
+        const [lat1, lon1] = route[nearest];
+        const [lat2, lon2] = route[ahead];
+        const dLon = (lon2 - lon1) * toRad;
+        const y = Math.sin(dLon) * Math.cos(lat2 * toRad);
+        const x = Math.cos(lat1 * toRad) * Math.sin(lat2 * toRad) -
+            Math.sin(lat1 * toRad) * Math.cos(lat2 * toRad) * Math.cos(dLon);
+
+        return (Math.atan2(y, x) / toRad + 360) % 360;
+    }
+
+    // Heading for the driving view: the road's direction while on route,
+    // the GPS/derived heading otherwise.
+    function mobileHeading(latitude, longitude, position) {
+        const onRoute = routeBearingAt(latitude, longitude);
+        if (onRoute != null) {
+            state.lastHeading = onRoute;
+            return onRoute;
+        }
+        return effectiveHeading(position);
+    }
+
+    function samePoint(a, b) {
+        return Boolean(a && b) &&
+            Math.abs(a.latitude - b.latitude) < 1e-6 &&
+            Math.abs(a.longitude - b.longitude) < 1e-6;
+    }
+
+    function routeSignature(payload) {
+        const route = Array.isArray(payload?.route) ? payload.route : [];
+        const first = route[0];
+        const last = route[route.length - 1];
+        return route.length === 0
+            ? ""
+            : `${route.length}:${first?.latitude},${first?.longitude}:${last?.latitude},${last?.longitude}`;
+    }
+
+    // A pan or pinch by the driver pauses following, like TomTom; recenter resumes it.
+    function attachMobileCameraGestures() {
+        if (!state.map || state.mobileGesturesAttached) {
+            return;
+        }
+
+        state.mobileGesturesAttached = true;
+
+        const pause = (event) => {
+            if (event?.originalEvent) {
+                state.liveFollow = false;
+            }
+        };
+
+        state.map.on("dragstart", pause);
+        state.map.on("zoomstart", pause);
+        state.map.on("rotatestart", pause);
+
+        window.proMapMobile = window.proMapMobile || {};
+        window.proMapMobile.recenter = () => {
+            state.liveFollow = true;
+            const position = state.currentPosition;
+            if (position) {
+                followMobilePosition(
+                    { latitude: position.latitude, longitude: position.longitude, heading: state.lastHeading },
+                    true,
+                );
+            }
+            return true;
+        };
+    }
 
     function followMobilePosition(position, force = false) {
         const latitude = Number(position.latitude ?? position.coords?.latitude);
@@ -3749,7 +3879,7 @@ window.ProMap = window.ProMap || {};
             return;
         }
 
-        const heading = effectiveHeading(position);
+        const heading = mobileHeading(latitude, longitude, position);
         const height = state.map.getContainer()?.clientHeight || 700;
 
         state.map.easeTo({
@@ -3836,6 +3966,27 @@ window.ProMap = window.ProMap || {};
         element.innerHTML =
             '<span class="promap-gps-marker-core"></span>';
 
+        // In the app the vehicle is a truck seen from above, nose up, turned with the
+        // heading and lying flat on the tilted map.
+        if (state.mobileMode) {
+            element.className = "pm-mobile-truck-marker";
+            element.innerHTML =
+                '<svg viewBox="0 0 40 64" aria-hidden="true">' +
+                '<rect class="trailer" x="6" y="22" width="28" height="40" rx="4"/>' +
+                '<rect class="cab" x="8" y="4" width="24" height="18" rx="7"/>' +
+                '<rect class="glass" x="11" y="7" width="18" height="6" rx="2"/>' +
+                '</svg>';
+
+            return new maplibregl.Marker({
+                element,
+                anchor: "center",
+                rotationAlignment: "map",
+                pitchAlignment: "map",
+            })
+                .setLngLat([longitude, latitude])
+                .addTo(state.map);
+        }
+
         return new maplibregl.Marker({
             element,
             anchor: "center",
@@ -3870,6 +4021,16 @@ window.ProMap = window.ProMap || {};
             return;
         }
 
+        // A dot created before the app's first payload is swapped for the truck.
+        if (
+            state.mobileMode &&
+            state.gpsMarker &&
+            !state.gpsMarker.getElement()?.classList.contains("pm-mobile-truck-marker")
+        ) {
+            state.gpsMarker.remove();
+            state.gpsMarker = null;
+        }
+
         if (!state.gpsMarker) {
             state.gpsMarker =
                 createGpsMarker(
@@ -3883,6 +4044,13 @@ window.ProMap = window.ProMap || {};
                 longitude,
                 latitude,
             ]);
+        }
+
+        if (state.mobileMode && typeof state.gpsMarker?.setRotation === "function") {
+            const heading = mobileHeading(latitude, longitude, position);
+            if (heading != null) {
+                state.gpsMarker.setRotation(heading);
+            }
         }
 
         const speed = Number(

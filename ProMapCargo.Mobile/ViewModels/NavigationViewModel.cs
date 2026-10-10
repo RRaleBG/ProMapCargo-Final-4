@@ -173,7 +173,7 @@ public class NavigationViewModel : ViewModelBase
         try
         {
             await Task.Delay(350, cts.Token);
-            var results = await apiClient.GeocodeAsync(query.Trim(), cts.Token);
+            var results = RankSerbiaFirst(await apiClient.GeocodeAsync(query.Trim(), cts.Token));
             if (cts.IsCancellationRequested) return;
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
@@ -826,13 +826,23 @@ public class NavigationViewModel : ViewModelBase
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             var results = await apiClient.GeocodeAsync(query, cts.Token);
-            return results.FirstOrDefault();
+            return RankSerbiaFirst(results).FirstOrDefault();
         }
         catch
         {
             return null;
         }
     }
+
+    // The fleet drives in Serbia: "Nis" must mean Niš before Nice. Keeps the geocoder's
+    // order within each group (stable sort).
+    private static List<GeocodeResult> RankSerbiaFirst(IEnumerable<GeocodeResult> results) =>
+        results
+            .OrderByDescending(result =>
+                result.DisplayName.Contains("Србија", StringComparison.OrdinalIgnoreCase) ||
+                result.DisplayName.Contains("Srbija", StringComparison.OrdinalIgnoreCase) ||
+                result.DisplayName.Contains("Serbia", StringComparison.OrdinalIgnoreCase))
+            .ToList();
 
     // Sets a resolved point without triggering a new search (keeps the typed text).
     private void SetPoint(string field, GeocodeResult item)
@@ -918,7 +928,12 @@ public class NavigationViewModel : ViewModelBase
                     AvoidRestricted),
                 CancellationToken.None).ConfigureAwait(false);
 
-            await MainThread.InvokeOnMainThreadAsync(() => ApplyRoute(response, requestStart.Lat, requestStart.Lon, destinationLat, destinationLon));
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                ApplyRoute(response, requestStart.Lat, requestStart.Lon, destinationLat, destinationLon);
+                // Like TomTom: once the route is ready the planner gets out of the way.
+                IsRouteInputVisible = false;
+            });
             await notifier.ShowSuccessAsync(autoReroute ? "Ruta je preračunata od trenutne lokacije." : "Ruta je izračunata.").ConfigureAwait(false);
         }
         catch (HttpRequestException ex)

@@ -170,8 +170,8 @@
                         Spacing="12">
                         <ImageButton
                             x:Name="RecenterButton"
-                            Command="{Binding RerouteCommand}"
-                            SemanticProperties.Description="Centriraj i ponovo izračunaj rutu"
+                            Clicked="OnRecenterClicked"
+                            SemanticProperties.Description="Centriraj na vozilo"
                             Source="nav_recenter.svg"
                             Style="{StaticResource PmMapFloatingButton}" />
                         <ImageButton

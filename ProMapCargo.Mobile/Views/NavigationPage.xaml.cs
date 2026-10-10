@@ -21,7 +21,7 @@ public partial class MobileNavigationPage : ContentPage
     private WebPoint? lastWebLocation;
     private DateTimeOffset? lastWebLocationAt;
 
-    private string NavigationUrl =>
+    private static string NavigationUrl =>
         DeviceInfo.Platform == DevicePlatform.Android
             ? "http://10.0.2.2:8080/navigation?embedded=1&mobile=1"
             : "http://localhost:8080/navigation?embedded=1&mobile=1";
@@ -108,6 +108,25 @@ public partial class MobileNavigationPage : ContentPage
         if (viewModel.SelectSuggestionCommand.CanExecute(suggestion))
         {
             viewModel.SelectSuggestionCommand.Execute(suggestion);
+        }
+    }
+
+    // TomTom-style recenter: snap the camera back to the truck and resume following
+    // (a pan or pinch on the map pauses it). Rerouting stays automatic when off route.
+    private async void OnRecenterClicked(object? sender, EventArgs e)
+    {
+        if (!webViewReady)
+        {
+            return;
+        }
+
+        try
+        {
+            await NavigationWebView.EvaluateJavaScriptAsync("window.proMapMobile?.recenter?.() ?? false;");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Recenter failed: {ex.Message}");
         }
     }
 
