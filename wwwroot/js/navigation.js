@@ -3786,7 +3786,7 @@ window.ProMap = window.ProMap || {};
     // Direction of the route where the truck is (TomTom snaps the view to the road):
     // bearing from the nearest route point to a point ~40 m further along.
     // Returns null when the truck is more than 60 m off the route.
-    function routeBearingAt(latitude, longitude) {
+    function routeBearingAt(latitude, longitude, aheadMeters = 40) {
         const route = state.routeCoordinates;
 
         if (!Array.isArray(route) || route.length < 2) {
@@ -3810,7 +3810,7 @@ window.ProMap = window.ProMap || {};
 
         let ahead = nearest;
         let travelled = 0;
-        while (ahead < route.length - 1 && travelled < 40) {
+        while (ahead < route.length - 1 && travelled < aheadMeters) {
             travelled += haversineMeters(route[ahead][0], route[ahead][1], route[ahead + 1][0], route[ahead + 1][1]);
             ahead++;
         }
@@ -4003,7 +4003,8 @@ window.ProMap = window.ProMap || {};
         // The marker lies on the map (north-relative), so the arrow is the arrival
         // direction of the route plus the turn angle.
         // Exactly where the road goes after the turn; the type-based angle is the fallback.
-        const leaving = routeBearingAt(latitude, longitude);
+        // Short look-ahead: a second turn right after this one must not bend the arrow.
+        const leaving = routeBearingAt(latitude, longitude, 15);
         const arrival = routeBearingArrivingAt(latitude, longitude) ?? state.lastHeading ?? 0;
         const arrowBearing = leaving ?? arrival + rotation;
         element.querySelector("svg").style.transform = `rotate(${arrive ? 0 : arrowBearing}deg)`;
