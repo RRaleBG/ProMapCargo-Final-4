@@ -4028,6 +4028,11 @@ window.ProMap = window.ProMap || {};
         const now = performance.now();
         const from = state.mobileShown ?? { ...target, bearing: heading ?? 0 };
         const interval = state.mobileLastFixAt ? now - state.mobileLastFixAt : 1000;
+        // Fixes arrive unevenly (two in 0.3 s, then a 1.7 s gap); a smoothed interval
+        // keeps every glide long enough to still be running when the next fix comes.
+        state.mobileFixInterval = state.mobileFixInterval
+            ? state.mobileFixInterval * 0.8 + Math.min(interval, 3000) * 0.2
+            : 1000;
         state.mobileLastFixAt = now;
 
         const jump = haversineMeters(from.latitude, from.longitude, target.latitude, target.longitude);
@@ -4038,7 +4043,7 @@ window.ProMap = window.ProMap || {};
             start: now,
             // Same duration as the gap between fixes keeps the motion continuous;
             // a big jump (new route, GPS reset) is shown at once.
-            duration: jump > 300 ? 0 : Math.min(Math.max(interval, 300), 2500),
+            duration: jump > 300 ? 0 : Math.min(Math.max(state.mobileFixInterval * 1.15, 500), 2500),
         };
 
         if (!state.mobileAnimRunning) {
