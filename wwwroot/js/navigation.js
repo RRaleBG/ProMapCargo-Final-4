@@ -3924,6 +3924,18 @@ window.ProMap = window.ProMap || {};
         state.map.on("rotatestart", pause);
 
         window.proMapMobile = window.proMapMobile || {};
+        // Diagnostics for the app/QA: where the truck is drawn and how far it is from the route.
+        window.proMapMobile.truckState = () => {
+            const shown = state.mobileShown;
+            const onRoute = shown ? mobileLocateOnRoute(shown.latitude, shown.longitude) : null;
+            return {
+                shown,
+                bearing: state.mobileBearing,
+                follow: state.liveFollow,
+                offsetFromRouteMeters: onRoute ? Math.round(onRoute.offsetMeters * 10) / 10 : null,
+            };
+        };
+
         window.proMapMobile.recenter = () => {
             state.liveFollow = true;
             const position = state.currentPosition;
@@ -3966,54 +3978,95 @@ window.ProMap = window.ProMap || {};
         });
     }
 
-    // Snap a GPS fix onto the route (TomTom keeps the truck on the road) when it is
-    // within 40 m; returns null otherwise.
-    function projectOntoRoute(latitude, longitude) {
+    // ---- Live truck motion (TomTom-style) ----
+    // The truck moves ALONG the route between fixes (no corner cutting) and its
+    // heading follows the road, eased per frame so turns look natural.
+
+    function mobileRouteCumulative() {
+        const route = state.routeCoordinates;
+
+        if (state.mobileCumFor === route && Array.isArray(state.mobileCum)) {
+            return state.mobileCum;
+        }
+
+        const cum = new Array(route?.length || 0).fill(0);
+        for (let i = 1; i < cum.length; i++) {
+            cum[i] = cum[i - 1] + haversineMeters(route[i - 1][0], route[i - 1][1], route[i][0], route[i][1]);
+        }
+
+        state.mobileCumFor = route;
+        state.mobileCum = cum;
+        return cum;
+    }
+
+    // Where a fix sits on the route: distance along it (s), the snapped point and
+    // the offset. Searches near the last known position first (cheap, and avoids
+    // jumping to a parallel part of the route), then the whole route.
+    function mobileLocateOnRoute(latitude, longitude) {
         const route = state.routeCoordinates;
 
         if (!Array.isArray(route) || route.length < 2) {
             return null;
         }
 
+        const cum = mobileRouteCumulative();
         const k = Math.cos(latitude * Math.PI / 180);
-        let nearest = 0;
-        let nearestSq = Infinity;
 
-        for (let i = 0; i < route.length; i++) {
-            const dy = route[i][0] - latitude;
-            const dx = (route[i][1] - longitude) * k;
-            const d = dy * dy + dx * dx;
-            if (d < nearestSq) {
-                nearestSq = d;
-                nearest = i;
+        const search = (from, to) => {
+            let best = null;
+            for (let i = Math.max(0, from); i < Math.min(route.length - 1, to); i++) {
+                const [aLat, aLon] = route[i];
+                const [bLat, bLon] = route[i + 1];
+                const bx = (bLon - aLon) * k, by = bLat - aLat;
+                const px = (longitude - aLon) * k, py = latitude - aLat;
+                const len = bx * bx + by * by;
+                const t = len === 0 ? 0 : Math.max(0, Math.min(1, (px * bx + py * by) / len));
+                const d = (px - bx * t) ** 2 + (py - by * t) ** 2;
+                if (!best || d < best.d) {
+                    best = { d, i, t, latitude: aLat + by * t, longitude: aLon + (bx * t) / k };
+                }
             }
+            return best;
+        };
+
+        const hint = state.mobileRouteIndex;
+        let best = Number.isInteger(hint) ? search(hint - 20, hint + 200) : null;
+        if (!best || Math.sqrt(best.d) * 111320 > 40) {
+            best = search(0, route.length);
         }
 
-        let best = null;
-        let bestSq = Infinity;
-
-        for (const i of [nearest - 1, nearest]) {
-            if (i < 0 || i >= route.length - 1) {
-                continue;
-            }
-
-            const [aLat, aLon] = route[i];
-            const [bLat, bLon] = route[i + 1];
-            const ax = 0, ay = 0;
-            const bx = (bLon - aLon) * k, by = bLat - aLat;
-            const px = (longitude - aLon) * k, py = latitude - aLat;
-            const len = bx * bx + by * by;
-            const t = len === 0 ? 0 : Math.max(0, Math.min(1, ((px - ax) * bx + (py - ay) * by) / len));
-            const qx = bx * t, qy = by * t;
-            const d = (px - qx) ** 2 + (py - qy) ** 2;
-
-            if (d < bestSq) {
-                bestSq = d;
-                best = { latitude: aLat + qy, longitude: aLon + qx / k };
-            }
+        if (!best) {
+            return null;
         }
 
-        return best && Math.sqrt(bestSq) * 111320 <= 40 ? best : null;
+        state.mobileRouteIndex = best.i;
+        const segment = cum[best.i + 1] - cum[best.i];
+
+        return {
+            s: cum[best.i] + segment * best.t,
+            latitude: best.latitude,
+            longitude: best.longitude,
+            offsetMeters: Math.sqrt(best.d) * 111320,
+        };
+    }
+
+    function mobileRoutePointAt(s) {
+        const route = state.routeCoordinates;
+        const cum = mobileRouteCumulative();
+        let lo = 0, hi = cum.length - 1;
+
+        while (lo < hi - 1) {
+            const mid = (lo + hi) >> 1;
+            if (cum[mid] <= s) lo = mid; else hi = mid;
+        }
+
+        const span = cum[hi] - cum[lo];
+        const t = span > 0 ? Math.max(0, Math.min(1, (s - cum[lo]) / span)) : 0;
+
+        return {
+            latitude: route[lo][0] + (route[hi][0] - route[lo][0]) * t,
+            longitude: route[lo][1] + (route[hi][1] - route[lo][1]) * t,
+        };
     }
 
     // Moves the truck (and the following camera) smoothly from where it is shown
@@ -4023,10 +4076,12 @@ window.ProMap = window.ProMap || {};
             return;
         }
 
-        const target = projectOntoRoute(latitude, longitude) ?? { latitude, longitude };
-        const heading = mobileHeading(target.latitude, target.longitude, position);
-        const now = performance.now();
-        const from = state.mobileShown ?? { ...target, bearing: heading ?? 0 };
+        const onRoute = mobileLocateOnRoute(latitude, longitude);
+        const snapped = onRoute && onRoute.offsetMeters <= 40 ? onRoute : null;
+        const target = snapped
+            ? { latitude: snapped.latitude, longitude: snapped.longitude, s: snapped.s }
+            : { latitude, longitude, s: null };
+
         // The same fix can arrive twice; it must not restart the glide or count
         // as a 2 ms interval.
         const last = state.mobileAnim?.to;
@@ -4034,21 +4089,31 @@ window.ProMap = window.ProMap || {};
             return;
         }
 
+        const now = performance.now();
         const interval = state.mobileLastFixAt ? now - state.mobileLastFixAt : 1000;
+        state.mobileLastFixAt = now;
         // Fixes arrive unevenly (two in 0.3 s, then a 1.7 s gap); a smoothed interval
         // keeps every glide long enough to still be running when the next fix comes.
         state.mobileFixInterval = state.mobileFixInterval
             ? state.mobileFixInterval * 0.8 + Math.min(interval, 3000) * 0.2
             : 1000;
-        state.mobileLastFixAt = now;
 
+        const shown = state.mobileShown;
+        const from = shown
+            ? { latitude: shown.latitude, longitude: shown.longitude, s: shown.s ?? null }
+            : { ...target };
         const jump = haversineMeters(from.latitude, from.longitude, target.latitude, target.longitude);
 
+        if (state.mobileBearing == null) {
+            state.mobileBearing = mobileHeading(target.latitude, target.longitude, position) ?? 0;
+        }
+
         state.mobileAnim = {
-            from: { ...from },
-            to: { latitude: target.latitude, longitude: target.longitude, bearing: heading ?? from.bearing },
+            from,
+            to: target,
+            gpsHeading: effectiveHeading(position),
             start: now,
-            // Same duration as the gap between fixes keeps the motion continuous;
+            // Slightly longer than the gap between fixes keeps the motion continuous;
             // a big jump (new route, GPS reset) is shown at once.
             duration: jump > 300 ? 0 : Math.min(Math.max(state.mobileFixInterval * 1.3, 500), 3000),
         };
@@ -4068,13 +4133,32 @@ window.ProMap = window.ProMap || {};
         }
 
         const t = anim.duration === 0 ? 1 : Math.min(1, (now - anim.start) / anim.duration);
-        const latitude = anim.from.latitude + (anim.to.latitude - anim.from.latitude) * t;
-        const longitude = anim.from.longitude + (anim.to.longitude - anim.from.longitude) * t;
-        // Shortest way round (350° -> 10° turns 20°, not 340°).
-        const turn = ((anim.to.bearing - anim.from.bearing + 540) % 360) - 180;
-        const bearing = (anim.from.bearing + turn * t + 360) % 360;
+        const { from, to } = anim;
+        let latitude;
+        let longitude;
+        let s = null;
 
-        state.mobileShown = { latitude, longitude, bearing };
+        // Along the route when both ends are on it and the truck moves forward.
+        if (from.s != null && to.s != null && to.s >= from.s && to.s - from.s < 400) {
+            s = from.s + (to.s - from.s) * t;
+            ({ latitude, longitude } = mobileRoutePointAt(s));
+        } else {
+            latitude = from.latitude + (to.latitude - from.latitude) * t;
+            longitude = from.longitude + (to.longitude - from.longitude) * t;
+        }
+
+        // Heading: the road's direction just ahead (or GPS when off route), eased
+        // so the truck and camera turn through a corner instead of snapping.
+        const targetBearing = s != null
+            ? routeBearingAt(latitude, longitude, 25)
+            : anim.gpsHeading;
+        if (targetBearing != null) {
+            const turn = ((targetBearing - state.mobileBearing + 540) % 360) - 180;
+            state.mobileBearing = (state.mobileBearing + turn * 0.12 + 360) % 360;
+        }
+        const bearing = state.mobileBearing;
+
+        state.mobileShown = { latitude, longitude, s };
         state.gpsMarker?.setLngLat([longitude, latitude]);
         state.gpsMarker?.setRotation?.(bearing);
 
@@ -4092,7 +4176,8 @@ window.ProMap = window.ProMap || {};
             });
         }
 
-        if (t < 1) {
+        // Keep running briefly after arriving so the heading finishes easing.
+        if (t < 1 || Math.abs(((targetBearing ?? bearing) - bearing + 540) % 360 - 180) > 0.5) {
             requestAnimationFrame(mobileAnimFrame);
         } else {
             state.mobileAnimRunning = false;
