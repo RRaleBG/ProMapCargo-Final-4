@@ -4050,7 +4050,7 @@ window.ProMap = window.ProMap || {};
             start: now,
             // Same duration as the gap between fixes keeps the motion continuous;
             // a big jump (new route, GPS reset) is shown at once.
-            duration: jump > 300 ? 0 : Math.min(Math.max(state.mobileFixInterval * 1.15, 500), 2500),
+            duration: jump > 300 ? 0 : Math.min(Math.max(state.mobileFixInterval * 1.3, 500), 3000),
         };
 
         if (!state.mobileAnimRunning) {
