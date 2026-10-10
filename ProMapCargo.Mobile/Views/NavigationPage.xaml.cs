@@ -95,7 +95,12 @@ public partial class MobileNavigationPage : ContentPage
 
     private void OnSuggestionTapped(object? sender, TappedEventArgs e)
     {
-        if (sender is not TapGestureRecognizer { CommandParameter: GeocodeResult suggestion })
+        // In Tapped, sender is the tapped view (not the recognizer); the item comes
+        // from CommandParameter (e.Parameter) or the row's BindingContext.
+        var suggestion = e.Parameter as GeocodeResult
+            ?? (sender as BindableObject)?.BindingContext as GeocodeResult;
+
+        if (suggestion is null)
         {
             return;
         }
