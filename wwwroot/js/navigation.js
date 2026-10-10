@@ -3933,6 +3933,9 @@ window.ProMap = window.ProMap || {};
                 bearing: state.mobileBearing,
                 follow: state.liveFollow,
                 offsetFromRouteMeters: onRoute ? Math.round(onRoute.offsetMeters * 10) / 10 : null,
+                anim: state.mobileAnim
+                    ? { fromS: state.mobileAnim.from.s, toS: state.mobileAnim.to.s, duration: Math.round(state.mobileAnim.duration) }
+                    : null,
             };
         };
 
@@ -4069,6 +4072,13 @@ window.ProMap = window.ProMap || {};
         };
     }
 
+    // Distance along the route of a shown position that has none yet (e.g. the
+    // first fix after a page load), so the next glide can follow the route.
+    function mobileRouteDistanceOf(point) {
+        const located = mobileLocateOnRoute(point.latitude, point.longitude);
+        return located && located.offsetMeters <= 40 ? located.s : null;
+    }
+
     // Moves the truck (and the following camera) smoothly from where it is shown
     // to the new fix over the time between fixes, so it looks live, not jumpy.
     function mobileAnimateTo(latitude, longitude, position) {
@@ -4100,7 +4110,7 @@ window.ProMap = window.ProMap || {};
 
         const shown = state.mobileShown;
         const from = shown
-            ? { latitude: shown.latitude, longitude: shown.longitude, s: shown.s ?? null }
+            ? { latitude: shown.latitude, longitude: shown.longitude, s: shown.s ?? mobileRouteDistanceOf(shown) }
             : { ...target };
         const jump = haversineMeters(from.latitude, from.longitude, target.latitude, target.longitude);
 
