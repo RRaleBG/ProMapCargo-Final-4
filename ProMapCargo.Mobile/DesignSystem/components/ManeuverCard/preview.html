@@ -1,9 +1,18 @@
-<!-- @dsCard group="Map" height=150 -->
-<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:var(--SurfaceBase)}</style></head>
+<!-- @dsCard group="Map" height=170 -->
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:var(--SurfaceBase)}
+.mc{display:grid;grid-template-columns:100px 1fr auto;max-width:440px;padding:0;overflow:hidden}
+.mc-tile{background:var(--Brand);display:flex;align-items:center;justify-content:center;min-height:96px}
+.mc-tile svg{width:64px;height:64px;fill:var(--BrandOn)}
+.mc-text{padding:12px 8px 12px 16px;display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0}
+.mc-dist{font-weight:600;font-size:36px;line-height:1;color:var(--TextPrimary)}
+.mc-road{font-weight:600;font-size:16px;color:var(--TextSecondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-then{padding:12px 14px 12px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.mc-then .box{width:40px;height:40px;border-radius:12px;background:var(--SurfaceInset);display:flex;align-items:center;justify-content:center}
+.mc-then svg{width:24px;height:24px;fill:var(--TextPrimary)}
+</style></head>
 <body><div class="pm-screen"><div class="pm-map" style="padding:14px 16px;border-radius:20px">
-<div class="PmMapGlassCard" style="display:grid;grid-template-columns:1fr auto;gap:6px 10px;max-width:420px">
-  <p class="PmSectionTitleLabel">Skrenite desno na Autoput E-75</p>
-  <span class="PmMapBadgeLabel" style="align-self:start">VALHALLA</span>
-  <span class="ManeuverDistance t-brand">350 m</span>
-  <span class="PmMutedLabel t-muted" style="align-self:center;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Novi Beograd</span>
+<div class="PmMapGlassCard mc">
+  <div class="mc-tile"><svg viewBox="0 0 24 24" aria-label="Skrenite desno"><path d="M6.5 22 V12 C6.5 8.96 8.96 6.5 12 6.5 H15 V2.5 L21.5 8.25 L15 14 V10 H12 C10.9 10 10 10.9 10 12 V22 Z"/></svg></div>
+  <div class="mc-text"><span class="mc-dist">350 m</span><span class="mc-road">Кнеза Милоша</span></div>
+  <div class="mc-then"><span class="PmCaptionLabel">zatim</span><span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 22 V13.6 L9.3 6.9 L12 4.2 H3.5 V12.7 L6.2 10 L12.5 16.3 V22 Z"/></svg></span></div>
 </div></div></div></body></html>

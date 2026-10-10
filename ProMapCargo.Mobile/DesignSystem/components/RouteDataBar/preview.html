@@ -1,8 +1,17 @@
-<!-- @dsCard group="Map" height=120 -->
-<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:var(--SurfaceBase)}</style></head>
-<body><div class="pm-screen"><div class="pm-map" style="padding:14px 16px;border-radius:20px">
-<div class="PmMapGlassCard" style="border-radius:var(--radius-route-bar);display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:420px">
-  <div><p class="PmCaptionLabel">Dolazak</p><span class="PmBodyLabel">15:42</span></div>
-  <div><p class="PmCaptionLabel">Ruta</p><span class="PmBodyLabel">94 km · 1 h 12 min</span></div>
-  <div style="text-align:right"><p class="PmCaptionLabel">km/h</p><span class="PmBodyLabel">78</span></div>
+<!-- @dsCard group="Map" height=170 -->
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:var(--SurfaceBase)}
+.rb-row{display:flex;align-items:flex-end;gap:12px;max-width:440px}
+.rb-speed{width:68px;height:68px;border-radius:50%;background:var(--MapGlass);border:2px solid var(--StrokeStrong);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none}
+.rb-speed b{font-weight:600;font-size:24px;line-height:1;color:var(--TextPrimary)}
+.rb-speed span{font-size:10px;color:var(--TextSecondary)}
+.rb-bar{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-radius:var(--radius-route-bar)}
+.rb-v{font-weight:600;font-size:20px;color:var(--TextPrimary)}
+</style></head>
+<body><div class="pm-screen"><div class="pm-map" style="padding:14px 16px;border-radius:20px"><div class="rb-row">
+  <div class="rb-speed"><b>78</b><span>km/h</span></div>
+  <div class="PmMapGlassCard rb-bar">
+    <div><p class="PmCaptionLabel">Dolazak</p><span class="rb-v">15:42</span></div>
+    <div style="text-align:center"><p class="PmCaptionLabel">Preostalo</p><span class="rb-v">1 h 12 min</span></div>
+    <div style="text-align:right"><p class="PmCaptionLabel">Do cilja</p><span class="rb-v">94 km</span></div>
+  </div>
 </div></div></div></body></html>

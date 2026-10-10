@@ -49,8 +49,10 @@ public sealed class ManeuverBuilder
                 }
             }
 
+            // The OSM highway class ("service", "residential") is not a name a driver
+            // can read, so unnamed roads fall back to the road number, else nothing.
             var roadName = string.IsNullOrWhiteSpace(edge.Name)
-                ? edge.Highway
+                ? edge.Ref
                 : edge.Name;
 
             var instruction = type switch
@@ -85,7 +87,46 @@ public sealed class ManeuverBuilder
             cumulative += traversal.DistanceM;
         }
 
-        return result;
+        return Collapse(result);
+    }
+
+    /// <summary>
+    /// Edges are split at every junction, so a long street yields dozens of
+    /// "Continue" steps. Keep only real guidance points (depart, turns, arrive and
+    /// changes of road) and fold the straight segments into the maneuver before them.
+    /// </summary>
+    static List<RouteManeuverDto> Collapse(List<RouteManeuverDto> raw)
+    {
+        var collapsed = new List<RouteManeuverDto>(raw.Count);
+
+        foreach (var maneuver in raw)
+        {
+            if (collapsed.Count > 0 &&
+                maneuver.Type == "Continue" &&
+                SameRoad(collapsed[^1], maneuver))
+            {
+                var previous = collapsed[^1];
+                collapsed[^1] = previous with
+                {
+                    DistanceFromPreviousMeters = previous.DistanceFromPreviousMeters + maneuver.DistanceFromPreviousMeters
+                };
+                continue;
+            }
+
+            collapsed.Add(maneuver with { Index = collapsed.Count });
+        }
+
+        return collapsed;
+    }
+
+    static bool SameRoad(RouteManeuverDto a, RouteManeuverDto b)
+    {
+        var nameA = string.IsNullOrWhiteSpace(a.RoadName) ? a.RoadRef : a.RoadName;
+        var nameB = string.IsNullOrWhiteSpace(b.RoadName) ? b.RoadRef : b.RoadName;
+
+        // An unnamed segment never starts a new instruction on its own.
+        return string.IsNullOrWhiteSpace(nameB) ||
+               string.Equals(nameA, nameB, StringComparison.OrdinalIgnoreCase);
     }
 
     static double ExitHeading(NetTopologySuite.Geometries.Coordinate[] c, bool forward) =>

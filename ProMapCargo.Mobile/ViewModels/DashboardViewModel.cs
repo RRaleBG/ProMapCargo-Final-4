@@ -10,9 +10,11 @@ public sealed class DashboardViewModel : ViewModelBase
     private readonly ApiClient apiClient;
     private readonly MobileSessionService sessionService;
     private readonly IMobileNotifier notifier;
+    private const int DashboardManeuverPreviewCount = 5;
+
     private CancellationTokenSource? loadCancellationTokenSource;
     private bool isBusy;
-    private string statusText = "Ready";
+    private string statusText = "Spremno";
     private string routeSummary = "Ruta nije učitana.";
     private string routeEngine = "Ruter: —";
     private string routeSafety = "Provera za kamion u toku";
@@ -278,7 +280,9 @@ public sealed class DashboardViewModel : ViewModelBase
         RouteFailureReason = diagnostics?.FailureReason ?? "—";
 
         ReplaceItems(RouteHighlights, highlights);
-        ReplaceItems(RouteManeuvers, route?.Maneuvers ?? []);
+        // Dashboard preview only: a long route can have hundreds of maneuvers, and
+        // rendering them all in a BindableLayout froze the UI thread (ANR).
+        ReplaceItems(RouteManeuvers, (route?.Maneuvers ?? []).Take(DashboardManeuverPreviewCount).ToList());
     }
 
     private async Task OpenLinkAsync(DashboardLink? link)
