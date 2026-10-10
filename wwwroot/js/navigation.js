@@ -3841,6 +3841,41 @@ window.ProMap = window.ProMap || {};
         return effectiveHeading(position);
     }
 
+    // Direction the route ARRIVES at a point (e.g. a maneuver): bearing from the
+    // route point ~30 m before it to the route point nearest to it.
+    function routeBearingArrivingAt(latitude, longitude) {
+        const route = state.routeCoordinates;
+        if (!Array.isArray(route) || route.length < 2) {
+            return null;
+        }
+        let nearest = 0;
+        let nearestDistance = Infinity;
+        for (let i = 0; i < route.length; i++) {
+            const d = haversineMeters(latitude, longitude, route[i][0], route[i][1]);
+            if (d < nearestDistance) {
+                nearestDistance = d;
+                nearest = i;
+            }
+        }
+        let before = nearest;
+        let travelled = 0;
+        while (before > 0 && travelled < 30) {
+            travelled += haversineMeters(route[before - 1][0], route[before - 1][1], route[before][0], route[before][1]);
+            before--;
+        }
+        if (before === nearest) {
+            return null;
+        }
+        const toRad = Math.PI / 180;
+        const [lat1, lon1] = route[before];
+        const [lat2, lon2] = route[nearest];
+        const dLon = (lon2 - lon1) * toRad;
+        const y = Math.sin(dLon) * Math.cos(lat2 * toRad);
+        const x = Math.cos(lat1 * toRad) * Math.sin(lat2 * toRad) -
+            Math.sin(lat1 * toRad) * Math.cos(lat2 * toRad) * Math.cos(dLon);
+        return (Math.atan2(y, x) / toRad + 360) % 360;
+    }
+
     function samePoint(a, b) {
         return Boolean(a && b) &&
             Math.abs(a.latitude - b.latitude) < 1e-6 &&
@@ -3965,7 +4000,10 @@ window.ProMap = window.ProMap || {};
 
         const element = state.mobileManeuverMarker.getElement();
         element.classList.toggle("is-arrive", arrive);
-        element.querySelector("svg").style.transform = `rotate(${arrive ? 0 : rotation}deg)`;
+        // The marker lies on the map (north-relative), so the arrow is the arrival
+        // direction of the route plus the turn angle.
+        const arrival = routeBearingArrivingAt(latitude, longitude) ?? state.lastHeading ?? 0;
+        element.querySelector("svg").style.transform = `rotate(${arrive ? 0 : arrival + rotation}deg)`;
         state.mobileManeuverMarker.setLngLat([longitude, latitude]);
     }
 
