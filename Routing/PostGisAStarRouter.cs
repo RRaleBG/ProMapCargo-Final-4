@@ -4,13 +4,13 @@ using System.Diagnostics;
 
 namespace ProMapCargo.Api.Routing;
 
-public sealed class PostGisAStarRouter(PostGisRoutingRepository repo, TruckEdgeEvaluator evaluator, TurnRestrictionMatcher restrictions)
+public sealed class PostGisAStarRouter(
+    PostGisRoutingRepository repo,
+    TruckEdgeEvaluator evaluator,
+    TurnRestrictionMatcher restrictions,
+    RoutingGraphCache graphCache)
 {
     private const int MaxExpandedStates = 1_000_000;
-
-    private const double MinPreloadPaddingDegrees = 0.04;
-    private const double MaxPreloadPaddingDegrees = 0.30;
-    private const double MaxPreloadAreaSquareDegrees = 2.5;
 
     private readonly record struct SearchState(
         long Node,
@@ -365,46 +365,20 @@ public sealed class PostGisAStarRouter(PostGisRoutingRepository repo, TruckEdgeE
                 IReadOnlyList<(RoadEdge Edge, bool Forward)>>();
 
         /*
-         * Preload the graph around the start/destination with ONE query.
-         *
-         * Without this the search issues one database round trip for
-         * every batch of cache misses (thousands of queries on a long
-         * route). Nodes inside the preloaded box are complete; nodes
-         * outside it are still loaded lazily below.
+         * The routing graph is served from a process-wide tile cache
+         * (RoutingGraphCache). Tiles around the start/destination are
+         * loaded up front, in parallel; a tile that is already cached
+         * costs nothing. Tiles outside that area are loaded on demand the
+         * first time the search reaches them.
          */
 
-        var preloadBounds =
-            PlanPreloadBounds(
-                start.SnappedPoint.Coordinate,
-                end.SnappedPoint.Coordinate);
+        var graph =
+            graphCache.CreateView(version);
 
-        if (preloadBounds is { } box)
-        {
-            try
-            {
-                var preloaded =
-                    await repo.LoadAreaAdjacencyAsync(
-                        box.MinLon,
-                        box.MinLat,
-                        box.MaxLon,
-                        box.MaxLat,
-                        version,
-                        ct);
-
-                outgoingCache = new Dictionary<
-                    long,
-                    IReadOnlyList<(RoadEdge Edge, bool Forward)>>(preloaded);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception)
-            {
-                // Already logged by the repository. Fall back to lazy loading.
-                preloadBounds = null;
-            }
-        }
+        await graph.PreloadAsync(
+            start.SnappedPoint.Coordinate,
+            end.SnappedPoint.Coordinate,
+            ct);
 
         var frontierPrefetchNodes = new HashSet<long>();
 
@@ -588,21 +562,25 @@ public sealed class PostGisAStarRouter(PostGisRoutingRepository repo, TruckEdgeE
              * --------------------------------------------------------
              */
 
-            if (!outgoingCache.TryGetValue(
+            IReadOnlyList<(RoadEdge Edge, bool Forward)>? outgoing;
+
+            if (nodeCoordinates.TryGetValue(
                     state.Node,
-                    out var outgoing) &&
-                preloadBounds is { } loadedBox &&
-                nodeCoordinates.TryGetValue(
-                    state.Node,
-                    out var nodeCoordinate) &&
-                loadedBox.Contains(nodeCoordinate))
+                    out var nodeCoordinate))
             {
-                // Inside the preloaded box and absent from it: a node with
-                // no traversable options (dead end), nothing to query.
-                outgoing = [];
+                // Normal path: served from the in-memory tile cache.
+                outgoing =
+                    await graph.GetOutgoingAsync(
+                        state.Node,
+                        nodeCoordinate,
+                        ct);
             }
-            else if (outgoing is null)
+            else if (!outgoingCache.TryGetValue(
+                         state.Node,
+                         out outgoing))
             {
+                // Node without a known coordinate (should not happen):
+                // fall back to the per-node batch query.
                 frontierPrefetchNodes.Clear();
                 frontierPrefetchNodes.Add(state.Node);
 
@@ -843,52 +821,6 @@ public sealed class PostGisAStarRouter(PostGisRoutingRepository repo, TruckEdgeE
             highlights,
             BuildSnapDebug(start, startEdge),
             BuildSnapDebug(end, endEdge));
-    }
-
-    private readonly record struct PreloadBounds(
-        double MinLon,
-        double MinLat,
-        double MaxLon,
-        double MaxLat)
-    {
-        public bool Contains(Coordinate c) =>
-            c.X >= MinLon && c.X <= MaxLon &&
-            c.Y >= MinLat && c.Y <= MaxLat;
-    }
-
-    /// <summary>
-    /// Chooses the box whose graph is loaded with a single query before the
-    /// search starts: the start/destination box padded by 30% of its longer
-    /// side (at least 0.04 and at most 0.30 degrees). Very large boxes are
-    /// not preloaded (memory), those routes keep using lazy loading.
-    /// </summary>
-    private static PreloadBounds? PlanPreloadBounds(Coordinate a, Coordinate b)
-    {
-        var minLon = Math.Min(a.X, b.X);
-        var maxLon = Math.Max(a.X, b.X);
-        var minLat = Math.Min(a.Y, b.Y);
-        var maxLat = Math.Max(a.Y, b.Y);
-
-        var padding =
-            Math.Clamp(
-                0.30 * Math.Max(maxLon - minLon, maxLat - minLat),
-                MinPreloadPaddingDegrees,
-                MaxPreloadPaddingDegrees);
-
-        var box =
-            new PreloadBounds(
-                minLon - padding,
-                minLat - padding,
-                maxLon + padding,
-                maxLat + padding);
-
-        var area =
-            (box.MaxLon - box.MinLon) *
-            (box.MaxLat - box.MinLat);
-
-        return area <= MaxPreloadAreaSquareDegrees
-            ? box
-            : null;
     }
 
     private static void AddSeed(

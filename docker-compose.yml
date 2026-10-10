@@ -13,7 +13,18 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    shm_size: "512m"
+    # Planner/memory tuning for the routing graph (road_edges is large).
+    # random_page_cost=1.1 lets the planner use the GiST index on SSD storage
+    # instead of a full parallel sequential scan; jit=off avoids ~1 s of JIT
+    # compilation per short query.
+    command: >
+      postgres
+      -c shared_buffers=512MB
+      -c effective_cache_size=1GB
+      -c random_page_cost=1.1
+      -c jit=off
+      -c max_parallel_workers_per_gather=2
+    shm_size: "1g"
     mem_limit: "2g"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U promap -d promapcargo"]
@@ -61,6 +72,8 @@ services:
       DOTNET_gcServer: "1"
       DOTNET_GCHeapHardLimitPercent: "75"
       DOTNET_ThreadPool_MinThreads: "8"
+      # In-memory routing graph cache: number of 0.1 degree tiles kept in RAM.
+      RoutingGraphCache__MaxTiles: "120"
     ports:
       - "8080:8080"
     volumes:
@@ -69,7 +82,9 @@ services:
       - ./wwwroot/fonts:/app/wwwroot/fonts:ro
       - ./wwwroot/lib:/app/wwwroot/lib:ro
       - dataprotection_keys:/root/.aspnet/DataProtection-Keys
-    mem_limit: "1g"
+    # Raised from 1g: the routing graph cache keeps several hundred MB of
+    # edges in memory (GC heap hard limit is 75% of this value).
+    mem_limit: "2g"
     depends_on:
       postgres:
         condition: service_healthy

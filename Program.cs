@@ -239,8 +239,12 @@ builder.Services.AddHttpClient("MapTiles", client =>
 builder.Services.AddScoped<IPostgresRestrictionRepository, PostgresRestrictionRepository>();
 builder.Services.AddScoped<IRestrictionEngine, PostgresRestrictionEngine>();
 
-builder.Services.AddScoped<PostGisRoutingRepository>();
-builder.Services.AddScoped<TurnRestrictionMatcher>();
+// Stateless and shared: the repository only wraps the NpgsqlDataSource, the
+// restriction matcher and the graph cache keep process-wide caches per
+// graph_version and therefore must be singletons.
+builder.Services.AddSingleton<PostGisRoutingRepository>();
+builder.Services.AddSingleton<TurnRestrictionMatcher>();
+builder.Services.AddSingleton<RoutingGraphCache>();
 builder.Services.AddScoped<ManeuverBuilder>();
 builder.Services.AddScoped<TruckEdgeEvaluator>();
 builder.Services.AddScoped<EdgeSnapper>();

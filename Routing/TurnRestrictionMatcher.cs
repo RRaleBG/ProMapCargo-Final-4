@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Dapper;
 using Npgsql;
 
@@ -7,20 +8,56 @@ public sealed class TurnRestrictionMatcher(
     NpgsqlDataSource ds,
     ILogger<TurnRestrictionMatcher> logger)
 {
+    /*
+     * Turn restrictions never change for a given graph_version, so they
+     * are loaded once and shared by every request. This class must be
+     * registered as a singleton.
+     */
+    private readonly ConcurrentDictionary<long, Task<RestrictionSet>> cache = new();
+
     public async Task<RestrictionSet> LoadAsync(long version, CancellationToken ct)
+    {
+        var task = cache.GetOrAdd(version, v => LoadFromDatabaseAsync(v));
+
+        try
+        {
+            var set = await task.WaitAsync(ct);
+
+            // Drop sets of older graph versions once a newer one is in use.
+            foreach (var key in cache.Keys)
+            {
+                if (key != version)
+                {
+                    cache.TryRemove(key, out _);
+                }
+            }
+
+            return set;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            // Do not cache failures.
+            cache.TryRemove(new KeyValuePair<long, Task<RestrictionSet>>(version, task));
+            throw;
+        }
+    }
+
+    private async Task<RestrictionSet> LoadFromDatabaseAsync(long version)
     {
         logger.LogInformation("PostGIS query started: turn restriction load. GraphVersion={GraphVersion}", version);
 
         try
         {
-            await using var c = await ds.OpenConnectionAsync(ct);
+            // Shared between requests: deliberately not tied to one request's token.
+            await using var c = await ds.OpenConnectionAsync(CancellationToken.None);
             var rows = await c.QueryAsync<dynamic>(new CommandDefinition(
                 "SELECT restriction,from_way_id,to_way_id,via_node_ids FROM turn_restrictions WHERE graph_version=@version",
                 new
                 {
                     version
                 },
-                cancellationToken: ct));
+                commandTimeout: 120,
+                cancellationToken: CancellationToken.None));
 
             var rules = rows.Select(r => new Rule(
                 (string?)r.restriction,
