@@ -67,7 +67,7 @@
   display: flex; align-items: center;
   padding: 0 var(--space-14);
   background: var(--SurfaceInset);
-  border: var(--size-stroke) solid var(--StrokeStrong);
+  border: var(--size-stroke) solid var(--StrokeField);
   border-radius: var(--radius-control);
   min-width: 0;
 }
@@ -92,7 +92,7 @@
 .PmChip { display: inline-flex; align-items: center; padding: 5px 10px; border-radius: var(--radius-chip); background: var(--StatusSuccessBg); }
 .PmChip .PmChipLabel { color: var(--StatusSuccess); }
 .PmChipInfo { background: var(--StatusInfoBg); }
-.PmChipInfo .PmChipLabel { color: var(--StatusInfo); }
+.PmChipInfo .PmChipLabel { color: var(--StatusInfoStrong); }
 .PmChipWarning { background: var(--StatusWarningBg); }
 .PmChipWarning .PmChipLabel { color: var(--StatusWarning); }
 .PmMapBadgeLabel { display: inline-block; padding: 4px 10px; background: var(--StatusSuccessBg); color: var(--StatusSuccess); font-weight: 600; font-size: 11px; line-height: 1.3; white-space: nowrap; }

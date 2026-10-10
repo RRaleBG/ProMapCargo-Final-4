@@ -11,7 +11,7 @@ One child layout, usually a `VerticalStackLayout` with Spacing 12–16. A sectio
 
 ## Do / don't
 - No shadows: depth comes from fill steps (Base → Overlay → Inset) and 1px strokes.
-- Inside the hero, TextTertiary captions and StatusInfo chips fall under 4.5:1; keep hero text to TextPrimary and TextSecondary where you can.
+- Inside the hero, use PmHeroCaptionLabel (TextSecondary) for captions; plain PmCaptionLabel is too faint on the gradient.
 
 ```xml
 <Border Style="{StaticResource PmCardBorder}">

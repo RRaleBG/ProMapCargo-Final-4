@@ -35,7 +35,7 @@
                 <!--  Hero: current route  -->
                 <Border Style="{StaticResource PmHeroBorder}">
                     <VerticalStackLayout Spacing="14">
-                        <Label Style="{StaticResource PmCaptionLabel}" Text="Aktivna ruta" />
+                        <Label Style="{StaticResource PmHeroCaptionLabel}" Text="Aktivna ruta" />
                         <Label
                             LineBreakMode="WordWrap"
                             Style="{StaticResource PmSectionTitleLabel}"

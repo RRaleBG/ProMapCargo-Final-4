@@ -414,6 +414,10 @@
         <Setter Property="LineBreakMode" Value="TailTruncation" />
     </Style>
 
+    <Style x:Key="PmHeroCaptionLabel" TargetType="Label" BasedOn="{StaticResource PmCaptionLabel}">
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+    </Style>
+
     <Style x:Key="PmValueLabel" TargetType="Label">
         <Setter Property="FontFamily" Value="OpenSansSemibold" />
         <Setter Property="FontSize" Value="22" />
@@ -528,7 +532,7 @@
     <Style x:Key="PmFieldBorder" TargetType="Border">
         <Setter Property="Padding" Value="14,0" />
         <Setter Property="BackgroundColor" Value="{StaticResource SurfaceInset}" />
-        <Setter Property="Stroke" Value="{StaticResource StrokeStrong}" />
+        <Setter Property="Stroke" Value="{StaticResource StrokeField}" />
         <Setter Property="StrokeShape" Value="RoundRectangle 14" />
         <Setter Property="StrokeThickness" Value="1" />
     </Style>
@@ -554,7 +558,7 @@
     </Style>
 
     <Style x:Key="PmChipInfoLabel" TargetType="Label" BasedOn="{StaticResource PmChipLabel}">
-        <Setter Property="TextColor" Value="{StaticResource StatusInfo}" />
+        <Setter Property="TextColor" Value="{StaticResource StatusInfoStrong}" />
     </Style>
 
     <Style x:Key="PmChipWarning" TargetType="Border" BasedOn="{StaticResource PmChip}">

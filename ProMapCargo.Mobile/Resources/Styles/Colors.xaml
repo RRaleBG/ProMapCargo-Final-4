@@ -59,6 +59,10 @@
     <Color x:Key="MapSheet">#F2061F19</Color>
     <Color x:Key="HeroStart">#0F4A3E</Color>
 
+    <!--  Contrast fixes: 4.5:1 text in the hero, 3:1 input borders  -->
+    <Color x:Key="StatusInfoStrong">#7DD3FC</Color>
+    <Color x:Key="StrokeField">#40846F</Color>
+
     <SolidColorBrush x:Key="BrandBrush" Color="{StaticResource Brand}" />
     <SolidColorBrush x:Key="SurfaceInsetBrush" Color="{StaticResource SurfaceInset}" />
 

@@ -29,8 +29,8 @@ Ground and surfaces step up in lightness, never by shadow:
 | Scrim | `SurfaceScrim` (85%) | Blocking loading overlay |
 
 - Text: `TextPrimary` for titles, body and values; `TextSecondary` for supporting lines (`PmMutedLabel`); `TextTertiary` for captions and placeholders only; `TextAccent` for road names, progress and ghost buttons.
-- Strokes: `StrokeSubtle` on cards and dividers, `StrokeStrong` on anything interactive or floating (fields, glass, hero).
-- Status always pairs a 12% tint with its full colour: `StatusSuccess` on `StatusSuccessBg`, `StatusInfo` on `StatusInfoBg`, `StatusWarning` on `StatusWarningBg`. `StatusDanger` is used as text (`PmErrorLabel`).
+- Strokes: `StrokeSubtle` on cards and dividers, `StrokeStrong` on floating surfaces (glass, hero, sheet), `StrokeField` around text inputs.
+- Status always pairs a 12% tint with its full colour: `StatusSuccess` on `StatusSuccessBg`, `StatusInfoStrong` on `StatusInfoBg`, `StatusWarning` on `StatusWarningBg`. `StatusDanger` is used as text (`PmErrorLabel`).
 - **MAUI colours are `#AARRGGBB`.** `StatusSuccessBg` is `#1F10B981` in XAML and `#10b9811f` here; convert the alpha byte when moving between XAML and CSS.
 - Keys under *Legacy* in the token notes (`Primary`, `Gray*`, `Magenta`, `MidnightBlue`…) come from the MAUI template and only feed the implicit control styles. Use the v2 keys in new XAML.
 - Android splash and status bar read `Platforms/Android/Resources/values/colors.xml`, which duplicates these values (`colorWarning` = `StatusWarning`, `colorError` = `StatusDanger`). Keep it in step when `Colors.xaml` changes.
@@ -71,7 +71,7 @@ One family, **Open Sans**, registered in `MauiProgram.cs` as `OpenSansRegular` (
 ## Accessibility
 
 - Every `ImageButton` and `Switch` has a Serbian `SemanticProperties.Description` (*Podešavanja*, *Nazad*, *Glasovno uputstvo*).
-- Text pairs meet 4.5:1 on their surfaces, with three exceptions kept from the source and flagged in the token notes: `TextTertiary` captions and `StatusInfo` chips inside the hero gradient (3.33:1 and 3.84:1), and `StrokeStrong` field borders (1.70:1 on SurfaceOverlay, under the 3:1 control-border floor).
+- Text pairs meet 4.5:1 on their surfaces in every place they are used: captions inside the hero use `PmHeroCaptionLabel` (`TextSecondary`, 5.44:1), info chips use `StatusInfoStrong` (4.93:1 in the hero), and input borders use `StrokeField` (at least 3:1 on every ground).
 - Status chips always carry a word; colour is never the only signal.
 
 ## Iconography

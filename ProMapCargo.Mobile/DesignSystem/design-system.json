@@ -61,9 +61,9 @@
     "Logos": {
       "files": {
         "appicon.svg": {
-          "blob": "b948b3add500eb68d3cd33baea78dd38",
           "name": "appicon.svg",
-          "size": 7006,
+          "blob": "24b1f4084b938e4717c65e0efc9f5e28",
+          "size": 12850,
           "type": "image/svg+xml"
         },
         "appiconfg.svg": {
@@ -73,9 +73,9 @@
           "type": "image/svg+xml"
         },
         "splash.svg": {
-          "blob": "e24288869121b94b0ba178aabd01f3a6",
           "name": "splash.svg",
-          "size": 7807,
+          "blob": "207051f3514f53311d44cbffc5d1d774",
+          "size": 24398,
           "type": "image/svg+xml"
         }
       },
@@ -103,9 +103,9 @@
   ],
   "lastChange": {
     "by": "Claude",
-    "at": "2026-10-10T21:00:00Z",
+    "at": "2026-10-10T22:00:00Z",
     "via": "Claude Code · ProMapCargo.Mobile (local)",
-    "note": "App updated to match: MapGlass, MapSheet, HeroStart are Colors.xaml keys; Android colours and MauiIcon colour aligned."
+    "note": "Contrast fixes: StatusInfoStrong, StrokeField, PmHeroCaptionLabel; logo text converted to outlines."
   },
   "layout": "files",
   "libraries": [],
