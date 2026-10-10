@@ -213,19 +213,9 @@ public sealed class MapInstallViewModel : ViewModelBase
         return Task.CompletedTask;
     }
 
-    private Task OpenSettingsAsync()
-    {
-        return MainThread.InvokeOnMainThreadAsync(async () =>
-        {
-            var shell = Shell.Current;
-            if (shell is null)
-            {
-                return;
-            }
-
-            await shell.GoToAsync("//dashboard/settings");
-        });
-    }
+    // Settings is a top-level Shell route, not a tab under //dashboard (that
+    // route did not exist and the unhandled exception closed the app).
+    private Task OpenSettingsAsync() => AppNavigation.GoToAsync(AppNavigation.Settings);
 
     private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> source)
     {

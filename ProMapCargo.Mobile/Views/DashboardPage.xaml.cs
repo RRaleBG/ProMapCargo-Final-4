@@ -1,3 +1,4 @@
+using ProMapCargo.Mobile.Services;
 using Microsoft.Maui.Controls;
 using ProMapCargo.Mobile.ViewModels;
 
@@ -25,12 +26,12 @@ public partial class DashboardPage : ContentPage
 
     private async void OnOpenSettingsClicked(object? sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("//settings");
+        await AppNavigation.GoToAsync("//settings");
     }
 
     private async void OnOpenNavigationClicked(object? sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("//dashboard/mobile-navigation");
+        await AppNavigation.GoToAsync("//dashboard/mobile-navigation");
     }
 
     private void OnQuickLinkClicked(object? sender, EventArgs e)

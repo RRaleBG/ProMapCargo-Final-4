@@ -38,8 +38,8 @@ public sealed class DashboardViewModel : ViewModelBase
         RouteManeuvers = new ObservableCollection<RouteManeuver>();
         QuickLinks =
         [
-            new DashboardLink("Navigacija", "Planiranje rute za kamion i vođenje po manevrima", "//dashboard/mobile-navigation"),
-            new DashboardLink("Podešavanja", "Prikaz, nalog i upravljanje offline mapama", "//dashboard/settings"),
+            new DashboardLink("Navigacija", "Planiranje rute za kamion i vođenje po manevrima", AppNavigation.Navigation),
+            new DashboardLink("Podešavanja", "Prikaz, nalog i upravljanje offline mapama", AppNavigation.Settings),
             new DashboardLink("Dispečing", "Dodela naloga i upravljanje flotom", null),
             new DashboardLink("Praćenje", "Telemetrija uživo i status vozila", null),
             new DashboardLink("Ture", "Status i napredak izvršenja tura", null),
@@ -299,16 +299,10 @@ public sealed class DashboardViewModel : ViewModelBase
             return;
         }
 
-        await MainThread.InvokeOnMainThreadAsync(async () =>
+        if (!await AppNavigation.GoToAsync(link.ShellRoute))
         {
-            var shell = Shell.Current;
-            if (shell is null)
-            {
-                return;
-            }
-
-            await shell.GoToAsync(link.ShellRoute);
-        });
+            await notifier.ShowWarningAsync($"{link.Title} trenutno nije moguće otvoriti.").ConfigureAwait(false);
+        }
     }
 
     private static void ReplaceItems<T>(ObservableCollection<T> target, IEnumerable<T> source)

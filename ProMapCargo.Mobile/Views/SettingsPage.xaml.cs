@@ -1,3 +1,4 @@
+using ProMapCargo.Mobile.Services;
 using ProMapCargo.Mobile.ViewModels;
 
 namespace ProMapCargo.Mobile.Views;
@@ -12,6 +13,6 @@ public partial class SettingsPage : ContentPage
 
     private async void OnBackClicked(object? sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("//dashboard");
+        await AppNavigation.GoToAsync("//dashboard");
     }
 }
