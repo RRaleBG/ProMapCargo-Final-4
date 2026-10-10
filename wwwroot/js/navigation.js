@@ -3770,13 +3770,13 @@ window.ProMap = window.ProMap || {};
     // so the driver sees more road ahead.
     function mobileFollowZoom(latitude, longitude) {
         const speed = Number(state.mobileSpeedKph) || 0;
-        let zoom = speed < 30 ? 18.5 : speed < 70 ? 17.5 : 16.5;
+        let zoom = speed < 30 ? 18 : speed < 70 ? 17.5 : 16.5;
 
         const next = state.mobileNextManeuver;
         if (next && Number.isFinite(Number(next.latitude)) && Number.isFinite(Number(next.longitude))) {
             const toTurn = haversineMeters(latitude, longitude, Number(next.latitude), Number(next.longitude));
             if (toTurn < 250) {
-                zoom = 18.5;
+                zoom = 18;
             }
         }
 
@@ -3904,7 +3904,8 @@ window.ProMap = window.ProMap || {};
             zoom: mobileFollowZoom(latitude, longitude),
             pitch: MOBILE_FOLLOW_PITCH,
             bearing: heading ?? state.map.getBearing(),
-            padding: { top: Math.round(height * 0.45), bottom: 0, left: 0, right: 0 },
+            // Vehicle at ~65% of the height: enough road ahead to see the next turn.
+            padding: { top: Math.round(height * 0.3), bottom: 0, left: 0, right: 0 },
             duration: force ? 600 : 900,
             essential: true,
         });
@@ -3936,6 +3937,14 @@ window.ProMap = window.ProMap || {};
         }
 
         const type = String(maneuver?.type || "").toLowerCase();
+
+        // Only real turns get a marker (TomTom does not mark "keep straight").
+        if (type === "continue" || type === "depart" || type === "straight") {
+            state.mobileManeuverMarker?.remove();
+            state.mobileManeuverMarker = null;
+            return;
+        }
+
         const rotation = MANEUVER_ARROW_ROTATION[type] ?? 0;
         const arrive = type === "arrive" || type === "destination";
 
