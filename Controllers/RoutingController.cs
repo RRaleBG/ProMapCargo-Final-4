@@ -484,7 +484,9 @@ public sealed class RoutingController(
                         ]
                     },
 
-                Maneuvers = []
+                Maneuvers =
+                    OsrmManeuverBuilder.Build(
+                        osrm.Routes[selectedRouteIndex].Legs).ToList()
             };
 
         logger.LogInformation(

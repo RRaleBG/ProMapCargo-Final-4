@@ -45,6 +45,7 @@
         <!--  Native overlays  -->
         <Grid
             Padding="16,14,16,20"
+            CascadeInputTransparent="False"
             InputTransparent="True"
             RowDefinitions="Auto,*,Auto"
             ZIndex="20">
@@ -86,6 +87,7 @@
             <!--  Floating controls  -->
             <VerticalStackLayout
                 Grid.Row="2"
+                CascadeInputTransparent="False"
                 InputTransparent="True"
                 Spacing="10"
                 VerticalOptions="End">

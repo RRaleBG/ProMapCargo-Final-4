@@ -9,7 +9,7 @@ public sealed class MobileSessionService(TokenStore tokenStore, ApiClient apiCli
     public bool IsSessionValid =>
         CurrentSession is not null && CurrentSession.ExpiresAt > DateTimeOffset.UtcNow;
 
-    public string LastStatus { get; private set; } = "Session not initialized.";
+    public string LastStatus { get; private set; } = "Sesija nije pokrenuta.";
 
     public async Task<bool> RestoreAsync(CancellationToken cancellationToken)
     {
@@ -17,7 +17,7 @@ public sealed class MobileSessionService(TokenStore tokenStore, ApiClient apiCli
 
         if (CurrentSession is null)
         {
-            LastStatus = "No saved session.";
+            LastStatus = "Nema sačuvane sesije.";
             return false;
         }
 
@@ -25,11 +25,11 @@ public sealed class MobileSessionService(TokenStore tokenStore, ApiClient apiCli
         {
             CurrentSession = null;
             await tokenStore.ClearAsync().ConfigureAwait(false);
-            LastStatus = "Saved session expired.";
+            LastStatus = "Sačuvana sesija je istekla.";
             return false;
         }
 
-        LastStatus = "Session restored.";
+        LastStatus = "Sesija je vraćena.";
         return true;
     }
 
@@ -48,7 +48,7 @@ public sealed class MobileSessionService(TokenStore tokenStore, ApiClient apiCli
         var response = await apiClient.LoginAsync(new LoginRequest(email, password), cancellationToken).ConfigureAwait(false);
         CurrentSession = response;
         await tokenStore.SaveAsync(response, cancellationToken).ConfigureAwait(false);
-        LastStatus = "Login succeeded.";
+        LastStatus = "Prijava je uspela.";
         return response;
     }
 
@@ -56,6 +56,6 @@ public sealed class MobileSessionService(TokenStore tokenStore, ApiClient apiCli
     {
         CurrentSession = null;
         await tokenStore.ClearAsync().ConfigureAwait(false);
-        LastStatus = "Signed out.";
+        LastStatus = "Odjavljeni ste.";
     }
 }

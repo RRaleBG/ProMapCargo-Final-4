@@ -40,25 +40,26 @@ public class NavigationViewModel : ViewModelBase
     private double maneuverInitialDistanceMeters = 1;
     private int? lastSpokenManeuverIndex;
     private int lastSpokenDistanceBucket = -1;
-    private string statusText = "Ready for route calculation";
+    private Locale? serbianLocale;
+    private string statusText = "Spremno za izračunavanje rute";
     private string? errorMessage;
     private string routeCode = "—";
-    private string routeSummary = "No route calculated yet.";
-    private string routeEngine = "Engine: —";
-    private string routeSafety = "Truck review pending";
-    private string routeDiagnosticsSummary = "No diagnostics available.";
+    private string routeSummary = "Ruta još nije izračunata.";
+    private string routeEngine = "Ruter: —";
+    private string routeSafety = "Provera za kamion u toku";
+    private string routeDiagnosticsSummary = "Nema dijagnostike.";
     private string routeStartSnap = "—";
     private string routeEndSnap = "—";
     private string routeFailureReason = "—";
     private string routeEstimatedArrival = "—";
     private string currentLocationText = "GPS: waiting for fix";
     private string selectedRoutingMode = "Auto";
-    private string activeRoutingModeText = "Routing mode: online";
+    private string activeRoutingModeText = "Režim rutiranja: online";
     private bool offlineRoutingAvailable;
     private string offRouteStatusText = "Off-route monitoring inactive";
-    private string nextManeuverInstruction = "Calculate route to start guidance";
+    private string nextManeuverInstruction = "Izračunajte rutu za početak navođenja";
     private string nextManeuverDistanceText = "—";
-    private string nextManeuverType = "Continue";
+    private string nextManeuverType = "Nastavite pravo";
     private string nextManeuverSymbol = "↑";
     private GeoPoint? routeStartPoint;
     private GeoPoint? routeDestinationPoint;
@@ -339,8 +340,8 @@ public class NavigationViewModel : ViewModelBase
             {
                 var effectiveMode = ResolveEffectiveRoutingMode();
                 ActiveRoutingModeText = OfflineRoutingAvailable
-                    ? $"Routing mode: {effectiveMode} (offline bundle ready)"
-                    : $"Routing mode: {effectiveMode} (offline bundle not installed)";
+                    ? $"Režim rutiranja: {effectiveMode} (offline paket spreman)"
+                    : $"Režim rutiranja: {effectiveMode} (offline paket nije instaliran)";
             }
         }
     }
@@ -597,7 +598,7 @@ public class NavigationViewModel : ViewModelBase
 
         if (permissionStatus != PermissionStatus.Granted)
         {
-            OffRouteStatusText = "Location permission denied. Off-route monitoring disabled.";
+            OffRouteStatusText = "Pristup lokaciji je odbijen. Praćenje skretanja sa rute je isključeno.";
             await notifier.ShowWarningAsync(OffRouteStatusText).ConfigureAwait(false);
             return;
         }
@@ -623,11 +624,11 @@ public class NavigationViewModel : ViewModelBase
             }
             catch (FeatureNotEnabledException)
             {
-                await MainThread.InvokeOnMainThreadAsync(() => OffRouteStatusText = "Enable device location services for live guidance.");
+                await MainThread.InvokeOnMainThreadAsync(() => OffRouteStatusText = "Uključite lokaciju na uređaju za navođenje uživo.");
             }
             catch (Exception)
             {
-                await MainThread.InvokeOnMainThreadAsync(() => OffRouteStatusText = "Unable to read GPS location right now.");
+                await MainThread.InvokeOnMainThreadAsync(() => OffRouteStatusText = "GPS lokacija trenutno nije dostupna.");
             }
 
             try
@@ -658,14 +659,14 @@ public class NavigationViewModel : ViewModelBase
 
         if (!TryParseCoordinate(StartLatitude, out var startLat) || !TryParseCoordinate(StartLongitude, out var startLon))
         {
-            ErrorMessage = "Start coordinate is invalid.";
+            ErrorMessage = "Polazna tačka nije ispravna.";
             await notifier.ShowWarningAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }
 
         if (!TryParseCoordinate(DestinationLatitude, out var destinationLat) || !TryParseCoordinate(DestinationLongitude, out var destinationLon))
         {
-            ErrorMessage = "Destination coordinate is invalid.";
+            ErrorMessage = "Odredište nije ispravno.";
             await notifier.ShowWarningAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }
@@ -679,7 +680,7 @@ public class NavigationViewModel : ViewModelBase
 
         if (string.IsNullOrWhiteSpace(Profile))
         {
-            ErrorMessage = "Profile is required.";
+            ErrorMessage = "Profil vozila je obavezan.";
             await notifier.ShowWarningAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }
@@ -689,7 +690,7 @@ public class NavigationViewModel : ViewModelBase
 
         if (string.Equals(effectiveMode, "offline", StringComparison.OrdinalIgnoreCase) && !OfflineRoutingAvailable)
         {
-            ErrorMessage = "Offline mode is selected but no installed routing bundle is available.";
+            ErrorMessage = "Izabran je offline režim, ali nijedan paket za rutiranje nije instaliran.";
             await notifier.ShowWarningAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }
@@ -699,8 +700,8 @@ public class NavigationViewModel : ViewModelBase
             await SetBusyAsync(true);
             await MainThread.InvokeOnMainThreadAsync(() =>
                 StatusText = autoReroute
-                    ? $"Auto reroute in progress ({effectiveMode})..."
-                    : $"Calculating route ({effectiveMode})...");
+                    ? $"Automatsko preračunavanje rute ({effectiveMode})…"
+                    : $"Izračunavanje rute ({effectiveMode})…");
 
             var response = await apiClient.GetRouteAsync(
                 new RouteRequest(
@@ -711,14 +712,14 @@ public class NavigationViewModel : ViewModelBase
                 CancellationToken.None).ConfigureAwait(false);
 
             await MainThread.InvokeOnMainThreadAsync(() => ApplyRoute(response, requestStart.Lat, requestStart.Lon, destinationLat, destinationLon));
-            await notifier.ShowSuccessAsync(autoReroute ? "Route rerouted from current location." : "Route calculated successfully.").ConfigureAwait(false);
+            await notifier.ShowSuccessAsync(autoReroute ? "Ruta je preračunata od trenutne lokacije." : "Ruta je izračunata.").ConfigureAwait(false);
         }
         catch (HttpRequestException ex)
         {
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 ErrorMessage = ex.Message;
-                StatusText = "Route request failed.";
+                StatusText = "Zahtev za rutu nije uspeo.";
             });
 
             await notifier.ShowErrorAsync("Route request failed. Check network/API availability.").ConfigureAwait(false);
@@ -728,10 +729,10 @@ public class NavigationViewModel : ViewModelBase
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 ErrorMessage = ex.Message;
-                StatusText = "Route response is invalid.";
+                StatusText = "Odgovor servisa za rute nije ispravan.";
             });
 
-            await notifier.ShowErrorAsync("Route response is invalid.").ConfigureAwait(false);
+            await notifier.ShowErrorAsync("Odgovor servisa za rute nije ispravan.").ConfigureAwait(false);
         }
         finally
         {
@@ -743,7 +744,7 @@ public class NavigationViewModel : ViewModelBase
     {
         if (CurrentLocation is null)
         {
-            ErrorMessage = "Current GPS location is unavailable for reroute.";
+            ErrorMessage = "Trenutna GPS lokacija nije dostupna za preračunavanje.";
             await notifier.ShowInfoAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }
@@ -778,22 +779,22 @@ public class NavigationViewModel : ViewModelBase
         var durationSeconds = selectedRoute?.Duration ?? route?.Summary?.DurationSeconds ?? 0;
 
         RouteSummary = selectedRoute is null
-            ? "Route service returned no selected route."
+            ? "Servis za rute nije vratio izabranu rutu."
             : $"{distanceMeters / 1000:0.#} km · {durationSeconds / 60:0} min";
 
         RouteEngine = diagnostics is null
-            ? "Engine: —"
+            ? "Ruter: —"
             : diagnostics.UsedFallback
-                ? $"Engine: {diagnostics.Engine} · FALLBACK"
-                : $"Engine: {diagnostics.Engine}";
+                ? $"Ruter: {diagnostics.Engine} · REZERVNI"
+                : $"Ruter: {diagnostics.Engine}";
 
         RouteSafety = route is null
-            ? "Truck review pending"
+            ? "Provera za kamion u toku"
             : route.IsTruckSafe
-                ? "Truck safe"
+                ? "Bezbedna za kamion"
                 : violations.Count > 0
-                    ? $"Restriction warnings: {violations.Count}"
-                    : "Route needs review";
+                    ? $"Upozorenja o ograničenjima: {violations.Count}"
+                    : "Rutu treba proveriti";
 
         RouteEstimatedArrival = route?.Summary?.EstimatedArrival?.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) ?? "—";
 
@@ -821,7 +822,7 @@ public class NavigationViewModel : ViewModelBase
 
         RouteDiagnosticsSummary = diagnosticsParts.Count > 0
             ? string.Join(" · ", diagnosticsParts)
-            : debug?.Summary ?? "No diagnostics available.";
+            : debug?.Summary ?? "Nema dijagnostike.";
 
         RouteStartSnap = debug?.StartSnap ?? diagnostics?.StartSnap ?? "—";
         RouteEndSnap = debug?.EndSnap ?? diagnostics?.EndSnap ?? "—";
@@ -849,7 +850,7 @@ public class NavigationViewModel : ViewModelBase
 
         HasRoute = selectedRoute is not null;
         RouteVisualizationChanged?.Invoke(this, EventArgs.Empty);
-        StatusText = $"Route updated {DateTime.Now:t}";
+        StatusText = $"Ruta ažurirana u {DateTime.Now:HH:mm}";
     }
 
     private async Task RefreshRoutingModeAsync()
@@ -862,8 +863,8 @@ public class NavigationViewModel : ViewModelBase
                 OfflineRoutingAvailable = hasBundle;
                 var effectiveMode = ResolveEffectiveRoutingMode();
                 ActiveRoutingModeText = hasBundle
-                    ? $"Routing mode: {effectiveMode} (offline bundle ready)"
-                    : $"Routing mode: {effectiveMode} (offline bundle not installed)";
+                    ? $"Režim rutiranja: {effectiveMode} (offline paket spreman)"
+                    : $"Režim rutiranja: {effectiveMode} (offline paket nije instaliran)";
             });
         }
         catch
@@ -871,7 +872,7 @@ public class NavigationViewModel : ViewModelBase
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 OfflineRoutingAvailable = false;
-                ActiveRoutingModeText = "Routing mode: online (offline bundle status unavailable)";
+                ActiveRoutingModeText = "Režim rutiranja: online (status offline paketa nije dostupan)";
             });
         }
     }
@@ -912,9 +913,9 @@ public class NavigationViewModel : ViewModelBase
     {
         if (RouteManeuvers.Count == 0)
         {
-            NextManeuverInstruction = "No maneuver data";
+            NextManeuverInstruction = "Nema podataka o manevrima";
             NextManeuverDistanceText = "—";
-            NextManeuverType = "Continue";
+            NextManeuverType = "Nastavite pravo";
             NextManeuverSymbol = "↑";
             NextManeuverIndex = 0;
             NextManeuverProgress = 0;
@@ -927,7 +928,7 @@ public class NavigationViewModel : ViewModelBase
         {
             var first = RouteManeuvers[0];
             NextManeuverInstruction = first.Instruction;
-            NextManeuverDistanceText = "Awaiting GPS";
+            NextManeuverDistanceText = "Čeka se GPS";
             NextManeuverType = ToManeuverLabel(first.Type);
             NextManeuverSymbol = ToManeuverSymbol(first.Type);
             NextManeuverIndex = 1;
@@ -979,8 +980,8 @@ public class NavigationViewModel : ViewModelBase
 
         NextManeuverInstruction = nextManeuver.Instruction;
         NextManeuverDistanceText = nextDistance < 1000
-            ? $"In {nextDistance:0} m"
-            : $"In {nextDistance / 1000:0.0} km";
+            ? $"Za {nextDistance:0} m"
+            : $"Za {nextDistance / 1000:0.0} km";
         NextManeuverType = ToManeuverLabel(nextManeuver.Type);
         NextManeuverSymbol = ToManeuverSymbol(nextManeuver.Type);
         NextManeuverIndex = nextIndex + 1;
@@ -1118,15 +1119,17 @@ public class NavigationViewModel : ViewModelBase
 
         var prompt = bucket switch
         {
-            >= 1000 => $"In {bucket / 1000:0.#} kilometers, {NextManeuverInstruction}",
-            > 0 => $"In {bucket} meters, {NextManeuverInstruction}",
+            >= 1000 => $"Za {bucket / 1000:0.#} kilometara, {NextManeuverInstruction}",
+            > 0 => $"Za {bucket} metara, {NextManeuverInstruction}",
             _ => NextManeuverInstruction
         };
 
         try
         {
             IsSpeakingPrompt = true;
-            await TextToSpeech.Default.SpeakAsync(prompt);
+            serbianLocale ??= (await TextToSpeech.Default.GetLocalesAsync())
+                .FirstOrDefault(locale => locale.Language.StartsWith("sr", StringComparison.OrdinalIgnoreCase));
+            await TextToSpeech.Default.SpeakAsync(prompt, new SpeechOptions { Locale = serbianLocale });
             lastSpokenManeuverIndex = currentIndex;
             if (bucket >= 0)
             {
@@ -1145,7 +1148,7 @@ public class NavigationViewModel : ViewModelBase
 
     private static int ParseDistanceBucket(string distanceText)
     {
-        if (distanceText.StartsWith("In ", StringComparison.OrdinalIgnoreCase))
+        if (distanceText.StartsWith("Za ", StringComparison.OrdinalIgnoreCase))
         {
             var text = distanceText[3..].Trim();
             if (text.EndsWith(" m", StringComparison.OrdinalIgnoreCase) &&
@@ -1168,16 +1171,16 @@ public class NavigationViewModel : ViewModelBase
     {
         return maneuverType?.Trim().ToLowerInvariant() switch
         {
-            "left" or "turn-left" => "Turn left",
-            "right" or "turn-right" => "Turn right",
-            "slight-left" => "Slight left",
-            "slight-right" => "Slight right",
-            "sharp-left" => "Sharp left",
-            "sharp-right" => "Sharp right",
-            "uturn" or "u-turn" => "U-turn",
-            "arrive" or "destination" => "Arrive",
-            "roundabout" => "Roundabout",
-            _ => "Continue"
+            "left" or "turn-left" => "Skrenite levo",
+            "right" or "turn-right" => "Skrenite desno",
+            "slight-left" => "Blago levo",
+            "slight-right" => "Blago desno",
+            "sharp-left" => "Oštro levo",
+            "sharp-right" => "Oštro desno",
+            "uturn" or "u-turn" => "Polukružno okretanje",
+            "arrive" or "destination" => "Stigli ste na odredište",
+            "roundabout" => "Uđite u kružni tok",
+            _ => "Nastavite pravo"
         };
     }
 

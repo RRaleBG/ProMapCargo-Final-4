@@ -103,17 +103,17 @@ public sealed class MapInstallViewModel : ViewModelBase
                     File.Exists(bundle.GraphLocalPath) && File.Exists(bundle.PmtilesLocalPath));
 
                 BundleStatusText = OfflineBundleReady
-                    ? $"Offline routing READY · {installedBundleManifest.Bundles.Count} bundle(s) installed"
-                    : "Offline routing NOT READY · install at least one bundle";
+                    ? $"Offline rutiranje SPREMNO · instalirano paketa: {installedBundleManifest.Bundles.Count}"
+                    : "Offline rutiranje NIJE SPREMNO · instalirajte bar jedan paket";
 
                 StatusText = catalog.Count == 0
                     ? "Trenutno nema dostupnih paketa mapa na serveru."
-                    : $"{catalog.Count} map package(s) available · {bundleCatalog.Count} routing bundle(s) available.";
+                    : $"Dostupno paketa mapa: {catalog.Count} · paketa za rutiranje: {bundleCatalog.Count}.";
             });
         }
         catch (Exception ex)
         {
-            await MainThread.InvokeOnMainThreadAsync(() => StatusText = $"Map catalog failed: {ex.Message}");
+            await MainThread.InvokeOnMainThreadAsync(() => StatusText = $"Katalog mapa nije učitan: {ex.Message}");
         }
         finally
         {
@@ -131,7 +131,7 @@ public sealed class MapInstallViewModel : ViewModelBase
         try
         {
             await SetBusyAsync(true);
-            StatusText = $"Downloading {package.DisplayName}...";
+            StatusText = $"Preuzimanje: {package.DisplayName}…";
 
             var progress = new Progress<double>(value =>
             {
@@ -147,12 +147,12 @@ public sealed class MapInstallViewModel : ViewModelBase
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 Replace(InstalledPackages, manifest.Packages);
-                StatusText = $"Installed {package.DisplayName}.";
+                StatusText = $"Instalirano: {package.DisplayName}.";
             });
         }
         catch (Exception ex)
         {
-            await MainThread.InvokeOnMainThreadAsync(() => StatusText = $"Install failed: {ex.Message}");
+            await MainThread.InvokeOnMainThreadAsync(() => StatusText = $"Instalacija nije uspela: {ex.Message}");
         }
         finally
         {
@@ -170,7 +170,7 @@ public sealed class MapInstallViewModel : ViewModelBase
         try
         {
             await SetBusyAsync(true);
-            StatusText = $"Installing offline bundle {bundle.DisplayName}...";
+            StatusText = $"Instaliranje offline paketa: {bundle.DisplayName}…";
 
             var progress = new Progress<double>(value =>
             {
@@ -189,14 +189,14 @@ public sealed class MapInstallViewModel : ViewModelBase
                 OfflineBundleReady = installedBundleManifest.Bundles.Any(item =>
                     File.Exists(item.GraphLocalPath) && File.Exists(item.PmtilesLocalPath));
                 BundleStatusText = OfflineBundleReady
-                    ? $"Offline routing READY · {installedBundleManifest.Bundles.Count} bundle(s) installed"
-                    : "Offline routing NOT READY · install at least one bundle";
-                StatusText = $"Installed offline bundle {bundle.DisplayName}.";
+                    ? $"Offline rutiranje SPREMNO · instalirano paketa: {installedBundleManifest.Bundles.Count}"
+                    : "Offline rutiranje NIJE SPREMNO · instalirajte bar jedan paket";
+                StatusText = $"Instaliran offline paket: {bundle.DisplayName}.";
             });
         }
         catch (Exception ex)
         {
-            await MainThread.InvokeOnMainThreadAsync(() => StatusText = $"Offline bundle install failed: {ex.Message}");
+            await MainThread.InvokeOnMainThreadAsync(() => StatusText = $"Instalacija offline paketa nije uspela: {ex.Message}");
         }
         finally
         {

@@ -37,7 +37,7 @@ public sealed class OsrmRoutingService(HttpClient http, IConfiguration config) :
         {
             "overview=full",
             "geometries=geojson",
-            "steps=false",
+            "steps=true",
             "alternatives=false"
         };
 

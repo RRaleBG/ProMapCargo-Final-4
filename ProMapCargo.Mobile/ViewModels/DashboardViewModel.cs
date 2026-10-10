@@ -13,10 +13,10 @@ public sealed class DashboardViewModel : ViewModelBase
     private CancellationTokenSource? loadCancellationTokenSource;
     private bool isBusy;
     private string statusText = "Ready";
-    private string routeSummary = "No route loaded.";
-    private string routeEngine = "Engine: —";
-    private string routeSafety = "Truck review pending";
-    private string routeDiagnosticsSummary = "No diagnostics available.";
+    private string routeSummary = "Ruta nije učitana.";
+    private string routeEngine = "Ruter: —";
+    private string routeSafety = "Provera za kamion u toku";
+    private string routeDiagnosticsSummary = "Nema dijagnostike.";
     private string routeStartSnap = "—";
     private string routeEndSnap = "—";
     private string routeFailureReason = "—";
@@ -142,7 +142,7 @@ public sealed class DashboardViewModel : ViewModelBase
         try
         {
             await SetBusyAsync(true).ConfigureAwait(false);
-            StatusText = "Loading operations data...";
+            StatusText = "Učitavanje operativnih podataka…";
 
             var cancellationToken = loadCancellationTokenSource.Token;
             var vehiclesTask = apiClient.GetVehiclesAsync(cancellationToken);
@@ -171,25 +171,25 @@ public sealed class DashboardViewModel : ViewModelBase
                 ReplaceItems(Trips, trips);
                 ApplyRoute(route);
                 RaisePropertyChanged(nameof(WelcomeText));
-                StatusText = $"Synced {DateTime.Now:t} · {sessionService.LastStatus}";
+                StatusText = $"Sinhronizovano {DateTime.Now:HH:mm} · {sessionService.LastStatus}";
             });
 
-            await notifier.ShowSuccessAsync("Operations synced successfully.").ConfigureAwait(false);
+            await notifier.ShowSuccessAsync("Podaci su sinhronizovani.").ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
-                StatusText = "Sync canceled.";
+                StatusText = "Sinhronizacija je otkazana.";
             });
 
-            await notifier.ShowInfoAsync("Sync canceled.").ConfigureAwait(false);
+            await notifier.ShowInfoAsync("Sinhronizacija je otkazana.").ConfigureAwait(false);
         }
         catch (HttpRequestException ex)
         {
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
-                StatusText = $"Sync failed: {ex.Message} · {sessionService.LastStatus}";
+                StatusText = $"Sinhronizacija nije uspela: {ex.Message} · {sessionService.LastStatus}";
             });
 
             await notifier.ShowErrorAsync("Sync failed due to network/API error.").ConfigureAwait(false);
@@ -198,10 +198,10 @@ public sealed class DashboardViewModel : ViewModelBase
         {
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
-                StatusText = $"Sync failed: {ex.Message}";
+                StatusText = $"Sinhronizacija nije uspela: {ex.Message}";
             });
 
-            await notifier.ShowWarningAsync("Sync failed with unexpected issue.").ConfigureAwait(false);
+            await notifier.ShowWarningAsync("Sinhronizacija nije uspela zbog neočekivane greške.").ConfigureAwait(false);
         }
         finally
         {
@@ -230,22 +230,22 @@ public sealed class DashboardViewModel : ViewModelBase
         var durationSeconds = selectedRoute?.Duration ?? route?.Summary?.DurationSeconds ?? 0;
 
         RouteSummary = selectedRoute is null
-            ? "Route service available but no route is currently selected."
+            ? "Servis za rute radi, ali nijedna ruta nije izabrana."
             : $"Belgrade → Novi Sad · {distanceMeters / 1000:0.#} km · {durationSeconds / 60:0} min";
 
         RouteEngine = diagnostics is null
-            ? "Engine: —"
+            ? "Ruter: —"
             : diagnostics.UsedFallback
-                ? $"Engine: {diagnostics.Engine} · FALLBACK"
-                : $"Engine: {diagnostics.Engine}";
+                ? $"Ruter: {diagnostics.Engine} · REZERVNI"
+                : $"Ruter: {diagnostics.Engine}";
 
         RouteSafety = route is null
-            ? "Truck review pending"
+            ? "Provera za kamion u toku"
             : route.IsTruckSafe
-                ? "Truck safe"
+                ? "Bezbedna za kamion"
                 : violations.Count > 0
-                    ? $"Restriction warnings: {violations.Count}"
-                    : "Route needs review";
+                    ? $"Upozorenja o ograničenjima: {violations.Count}"
+                    : "Rutu treba proveriti";
 
         var diagnosticParts = new List<string>();
         if (diagnostics is not null && diagnostics.ExpandedStates > 0)
@@ -271,7 +271,7 @@ public sealed class DashboardViewModel : ViewModelBase
 
         RouteDiagnosticsSummary = diagnosticParts.Count > 0
             ? string.Join(" · ", diagnosticParts)
-            : debug?.Summary ?? "No diagnostics available.";
+            : debug?.Summary ?? "Nema dijagnostike.";
 
         RouteStartSnap = debug?.StartSnap ?? diagnostics?.StartSnap ?? "—";
         RouteEndSnap = debug?.EndSnap ?? diagnostics?.EndSnap ?? "—";

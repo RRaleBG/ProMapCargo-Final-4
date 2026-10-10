@@ -8,7 +8,7 @@ public sealed class SettingsViewModel : ViewModelBase
     private bool useDarkTheme = true;
     private bool compactNavigationLayout = true;
     private bool enableOfflineRoutingFeatures = true;
-    private string accountStatusText = "Authentication is currently disabled for this build.";
+    private string accountStatusText = "Prijava je isključena u ovoj verziji aplikacije.";
 
     public SettingsViewModel()
     {

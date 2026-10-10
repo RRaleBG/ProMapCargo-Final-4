@@ -201,6 +201,14 @@
   display: none !important;
 }
 
+/* The map fills the whole WebView; the small-screen rules in promap.css cap it at 620px. */
+.pm-body.pm-embedded-mobile-shell .navigation-map-section,
+.pm-body.pm-embedded-mobile-shell .navigation-map-shell {
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+}
+
 .pm-body.pm-embedded-mobile-shell .nav-map-controls {
   top: auto;
   bottom: 170px;

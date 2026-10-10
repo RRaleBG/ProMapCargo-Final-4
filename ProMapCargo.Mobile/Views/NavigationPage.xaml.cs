@@ -85,12 +85,12 @@ public partial class MobileNavigationPage : ContentPage
         if (webViewReady)
         {
             await ApplyEmbeddedMobileLayoutTweaksAsync();
-            await notifier.ShowSuccessAsync("Navigation map is ready.");
+            await notifier.ShowSuccessAsync("Mapa za navigaciju je spremna.");
             await PushStateToWebAsync(force: true);
             return;
         }
 
-        await notifier.ShowErrorAsync("Unable to load navigation map. Check API availability.");
+        await notifier.ShowErrorAsync("Mapa za navigaciju nije učitana. Proverite da li server radi.");
     }
 
     private void OnRouteVisualizationChanged(object? sender, EventArgs e)
