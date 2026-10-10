@@ -8,13 +8,13 @@ using ProMapCargo.Api.Services;
 namespace ProMapCargo.Api.Controllers;
 
 [ApiController]
-//[Authorize]
+[Authorize(Policy = "AppOrMobile")]
 [Route("api/navigation/gps")]
 public sealed class NavigationTelemetryController(ProMapCargoDbContext db,ICurrentUserContext current,IHubContext<NavigationHub>
     hub):ControllerBase
 {
     [HttpPost]public async Task<IActionResult> Post([FromBody]GpsPositionRequest r,CancellationToken ct) {
-        var c=current.CompanyId??throw new UnauthorizedAccessException();
+        if(current.CompanyId is not Guid c)return Unauthorized();
         var v=await db.Vehicles.SingleOrDefaultAsync(x=>x.CompanyId==c&&x.Id==r.VehicleId,ct);
         if(v is null)return NotFound();
         var e=new VehiclePositionEvent {

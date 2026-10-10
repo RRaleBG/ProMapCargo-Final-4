@@ -22,4 +22,22 @@ public partial class DashboardPage : ContentPage
             await viewModel.LoadAsync();
         }
     }
+
+    private async void OnOpenSettingsClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("//settings");
+    }
+
+    private async void OnOpenNavigationClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("//dashboard/mobile-navigation");
+    }
+
+    private void OnToggleDiagnosticsClicked(object? sender, EventArgs e)
+    {
+        DiagnosticsPanel.IsVisible = !DiagnosticsPanel.IsVisible;
+        DiagnosticsToggle.Text = DiagnosticsPanel.IsVisible
+            ? "Sakrij dijagnostiku rute"
+            : "Prikaži dijagnostiku rute";
+    }
 }

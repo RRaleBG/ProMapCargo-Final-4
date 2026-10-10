@@ -60,7 +60,7 @@ public sealed class LoginViewModel : ViewModelBase
 
         if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
         {
-            ErrorMessage = "Email and password are required.";
+            ErrorMessage = "E-pošta i lozinka su obavezni.";
             await notifier.ShowWarningAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }
@@ -73,12 +73,12 @@ public sealed class LoginViewModel : ViewModelBase
         {
             IsBusy = true;
             await sessionService.LoginAsync(Email.Trim(), Password, loginCancellationTokenSource.Token).ConfigureAwait(false);
-            await notifier.ShowSuccessAsync("Signed in successfully.").ConfigureAwait(false);
+            await notifier.ShowSuccessAsync("Uspešna prijava.").ConfigureAwait(false);
             LoginSucceeded?.Invoke(this, EventArgs.Empty);
         }
         catch (OperationCanceledException)
         {
-            ErrorMessage = "Login canceled.";
+            ErrorMessage = "Prijava je otkazana.";
             await notifier.ShowInfoAsync(ErrorMessage).ConfigureAwait(false);
         }
         catch (ArgumentException ex)

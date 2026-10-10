@@ -1,0 +1,127 @@
+/* ProMap Cargo Mobile — static HTML renditions of the Pm* styles in Resources/Styles/Styles.xaml.
+   Values come from tokens.css; this sheet only maps each XAML style onto a class of the same name. */
+
+.pm-screen {
+  background: var(--SurfaceBase);
+  color: var(--TextPrimary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.3;
+  padding: var(--space-16);
+  box-sizing: border-box;
+}
+.pm-screen *, .pm-screen *::before, .pm-screen *::after { box-sizing: border-box; }
+.pm-stack { display: flex; flex-direction: column; }
+.pm-row { display: flex; align-items: center; }
+.pm-wrap { display: flex; flex-wrap: wrap; }
+
+/* Text */
+.PmPageTitleLabel, .PmSectionTitleLabel, .PmValueLabel, .PmCaptionLabel, .PmChipLabel { margin: 0; }
+.t-primary { color: var(--TextPrimary); }
+.t-muted { color: var(--TextSecondary); }
+.t-tertiary { color: var(--TextTertiary); }
+.t-accent { color: var(--TextAccent); }
+.t-brand { color: var(--Brand); }
+.t-danger { color: var(--StatusDanger); }
+.PmCaptionLabel { text-transform: uppercase; color: var(--TextTertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.semibold { font-weight: 600; }
+
+/* Surfaces */
+.PmCardBorder {
+  padding: var(--space-16);
+  background: var(--SurfaceOverlay);
+  border: var(--size-stroke) solid var(--StrokeSubtle);
+  border-radius: var(--radius-card);
+}
+.PmCardInnerBorder {
+  padding: var(--space-12);
+  background: var(--SurfaceInset);
+  border: var(--size-stroke) solid var(--StrokeSubtle);
+  border-radius: var(--radius-control);
+}
+.PmHeroBorder {
+  padding: var(--space-20);
+  border: var(--size-stroke) solid var(--StrokeStrong);
+  border-radius: var(--radius-hero);
+  background: linear-gradient(135deg, var(--HeroStart) 0%, var(--SurfaceElevated) 100%);
+}
+.PmDivider { height: var(--size-stroke); background: var(--StrokeSubtle); border: 0; margin: 0; }
+
+/* Buttons */
+.pm-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-sans); font-weight: 600; font-size: 14px; line-height: 1.2;
+  border: 0; cursor: pointer; white-space: nowrap;
+}
+.pm-btn:focus-visible { outline: 2px solid var(--TextAccent); outline-offset: 2px; }
+.PmPrimaryButton { background: var(--Brand); color: var(--BrandOn); border-radius: var(--radius-control); height: var(--size-button-primary); padding: 10px 20px; font-size: 15px; }
+.PmSecondaryButton { background: var(--BrandSoft); color: var(--TextPrimary); border-radius: var(--radius-control); height: var(--size-field); padding: 8px 18px; }
+.PmGhostButton { background: transparent; color: var(--TextAccent); border-radius: var(--radius-chip); height: var(--size-touch-min); padding: 6px 14px; }
+.PmTonalButton { background: var(--StatusSuccessBg); color: var(--StatusSuccess); border-radius: var(--radius-chip); height: var(--size-button-tonal); padding: 0 16px; font-size: 13px; }
+.PmIconButton { background: var(--SurfaceOverlay); color: var(--TextPrimary); border-radius: var(--radius-pill-44); width: var(--size-touch-min); height: var(--size-touch-min); padding: 0; font-size: 18px; font-weight: 400; }
+.pm-btn.is-full { display: flex; width: 100%; }
+.pm-btn[disabled] { opacity: var(--opacity-disabled); cursor: default; }
+
+/* Inputs */
+.PmFieldBorder {
+  display: flex; align-items: center;
+  padding: 0 var(--space-14);
+  background: var(--SurfaceInset);
+  border: var(--size-stroke) solid var(--StrokeStrong);
+  border-radius: var(--radius-control);
+  min-width: 0;
+}
+.PmEntry {
+  flex: 1; min-width: 0; height: var(--size-field);
+  background: transparent; border: 0; outline: 0;
+  color: var(--TextPrimary); font-family: var(--font-sans); font-size: 15px;
+}
+.PmEntry::placeholder { color: var(--TextTertiary); }
+.PmFieldBorder:focus-within { border-color: var(--TextAccent); }
+
+/* Switch (MAUI Switch: OnColor Brand, thumb White) */
+.pm-switch { position: relative; width: 52px; height: 32px; flex: none; }
+.pm-switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.pm-switch .track { position: absolute; inset: 4px 0; border-radius: 12px; background: var(--SurfaceInset); border: 1px solid var(--StrokeStrong); transition: background .15s; }
+.pm-switch .thumb { position: absolute; top: 4px; left: 2px; width: 24px; height: 24px; border-radius: 12px; background: var(--Gray500); box-shadow: 0 0 0 2px var(--SurfaceOverlay); transition: transform .15s, background .15s; }
+.pm-switch input:checked ~ .track { background: var(--Brand); }
+.pm-switch input:checked ~ .thumb { transform: translateX(24px); background: var(--White); }
+.pm-switch input:focus-visible ~ .track { outline: 2px solid var(--TextAccent); outline-offset: 2px; }
+
+/* Chips */
+.PmChip { display: inline-flex; align-items: center; padding: 5px 10px; border-radius: var(--radius-chip); background: var(--StatusSuccessBg); }
+.PmChip .PmChipLabel { color: var(--StatusSuccess); }
+.PmChipInfo { background: var(--StatusInfoBg); }
+.PmChipInfo .PmChipLabel { color: var(--StatusInfo); }
+.PmChipWarning { background: var(--StatusWarningBg); }
+.PmChipWarning .PmChipLabel { color: var(--StatusWarning); }
+.PmMapBadgeLabel { display: inline-block; padding: 4px 10px; background: var(--StatusSuccessBg); color: var(--StatusSuccess); font-weight: 600; font-size: 11px; line-height: 1.3; white-space: nowrap; }
+.PmLaneChip { display: inline-flex; align-items: center; justify-content: center; padding: 4px 6px; background: var(--SurfaceInset); border: var(--size-stroke) solid var(--StrokeStrong); border-radius: var(--radius-lane); color: var(--TextSecondary); font-size: 13px; min-width: 28px; }
+.PmLaneChip.is-active { color: var(--Brand); }
+
+/* Map overlays */
+.pm-map {
+  position: relative; overflow: hidden;
+  background:
+    linear-gradient(90deg, transparent 47%, var(--StrokeStrong) 47%, var(--StrokeStrong) 53%, transparent 53%) 0 0 / 120px 120px,
+    linear-gradient(0deg, transparent 47%, var(--StrokeSubtle) 47%, var(--StrokeSubtle) 53%, transparent 53%) 0 0 / 90px 90px,
+    var(--Black);
+}
+.PmMapGlassCard { padding: var(--space-14); background: var(--MapGlass); border: var(--size-stroke) solid var(--StrokeStrong); border-radius: var(--radius-card); }
+.PmMapFloatingButton {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: var(--size-button-primary); height: var(--size-button-primary); padding: 13px;
+  background: var(--MapGlass); border: var(--size-stroke) solid var(--StrokeStrong); border-radius: var(--radius-pill-52); cursor: pointer;
+}
+.PmMapFloatingButton img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.PmMapMiniButton { background: var(--MapGlass); color: var(--TextPrimary); border: var(--size-stroke) solid var(--StrokeStrong); border-radius: var(--radius-pill-44); height: var(--size-touch-min); padding: 4px 16px; font-size: 13px; }
+.PmBottomPanel { padding: var(--space-16); background: var(--MapSheet); border: var(--size-stroke) solid var(--StrokeStrong); border-radius: var(--radius-sheet); }
+.PmScrim { position: absolute; inset: 0; background: var(--SurfaceScrim); display: flex; align-items: center; justify-content: center; }
+.pm-spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--StatusSuccessBg); border-top-color: var(--Brand); }
+
+/* Shell tab bar */
+.pm-tabbar { display: flex; background: var(--SurfaceElevated); border-top: var(--size-stroke) solid var(--StrokeSubtle); }
+.pm-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0 10px; color: var(--TextTertiary); font-size: 12px; }
+.pm-tab img { width: 24px; height: 24px; opacity: .55; }
+.pm-tab.is-selected { color: var(--Brand); }
+.pm-tab.is-selected img { opacity: 1; }

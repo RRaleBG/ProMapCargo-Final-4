@@ -51,7 +51,22 @@ public sealed class OsrmRoutingService(HttpClient http, IConfiguration config) :
 
         var primaryRoutePath = $"route/v1/{profile}/{coordinates}?{string.Join("&", primaryQuery)}";
 
-        return await SendWithRetryAsync(primaryBaseUrl, primaryRoutePath, ct).ConfigureAwait(false);
+        if (primaryQuery.Count == baseQuery.Count)
+        {
+            return await SendWithRetryAsync(primaryBaseUrl, primaryRoutePath, ct).ConfigureAwait(false);
+        }
+
+        try
+        {
+            return await SendWithRetryAsync(primaryBaseUrl, primaryRoutePath, ct).ConfigureAwait(false);
+        }
+        catch (HttpRequestException ex) when (ex.Message.Contains("OSRM HTTP 400", StringComparison.Ordinal))
+        {
+            // The local dataset may have been built without an excludable "ferry" class
+            // (OSRM answers 400 InvalidValue); route again without the exclude flag.
+            var plainRoutePath = $"route/v1/{profile}/{coordinates}?{string.Join("&", baseQuery)}";
+            return await SendWithRetryAsync(primaryBaseUrl, plainRoutePath, ct).ConfigureAwait(false);
+        }
     }
 
     private async Task<OsrmResponse> SendWithRetryAsync(string baseUrl, string routePath, CancellationToken ct)

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgis/postgis:16-3.4
@@ -19,13 +17,14 @@ services:
     # compilation per short query.
     command: >
       postgres
-      -c shared_buffers=512MB
-      -c effective_cache_size=1GB
+      -c shared_buffers=2GB
+      -c effective_cache_size=4GB
+      -c maintenance_work_mem=1GB
       -c random_page_cost=1.1
       -c jit=off
       -c max_parallel_workers_per_gather=2
     shm_size: "1g"
-    mem_limit: "2g"
+    mem_limit: "6g"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U promap -d promapcargo"]
       interval: 10s

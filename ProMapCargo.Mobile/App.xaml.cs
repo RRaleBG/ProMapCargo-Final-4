@@ -11,6 +11,7 @@ public partial class App : Application
     public App(OfflineMapService offlineMapService, AppShell appShell)
     {
         InitializeComponent();
+        UserAppTheme = AppTheme.Dark;
         this.offlineMapService = offlineMapService;
         this.appShell = appShell;
     }

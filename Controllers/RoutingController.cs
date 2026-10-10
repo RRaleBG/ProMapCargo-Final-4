@@ -183,12 +183,6 @@ public sealed class RoutingController(
             };
         }
 
-        logger.LogWarning(
-            "PostGIS routing did not produce a route. Code={Code}. FailureReason={FailureReason}.",
-            postGisResult.Code,
-            postGisResult.Diagnostics.FailureReason
-        );
-
         if (!ShouldUseOsrmFallback(postGisResult))
         {
             logger.LogWarning(
@@ -522,7 +516,9 @@ public sealed class RoutingController(
                || code.Equals("RoutingError", StringComparison.OrdinalIgnoreCase)
                || code.Equals("NoPath", StringComparison.OrdinalIgnoreCase)
                || code.Equals("SnapFailed", StringComparison.OrdinalIgnoreCase)
-               || code.Equals("InvalidRouteGeometry", StringComparison.OrdinalIgnoreCase);
+               || code.Equals("InvalidRouteGeometry", StringComparison.OrdinalIgnoreCase)
+               // "Ok" that reached this point carried no route: treat it like a failed search.
+               || code.Equals("Ok", StringComparison.OrdinalIgnoreCase);
     }
 
     private static RouteResponse BuildEmergencyFallbackResponse(
@@ -625,6 +621,12 @@ public sealed class RoutingController(
         GeoPoint? point)
     {
         if (point is null)
+        {
+            return false;
+        }
+
+        // RouteRequest falls back to (0,0) when no coordinates were sent.
+        if (point.Lat == 0 && point.Lon == 0)
         {
             return false;
         }

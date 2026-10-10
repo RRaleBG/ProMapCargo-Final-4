@@ -11,8 +11,8 @@
             <BoxView.Background>
                 <RadialGradientBrush Center="0.5,0.26" Radius="0.95">
                     <GradientStop Offset="0.00" Color="#123E35" />
-                    <GradientStop Offset="0.42" Color="#082720" />
-                    <GradientStop Offset="1.00" Color="#031712" />
+                    <GradientStop Offset="0.42" Color="{StaticResource SurfaceElevated}" />
+                    <GradientStop Offset="1.00" Color="{StaticResource SurfaceBase}" />
                 </RadialGradientBrush>
             </BoxView.Background>
         </BoxView>
@@ -48,7 +48,7 @@
                             <Label
                                 FontSize="12"
                                 Text="●"
-                                TextColor="#10B981"
+                                TextColor="{StaticResource Brand}"
                                 VerticalTextAlignment="Center" />
                             <Label
                                 Grid.Column="1"
@@ -60,7 +60,7 @@
                             <Label
                                 FontSize="12"
                                 Text="●"
-                                TextColor="#2DD4BF"
+                                TextColor="{StaticResource Secondary}"
                                 VerticalTextAlignment="Center" />
                             <Label
                                 Grid.Column="1"

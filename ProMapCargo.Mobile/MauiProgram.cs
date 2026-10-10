@@ -34,14 +34,17 @@ public static class MauiProgram
         });
 
         builder.Services.AddSingleton<TokenStore>();
-        builder.Services.AddSingleton<ApiAuthHandler>();
+        // DelegatingHandlers used with AddHttpMessageHandler must be transient: HttpClientFactory
+        // builds a new handler chain on every rotation and a reused instance throws.
+        builder.Services.AddTransient<ApiAuthHandler>();
         builder.Services.AddSingleton<MobileSessionService>();
         builder.Services.AddSingleton<IMobileNotifier, MobileNotifier>();
         builder.Services.AddHttpClient<ApiClient>((services, client) =>
         {
             var options = services.GetRequiredService<IOptions<MobileAppOptions>>().Value;
             client.BaseAddress = new Uri(options.ApiBaseUrl);
-            client.Timeout = TimeSpan.FromSeconds(20);
+            // Per-request timeouts are enforced by ApiClient (routing may take much longer than 20 s).
+            client.Timeout = TimeSpan.FromMinutes(3);
         })
             .AddHttpMessageHandler<ApiAuthHandler>();
 

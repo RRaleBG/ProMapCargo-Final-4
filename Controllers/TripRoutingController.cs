@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProMapCargo.Api.Data;
@@ -9,14 +10,18 @@ using System.Text.Json;
 namespace ProMapCargo.Api.Controllers;
 
 [ApiController]
-//[Authorize]
+[Authorize(Policy = "AppOrMobile")]
 [Route("api/trips/{tripId}/route")]
 public sealed class TripRoutingController(ProMapCargoDbContext db, ICurrentUserContext current, IPostGisRoutingService routing) : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<RouteResponse>> Calculate(Guid tripId, [FromBody] RouteRequest request, CancellationToken ct)
     {
-        var c = current.CompanyId ?? throw new UnauthorizedAccessException();
+        if (current.CompanyId is not Guid c)
+        {
+            return Unauthorized();
+        }
+
         var trip = await db.Trips.SingleOrDefaultAsync(x => 
                                                         x.CompanyId == c && x.Id == tripId, ct);
 
@@ -32,7 +37,9 @@ public sealed class TripRoutingController(ProMapCargoDbContext db, ICurrentUserC
             db.TripRoutes.Where(x => x.CompanyId == c && x.TripId == tripId && x.Status == TripRouteStatus.Active)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.Status, TripRouteStatus.Superseded), ct);
 
-        var version = await db.Database.SqlQueryRaw<long?>("SELECT graph_version FROM routing_graph_versions WHERE status='ready' AND activated_at IS NOT NULL ORDER BY activated_at DESC LIMIT 1").SingleOrDefaultAsync(ct) ?? 0;
+        // SqlQueryRaw<long?> needs a column named "Value" and would throw here; the routing
+        // service already reports the graph version it used.
+        var version = result.Diagnostics.GraphVersion ?? 0;
         var tr = new TripRoute
         {
             Id = Guid.NewGuid(),
@@ -43,7 +50,7 @@ public sealed class TripRoutingController(ProMapCargoDbContext db, ICurrentUserC
             DurationSeconds = route.Duration,
             EstimatedArrival = (request.DepartureAt ?? DateTimeOffset.UtcNow).AddSeconds(route.Duration),
             GeometryJson = JsonSerializer.Serialize(route.Geometry),
-            ManeuversJson = "[]",
+            ManeuversJson = JsonSerializer.Serialize(result.Maneuvers),
             EdgeIdsJson = "[]",
             ActivatedAt = DateTimeOffset.UtcNow
         }

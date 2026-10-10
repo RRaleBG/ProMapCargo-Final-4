@@ -4,378 +4,175 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:models="clr-namespace:ProMapCargo.Mobile.Models"
-    Title="Install maps"
-    BackgroundColor="#061B17">
-    <!--  STREAMING_CHUNK: Definisanje glavnog Grid layout-a  -->
-    <Grid
-        Padding="24,32,24,24"
-        RowDefinitions="Auto, Auto, *, Auto"
-        RowSpacing="20">
+    Title="Mape"
+    BackgroundColor="{StaticResource SurfaceBase}"
+    Shell.NavBarIsVisible="False">
+    <Grid RowDefinitions="*,Auto">
 
-        <!--  1. HEADER (Naslov i Opis)  -->
-        <!--  STREAMING_CHUNK: Prikaz zaglavlja sa ikonicom  -->
-        <HorizontalStackLayout
-            Grid.Row="0"
-            Spacing="16"
-            VerticalOptions="Center">
-            <!--  Glavna SVG Ikonica (Mape)  -->
-            <Border
-                BackgroundColor="#1E293B"
-                HeightRequest="56"
-                Stroke="#334155"
-                StrokeShape="RoundRectangle 16"
-                WidthRequest="56">
-                <Path
-                    Aspect="Uniform"
-                    Data="M15,19L9,16.89V5L15,7.11M20.5,3C20.44,3 20.39,3 20.34,3L15,5.1L9,3L3.36,4.9C3.15,5 3,5.2 3,5.43V20.5A0.5,0.5 0 0,0 3.5,21C3.55,21 3.61,21 3.66,21L9,18.9L15,21L20.64,19.1C20.85,19 21,18.8 21,18.57V3.5A0.5,0.5 0 0,0 20.5,3Z"
-                    Fill="#10B981"
-                    HeightRequest="28"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center"
-                    WidthRequest="28" />
-            </Border>
+        <ScrollView>
+            <VerticalStackLayout
+                Padding="20,28,20,24"
+                MaximumWidthRequest="720"
+                Spacing="20">
 
-            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
-                <Label
-                    FontAttributes="Bold"
-                    FontSize="24"
-                    Text="Inicijalizacija Mapa"
-                    TextColor="#F8FAFC" />
-                <Label
-                    FontSize="14"
-                    Text="Preuzmite neophodne pakete za offline navigaciju."
-                    TextColor="#94A3B8" />
-            </VerticalStackLayout>
-        </HorizontalStackLayout>
-
-        <!--  2. STATUS PANELI  -->
-        <!--  STREAMING_CHUNK: Paneli za indikator učitavanja i status spremnosti  -->
-        <VerticalStackLayout Grid.Row="1" Spacing="12">
-
-            <!--  Globalni Loader i Status  -->
-            <Border
-                Padding="16,12"
-                BackgroundColor="#1E293B"
-                Stroke="#334155"
-                StrokeShape="RoundRectangle 16">
-                <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
-                    <ActivityIndicator
-                        HeightRequest="24"
-                        IsRunning="{Binding IsBusy}"
-                        IsVisible="{Binding IsBusy}"
-                        WidthRequest="24"
-                        Color="#10B981" />
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="15"
-                        Text="{Binding StatusText}"
-                        TextColor="#E2E8F0"
-                        VerticalOptions="Center" />
-                </HorizontalStackLayout>
-            </Border>
-
-            <!--  Offline Spremnost (Osvetljen naglašeni panel)  -->
-            <Border
-                Padding="16,12"
-                Stroke="#064E3B"
-                StrokeShape="RoundRectangle 16">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Offset="0.0" Color="#064E3B" />
-                        <GradientStop Offset="1.0" Color="#022C22" />
-                    </LinearGradientBrush>
-                </Border.Background>
-                <Grid ColumnDefinitions="Auto, *">
-                    <Path
-                        Grid.Column="0"
-                        Margin="0,0,12,0"
-                        Data="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"
-                        Fill="#34D399"
-                        HeightRequest="24"
-                        VerticalOptions="Center"
-                        WidthRequest="24" />
-                    <VerticalStackLayout Grid.Column="1" Spacing="2">
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            Text="Offline routing spremnost"
-                            TextColor="#6EE7B7"
-                            TextTransform="Uppercase" />
-                        <Label
-                            FontSize="15"
-                            Text="{Binding BundleStatusText}"
-                            TextColor="#ECFDF5" />
+                <!--  Header  -->
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <Border
+                        BackgroundColor="{StaticResource StatusSuccessBg}"
+                        HeightRequest="56"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 18"
+                        WidthRequest="56">
+                        <Image
+                            HeightRequest="28"
+                            HorizontalOptions="Center"
+                            Source="ic_map.svg"
+                            VerticalOptions="Center"
+                            WidthRequest="28" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource PmPageTitleLabel}" Text="Offline mape" />
+                        <Label Style="{StaticResource PmMutedLabel}" Text="Preuzmite mape i pakete za rad bez interneta." />
                     </VerticalStackLayout>
                 </Grid>
-            </Border>
-        </VerticalStackLayout>
 
-        <!--  3. GLAVNE LISTE (KOLONE)  -->
-        <!--  STREAMING_CHUNK: Prikaz dostupnih i instaliranih paketa  -->
-        <Grid
-            Grid.Row="2"
-            ColumnDefinitions="*,*"
-            ColumnSpacing="16">
+                <!--  Status  -->
+                <Border Style="{StaticResource PmCardBorder}">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <ActivityIndicator
+                                HeightRequest="22"
+                                IsRunning="{Binding IsBusy}"
+                                IsVisible="{Binding IsBusy}"
+                                VerticalOptions="Center"
+                                WidthRequest="22" />
+                            <Label
+                                Grid.Column="1"
+                                FontFamily="OpenSansSemibold"
+                                Style="{StaticResource PmBodyLabel}"
+                                Text="{Binding StatusText}"
+                                VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Style="{StaticResource PmDivider}" />
+                        <VerticalStackLayout Spacing="2">
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="Spremnost offline rutiranja" />
+                            <Label Style="{StaticResource PmAccentLabel}" Text="{Binding BundleStatusText}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
 
-            <!--  LEVA KOLONA: Dostupni Paketi  -->
-            <Border
-                Grid.Column="0"
-                Padding="16"
-                BackgroundColor="#0F172A"
-                Stroke="#1E293B"
-                StrokeShape="RoundRectangle 20">
-                <Grid RowDefinitions="Auto, *">
-                    <Label
-                        Grid.Row="0"
-                       
-                        FontAttributes="Bold"
-                        FontSize="10"
-                        HorizontalTextAlignment="Center"
-                        Text="DOSTUPNI PAKETI"
-                        TextColor="#34D399"
-                        TextTransform="Uppercase" />
-
-                    <CollectionView Grid.Row="1" ItemsSource="{Binding AvailablePackages}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:MapPackageCatalogItem">
-                                <Border
-                                    Margin="0,0,0,12"
-                                    Padding="12"
-                                    BackgroundColor="{AppThemeBinding Light=#1E293B,
-                                                                      Dark=#0F172A}"
-                                    Stroke="Transparent"
-                                    StrokeShape="RoundRectangle 12">
-                                    <Grid
-                                        ColumnDefinitions="Auto, *, Auto"
-                                        ColumnSpacing="12"
-                                        VerticalOptions="Center">
-                                        <!--  Box Ikona  -->
-                                        <BoxView
-                                            Grid.Column="0"
-                                            Margin="0,0,0,0"
-                                            Background="Transparent"
-                                            CornerRadius="8"
-                                            HeightRequest="36"
-                                            WidthRequest="36"
-                                            Color="Transparent" />
-                                        <Path
-                                            Grid.Column="0"
-                                            Aspect="Uniform"
-                                            Background="Transparent"
-                                            Data="M19,15V19H5V15H3V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V15H19M17,11L15.59,9.59L13,12.17V2H11V12.17L8.41,9.59L7,11L12,16L17,11Z"
-                                            Fill="#94A3B8"
-                                            HeightRequest="20"
-                                            HorizontalOptions="Center"
-                                            VerticalOptions="Center"
-                                            WidthRequest="20" />
-
-                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                                            <Label
-                                                FontAttributes="Bold"
-                                                FontSize="11"
-                                                Text="{Binding DisplayName}"
-                                                TextColor="#F8FAFC" />
-                                            <Label
-                                                FontSize="12"
-                                                LineBreakMode="TailTruncation"
-                                                Text="{Binding FileName}"
-                                                TextColor="#64748B" />
+                <!--  Available maps  -->
+                <VerticalStackLayout Spacing="10">
+                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Dostupne mape" />
+                    <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding AvailablePackages}">
+                            <BindableLayout.EmptyView>
+                                <Label Padding="0,14" Style="{StaticResource PmMutedLabel}" Text="Nema dostupnih mapa. Osvežite listu." />
+                            </BindableLayout.EmptyView>
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:MapPackageCatalogItem">
+                                    <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label FontFamily="OpenSansSemibold" Style="{StaticResource PmBodyLabel}" Text="{Binding DisplayName}" />
+                                            <Label LineBreakMode="TailTruncation" Style="{StaticResource PmMutedLabel}" Text="{Binding FileName}" />
                                         </VerticalStackLayout>
-
-                                        <!--  Install Dugme  -->
                                         <Button
-                                            Grid.Column="2"
-                                            Padding="16,0"
-                                            BackgroundColor="Transparent"
+                                            Grid.Column="1"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.InstallCommand}"
                                             CommandParameter="{Binding .}"
-                                            CornerRadius="10"
-                                            FontAttributes="Bold"
-                                            FontSize="12"
-                                            HeightRequest="32"
+                                            Style="{StaticResource PmTonalButton}"
                                             Text="Preuzmi"
-                                            TextColor="White" />
+                                            VerticalOptions="Center" />
+                                        <BoxView Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0" Style="{StaticResource PmDivider}" />
                                     </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </Grid>
-            </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
 
-            <!--  DESNA KOLONA: Instalirano i Bundleovi  -->
-            <Grid
-                Grid.Column="1"
-                RowDefinitions="*,*"
-                RowSpacing="16">
-
-                <!--  Gornji deo: Instalirani paketi  -->
-                <Border
-                    Grid.Row="0"
-                    Padding="16"
-                    BackgroundColor="#0F172A"
-                    Stroke="#1E293B"
-                    StrokeShape="RoundRectangle 20">
-                    <Grid RowDefinitions="Auto, *">
-                        <Label
-                            Grid.Row="0"
-                            Margin="0,0,0,16"
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            Text="INSTALIRANE MAPE"
-                            TextColor="#94A3B8"
-                            TextTransform="Uppercase" />
-                        <CollectionView Grid.Row="1" ItemsSource="{Binding InstalledPackages}">
-                            <CollectionView.ItemTemplate>
+                <!--  Installed maps  -->
+                <VerticalStackLayout Spacing="10">
+                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Instalirane mape" />
+                    <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding InstalledPackages}">
+                            <BindableLayout.EmptyView>
+                                <Label Padding="0,14" Style="{StaticResource PmMutedLabel}" Text="Još nema instaliranih mapa." />
+                            </BindableLayout.EmptyView>
+                            <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:InstalledMapPackage">
-                                    <Border
-                                        Margin="0,0,0,8"
-                                        Padding="12"
-                                        BackgroundColor="#064E3B"
-                                        Stroke="#059669"
-                                        StrokeShape="RoundRectangle 12">
-                                        <Grid
-                                            ColumnDefinitions="Auto, *"
-                                            ColumnSpacing="12"
-                                            VerticalOptions="Center">
-                                            <Path
-                                                Grid.Column="0"
-                                                Aspect="Uniform"
-                                                Data="M9,16.17L4.83,12L3.41,13.41L9,19L21,7L19.59,5.59L9,16.17Z"
-                                                Fill="#34D399"
-                                                HeightRequest="20"
-                                                WidthRequest="20" />
-                                            <VerticalStackLayout Grid.Column="1">
-                                                <Label
-                                                    FontAttributes="Bold"
-                                                    FontSize="14"
-                                                    Text="{Binding DisplayName}"
-                                                    TextColor="#F8FAFC" />
-                                                <Label
-                                                    FontSize="11"
-                                                    Text="{Binding FileName}"
-                                                    TextColor="#94A3B8" />
-                                            </VerticalStackLayout>
-                                        </Grid>
-                                    </Border>
+                                    <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label FontFamily="OpenSansSemibold" Style="{StaticResource PmBodyLabel}" Text="{Binding DisplayName}" />
+                                            <Label LineBreakMode="TailTruncation" Style="{StaticResource PmMutedLabel}" Text="{Binding FileName}" />
+                                        </VerticalStackLayout>
+                                        <Border Grid.Column="1" Style="{StaticResource PmChip}" VerticalOptions="Center">
+                                            <Label Style="{StaticResource PmChipLabel}" Text="Instalirano" />
+                                        </Border>
+                                        <BoxView Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0" Style="{StaticResource PmDivider}" />
+                                    </Grid>
                                 </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </Grid>
-                </Border>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
 
-                <!--  Donji deo: Routing Bundle-ovi  -->
-                <Border
-                    Grid.Row="1"
-                    Padding="16"
-                    BackgroundColor="#0F172A"
-                    Stroke="#1E293B"
-                    StrokeShape="RoundRectangle 20">
-                    <Grid RowDefinitions="Auto, *">
-                        <Label
-                            Grid.Row="0"
-                            Margin="0,0,0,16"
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            Text="ROUTING PAKETI"
-                            TextColor="#94A3B8"
-                            TextTransform="Uppercase" />
-                        <CollectionView Grid.Row="1" ItemsSource="{Binding AvailableBundles}">
-                            <CollectionView.ItemTemplate>
+                <!--  Routing bundles  -->
+                <VerticalStackLayout Spacing="10">
+                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Paketi za rutiranje" />
+                    <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding AvailableBundles}">
+                            <BindableLayout.EmptyView>
+                                <Label Padding="0,14" Style="{StaticResource PmMutedLabel}" Text="Nema dostupnih paketa." />
+                            </BindableLayout.EmptyView>
+                            <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:OfflineRoutingBundleCatalogItem">
-                                    <Border
-                                        Margin="0,0,0,12"
-                                        Padding="12"
-                                        BackgroundColor="#1E293B"
-                                        Stroke="Transparent"
-                                        StrokeShape="RoundRectangle 12">
-                                        <Grid
-                                            ColumnDefinitions="*, Auto"
-                                            ColumnSpacing="12"
-                                            VerticalOptions="Center">
-                                            <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
-                                                <Label
-                                                    FontAttributes="Bold"
-                                                    FontSize="14"
-                                                    Text="{Binding DisplayName}"
-                                                    TextColor="#F8FAFC" />
-                                                <Label
-                                                    FontSize="12"
-                                                    Text="{Binding Version, StringFormat='Verzija {0}'}"
-                                                    TextColor="#64748B" />
-                                            </VerticalStackLayout>
-
-                                            <Button
-                                                Grid.Column="1"
-                                                Padding="16,0"
-                                                BackgroundColor="#8B5CF6"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.InstallBundleCommand}"
-                                                CommandParameter="{Binding .}"
-                                                CornerRadius="10"
-                                                FontAttributes="Bold"
-                                                FontSize="12"
-                                                HeightRequest="32"
-                                                Text="Instaliraj"
-                                                TextColor="White" />
-                                        </Grid>
-                                    </Border>
+                                    <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label FontFamily="OpenSansSemibold" Style="{StaticResource PmBodyLabel}" Text="{Binding DisplayName}" />
+                                            <Label Style="{StaticResource PmMutedLabel}" Text="{Binding Version, StringFormat='Verzija {0}'}" />
+                                        </VerticalStackLayout>
+                                        <Button
+                                            Grid.Column="1"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.InstallBundleCommand}"
+                                            CommandParameter="{Binding .}"
+                                            Style="{StaticResource PmTonalButton}"
+                                            Text="Instaliraj"
+                                            VerticalOptions="Center" />
+                                        <BoxView Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0" Style="{StaticResource PmDivider}" />
+                                    </Grid>
                                 </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </Grid>
-                </Border>
-            </Grid>
-        </Grid>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
 
-        <!--  4. DONJI NAVIGACIONI BAR (Dugmići)  -->
-        <!--  STREAMING_CHUNK: Footer sa kontrolnim dugmićima  -->
+        <!--  Bottom action bar  -->
         <Border
-            Grid.Row="3"
-            Padding="8"
-            BackgroundColor="#0F172A"
-            Stroke="#1E293B"
-            StrokeShape="RoundRectangle 24"
+            Grid.Row="1"
+            Padding="16,12,16,16"
+            BackgroundColor="{StaticResource SurfaceElevated}"
+            Stroke="{StaticResource StrokeSubtle}"
+            StrokeShape="RoundRectangle 24,24,0,0"
             StrokeThickness="1">
-            <Grid ColumnDefinitions="Auto, Auto, *">
-
+            <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
                 <Button
-                    Grid.Column="0"
-                    Margin="0,0,8,0"
-                    BackgroundColor="Transparent"
                     Command="{Binding RefreshCommand}"
-                    CornerRadius="16"
-                    FontAttributes="Bold"
-                    HeightRequest="48"
-                    Text="Osveži listu"
-                    TextColor="#94A3B8" />
-
+                    Style="{StaticResource PmGhostButton}"
+                    Text="Osveži" />
                 <Button
                     Grid.Column="1"
-                    Margin="0,0,8,0"
-                    Padding="20,0"
-                    BackgroundColor="#1E293B"
                     Command="{Binding OpenSettingsCommand}"
-                    CornerRadius="16"
-                    FontAttributes="Bold"
-                    HeightRequest="48"
-                    Text="Podešavanja"
-                    TextColor="#E2E8F0" />
-
-                <!--  GLAVNO DUGME (Započni/Nastavi)  -->
+                    Style="{StaticResource PmGhostButton}"
+                    Text="Podešavanja" />
                 <Button
                     Grid.Column="2"
-                    BackgroundColor="#10B981"
                     Command="{Binding ContinueCommand}"
-                    CornerRadius="16"
-                    FontAttributes="Bold"
-                    FontSize="16"
-                    HeightRequest="48"
-                    HorizontalOptions="Fill"
-                    Text="Nastavi na Mape →"
-                    TextColor="#0B1120" />
+                    Style="{StaticResource PmPrimaryButton}"
+                    Text="Nastavi" />
             </Grid>
         </Border>
-
     </Grid>
-
 </ContentPage>

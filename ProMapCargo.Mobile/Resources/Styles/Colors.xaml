@@ -34,6 +34,34 @@
     <Color x:Key="Gray900">#061F19</Color>
     <Color x:Key="Gray950">#031712</Color>
 
+    <!--  ProMap design tokens (v2)  -->
+    <Color x:Key="Brand">#10B981</Color>
+    <Color x:Key="BrandSoft">#145C4F</Color>
+    <Color x:Key="BrandOn">#031712</Color>
+    <Color x:Key="TextPrimary">#ECFDF5</Color>
+    <Color x:Key="TextSecondary">#A7C4BB</Color>
+    <Color x:Key="TextTertiary">#7C9A90</Color>
+    <Color x:Key="TextAccent">#5EEAD4</Color>
+    <Color x:Key="SurfaceInset">#0E332B</Color>
+    <Color x:Key="SurfaceScrim">#D9031712</Color>
+    <Color x:Key="StrokeSubtle">#164237</Color>
+    <Color x:Key="StatusSuccess">#34D399</Color>
+    <Color x:Key="StatusSuccessBg">#1F10B981</Color>
+    <Color x:Key="StatusWarning">#FBBF24</Color>
+    <Color x:Key="StatusWarningBg">#1FFBBF24</Color>
+    <Color x:Key="StatusDanger">#FB7185</Color>
+    <Color x:Key="StatusDangerBg">#1FFB7185</Color>
+    <Color x:Key="StatusInfo">#38BDF8</Color>
+    <Color x:Key="StatusInfoBg">#1F38BDF8</Color>
+
+    <!--  Map overlays and hero (see DesignSystem/tokens.json)  -->
+    <Color x:Key="MapGlass">#E6082720</Color>
+    <Color x:Key="MapSheet">#F2061F19</Color>
+    <Color x:Key="HeroStart">#0F4A3E</Color>
+
+    <SolidColorBrush x:Key="BrandBrush" Color="{StaticResource Brand}" />
+    <SolidColorBrush x:Key="SurfaceInsetBrush" Color="{StaticResource SurfaceInset}" />
+
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}" />
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}" />
     <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}" />

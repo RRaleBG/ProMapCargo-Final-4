@@ -54,12 +54,15 @@ public static class RouteGeometryBuilder
 
             orientedPointCount += orientedLine.Coordinates.Length;
 
-            var startFraction = traversalIndex == 0
-                ? OrientedFraction(startSnap?.Fraction, traversal.Forward)
+            // Only the edges the snaps were taken on are trimmed. When the search ends
+            // exactly on a node (zero-length final leg) the last traversal is a different
+            // edge and has to stay whole.
+            var startFraction = traversalIndex == 0 && startSnap is not null && startSnap.EdgeId == traversal.EdgeId
+                ? OrientedFraction(startSnap.Fraction, traversal.Forward)
                 : 0d;
 
-            var endFraction = traversalIndex == traversals.Count - 1
-                ? OrientedFraction(endSnap?.Fraction, traversal.Forward)
+            var endFraction = traversalIndex == traversals.Count - 1 && endSnap is not null && endSnap.EdgeId == traversal.EdgeId
+                ? OrientedFraction(endSnap.Fraction, traversal.Forward)
                 : 1d;
 
             var segment = ExtractSegment(orientedLine, startFraction, endFraction);

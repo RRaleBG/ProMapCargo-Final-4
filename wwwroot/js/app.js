@@ -32,6 +32,8 @@
         const input = document.querySelector(
             ".pm-global-search input[type='search']",
         );
+        const list = document.getElementById("pm-search-results");
+
         document.addEventListener("keydown", (event) => {
             if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
                 event.preventDefault();
@@ -39,6 +41,128 @@
                 input?.select();
             }
         });
+
+        if (!input || !list) return;
+
+        // Quick-jump: builds its index from the sidebar navigation.
+        const pages = Array.from(
+            document.querySelectorAll(".pm-navigation a.pm-nav-item"),
+        )
+            .map((a) => ({
+                label: (a.querySelector(".pm-nav-label")?.textContent || "").trim(),
+                href: a.getAttribute("href") || "",
+            }))
+            .filter((p) => p.label && p.href);
+
+        const normalize = (value) =>
+            String(value || "")
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "dj");
+
+        let matches = [];
+        let active = -1;
+
+        function close() {
+            list.hidden = true;
+            list.innerHTML = "";
+            matches = [];
+            active = -1;
+            input.setAttribute("aria-expanded", "false");
+            input.removeAttribute("aria-activedescendant");
+        }
+
+        function setActive(index) {
+            active = index;
+            Array.from(list.children).forEach((li, i) => {
+                const on = i === active;
+                li.classList.toggle("is-active", on);
+                li.setAttribute("aria-selected", String(on));
+                if (on) input.setAttribute("aria-activedescendant", li.id);
+            });
+        }
+
+        function render() {
+            const query = normalize(input.value.trim());
+            if (!query) return close();
+            matches = pages.filter((p) => normalize(p.label).includes(query)).slice(0, 8);
+            list.innerHTML = "";
+            if (!matches.length) {
+                const empty = document.createElement("li");
+                empty.className = "pm-search-empty";
+                empty.textContent = "Nema rezultata";
+                list.appendChild(empty);
+            } else {
+                matches.forEach((p, i) => {
+                    const li = document.createElement("li");
+                    li.id = `pm-search-option-${i}`;
+                    li.setAttribute("role", "option");
+                    li.textContent = p.label;
+                    li.addEventListener("mousedown", (e) => {
+                        e.preventDefault();
+                        window.location.href = p.href;
+                    });
+                    list.appendChild(li);
+                });
+                setActive(0);
+            }
+            list.hidden = false;
+            input.setAttribute("aria-expanded", "true");
+        }
+
+        input.addEventListener("input", render);
+        input.addEventListener("blur", () => window.setTimeout(close, 120));
+        input.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                input.value = "";
+                close();
+            } else if (event.key === "ArrowDown" && matches.length) {
+                event.preventDefault();
+                setActive((active + 1) % matches.length);
+            } else if (event.key === "ArrowUp" && matches.length) {
+                event.preventDefault();
+                setActive((active - 1 + matches.length) % matches.length);
+            } else if (event.key === "Enter" && matches[active]) {
+                event.preventDefault();
+                window.location.href = matches[active].href;
+            }
+        });
+    }
+
+    function initializeSystemStatus() {
+        const holders = Array.from(document.querySelectorAll("[data-system-status]"));
+        if (!holders.length) return;
+
+        function apply(online) {
+            holders.forEach((holder) => {
+                holder.classList.toggle("is-offline", !online);
+                const text = holder.querySelector("[data-system-status-text]");
+                const badge = holder.querySelector("[data-system-status-badge]");
+                if (text) text.textContent = online ? (badge ? "Sistem operativan" : "Sistem online") : "Nema veze sa serverom";
+                if (badge) badge.textContent = online ? "LIVE" : "OFFLINE";
+            });
+        }
+
+        async function probe() {
+            if (!navigator.onLine) return apply(false);
+            const controller = new AbortController();
+            const timer = window.setTimeout(() => controller.abort(), 5000);
+            try {
+                // Any HTTP response (even 401/404) proves the server is reachable.
+                await fetch("/api/alerts/count", { method: "HEAD", cache: "no-store", signal: controller.signal });
+                apply(true);
+            } catch {
+                apply(false);
+            } finally {
+                window.clearTimeout(timer);
+            }
+        }
+
+        window.addEventListener("online", probe);
+        window.addEventListener("offline", () => apply(false));
+        probe();
+        window.setInterval(probe, 30000);
     }
 
     function initializeDoubleSubmitProtection() {
@@ -112,6 +236,7 @@
         initializeTheme();
         initializeLucideIcons();
         initializeGlobalSearch();
+        initializeSystemStatus();
         initializeDoubleSubmitProtection();
         initializeReveal();
         initializeSidebar();

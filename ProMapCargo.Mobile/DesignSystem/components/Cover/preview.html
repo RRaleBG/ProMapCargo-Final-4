@@ -1,0 +1,56 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; background: var(--SurfaceBase); }
+  .cover { position: relative; width: 960px; height: 288px; overflow: hidden; background: var(--SurfaceBase); font-family: var(--font-sans); }
+  .cover svg { position: absolute; left: 0; top: 0; }
+  .b-hero { fill: var(--HeroStart); }
+  .b-brand { fill: var(--Brand); }
+  .b-accent { fill: var(--TextAccent); }
+  .b-inset { fill: var(--SurfaceInset); stroke: var(--StrokeStrong); stroke-width: 1; }
+  .r-card { rx: var(--radius-card); }
+  .lane-on-hero { fill: var(--TextAccent); }
+  .lane-on-brand { fill: var(--BrandOn); }
+  .text { position: absolute; left: 40px; top: 140px; max-width: 880px; }
+  .name { margin: 0; font-size: 64px; line-height: .95; font-weight: 600; color: var(--TextPrimary); letter-spacing: -0.5px; white-space: nowrap; }
+  .tag { margin: 16px 0 0; font-size: 14px; line-height: 1.35; color: var(--TextSecondary); }
+</style>
+</head>
+<body>
+<div class="cover">
+  <!--
+    blocks: HeroStart 400×128, Brand 300×128, TextAccent 96×128, SurfaceInset 140×128 (+StrokeStrong edge), all rx radius-card (20), gaps space-12
+    arrangement: top-band skeleton (name too wide for the 440px zone at 64px); a strip of unequal bands bleeding off the top and right edges, like the map's top overlay
+    pattern: literal motif, lane markings: the brand is truck navigation and its UI lives over a road map, so one row of road-dash pills crosses the hero and brand blocks
+    scales: dash 32×8 (space-8 tall, rx half the short side), pitch 56 = 32 + space-24, row centred at y 48; band height 104 visible (space-24 bleed above)
+  -->
+  <svg width="960" height="288" viewBox="0 0 960 288" aria-hidden="true">
+    <rect class="b-hero r-card" x="0" y="-24" width="400" height="128"/>
+    <rect class="b-brand r-card" x="412" y="-24" width="300" height="128"/>
+    <rect class="b-accent r-card" x="724" y="-24" width="96" height="128"/>
+    <rect class="b-inset r-card" x="832" y="-24" width="140" height="128"/>
+    <g>
+      <rect class="lane-on-hero" x="24"  y="44" width="32" height="8" rx="4"/>
+      <rect class="lane-on-hero" x="80"  y="44" width="32" height="8" rx="4"/>
+      <rect class="lane-on-hero" x="136" y="44" width="32" height="8" rx="4"/>
+      <rect class="lane-on-hero" x="192" y="44" width="32" height="8" rx="4"/>
+      <rect class="lane-on-hero" x="248" y="44" width="32" height="8" rx="4"/>
+      <rect class="lane-on-hero" x="304" y="44" width="32" height="8" rx="4"/>
+      <rect class="lane-on-hero" x="360" y="44" width="16" height="8" rx="4"/>
+      <rect class="lane-on-brand" x="436" y="44" width="32" height="8" rx="4"/>
+      <rect class="lane-on-brand" x="492" y="44" width="32" height="8" rx="4"/>
+      <rect class="lane-on-brand" x="548" y="44" width="32" height="8" rx="4"/>
+      <rect class="lane-on-brand" x="604" y="44" width="32" height="8" rx="4"/>
+      <rect class="lane-on-brand" x="660" y="44" width="32" height="8" rx="4"/>
+    </g>
+  </svg>
+  <div class="text">
+    <p class="name">ProMap Cargo Mobile</p>
+    <p class="tag">Navigacija i dispečing za teretni transport</p>
+  </div>
+</div>
+</body>
+</html>

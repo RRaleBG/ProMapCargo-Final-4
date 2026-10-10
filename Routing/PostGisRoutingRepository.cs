@@ -132,7 +132,7 @@ public sealed class PostGisRoutingRepository(
             CROSS JOIN p
             WHERE e.graph_version = @version
               AND e.routable
-              AND e.geom && ST_Expand(p.geom, p.radius_degrees)
+              AND e.geom && ST_Expand(p.geom, p.radius_degrees / GREATEST(cos(radians(@lat)), 0.1), p.radius_degrees)
             ORDER BY e.geom <-> p.geom
             LIMIT 256
         )

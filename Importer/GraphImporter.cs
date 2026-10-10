@@ -26,11 +26,24 @@ public sealed class GraphImporter(string connection)
         await using var db = await ds.OpenConnectionAsync(ct);
 
         Console.WriteLine("[IMPORT] Executing schema SQL...");
-        await using (var cmd = new NpgsqlCommand(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Sql", "03-routing-graph.sql")), db)) await cmd.ExecuteNonQueryAsync(ct);
-
-        Console.WriteLine("[IMPORT] Cleaning up previous version data...");
-        await using (var cleanup = new NpgsqlCommand("DELETE FROM routing_overlay_edges WHERE graph_version=@v; DELETE FROM routing_edge_cells WHERE graph_version=@v; DELETE FROM routing_node_cells WHERE graph_version=@v; DELETE FROM routing_boundaries WHERE graph_version=@v; DELETE FROM routing_cell_adjacency WHERE graph_version=@v; DELETE FROM routing_cells WHERE graph_version=@v; DELETE FROM compiled_turn_restrictions WHERE graph_version=@v; DELETE FROM turn_restrictions WHERE graph_version=@v; DELETE FROM road_edges WHERE graph_version=@v; DELETE FROM osm_way_nodes WHERE graph_version=@v; DELETE FROM osm_ways WHERE graph_version=@v; DELETE FROM osm_nodes WHERE graph_version=@v; DELETE FROM routing_graph_versions WHERE graph_version=@v;", db))
+        await using (var cmd = new NpgsqlCommand(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Sql", "03-routing-graph.sql")), db))
         {
+            cmd.CommandTimeout = 0;
+            await cmd.ExecuteNonQueryAsync(ct);
+        }
+
+        bool versionExists;
+        await using (var exists = new NpgsqlCommand("SELECT EXISTS(SELECT 1 FROM routing_graph_versions WHERE graph_version=@v)", db))
+        {
+            exists.Parameters.AddWithValue("v", version);
+            versionExists = (bool)(await exists.ExecuteScalarAsync(ct) ?? false);
+        }
+
+        if (versionExists)
+        {
+            Console.WriteLine("[IMPORT] Cleaning up previous version data...");
+            await using var cleanup = new NpgsqlCommand("DELETE FROM routing_overlay_edges WHERE graph_version=@v; DELETE FROM routing_edge_cells WHERE graph_version=@v; DELETE FROM routing_node_cells WHERE graph_version=@v; DELETE FROM routing_boundaries WHERE graph_version=@v; DELETE FROM routing_cell_adjacency WHERE graph_version=@v; DELETE FROM routing_cells WHERE graph_version=@v; DELETE FROM compiled_turn_restrictions WHERE graph_version=@v; DELETE FROM turn_restrictions WHERE graph_version=@v; DELETE FROM road_edges WHERE graph_version=@v; DELETE FROM osm_way_nodes WHERE graph_version=@v; DELETE FROM osm_ways WHERE graph_version=@v; DELETE FROM osm_nodes WHERE graph_version=@v; DELETE FROM routing_graph_versions WHERE graph_version=@v;", db);
+            cleanup.CommandTimeout = 0;
             cleanup.Parameters.AddWithValue("v", version);
             await cleanup.ExecuteNonQueryAsync(ct);
         }
@@ -85,8 +98,17 @@ public sealed class GraphImporter(string connection)
         await CopyRestrictions(ds, restrictions, version, ct);
         Console.WriteLine("[IMPORT] Restrictions copied.");
 
+        Console.WriteLine("[IMPORT] Analyzing tables (planner statistics)...");
+        // The first connection sat idle through the long PBF parse/copy and may have been dropped; use a fresh one.
+        await using var db2 = await ds.OpenConnectionAsync(ct);
+        await using (var analyze = new NpgsqlCommand("ANALYZE road_edges; ANALYZE turn_restrictions;", db2))
+        {
+            analyze.CommandTimeout = 0;
+            await analyze.ExecuteNonQueryAsync(ct);
+        }
+
         Console.WriteLine("[IMPORT] Finalizing graph status to 'ready'...");
-        await using (var cmd = new NpgsqlCommand("UPDATE routing_graph_versions SET status='ready',activated_at=now() WHERE graph_version=@v;", db))
+        await using (var cmd = new NpgsqlCommand("UPDATE routing_graph_versions SET status='ready',activated_at=now() WHERE graph_version=@v;", db2))
         {
             cmd.Parameters.AddWithValue("v", version);
             await cmd.ExecuteNonQueryAsync(ct);
@@ -96,7 +118,8 @@ public sealed class GraphImporter(string connection)
 
     NpgsqlDataSource CreateDataSource()
     {
-        var b = new NpgsqlDataSourceBuilder(connection);
+        var csb = new NpgsqlConnectionStringBuilder(connection) { KeepAlive = 30 };
+        var b = new NpgsqlDataSourceBuilder(csb.ConnectionString);
         b.UseNetTopologySuite();
         return b.Build();
     }
@@ -383,7 +406,7 @@ public sealed class GraphImporter(string connection)
             cmd.Parameters.AddWithValue("mal", (object?)Weight(x.Tags, "maxaxleload") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("ms", (object?)Speed(x.Tags, "maxspeed") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("msh", (object?)Speed(x.Tags, "maxspeed:hgv") ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("speed", DefaultSpeed(V(x.Tags, "highway")));
+            cmd.Parameters.AddWithValue("speed", EffectiveSpeed(x.Tags));
             cmd.Parameters.AddWithValue("penalty", HierarchyPenalty(V(x.Tags, "highway"), V(x.Tags, "access"), V(x.Tags, "hgv"), V(x.Tags, "goods")));
             cmd.Parameters.Add("tags", NpgsqlDbType.Jsonb).Value = JsonSerializer.Serialize(x.Tags);
             cmd.Parameters.AddWithValue("geom", line);
@@ -544,9 +567,25 @@ public sealed class GraphImporter(string connection)
     }
     static double? Speed(Dictionary<string, string> t, string k)
     {
-        var x = Parse(V(t, k), false);
-        return x;
+        var raw = V(t, k);
+        var x = Parse(raw, false);
+
+        if (x is null)
+        {
+            return null;
+        }
+
+        if (raw!.Contains("mph", StringComparison.OrdinalIgnoreCase))
+        {
+            x *= 1.609344;
+        }
+
+        return x is >= 5 and <= 140 ? x : null;
     }
+
+    /// <summary>Tagged truck speed, then tagged speed, then the highway default.</summary>
+    static double EffectiveSpeed(Dictionary<string, string> t) =>
+        Speed(t, "maxspeed:hgv") ?? Speed(t, "maxspeed") ?? DefaultSpeed(V(t, "highway"));
     static double? Parse(string? s, bool meters)
     {
         if (string.IsNullOrWhiteSpace(s)) return null;
@@ -556,12 +595,28 @@ public sealed class GraphImporter(string connection)
         if (meters && s.Contains("ft", StringComparison.OrdinalIgnoreCase)) x *= .3048;
         return x;
     }
-    static short Direction(Dictionary<string, string> t) => V(t, "oneway") switch
+    static short Direction(Dictionary<string, string> t)
     {
-        "yes" or "true" or "1" => 1,
-        "-1" => -1,
-        _ => 0
-    };
+        switch (V(t, "oneway")?.Trim().ToLowerInvariant())
+        {
+            case "yes" or "true" or "1":
+                return 1;
+            case "-1" or "reverse":
+                return -1;
+            case "no" or "false" or "0":
+                return 0;
+        }
+
+        // Implied one-way roads (OSM): roundabouts and motorways without an explicit oneway tag.
+        var junction = V(t, "junction")?.ToLowerInvariant();
+        if (junction is "roundabout" or "circular")
+        {
+            return 1;
+        }
+
+        var highway = V(t, "highway")?.ToLowerInvariant();
+        return (highway is "motorway" or "motorway_link") ? (short)1 : (short)0;
+    }
 
 
     static double DefaultSpeed(string? hw) => hw switch

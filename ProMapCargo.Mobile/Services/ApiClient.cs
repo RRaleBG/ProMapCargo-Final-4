@@ -9,6 +9,10 @@ public sealed class ApiClient(HttpClient httpClient)
 {
     private const int MaxAttempts = 2;
     private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(12);
+
+    // The server may need a long time for the first route through an area whose graph
+    // tiles are not cached yet; retrying would only start the same search twice.
+    private static readonly TimeSpan RouteRequestTimeout = TimeSpan.FromSeconds(150);
     private static readonly TimeSpan RetryDelay = TimeSpan.FromMilliseconds(200);
 
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
@@ -55,18 +59,26 @@ public sealed class ApiClient(HttpClient httpClient)
             "api/routing/route",
             request,
             cancellationToken,
-            requireBody: false).ConfigureAwait(false);
+            requireBody: false,
+            timeout: RouteRequestTimeout,
+            maxAttempts: 1).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<MapPackageCatalogItem>> GetMapPackagesAsync(CancellationToken cancellationToken)
         => await GetAsync<List<MapPackageCatalogItem>>("api/map-packages", cancellationToken).ConfigureAwait(false)
            ?? [];
 
+    public async Task<IReadOnlyList<GeocodeResult>> GeocodeAsync(string query, CancellationToken cancellationToken)
+        => await GetAsync<List<GeocodeResult>>($"api/geocode?q={Uri.EscapeDataString(query)}&limit=5", cancellationToken).ConfigureAwait(false)
+           ?? [];
+
     private async Task<TResponse?> PostAsync<TRequest, TResponse>(
         string uri,
         TRequest request,
         CancellationToken cancellationToken,
-        bool requireBody)
+        bool requireBody,
+        TimeSpan? timeout = null,
+        int? maxAttempts = null)
     {
         return await ExecuteWithRetryAsync(async token =>
         {
@@ -85,7 +97,7 @@ public sealed class ApiClient(HttpClient httpClient)
             }
 
             return result;
-        }, cancellationToken).ConfigureAwait(false);
+        }, cancellationToken, timeout, maxAttempts).ConfigureAwait(false);
     }
 
     private async Task<T?> GetAsync<T>(string uri, CancellationToken cancellationToken)
@@ -130,18 +142,22 @@ public sealed class ApiClient(HttpClient httpClient)
 
     private static async Task<T> ExecuteWithRetryAsync<T>(
         Func<CancellationToken, Task<T>> operation,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        TimeSpan? timeout = null,
+        int? maxAttempts = null)
     {
+        var attempts = maxAttempts ?? MaxAttempts;
+
         for (var attempt = 1; ; attempt++)
         {
             using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            timeoutCts.CancelAfter(RequestTimeout);
+            timeoutCts.CancelAfter(timeout ?? RequestTimeout);
 
             try
             {
                 return await operation(timeoutCts.Token).ConfigureAwait(false);
             }
-            catch (Exception ex) when (attempt < MaxAttempts && IsTransient(ex, cancellationToken))
+            catch (Exception ex) when (attempt < attempts && IsTransient(ex, cancellationToken))
             {
                 await Task.Delay(RetryDelay, cancellationToken).ConfigureAwait(false);
             }

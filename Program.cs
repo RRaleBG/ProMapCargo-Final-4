@@ -121,6 +121,18 @@ builder.Services.Configure<MobileAuthOptions>(builder.Configuration.GetSection("
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<MobileAuthOptions>>().Value);
 
 var mobileAuthOptions = builder.Configuration.GetSection("MobileAuth").Get<MobileAuthOptions>() ?? new MobileAuthOptions();
+
+if (Encoding.UTF8.GetByteCount(mobileAuthOptions.SigningKey) < 32)
+{
+    throw new InvalidOperationException("MobileAuth:SigningKey mora imati najmanje 32 bajta.");
+}
+
+if (!builder.Environment.IsDevelopment() &&
+    string.Equals(mobileAuthOptions.SigningKey, new MobileAuthOptions().SigningKey, StringComparison.Ordinal))
+{
+    throw new InvalidOperationException(
+        "MobileAuth:SigningKey koristi podrazumevanu razvojnu vrednost. Postavite sopstveni kljuc pre pokretanja van Development okruzenja.");
+}
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(mobileAuthOptions.SigningKey));
 
 builder.Services
@@ -195,7 +207,6 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 builder.Services.AddSingleton<UserPresenceTracker>();
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, IdentityClaimsFactory>();
-builder.Services.AddSingleton<IIdentityEmailSender, LoggingIdentityEmailSender>();
 builder.Services.AddScoped<BusinessService>();
 builder.Services.AddScoped<MobileTokenService>();
 builder.Services.AddScoped<IIdentityEmailSender, LoggingIdentityEmailSender>();
@@ -250,18 +261,22 @@ builder.Services.AddScoped<TruckEdgeEvaluator>();
 builder.Services.AddScoped<EdgeSnapper>();
 builder.Services.AddScoped<PostGisAStarRouter>();
 builder.Services.AddScoped<IPostGisRoutingService, PostGisRoutingService>();
-builder.Services.AddScoped<BusinessService>();
 
 
 // ============================================================
 // CORS
 // ============================================================
 
+var corsOrigins =
+    builder.Configuration.GetSection("Cors:Origins").Get<string[]>() is { Length: > 0 } configuredOrigins
+        ? configuredOrigins
+        : new[] { "http://localhost:3000", "http://localhost:5173" };
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:5173");
+        policy.WithOrigins(corsOrigins);
         policy.AllowAnyMethod();
         policy.AllowAnyHeader();
         policy.AllowCredentials();
@@ -273,22 +288,36 @@ var app = builder.Build();
 var startupLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Startup.Database");
 startupLogger.LogInformation("Resolved PostgreSQL target: {DatabaseTarget}", DescribeConnectionTarget(connectionString));
 await InitializeDatabaseAsync(app);
-await SeedDefaultMobileUserAsync(app);
-await SeedAdministratorUserAsync(app);
+
+// The seeded accounts have well-known passwords: only in Development or when
+// Seed:Enabled=true is set explicitly (docker-compose sets it).
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue("Seed:Enabled", false))
+{
+    await SeedDefaultMobileUserAsync(app);
+    await SeedAdministratorUserAsync(app);
+}
+else
+{
+    startupLogger.LogInformation("Default account seeding skipped (Seed:Enabled is not true).");
+}
 
 // ============================================================
 // MIDDLEWARE
 // ============================================================
 
+app.UseForwardedHeaders();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
+else
+{
+    app.UseExceptionHandler();
+    app.UseHsts();
+}
 
-app.UseExceptionHandler("/error");
 app.UseStatusCodePages();
-app.UseHsts();
-app.UseForwardedHeaders();
 
 // ============================================================
 // STATIC FILES
@@ -324,24 +353,8 @@ app.MapHub<NavigationHub>("/hubs/navigation-telemetry");
 // PMTiles Serving
 // ============================================================
 
-app.Map("/pmtiles/{*path}", pmTilesApp =>
-{
-    pmTilesApp.Run(async (context) =>
-    {
-        var path = context.Request.RouteValues["path"]?.ToString() ?? "";
-        var filePath = Path.Combine(AppContext.BaseDirectory, "map", path);
-
-        if (!System.IO.File.Exists(filePath))
-        {
-            context.Response.StatusCode = 404;
-            await context.Response.WriteAsync("PMTiles file not found");
-            return;
-        }
-
-        context.Response.ContentType = "application/octet-stream";
-        await context.Response.SendFileAsync(filePath);
-    });
-});
+// PMTiles archives are plain static files under wwwroot/maps (served by UseStaticFiles
+// above, including HTTP Range requests): /maps/serbia.pmtiles, /maps/europe.pmtiles.
 
 app.Run();
 
@@ -362,10 +375,36 @@ static async Task InitializeDatabaseAsync(WebApplication app)
     {
         if (app.Environment.IsDevelopment())
         {
-            logger.LogWarning(
-                "The PostgreSQL schema is missing ASP.NET Identity tables. Resetting the local database to create the required schema.");
-            await db.Database.EnsureDeletedAsync().ConfigureAwait(false);
-            await db.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            var allowReset = app.Configuration.GetValue("Database:ResetOnMissingSchema", false);
+            var graphExists = await RoutingGraphExistsAsync(db).ConfigureAwait(false);
+
+            if (graphExists && !allowReset)
+            {
+                // EnsureDeleted would also drop road_edges / osm_nodes, i.e. the whole
+                // imported routing graph. Only create the missing EF/Identity tables.
+                logger.LogWarning(
+                    "The PostgreSQL schema is missing ASP.NET Identity tables but the routing graph exists. Creating only the missing tables (set Database:ResetOnMissingSchema=true to drop and recreate the whole database).");
+
+                try
+                {
+                    var creator = Microsoft.EntityFrameworkCore.Infrastructure.AccessorExtensions
+                        .GetService<Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator>(db.Database);
+                    await creator.CreateTablesAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException(
+                        "Could not create the missing Identity tables without dropping the routing graph. Create them manually or set Database:ResetOnMissingSchema=true (this DELETES the imported graph).",
+                        ex);
+                }
+            }
+            else
+            {
+                logger.LogWarning(
+                    "The PostgreSQL schema is missing ASP.NET Identity tables. Resetting the local database to create the required schema.");
+                await db.Database.EnsureDeletedAsync().ConfigureAwait(false);
+                await db.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            }
         }
         else
         {
@@ -413,6 +452,36 @@ static async Task<bool> SchemaExistsAsync(ProMapCargoDbContext db)
         command.CommandText = """
             SELECT to_regclass('public."AspNetUsers"') IS NOT NULL
                 OR to_regclass('public.asp_net_users') IS NOT NULL;
+            """;
+
+        var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
+        return result is bool exists && exists;
+    }
+    finally
+    {
+        if (wasClosed)
+        {
+            await connection.CloseAsync().ConfigureAwait(false);
+        }
+    }
+}
+
+static async Task<bool> RoutingGraphExistsAsync(ProMapCargoDbContext db)
+{
+    var connection = db.Database.GetDbConnection();
+    var wasClosed = connection.State != ConnectionState.Open;
+
+    if (wasClosed)
+    {
+        await connection.OpenAsync().ConfigureAwait(false);
+    }
+
+    try
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT to_regclass('public.road_edges') IS NOT NULL
+                OR to_regclass('public.routing_graph_versions') IS NOT NULL;
             """;
 
         var result = await command.ExecuteScalarAsync().ConfigureAwait(false);

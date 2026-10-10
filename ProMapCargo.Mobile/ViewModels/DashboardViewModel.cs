@@ -36,15 +36,15 @@ public sealed class DashboardViewModel : ViewModelBase
         RouteManeuvers = new ObservableCollection<RouteManeuver>();
         QuickLinks =
         [
-            new DashboardLink("Navigation", "Truck-aware route planning and maneuver guidance", "//dashboard/mobile-navigation"),
-            new DashboardLink("Settings", "Theme, appearance, account, and map bundle controls", "//dashboard/settings"),
-            new DashboardLink("Dispatch", "Order assignment and fleet dispatch", null),
-            new DashboardLink("Monitoring", "Live telemetry and vehicle status", null),
-            new DashboardLink("Trips", "Trip execution status and progress", null),
-            new DashboardLink("Orders", "Active and pending customer orders", null),
-            new DashboardLink("Vehicles", "Vehicle availability and health", null),
-            new DashboardLink("Drivers", "Driver roster and compliance", null),
-            new DashboardLink("Alerts", "Operational alerts and incidents", null)
+            new DashboardLink("Navigacija", "Planiranje rute za kamion i vođenje po manevrima", "//dashboard/mobile-navigation"),
+            new DashboardLink("Podešavanja", "Prikaz, nalog i upravljanje offline mapama", "//dashboard/settings"),
+            new DashboardLink("Dispečing", "Dodela naloga i upravljanje flotom", null),
+            new DashboardLink("Praćenje", "Telemetrija uživo i status vozila", null),
+            new DashboardLink("Ture", "Status i napredak izvršenja tura", null),
+            new DashboardLink("Nalozi", "Aktivni i nalozi na čekanju", null),
+            new DashboardLink("Vozila", "Dostupnost i stanje vozila", null),
+            new DashboardLink("Vozači", "Spisak vozača i usklađenost", null),
+            new DashboardLink("Upozorenja", "Operativna upozorenja i incidenti", null)
         ];
 
         RefreshCommand = new Command(async () => await LoadAsync(), () => !IsBusy);
@@ -118,8 +118,8 @@ public sealed class DashboardViewModel : ViewModelBase
     }
 
     public string WelcomeText => sessionService.CurrentSession?.User.DisplayName is { Length: > 0 } displayName
-        ? $"Welcome, {displayName}"
-        : "Welcome";
+        ? $"Dobrodošli, {displayName}"
+        : "Dobrodošli";
 
     public bool IsBusy
     {
@@ -290,7 +290,7 @@ public sealed class DashboardViewModel : ViewModelBase
 
         if (string.IsNullOrWhiteSpace(link.ShellRoute))
         {
-            StatusText = $"{link.Title} is available on the web portal. Native mobile screen is coming soon.";
+            StatusText = $"{link.Title} je trenutno dostupno na web portalu. Mobilni ekran stiže uskoro.";
             await notifier.ShowInfoAsync(StatusText).ConfigureAwait(false);
             return;
         }

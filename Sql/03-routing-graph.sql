@@ -173,3 +173,7 @@ CREATE TABLE IF NOT EXISTS country_routing_policy(
     metadata JSONB,
     PRIMARY KEY(country_code,vehicle_class,highway)
 );
+-- Support per-version cleanup (DELETE ... WHERE graph_version=@v) without full table scans
+CREATE INDEX IF NOT EXISTS ix_road_edges_version ON road_edges(graph_version);
+CREATE INDEX IF NOT EXISTS ix_routing_cells_version ON routing_cells(graph_version);
+CREATE INDEX IF NOT EXISTS ix_routing_overlay_edges_version ON routing_overlay_edges(graph_version);

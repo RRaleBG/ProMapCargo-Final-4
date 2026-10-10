@@ -4,33 +4,35 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:ProMapCargo.Mobile.Views"
-    Title="ProMapCargo Mobile"
+    Title="ProMap Cargo"
     Shell.NavBarIsVisible="False">
 
     <TabBar Route="dashboard">
         <ShellContent
-            Title="Operations"
+            Title="Operacije"
             ContentTemplate="{DataTemplate views:DashboardPage}"
+            Icon="ic_tab_operations.svg"
             Route="dashboard-home" />
 
         <ShellContent
-            Title="Navigation"
+            Title="Navigacija"
             ContentTemplate="{DataTemplate views:MobileNavigationPage}"
+            Icon="ic_tab_navigation.svg"
             Route="mobile-navigation" />
     </TabBar>
 
     <ShellContent
-        Title="Install maps"
+        Title="Mape"
         ContentTemplate="{DataTemplate views:MapInstallPage}"
         Route="install-maps" />
 
     <ShellContent
-        Title="Login"
+        Title="Prijava"
         ContentTemplate="{DataTemplate views:LoginPage}"
         Route="login" />
 
     <ShellContent
-        Title="Settings"
+        Title="Podešavanja"
         ContentTemplate="{DataTemplate views:SettingsPage}"
         Route="settings" />
 

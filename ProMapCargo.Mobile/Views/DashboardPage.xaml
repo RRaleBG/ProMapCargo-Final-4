@@ -3,353 +3,262 @@
     x:Class="ProMapCargo.Mobile.Views.DashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="Operations"
-    BackgroundColor="{StaticResource SurfaceBase}">
-    <Grid Padding="18,24" RowDefinitions="Auto,*">
-        <VerticalStackLayout Spacing="4">
-            <Label
-                FontSize="24"
-                Style="{StaticResource PmPageTitleLabel}"
-                Text="{Binding WelcomeText}" />
-            <Label
-                FontSize="13"
-                Text="{Binding StatusText}"
-                TextColor="#94A3B8" />
-            <Label
-                FontSize="13"
-                Text="{Binding RouteSummary}"
-                TextColor="#5EEAD4" />
-        </VerticalStackLayout>
+    Title="Operacije"
+    BackgroundColor="{StaticResource SurfaceBase}"
+    Shell.NavBarIsVisible="False">
+    <RefreshView
+        Command="{Binding RefreshCommand}"
+        IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+        RefreshColor="{StaticResource Brand}">
+        <ScrollView>
+            <VerticalStackLayout
+                Padding="20,24,20,32"
+                MaximumWidthRequest="720"
+                Spacing="22">
 
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout Padding="0,20,0,20" Spacing="18">
-                <Button
-                    Command="{Binding RefreshCommand}"
-                    HeightRequest="50"
-                    Style="{StaticResource PmPrimaryButton}"
-                    Text="Refresh" />
+                <!--  Header  -->
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Style="{StaticResource PmPageTitleLabel}" Text="{Binding WelcomeText}" />
+                        <Label Style="{StaticResource PmMutedLabel}" Text="{Binding StatusText}" />
+                    </VerticalStackLayout>
+                    <ImageButton
+                        Grid.Column="1"
+                        Clicked="OnOpenSettingsClicked"
+                        Style="{StaticResource PmMapFloatingButton}"
+                        BackgroundColor="{StaticResource SurfaceOverlay}"
+                        SemanticProperties.Description="Podešavanja"
+                        Source="ic_settings.svg"
+                        VerticalOptions="Start" />
+                </Grid>
 
-                <Border
-                    Padding="16"
-                    BackgroundColor="#0B2D26"
-                    Stroke="#1C5448"
-                    StrokeShape="RoundRectangle 18">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Style="{StaticResource PmSectionTitleLabel}" Text="ProMapCargo Quick Links" />
-                        <CollectionView
-                            HeightRequest="300"
-                            ItemsSource="{Binding QuickLinks}"
-                            SelectionMode="None">
-                            <CollectionView.ItemTemplate>
+                <!--  Hero: current route  -->
+                <Border Style="{StaticResource PmHeroBorder}">
+                    <VerticalStackLayout Spacing="14">
+                        <Label Style="{StaticResource PmCaptionLabel}" Text="Aktivna ruta" />
+                        <Label
+                            LineBreakMode="WordWrap"
+                            Style="{StaticResource PmSectionTitleLabel}"
+                            Text="{Binding RouteSummary}" />
+                        <FlexLayout Wrap="Wrap" AlignItems="Start" Direction="Row">
+                            <Border Margin="0,0,8,8" Style="{StaticResource PmChipInfo}">
+                                <Label Style="{StaticResource PmChipInfoLabel}" Text="{Binding RouteEngine}" />
+                            </Border>
+                            <Border Margin="0,0,8,8" Style="{StaticResource PmChip}">
+                                <Label Style="{StaticResource PmChipLabel}" Text="{Binding RouteSafety}" />
+                            </Border>
+                        </FlexLayout>
+                        <Button
+                            Clicked="OnOpenNavigationClicked"
+                            Style="{StaticResource PmPrimaryButton}"
+                            Text="Otvori navigaciju" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  KPI  -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                    <Border Padding="14" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Style="{StaticResource PmValueLabel}" Text="{Binding Vehicles.Count}" />
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="Vozila" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Padding="14" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Style="{StaticResource PmValueLabel}" Text="{Binding Orders.Count}" />
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="Nalozi" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="2" Padding="14" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Style="{StaticResource PmValueLabel}" Text="{Binding Trips.Count}" />
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="Ture" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <VerticalStackLayout Spacing="10">
+                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Vozila" />
+                    <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Vehicles}">
+                            <BindableLayout.EmptyView>
+                                <Label
+                                    Padding="0,14"
+                                    Style="{StaticResource PmMutedLabel}"
+                                    Text="Nema vozila." />
+                            </BindableLayout.EmptyView>
+                            <BindableLayout.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Padding="0,8" ColumnDefinitions="*,Auto">
+                                    <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12" RowDefinitions="Auto,Auto" >
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label FontFamily="OpenSansSemibold" Style="{StaticResource PmBodyLabel}" Text="{Binding Registration}" />
+                                            <Label Style="{StaticResource PmMutedLabel}" Text="{Binding LastGpsAt, StringFormat='GPS {0:dd.MM. HH:mm}'}" />
+                                        </VerticalStackLayout>
+                                        <Border Style="{StaticResource PmChip}" VerticalOptions="Center" Grid.Column="1">
+                                            <Label Style="{StaticResource PmChipLabel}" Text="{Binding Status}" />
+                                        </Border>
+                                        <BoxView Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0" Style="{StaticResource PmDivider}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="10">
+                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Transportni nalozi" />
+                    <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Orders}">
+                            <BindableLayout.EmptyView>
+                                <Label
+                                    Padding="0,14"
+                                    Style="{StaticResource PmMutedLabel}"
+                                    Text="Nema aktivnih naloga." />
+                            </BindableLayout.EmptyView>
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12" RowDefinitions="Auto,Auto" >
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label FontFamily="OpenSansSemibold" Style="{StaticResource PmBodyLabel}" Text="{Binding OrderNumber}" />
+                                            <Label Style="{StaticResource PmMutedLabel}" Text="{Binding CustomerName}" />
+                                        </VerticalStackLayout>
+                                        <Border Style="{StaticResource PmChip}" VerticalOptions="Center" Grid.Column="1">
+                                            <Label Style="{StaticResource PmChipLabel}" Text="{Binding Status}" />
+                                        </Border>
+                                        <BoxView Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0" Style="{StaticResource PmDivider}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="10">
+                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Ture u toku" />
+                    <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Trips}">
+                            <BindableLayout.EmptyView>
+                                <Label
+                                    Padding="0,14"
+                                    Style="{StaticResource PmMutedLabel}"
+                                    Text="Nema aktivnih tura." />
+                            </BindableLayout.EmptyView>
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12" RowDefinitions="Auto,Auto" >
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label FontFamily="OpenSansSemibold" Style="{StaticResource PmBodyLabel}" Text="{Binding ExecutionState}" />
+                                            <Label Style="{StaticResource PmMutedLabel}" Text="{Binding Status}" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Style="{StaticResource PmAccentLabel}" Text="{Binding RouteProgressPercent, StringFormat='{0:0}%'}" VerticalOptions="Center" />
+                                        <BoxView Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0" Style="{StaticResource PmDivider}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Next maneuvers  -->
+                <VerticalStackLayout Spacing="10">
+                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Sledeći manevri" />
+                    <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding RouteManeuvers}">
+                            <BindableLayout.EmptyView>
+                                <Label
+                                    Padding="0,14"
+                                    Style="{StaticResource PmMutedLabel}"
+                                    Text="Izračunajte rutu da biste videli manevre." />
+                            </BindableLayout.EmptyView>
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="0,12" RowDefinitions="Auto,Auto">
                                         <VerticalStackLayout Spacing="2">
                                             <Label
-                                                FontAttributes="Bold"
-                                                Text="{Binding Title}"
-                                                TextColor="#ECFDF5" />
-                                            <Label
-                                                FontSize="12"
-                                                Text="{Binding Description}"
-                                                TextColor="#94A3B8" />
+                                                FontFamily="OpenSansSemibold"
+                                                LineBreakMode="WordWrap"
+                                                Style="{StaticResource PmBodyLabel}"
+                                                Text="{Binding Instruction}" />
+                                            <Label Style="{StaticResource PmAccentLabel}" Text="{Binding RoadName}" />
+                                            <Label Style="{StaticResource PmMutedLabel}" Text="{Binding DistanceFromPreviousMeters, StringFormat='Za {0:0} m'}" />
+                                        </VerticalStackLayout>
+                                        <BoxView Grid.Row="1" Style="{StaticResource PmDivider}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Quick links  -->
+                <VerticalStackLayout Spacing="10">
+                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Brze akcije" />
+                    <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding QuickLinks}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label FontFamily="OpenSansSemibold" Style="{StaticResource PmBodyLabel}" Text="{Binding Title}" />
+                                            <Label Style="{StaticResource PmMutedLabel}" Text="{Binding Description}" />
                                         </VerticalStackLayout>
                                         <Button
                                             Grid.Column="1"
-                                            Padding="16,6"
-                                            BackgroundColor="#145C4F"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenLinkCommand}"
                                             CommandParameter="{Binding .}"
-                                            CornerRadius="10"
-                                            Text="Open"
-                                            TextColor="#ECFDF5" />
+                                            Style="{StaticResource PmTonalButton}"
+                                            Text="Otvori"
+                                            VerticalOptions="Center" />
+                                        <BoxView Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0" Style="{StaticResource PmDivider}" />
                                     </Grid>
                                 </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </VerticalStackLayout>
-                </Border>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
 
-                <Border
-                    Padding="16"
-                    BackgroundColor="#0B2D26"
-                    Stroke="#1C5448"
-                    StrokeShape="RoundRectangle 18">
-                    <VerticalStackLayout Spacing="10">
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="18"
-                            Text="Monitoring"
-                            TextColor="#F8FAFC" />
-                        <CollectionView
-                            HeightRequest="220"
-                            ItemsSource="{Binding Vehicles}"
-                            SelectionMode="None">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Padding="0,8" ColumnDefinitions="*,Auto">
-                                        <VerticalStackLayout Spacing="2">
-                                            <Label
-                                                FontAttributes="Bold"
-                                                Text="{Binding Registration}"
-                                                TextColor="#ECFDF5" />
-                                            <Label
-                                                FontSize="12"
-                                                Text="{Binding Status}"
-                                                TextColor="#94A3B8" />
-                                        </VerticalStackLayout>
-                                        <Label
-                                            Grid.Column="1"
-                                            FontSize="12"
-                                            Text="{Binding LastGpsAt}"
-                                            TextColor="#5EEAD4" />
-                                    </Grid>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </VerticalStackLayout>
-                </Border>
-
-                <Border
-                    Padding="16"
-                    BackgroundColor="#0B2D26"
-                    Stroke="#1C5448"
-                    StrokeShape="RoundRectangle 18">
-                    <VerticalStackLayout Spacing="10">
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="18"
-                            Text="Dispatch"
-                            TextColor="#F8FAFC" />
-                        <CollectionView
-                            HeightRequest="220"
-                            ItemsSource="{Binding Orders}"
-                            SelectionMode="None">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Padding="0,8" ColumnDefinitions="*,Auto">
-                                        <VerticalStackLayout Spacing="2">
-                                            <Label
-                                                FontAttributes="Bold"
-                                                Text="{Binding OrderNumber}"
-                                                TextColor="#ECFDF5" />
-                                            <Label
-                                                FontSize="12"
-                                                Text="{Binding CustomerName}"
-                                                TextColor="#94A3B8" />
-                                        </VerticalStackLayout>
-                                        <Label
-                                            Grid.Column="1"
-                                            FontSize="12"
-                                            Text="{Binding Status}"
-                                            TextColor="#5EEAD4" />
-                                    </Grid>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </VerticalStackLayout>
-                </Border>
-
-                <Border
-                    Padding="16"
-                    BackgroundColor="#0B2D26"
-                    Stroke="#1C5448"
-                    StrokeShape="RoundRectangle 18">
-                    <VerticalStackLayout Spacing="14">
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="18"
-                            Text="Navigation"
-                            TextColor="#F8FAFC" />
-
-                        <Border
-                            Padding="14"
-                            BackgroundColor="#10382F"
-                            Stroke="#145C4F"
-                            StrokeShape="RoundRectangle 16">
-                            <VerticalStackLayout Spacing="10">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="15"
-                                    LineBreakMode="WordWrap"
-                                    Text="{Binding RouteSummary}"
-                                    TextColor="#ECFDF5" />
-                                <Label
-                                    FontSize="12"
-                                    Text="{Binding RouteEngine}"
-                                    TextColor="#5EEAD4" />
-                                <Label
-                                    FontSize="12"
-                                    Text="{Binding RouteSafety}"
-                                    TextColor="#F8FAFC" />
-                                <Label
-                                    FontSize="12"
-                                    LineBreakMode="WordWrap"
-                                    Text="{Binding RouteDiagnosticsSummary}"
-                                    TextColor="#94A3B8" />
+                <!--  Diagnostics (collapsed by default)  -->
+                <VerticalStackLayout Spacing="10">
+                    <Button
+                        Clicked="OnToggleDiagnosticsClicked"
+                        x:Name="DiagnosticsToggle"
+                        Style="{StaticResource PmGhostButton}"
+                        HorizontalOptions="Start"
+                        Text="Prikaži dijagnostiku rute" />
+                    <Border
+                        x:Name="DiagnosticsPanel"
+                        IsVisible="False"
+                        Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout Spacing="12">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Style="{StaticResource PmCaptionLabel}" Text="Sažetak" />
+                                <Label LineBreakMode="WordWrap" Style="{StaticResource PmBodyLabel}" Text="{Binding RouteDiagnosticsSummary}" />
                             </VerticalStackLayout>
-                        </Border>
-
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                            <Border
-                                Padding="12"
-                                BackgroundColor="#0E332B"
-                                Stroke="#1C5448"
-                                StrokeShape="RoundRectangle 14">
-                                <VerticalStackLayout Spacing="6">
-                                    <Label
-                                        FontSize="10"
-                                        Text="START SNAP"
-                                        TextColor="#7DD3FC" />
-                                    <Label
-                                        FontSize="12"
-                                        LineBreakMode="WordWrap"
-                                        Text="{Binding RouteStartSnap}"
-                                        TextColor="#E2E8F0" />
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Style="{StaticResource PmCaptionLabel}" Text="Početna tačka" />
+                                    <Label LineBreakMode="WordWrap" Style="{StaticResource PmMutedLabel}" Text="{Binding RouteStartSnap}" />
                                 </VerticalStackLayout>
-                            </Border>
-                            <Border
-                                Grid.Column="1"
-                                Padding="12"
-                                BackgroundColor="#0E332B"
-                                Stroke="#1C5448"
-                                StrokeShape="RoundRectangle 14">
-                                <VerticalStackLayout Spacing="6">
-                                    <Label
-                                        FontSize="10"
-                                        Text="END SNAP"
-                                        TextColor="#7DD3FC" />
-                                    <Label
-                                        FontSize="12"
-                                        LineBreakMode="WordWrap"
-                                        Text="{Binding RouteEndSnap}"
-                                        TextColor="#E2E8F0" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label Style="{StaticResource PmCaptionLabel}" Text="Krajnja tačka" />
+                                    <Label LineBreakMode="WordWrap" Style="{StaticResource PmMutedLabel}" Text="{Binding RouteEndSnap}" />
                                 </VerticalStackLayout>
-                            </Border>
-                        </Grid>
-
-                        <Border
-                            Padding="12"
-                            BackgroundColor="#0E332B"
-                            Stroke="#1C5448"
-                            StrokeShape="RoundRectangle 14">
-                            <VerticalStackLayout Spacing="6">
-                                <Label
-                                    FontSize="10"
-                                    Text="FAILURE / REVIEW"
-                                    TextColor="#FBBF24" />
-                                <Label
-                                    FontSize="12"
-                                    LineBreakMode="WordWrap"
-                                    Text="{Binding RouteFailureReason}"
-                                    TextColor="#F8FAFC" />
+                            </Grid>
+                            <VerticalStackLayout Spacing="2">
+                                <Label Style="{StaticResource PmCaptionLabel}" Text="Greške / provera" />
+                                <Label LineBreakMode="WordWrap" Style="{StaticResource PmMutedLabel}" Text="{Binding RouteFailureReason}" />
                             </VerticalStackLayout>
-                        </Border>
-
-                        <VerticalStackLayout Spacing="8">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="15"
-                                Text="Route Highlights"
-                                TextColor="#F8FAFC" />
-                            <CollectionView
-                                HeightRequest="180"
-                                ItemsSource="{Binding RouteHighlights}"
-                                SelectionMode="None">
-                                <CollectionView.ItemTemplate>
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding RouteHighlights}" Spacing="6">
+                                <BindableLayout.ItemTemplate>
                                     <DataTemplate>
-                                        <Border
-                                            Margin="0,0,0,8"
-                                            Padding="10"
-                                            BackgroundColor="#0E332B"
-                                            Stroke="#1C5448"
-                                            StrokeShape="RoundRectangle 12">
-                                            <Label
-                                                FontSize="12"
-                                                LineBreakMode="WordWrap"
-                                                Text="{Binding .}"
-                                                TextColor="#E2E8F0" />
-                                        </Border>
+                                        <Label LineBreakMode="WordWrap" Style="{StaticResource PmMutedLabel}" Text="{Binding ., StringFormat='• {0}'}" />
                                     </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
                         </VerticalStackLayout>
-
-                        <VerticalStackLayout Spacing="8">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="15"
-                                Text="Next Maneuvers"
-                                TextColor="#F8FAFC" />
-                            <CollectionView
-                                HeightRequest="220"
-                                ItemsSource="{Binding RouteManeuvers}"
-                                SelectionMode="None">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border
-                                            Margin="0,0,0,8"
-                                            Padding="10"
-                                            BackgroundColor="#0E332B"
-                                            Stroke="#1C5448"
-                                            StrokeShape="RoundRectangle 12">
-                                            <VerticalStackLayout Spacing="4">
-                                                <Label
-                                                    FontAttributes="Bold"
-                                                    FontSize="13"
-                                                    LineBreakMode="WordWrap"
-                                                    Text="{Binding Instruction}"
-                                                    TextColor="#ECFDF5" />
-                                                <Label
-                                                    FontSize="12"
-                                                    Text="{Binding RoadName}"
-                                                    TextColor="#5EEAD4" />
-                                                <Label
-                                                    FontSize="11"
-                                                    Text="{Binding DistanceFromPreviousMeters, StringFormat='After {0:0} m'}"
-                                                    TextColor="#94A3B8" />
-                                            </VerticalStackLayout>
-                                        </Border>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
-                        </VerticalStackLayout>
-
-                        <VerticalStackLayout Spacing="8">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="15"
-                                Text="Trip Progress"
-                                TextColor="#F8FAFC" />
-                            <CollectionView
-                                HeightRequest="220"
-                                ItemsSource="{Binding Trips}"
-                                SelectionMode="None">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Padding="0,8" ColumnDefinitions="*,Auto">
-                                            <VerticalStackLayout Spacing="2">
-                                                <Label
-                                                    FontAttributes="Bold"
-                                                    Text="{Binding ExecutionState}"
-                                                    TextColor="#ECFDF5" />
-                                                <Label
-                                                    FontSize="12"
-                                                    Text="{Binding Status}"
-                                                    TextColor="#94A3B8" />
-                                            </VerticalStackLayout>
-                                            <Label
-                                                Grid.Column="1"
-                                                FontSize="12"
-                                                Text="{Binding RouteProgressPercent, StringFormat='{0:0}%'}"
-                                                TextColor="#5EEAD4" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
-                        </VerticalStackLayout>
-                    </VerticalStackLayout>
-                </Border>
+                    </Border>
+                </VerticalStackLayout>
             </VerticalStackLayout>
         </ScrollView>
-    </Grid>
+    </RefreshView>
 </ContentPage>

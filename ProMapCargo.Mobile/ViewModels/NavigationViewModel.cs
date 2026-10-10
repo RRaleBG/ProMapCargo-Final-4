@@ -18,10 +18,10 @@ public class NavigationViewModel : ViewModelBase
     private readonly IMobileNotifier notifier;
     private CancellationTokenSource? gpsTrackingCts;
     private DateTimeOffset lastAutoRerouteAt = DateTimeOffset.MinValue;
-    private string startLatitude = "44.8176";
-    private string startLongitude = "20.4633";
-    private string destinationLatitude = "45.2671";
-    private string destinationLongitude = "19.8335";
+    private string startLatitude = string.Empty;
+    private string startLongitude = string.Empty;
+    private string destinationLatitude = string.Empty;
+    private string destinationLongitude = string.Empty;
     private string profile = "truck";
     private bool avoidRestricted = true;
     private bool isBusy;
@@ -63,6 +63,13 @@ public class NavigationViewModel : ViewModelBase
     private GeoPoint? routeStartPoint;
     private GeoPoint? routeDestinationPoint;
     private GeoPoint? currentLocation;
+    private string startQuery = string.Empty;
+    private string destinationQuery = string.Empty;
+    private string activeField = "destination";
+    private bool suppressSearch;
+    private CancellationTokenSource? searchCts;
+    private string currentSpeedText = "0";
+    private bool hasRoute;
 
     public NavigationViewModel(ApiClient apiClient, OfflineRoutingBundleService offlineRoutingBundleService, IMobileNotifier notifier)
     {
@@ -82,6 +89,145 @@ public class NavigationViewModel : ViewModelBase
         SpeakNextPromptCommand = new Command(async () => await SpeakNextPromptAsync(force: true));
 
         RoutingModes = ["Auto", "Online", "Offline"];
+
+        Suggestions = [];
+        SelectSuggestionCommand = new Command<GeocodeResult>(SelectSuggestion);
+        UseMyLocationCommand = new Command(UseMyLocation);
+        SwapPointsCommand = new Command(SwapPoints);
+    }
+
+    public ObservableCollection<GeocodeResult> Suggestions { get; }
+
+    public ICommand SelectSuggestionCommand { get; }
+
+    public ICommand UseMyLocationCommand { get; }
+
+    public ICommand SwapPointsCommand { get; }
+
+    public bool HasSuggestions => Suggestions.Count > 0;
+
+    public bool HasRoute
+    {
+        get => hasRoute;
+        private set => SetProperty(ref hasRoute, value);
+    }
+
+    public string CurrentSpeedText
+    {
+        get => currentSpeedText;
+        private set => SetProperty(ref currentSpeedText, value);
+    }
+
+    public string StartQuery
+    {
+        get => startQuery;
+        set
+        {
+            if (!SetProperty(ref startQuery, value)) return;
+            if (suppressSearch) return;
+            StartLatitude = string.Empty;
+            StartLongitude = string.Empty;
+            activeField = "start";
+            _ = SearchAsync(value);
+        }
+    }
+
+    public string DestinationQuery
+    {
+        get => destinationQuery;
+        set
+        {
+            if (!SetProperty(ref destinationQuery, value)) return;
+            if (suppressSearch) return;
+            DestinationLatitude = string.Empty;
+            DestinationLongitude = string.Empty;
+            activeField = "destination";
+            _ = SearchAsync(value);
+        }
+    }
+
+    private async Task SearchAsync(string query)
+    {
+        searchCts?.Cancel();
+        var cts = searchCts = new CancellationTokenSource();
+
+        if (string.IsNullOrWhiteSpace(query) || query.Trim().Length < 3)
+        {
+            ReplaceItems(Suggestions, []);
+            RaisePropertyChanged(nameof(HasSuggestions));
+            return;
+        }
+
+        try
+        {
+            await Task.Delay(350, cts.Token);
+            var results = await apiClient.GeocodeAsync(query.Trim(), cts.Token);
+            if (cts.IsCancellationRequested) return;
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                ReplaceItems(Suggestions, results);
+                RaisePropertyChanged(nameof(HasSuggestions));
+            });
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception)
+        {
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                ReplaceItems(Suggestions, []);
+                RaisePropertyChanged(nameof(HasSuggestions));
+            });
+        }
+    }
+
+    private void SelectSuggestion(GeocodeResult? item)
+    {
+        if (item is null) return;
+        suppressSearch = true;
+        var lat = item.Lat.ToString("0.000000", CultureInfo.InvariantCulture);
+        var lon = item.Lon.ToString("0.000000", CultureInfo.InvariantCulture);
+        if (activeField == "start")
+        {
+            StartQuery = item.Title;
+            StartLatitude = lat;
+            StartLongitude = lon;
+        }
+        else
+        {
+            DestinationQuery = item.Title;
+            DestinationLatitude = lat;
+            DestinationLongitude = lon;
+        }
+        suppressSearch = false;
+        ReplaceItems(Suggestions, []);
+        RaisePropertyChanged(nameof(HasSuggestions));
+    }
+
+    private void UseMyLocation()
+    {
+        if (CurrentLocation is null)
+        {
+            ErrorMessage = "GPS lokacija još nije dostupna.";
+            return;
+        }
+        suppressSearch = true;
+        StartQuery = "Moja lokacija";
+        StartLatitude = CurrentLocation.Lat.ToString("0.000000", CultureInfo.InvariantCulture);
+        StartLongitude = CurrentLocation.Lon.ToString("0.000000", CultureInfo.InvariantCulture);
+        suppressSearch = false;
+        ReplaceItems(Suggestions, []);
+        RaisePropertyChanged(nameof(HasSuggestions));
+    }
+
+    private void SwapPoints()
+    {
+        suppressSearch = true;
+        (StartQuery, DestinationQuery) = (DestinationQuery, StartQuery);
+        (StartLatitude, DestinationLatitude) = (DestinationLatitude, StartLatitude);
+        (StartLongitude, DestinationLongitude) = (DestinationLongitude, StartLongitude);
+        suppressSearch = false;
     }
 
     public event EventHandler? RouteVisualizationChanged;
@@ -176,7 +322,7 @@ public class NavigationViewModel : ViewModelBase
         }
     }
 
-    public string RouteInputButtonText => IsRouteInputVisible ? "Hide route input" : "Route input";
+    public string RouteInputButtonText => IsRouteInputVisible ? "Sakrij planer" : "Planiraj rutu";
 
     public bool AutoRerouteEnabled
     {
@@ -424,9 +570,9 @@ public class NavigationViewModel : ViewModelBase
         await RefreshRoutingModeAsync();
         await StartGpsTrackingAsync();
 
-        if (!RouteManeuvers.Any() && !IsBusy)
+        if (CurrentLocation is not null && string.IsNullOrEmpty(StartLatitude))
         {
-            await CalculateRouteAsync();
+            await MainThread.InvokeOnMainThreadAsync(UseMyLocation);
         }
     }
 
@@ -472,7 +618,7 @@ public class NavigationViewModel : ViewModelBase
 
                 if (location is not null)
                 {
-                    await MainThread.InvokeOnMainThreadAsync(() => UpdateCurrentLocation(location.Latitude, location.Longitude));
+                    await MainThread.InvokeOnMainThreadAsync(() => UpdateCurrentLocation(location.Latitude, location.Longitude, location.Speed));
                 }
             }
             catch (FeatureNotEnabledException)
@@ -498,6 +644,17 @@ public class NavigationViewModel : ViewModelBase
     private async Task CalculateRouteAsync(GeoPoint? overrideStart = null, bool autoReroute = false)
     {
         ErrorMessage = null;
+
+        if (overrideStart is null && string.IsNullOrEmpty(StartLatitude) && CurrentLocation is not null)
+        {
+            UseMyLocation();
+        }
+
+        if (string.IsNullOrEmpty(StartLatitude) || string.IsNullOrEmpty(DestinationLatitude))
+        {
+            ErrorMessage = "Izaberite polazak i odredište iz predloga.";
+            return;
+        }
 
         if (!TryParseCoordinate(StartLatitude, out var startLat) || !TryParseCoordinate(StartLongitude, out var startLon))
         {
@@ -690,6 +847,7 @@ public class NavigationViewModel : ViewModelBase
         UpdateTurnByTurnCard();
         UpdateOffRouteState();
 
+        HasRoute = selectedRoute is not null;
         RouteVisualizationChanged?.Invoke(this, EventArgs.Empty);
         StatusText = $"Route updated {DateTime.Now:t}";
     }
@@ -738,8 +896,9 @@ public class NavigationViewModel : ViewModelBase
     private Task SetBusyAsync(bool value)
         => MainThread.InvokeOnMainThreadAsync(() => IsBusy = value);
 
-    private void UpdateCurrentLocation(double latitude, double longitude)
+    private void UpdateCurrentLocation(double latitude, double longitude, double? speedMps = null)
     {
+        CurrentSpeedText = speedMps is > 0 ? (speedMps.Value * 3.6).ToString("0", CultureInfo.InvariantCulture) : "0";
         var latest = new GeoPoint(latitude, longitude);
         CurrentLocation = latest;
         CurrentLocationText = $"GPS: {latitude:0.00000}, {longitude:0.00000}";

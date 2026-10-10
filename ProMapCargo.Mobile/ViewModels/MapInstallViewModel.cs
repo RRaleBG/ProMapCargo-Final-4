@@ -10,8 +10,8 @@ public sealed class MapInstallViewModel : ViewModelBase
     private readonly OfflineMapService offlineMapService;
     private readonly OfflineRoutingBundleService offlineRoutingBundleService;
     private bool isBusy;
-    private string statusText = "Loading map packages...";
-    private string bundleStatusText = "Offline routing bundles are not installed.";
+    private string statusText = "Učitavanje paketa mapa…";
+    private string bundleStatusText = "Offline paketi za rutiranje nisu instalirani.";
     private bool offlineBundleReady;
 
     public MapInstallViewModel(OfflineMapService offlineMapService, OfflineRoutingBundleService offlineRoutingBundleService)
@@ -85,7 +85,7 @@ public sealed class MapInstallViewModel : ViewModelBase
         try
         {
             await SetBusyAsync(true);
-            StatusText = "Fetching map catalog...";
+            StatusText = "Preuzimanje kataloga mapa…";
 
             var catalog = await offlineMapService.GetCatalogAsync(cancellationToken).ConfigureAwait(false);
             var installedManifest = await offlineMapService.GetInstalledManifestAsync(cancellationToken).ConfigureAwait(false);
@@ -107,7 +107,7 @@ public sealed class MapInstallViewModel : ViewModelBase
                     : "Offline routing NOT READY · install at least one bundle";
 
                 StatusText = catalog.Count == 0
-                    ? "No map packages are currently available on server."
+                    ? "Trenutno nema dostupnih paketa mapa na serveru."
                     : $"{catalog.Count} map package(s) available · {bundleCatalog.Count} routing bundle(s) available.";
             });
         }

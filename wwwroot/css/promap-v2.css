@@ -1,0 +1,209 @@
+/* ProMap Cargo UI v2 — additive layer loaded after promap.css.
+   Only overrides/extends; safe to remove without breaking the base styles. */
+
+/* ---------- Accessibility: visible focus + comfortable tap targets ---------- */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--pm-teal, #2dd4bf);
+    outline-offset: 2px;
+}
+
+.nav-map-control,
+.nav-icon-button,
+.nav-map-tab,
+.nav-small-action,
+.nav-mode-button {
+    min-height: 44px;
+}
+
+.nav-map-control,
+.nav-icon-button {
+    min-width: 44px;
+}
+
+.nav-diagnostics-card[hidden],
+.pm-search-results[hidden],
+.nav-fallback-notice[hidden],
+.nav-retry[hidden] {
+    display: none !important;
+}
+
+/* ---------- System status (sidebar + topbar) ---------- */
+[data-system-status].is-offline .pm-status-dot {
+    background: #fb7185;
+    box-shadow: 0 0 0 4px rgba(251, 113, 133, 0.18);
+    animation: none;
+}
+
+[data-system-status].is-offline [data-system-status-badge] {
+    color: #fb7185;
+}
+
+/* ---------- Quick-jump search ---------- */
+.pm-global-search {
+    position: relative;
+}
+
+.pm-search-results {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 60;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    background: var(--pm-surface-solid, #061b17);
+    border: 1px solid rgba(110, 231, 183, 0.18);
+    border-radius: 14px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.pm-search-results li {
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: var(--pm-text, #f0fdf8);
+    font-size: var(--pm-font-sm, 14px);
+    cursor: pointer;
+}
+
+.pm-search-results li.is-active,
+.pm-search-results li:hover {
+    background: rgba(16, 185, 129, 0.16);
+}
+
+.pm-search-results .pm-search-empty {
+    color: var(--pm-text-muted, #8eb8aa);
+    cursor: default;
+}
+
+/* ---------- Navigation: plan vs drive mode ---------- */
+#navigationPage[data-nav-mode="drive"] .navigation-control-panel > :not(.nav-summary-card):not(#warningsCard):not(#maneuversCard) {
+    display: none !important;
+}
+
+#navigationPage .nav-mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.16);
+    color: var(--pm-emerald-300, #6ee7b7);
+}
+
+/* ---------- Navigation: recent locations ---------- */
+.nav-recent {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.nav-recent-chip {
+    max-width: 100%;
+    padding: 6px 10px;
+    border: 1px solid rgba(110, 231, 183, 0.2);
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.08);
+    color: var(--pm-text-soft, #d1fae5);
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.nav-recent-chip:hover {
+    background: rgba(16, 185, 129, 0.18);
+}
+
+/* ---------- Navigation: loading / error / fallback states ---------- */
+#navigationPage.is-routing .nav-summary-card strong,
+#navigationPage.is-routing .nav-summary-card .nav-result-distance strong,
+#navigationPage.is-routing .nav-summary-card .nav-result-duration strong {
+    color: transparent !important;
+    background: linear-gradient(90deg, rgba(110, 231, 183, 0.08), rgba(110, 231, 183, 0.28), rgba(110, 231, 183, 0.08));
+    background-size: 200% 100%;
+    border-radius: 8px;
+    animation: pm-skeleton 1.1s linear infinite;
+}
+
+@keyframes pm-skeleton {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #navigationPage.is-routing .nav-summary-card strong { animation: none; }
+}
+
+.nav-fallback-notice {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin: 0 0 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    border-radius: 14px;
+    background: rgba(251, 191, 36, 0.1);
+    color: #fde68a;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.nav-retry {
+    margin-top: 8px;
+    padding: 8px 14px;
+    border: 1px solid rgba(251, 113, 133, 0.45);
+    border-radius: 10px;
+    background: transparent;
+    color: #fecdd3;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.nav-retry:hover {
+    background: rgba(251, 113, 133, 0.12);
+}
+
+/* ---------- Navigation: restriction warnings (icon + text, not colour only) ---------- */
+.nav-warning-item {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    column-gap: 10px;
+}
+
+.nav-warning-item > :not(.nav-warning-icon) {
+    grid-column: 2;
+}
+
+.nav-warning-icon {
+    grid-row: 1 / span 3;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    background: #fbbf24;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ---- Embedded mobile (MAUI WebView): map only; native UI owns planner, maneuver and status ---- */
+.pm-body.pm-embedded-mobile-shell .nav-map-topbar,
+.pm-body.pm-embedded-mobile-shell .nav-next-overlay,
+.pm-body.pm-embedded-mobile-shell .nav-map-route-card,
+.pm-body.pm-embedded-mobile-shell .navigation-control-panel,
+.pm-body.pm-embedded-mobile-shell .nav-live-panel,
+.pm-body.pm-embedded-mobile-shell .nav-page-header,
+.pm-body.pm-embedded-mobile-shell #navDiagnosticsCard,
+.pm-body.pm-embedded-mobile-shell .pm-fallback-notice {
+  display: none !important;
+}
+
+.pm-body.pm-embedded-mobile-shell .nav-map-controls {
+  top: auto;
+  bottom: 170px;
+  left: 12px;
+  right: auto;
+}

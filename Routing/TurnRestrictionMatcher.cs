@@ -42,6 +42,13 @@ public sealed class TurnRestrictionMatcher(
         }
     }
 
+    /// <summary>OSM <c>except=hgv</c> exempts trucks from the restriction.</summary>
+    private static bool ExemptsTrucks(string? exceptValues) =>
+        !string.IsNullOrWhiteSpace(exceptValues) &&
+        exceptValues
+            .Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(value => value.Equals("hgv", StringComparison.OrdinalIgnoreCase));
+
     private async Task<RestrictionSet> LoadFromDatabaseAsync(long version)
     {
         logger.LogInformation("PostGIS query started: turn restriction load. GraphVersion={GraphVersion}", version);
@@ -51,7 +58,7 @@ public sealed class TurnRestrictionMatcher(
             // Shared between requests: deliberately not tied to one request's token.
             await using var c = await ds.OpenConnectionAsync(CancellationToken.None);
             var rows = await c.QueryAsync<dynamic>(new CommandDefinition(
-                "SELECT restriction,from_way_id,to_way_id,via_node_ids FROM turn_restrictions WHERE graph_version=@version",
+                "SELECT restriction,from_way_id,to_way_id,via_node_ids,via_way_ids,except_values FROM turn_restrictions WHERE graph_version=@version",
                 new
                 {
                     version
@@ -59,13 +66,37 @@ public sealed class TurnRestrictionMatcher(
                 commandTimeout: 120,
                 cancellationToken: CancellationToken.None));
 
-            var rules = rows.Select(r => new Rule(
-                (string?)r.restriction,
-                (long?)r.from_way_id,
-                (long?)r.to_way_id,
-                ((long[]?)r.via_node_ids) ?? [])).ToList();
+            // Rules the matcher cannot evaluate correctly are skipped:
+            //  - via-way restrictions (an only_* rule would block the via way itself),
+            //  - rules without a via node (they would apply along the whole from-way),
+            //  - rules that exempt trucks (except=hgv).
+            var rules = new List<Rule>();
+            var skipped = 0;
 
-            logger.LogInformation("PostGIS query completed: turn restriction load. GraphVersion={GraphVersion} Rules={Rules}", version, rules.Count);
+            foreach (var r in rows)
+            {
+                var viaNodes = ((long[]?)r.via_node_ids) ?? [];
+                var viaWays = ((long[]?)r.via_way_ids) ?? [];
+                var exceptValues = (string?)r.except_values;
+
+                if (viaNodes.Length == 0 || viaWays.Length > 0 || ExemptsTrucks(exceptValues))
+                {
+                    skipped++;
+                    continue;
+                }
+
+                rules.Add(new Rule(
+                    (string?)r.restriction,
+                    (long?)r.from_way_id,
+                    (long?)r.to_way_id,
+                    viaNodes));
+            }
+
+            logger.LogInformation(
+                "PostGIS query completed: turn restriction load. GraphVersion={GraphVersion} Rules={Rules} Skipped={Skipped}",
+                version,
+                rules.Count,
+                skipped);
             return new RestrictionSet(rules);
         }
         catch (Exception ex)

@@ -6,7 +6,8 @@
 }
 
 
-<div id="navigationPage" class="pm-page" data-module="navigation">
+<div id="navigationPage" class="pm-page" data-module="navigation" data-nav-mode="plan"
+     data-is-admin="@(User.IsInRole("Administrator") ? "1" : "0")">
     <div class="nav-page-header pm-page-header"></div>
     <div class="navigation-workspace">
         <section class="navigation-map-section">
@@ -30,9 +31,9 @@
 
                         <div class="nav-map-controls pm-map-controls"> <button type="button" id="fitRoute"
                                                                    class="nav-map-control pm-map-control hover:pm-hover-scale active:pm-press-small pm-shadow-soft"
-                                                                   title="Prikaži celu rutu">⤢</button> <button type="button" id="centerGps"
+                                                                   title="Prikaži celu rutu" aria-label="Prikaži celu rutu"><i data-lucide="maximize" aria-hidden="true"></i></button> <button type="button" id="centerGps"
                                                                           class="nav-map-control pm-map-control hover:pm-hover-scale active:pm-press-small pm-shadow-soft"
-                                                                          title="Centriraj GPS">◎</button> </div> <!-- ACTIVE ROUTE CARD -->
+                                                                          title="Centriraj GPS" aria-label="Centriraj GPS"><i data-lucide="locate-fixed" aria-hidden="true"></i></button> </div> <!-- ACTIVE ROUTE CARD -->
                             <div class="nav-map-route-card" id="mapRouteCard" hidden>
                                 <div class="nav-map-route-card-head">
                                     <div> <small class="pm-label-wide">AKTIVNA RUTA</small> <strong id="mapRouteTitle">Beograd →
@@ -51,21 +52,21 @@
                         </div>
                     </section>
                     <!-- ================================================= CONTROL PANEL ================================================= -->
-                    <aside class="navigation-control-panel"> <!-- ROUTE PLANNER -->
+                    <aside class="navigation-control-panel"> <!-- PLANER RUTE -->
                         <section class="nav-control-card nav-route-control">
                             <div class="nav-control-card-header">
                                 <div> <span class="nav-section-kicker">ROUTE PLANNER</span>
                                     <h2>Planiranje rute</h2>
                                 </div> <button type="button" id="swapPoints"
                                                class="nav-icon-button hover:pm-hover-rotate active:pm-press-small"
-                                               title="Zameni polaznu i odredišnu tačku">⇅</button>
+                                               title="Zameni polaznu i odredišnu tačku" aria-label="Zameni polaznu i odredišnu tačku"><i data-lucide="arrow-up-down" aria-hidden="true"></i></button>
                             </div>
                             <div class="nav-route-inputs"> <!-- START -->
                                 <div class="nav-route-input-row">
                                     <div class="nav-point-marker start pm-transition-transform hover:pm-hover-scale-strong"></div>
                                     <div class="nav-input-wrapper"> <label for="navStart">POLAZNA TAČKA</label> <input id="navStart"
                                                                                                                            class="nav-input focus:tw-ring-2 focus:tw-ring-blue-500/20" type="text"
-                                                                                                                           autocomplete="off" value="Beograd, Srbija" placeholder="Grad, adresa ili lokacija" />
+                                                                                                                           autocomplete="off" placeholder="Grad, adresa ili lokacija" />
                                         <div id="navStartSuggestions" class="nav-suggestions"></div>
                                         <div id="navStartResolved" class="nav-resolved pm-transition-opacity"> <span></span> Nije
                                             još potvrđeno </div>
@@ -77,7 +78,7 @@
                                         </div>
                                         <div class="nav-input-wrapper"> <label for="navEnd">ODREDIŠTE</label> <input id="navEnd"
                                                                                                                          class="nav-input focus:tw-ring-2 focus:tw-ring-blue-500/20" type="text"
-                                                                                                                         autocomplete="off" value="Novi Sad, Srbija" placeholder="Grad, adresa ili lokacija" />
+                                                                                                                         autocomplete="off" placeholder="Grad, adresa ili lokacija" />
                                             <div id="navEndSuggestions" class="nav-suggestions"></div>
                                             <div id="navEndResolved" class="nav-resolved pm-transition-opacity"> <span></span> Nije još
                                                 potvrđeno </div>
@@ -85,23 +86,23 @@
                                         </div>
                                     </div>
                                     <div class="nav-map-pick-row"> <button type="button" id="pickStart"
-                                                                           class="nav-small-action hover:pm-hover-surface active:pm-press"> <span>＋</span> Izaberi start na
+                                                                           class="nav-small-action hover:pm-hover-surface active:pm-press"> <i data-lucide="map-pin" aria-hidden="true"></i> Izaberi start na
                                         mapi </button> <button type="button" id="pickEnd"
-                                                           class="nav-small-action hover:pm-hover-surface active:pm-press"> <span>＋</span> Izaberi cilj na
+                                                           class="nav-small-action hover:pm-hover-surface active:pm-press"> <i data-lucide="map-pin" aria-hidden="true"></i> Izaberi cilj na
                                         mapi </button> </div>
                                     </section> <!-- VEHICLE MODE -->
                                     <section class="nav-control-card">
                                         <div class="nav-control-card-header compact">
-                                            <div> <span class="nav-section-kicker">VEHICLE</span>
+                                            <div> <span class="nav-section-kicker">VOZILO</span>
                                                 <h2>Profil vozila</h2>
                                             </div> <span id="truckModeBadge" class="nav-mini-status">HGV</span>
                                         </div>
                                         <div class="nav-mode-switch"> <button type="button" id="truckMode"
                                                                               class="nav-mode-button active hover:-pm-hover-lift active:pm-press-down"> <span
-                                            class="nav-mode-icon">▣</span> <span> <strong>Kamion</strong> <small>Truck-aware</small>
+                                            class="nav-mode-icon"><i data-lucide="truck" aria-hidden="true"></i></span> <span> <strong>Kamion</strong> <small>Prilagođeno kamionu</small>
                                         </span> </button> <button type="button" id="carMode"
                                                               class="nav-mode-button hover:-pm-hover-lift active:pm-press-down"> <span
-                                        class="nav-mode-icon">▱</span> <span> <strong>Auto</strong> <small>Standard routing</small>
+                                        class="nav-mode-icon"><i data-lucide="car" aria-hidden="true"></i></span> <span> <strong>Auto</strong> <small>Standardno rutiranje</small>
                                     </span> </button> </div>
                                     <div class="nav-preset-row"> <label for="truckPreset">PRESET</label> <select id="truckPreset"
                                                                                                                  class="nav-select">
@@ -151,20 +152,20 @@
                                                                     </div>
                                                                 </section> <!-- ROUTE ACTION -->
                                                                 <section class="nav-route-action"> <button type="button" id="togglePlanner"
-                                                                                                           class="nav-location-button nav-mobile-sheet-toggle active:pm-press" hidden> <span>▤</span>
+                                                                                                           class="nav-location-button nav-mobile-sheet-toggle active:pm-press" hidden> <i data-lucide="panel-bottom-open" aria-hidden="true"></i>
                                                                     <span>Planiranje rute</span> </button> <button type="button" id="calcRoute"
                                                                                                                class="nav-calculate-button hover:pm-shadow-hover hover:-pm-hover-lift active:pm-press-down active:pm-press-tight">
-                                                                    <span class="nav-calculate-icon hover:pm-hover-rotate-small">↗</span> <span> <strong>KRENI</strong>
+                                                                    <span class="nav-calculate-icon hover:pm-hover-rotate-small"><i data-lucide="navigation" aria-hidden="true"></i></span> <span> <strong>KRENI</strong>
                                                                     <small>PostGIS · OSM · OSRM fallback</small> </span> <span
-                                                                    class="nav-button-arrow pm-transition-transform hover:pm-hover-slide">→</span> </button> <button
+                                                                    class="nav-button-arrow pm-transition-transform hover:pm-hover-slide"><i data-lucide="arrow-right" aria-hidden="true"></i></span> </button> <button
                                                                     type="button" id="useCurrentLocation"
                                                                     class="nav-location-button hover:pm-hover-surface active:pm-press-tight"> <span
-                                                                    class="hover:pm-hover-rotate">◎</span> <span>Koristi moju trenutnu lokaciju</span> </button>
-                                                                    <div id="navError" class="nav-error" hidden></div>
+                                                                    class="hover:pm-hover-rotate"><i data-lucide="locate-fixed" aria-hidden="true"></i></span> <span>Koristi moju trenutnu lokaciju</span> </button>
+                                                                    <div id="navError" class="nav-error" role="alert" aria-live="assertive" hidden></div>
                                                                 </section> <!-- ROUTE SUMMARY -->
                                                                 <section class="nav-control-card nav-summary-card">
                                                                     <div class="nav-control-card-header compact">
-                                                                        <div> <span class="nav-section-kicker">ROUTE RESULT</span>
+                                                                        <div> <span class="nav-section-kicker">REZULTAT RUTE</span>
                                                                             <h2>Pregled rute</h2>
                                                                         </div> <span id="summarySafety" class="pm-badge pm-badge-success">READY</span>
                                                                     </div>
@@ -182,7 +183,7 @@
                                                                     </section> <!-- ALTERNATIVES -->
                                                                     <section id="alternativesCard" class="nav-control-card nav-list-card" hidden>
                                                                         <div class="nav-control-card-header compact">
-                                                                            <div> <span class="nav-section-kicker">ROUTES</span>
+                                                                            <div> <span class="nav-section-kicker">RUTE</span>
                                                                                 <h2>Alternativne rute</h2>
                                                                             </div> <span id="alternativeCount" class="nav-counter">0</span>
                                                                         </div>
@@ -190,7 +191,7 @@
                                                                     </section> <!-- WARNINGS -->
                                                                     <section id="warningsCard" class="nav-control-card nav-list-card" hidden>
                                                                         <div class="nav-control-card-header compact">
-                                                                            <div> <span class="nav-section-kicker">SAFETY</span>
+                                                                            <div> <span class="nav-section-kicker">BEZBEDNOST</span>
                                                                                 <h2>Upozorenja</h2>
                                                                             </div> <span id="warningCount" class="nav-counter danger pm-pulse">0</span>
                                                                         </div>
@@ -198,16 +199,16 @@
                                                                     </section> <!-- MANEUVERS -->
                                                                     <section id="maneuversCard" class="nav-control-card nav-list-card" hidden>
                                                                         <div class="nav-control-card-header compact">
-                                                                            <div> <span class="nav-section-kicker">DIRECTIONS</span>
+                                                                            <div> <span class="nav-section-kicker">UPUTSTVA</span>
                                                                                 <h2>Koraci navigacije</h2>
                                                                             </div> <span id="maneuverCount" class="nav-counter">0</span>
                                                                         </div>
                                                                         <div id="maneuverList" class="nav-maneuver-list"></div>
                                                                     </section> <!-- DIAGNOSTICS -->
-                                                                    <section class="nav-control-card nav-diagnostics-card">
+                                                                    <section class="nav-control-card nav-diagnostics-card" id="navDiagnosticsCard" hidden>
                                                                         <div class="nav-control-card-header compact">
-                                                                            <div> <span class="nav-section-kicker">SYSTEM</span>
-                                                                                <h2>Routing diagnostics</h2>
+                                                                            <div> <span class="nav-section-kicker">SISTEM</span>
+                                                                                <h2>Dijagnostika rutiranja</h2>
                                                                             </div> <span class="nav-diagnostic-led pm-pulse"></span>
                                                                         </div>
                                                                         <div class="nav-diagnostics-grid">
@@ -245,12 +246,12 @@
                                                                                         </div>
                                                                                         <div class="nav-live-stats">
                                                                                             <div> <small>BRZINA</small> <strong id="liveSpeed">0 km/h</strong> </div>
-                                                                                            <div> <small>OFF ROUTE</small> <strong id="liveOffRoute">NE</strong> </div>
+                                                                                            <div> <small>VAN RUTE</small> <strong id="liveOffRoute">NE</strong> </div>
                                                                                         </div>
                                                                                         <div class="nav-live-actions"> <button type="button" id="startLiveNavigation"
-                                                                                                                                   class="pm-btn pm-btn-primary hover:pm-shadow-hover active:pm-press"> ◎ Pokreni live navigaciju </button>
+                                                                                                                                   class="pm-btn pm-btn-primary hover:pm-shadow-hover active:pm-press"> <i data-lucide="locate-fixed" aria-hidden="true"></i> Pokreni live navigaciju </button>
                                                                                             <button type="button" id="stopLiveNavigation"
-                                                                                                    class="pm-btn pm-btn-danger hover:pm-shadow-hover active:pm-press" hidden> ■ Zaustavi </button> </div>
+                                                                                                    class="pm-btn pm-btn-danger hover:pm-shadow-hover active:pm-press" hidden> <i data-lucide="square" aria-hidden="true"></i> Zaustavi </button> </div>
                                                                                         </section>
                                                                                         <div class="nav-mobile-bottom-space"></div>
                                                                                     </div>
@@ -269,4 +270,5 @@
                                                                                         <!-- PMTiles / MapLibre initialization -->
                                                                                         <script src="~/js/promap-pmtiles-init.js" asp-append-version="true"></script> <!-- Navigation -->
                                                                                         <script src="~/js/navigation.js" asp-append-version="true"></script>
+                                                                                        <script src="~/js/navigation-ui.js" asp-append-version="true"></script>
                                                                                     }

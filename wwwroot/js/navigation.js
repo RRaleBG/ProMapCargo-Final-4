@@ -2308,10 +2308,11 @@ window.ProMap = window.ProMap || {};
         for (const item of items) {
             const row = document.createElement("div");
 
-            row.className = "nav-list-item";
+            row.className = "nav-list-item nav-warning-item";
 
             row.innerHTML = `
-                <span>${escapeHtml(item.type || "Restriction")}</span>
+                <span class="nav-warning-icon" aria-hidden="true"></span>
+                <span>${escapeHtml(item.type || "Ograničenje")}</span>
 
                 <strong>${escapeHtml(
                 item.name || item.id || "Ograničenje",
@@ -4247,18 +4248,26 @@ window.ProMap = window.ProMap || {};
     // ============================================================
 
     function initializeDefaults() {
-        if ($("navStart")) {
-            $("navStart").value = $("navStart").value.trim() || DEFAULTS.start.label;
+        // Demo route (Beograd -> Novi Sad) is opt-in: /navigation?demo=1.
+        // Otherwise start and destination stay empty until the user picks them
+        // (or the mobile shell pushes them).
+        const useDemoDefaults =
+            new URLSearchParams(window.location.search).get("demo") === "1";
+
+        if (useDemoDefaults) {
+            if ($("navStart")) {
+                $("navStart").value = $("navStart").value.trim() || DEFAULTS.start.label;
+            }
+
+            if ($("navEnd")) {
+                $("navEnd").value =
+                    $("navEnd").value.trim() || DEFAULTS.destination.label;
+            }
+
+            setStart(DEFAULTS.start);
+
+            setDestination(DEFAULTS.destination);
         }
-
-        if ($("navEnd")) {
-            $("navEnd").value =
-                $("navEnd").value.trim() || DEFAULTS.destination.label;
-        }
-
-        setStart(DEFAULTS.start);
-
-        setDestination(DEFAULTS.destination);
 
         applyPreset($("truckPreset")?.value || "40t");
 

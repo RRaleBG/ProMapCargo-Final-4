@@ -17,11 +17,29 @@ var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Po
 ?? Environment.GetEnvironmentVariable("PROMAP_POSTGRES")
 ?? "Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me";
 
-Console.WriteLine($"Using connection: {connectionString}");
+Console.WriteLine($"Using connection: {MaskPassword(connectionString)}");
 Console.WriteLine($"PBF file: {pbfPath}");
 
 await new GraphImporter(connectionString).ImportAsync(
 pbfPath,
 graphVersion,
 CancellationToken.None);
-Console.WriteLine($"Graph import finished: version {graphVersion}.");
+
+
+static string MaskPassword(string connectionString)
+{
+    try
+    {
+        var builder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
+        if (!string.IsNullOrEmpty(builder.Password))
+        {
+            builder.Password = "***";
+        }
+
+        return builder.ToString();
+    }
+    catch (ArgumentException)
+    {
+        return "(invalid connection string)";
+    }
+}

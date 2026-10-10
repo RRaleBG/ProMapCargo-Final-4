@@ -1,0 +1,115 @@
+{
+  "v": 3,
+  "assetGroups": {
+    "Icons": {
+      "files": {
+        "ic_back.svg": {
+          "blob": "fbb0f68a8455fd9dcbb948c85fc31f5c",
+          "name": "ic_back.svg",
+          "size": 7956,
+          "type": "image/svg+xml"
+        },
+        "ic_map.svg": {
+          "blob": "650d16b6e3b9eda52ac98715d7bc88ce",
+          "name": "ic_map.svg",
+          "size": 8090,
+          "type": "image/svg+xml"
+        },
+        "ic_settings.svg": {
+          "blob": "3bbd17891f2a765a200f65edcf5ac5a9",
+          "name": "ic_settings.svg",
+          "size": 8595,
+          "type": "image/svg+xml"
+        },
+        "ic_tab_navigation.svg": {
+          "blob": "842e7cbde074c2b9ac3ad7c59f2785bd",
+          "name": "ic_tab_navigation.svg",
+          "size": 7942,
+          "type": "image/svg+xml"
+        },
+        "ic_tab_operations.svg": {
+          "blob": "b091a52a5f435653a107c7cc6b5d038f",
+          "name": "ic_tab_operations.svg",
+          "size": 7957,
+          "type": "image/svg+xml"
+        },
+        "nav_recenter.svg": {
+          "blob": "d8ba9fe7de299439d7ace8916346b81c",
+          "name": "nav_recenter.svg",
+          "size": 731,
+          "type": "image/svg+xml"
+        },
+        "nav_voice.svg": {
+          "blob": "126450ee7b653b063e516f160e0a565d",
+          "name": "nav_voice.svg",
+          "size": 767,
+          "type": "image/svg+xml"
+        }
+      },
+      "name": "Icons",
+      "order": [
+        "ic_tab_operations.svg",
+        "ic_tab_navigation.svg",
+        "ic_back.svg",
+        "ic_settings.svg",
+        "ic_map.svg",
+        "nav_recenter.svg",
+        "nav_voice.svg"
+      ],
+      "tile": "s"
+    },
+    "Logos": {
+      "files": {
+        "appicon.svg": {
+          "blob": "b948b3add500eb68d3cd33baea78dd38",
+          "name": "appicon.svg",
+          "size": 7006,
+          "type": "image/svg+xml"
+        },
+        "appiconfg.svg": {
+          "blob": "d0891a193be92a0f5e5eb57ebdcb9ad1",
+          "name": "appiconfg.svg",
+          "size": 6434,
+          "type": "image/svg+xml"
+        },
+        "splash.svg": {
+          "blob": "e24288869121b94b0ba178aabd01f3a6",
+          "name": "splash.svg",
+          "size": 7807,
+          "type": "image/svg+xml"
+        }
+      },
+      "name": "Logos",
+      "order": [
+        "appicon.svg",
+        "appiconfg.svg",
+        "splash.svg"
+      ],
+      "tile": "l"
+    }
+  },
+  "blobs": {},
+  "createdOnFiles": {
+    "at": "2026-10-10T19:50:00Z",
+    "v": 1
+  },
+  "docs": {
+    "readme": "project/README.md",
+    "sections": []
+  },
+  "groups": [
+    "Logos",
+    "Icons"
+  ],
+  "lastChange": {
+    "by": "Claude",
+    "at": "2026-10-10T21:00:00Z",
+    "via": "Claude Code · ProMapCargo.Mobile (local)",
+    "note": "App updated to match: MapGlass, MapSheet, HeroStart are Colors.xaml keys; Android colours and MauiIcon colour aligned."
+  },
+  "layout": "files",
+  "libraries": [],
+  "namespace": "ProMapCargoMobile",
+  "sections": {},
+  "title": "ProMap Cargo Mobile"
+}
