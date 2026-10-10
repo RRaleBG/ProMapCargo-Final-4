@@ -11,6 +11,7 @@ public class NavigationViewModel : ViewModelBase
 {
     private const double OffRouteThresholdMeters = 120;
     private const double ManeuverArrivalThresholdMeters = 35;
+    private const string MyLocationLabel = "Moja lokacija";
     private static readonly TimeSpan GpsPollInterval = TimeSpan.FromSeconds(4);
     private static readonly TimeSpan AutoRerouteCooldown = TimeSpan.FromSeconds(20);
     private readonly ApiClient apiClient;
@@ -224,7 +225,7 @@ public class NavigationViewModel : ViewModelBase
             return;
         }
         suppressSearch = true;
-        StartQuery = "Moja lokacija";
+        StartQuery = MyLocationLabel;
         StartLatitude = CurrentLocation.Lat.ToString("0.000000", CultureInfo.InvariantCulture);
         StartLongitude = CurrentLocation.Lon.ToString("0.000000", CultureInfo.InvariantCulture);
         suppressSearch = false;
@@ -748,18 +749,118 @@ public class NavigationViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Fills in route points the driver typed but did not pick from the suggestions
+    /// (TomTom-style): an empty start or "Moja lokacija" means the current GPS fix,
+    /// any other text is geocoded and the best match is used.
+    /// </summary>
+    private async Task<bool> ResolveMissingPointsAsync()
+    {
+        if (string.IsNullOrEmpty(StartLatitude))
+        {
+            var query = StartQuery?.Trim() ?? "";
+            if (query.Length == 0 || string.Equals(query, MyLocationLabel, StringComparison.OrdinalIgnoreCase))
+            {
+                if (CurrentLocation is null)
+                {
+                    try
+                    {
+                        var fix = await Geolocation.Default.GetLocationAsync(
+                            new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10)));
+                        if (fix is not null)
+                        {
+                            CurrentLocation = new GeoPoint(fix.Latitude, fix.Longitude);
+                        }
+                    }
+                    catch
+                    {
+                        // Permission denied or GPS off: reported below.
+                    }
+                }
+
+                if (CurrentLocation is null)
+                {
+                    ErrorMessage = "GPS lokacija još nije dostupna. Uključite lokaciju ili unesite polaznu adresu.";
+                    return false;
+                }
+
+                await MainThread.InvokeOnMainThreadAsync(UseMyLocation);
+            }
+            else if (await GeocodeFirstAsync(query) is { } start)
+            {
+                await MainThread.InvokeOnMainThreadAsync(() => SetPoint("start", start));
+            }
+            else
+            {
+                ErrorMessage = $"Polazna adresa „{query}“ nije pronađena.";
+                return false;
+            }
+        }
+
+        if (string.IsNullOrEmpty(DestinationLatitude))
+        {
+            var query = DestinationQuery?.Trim() ?? "";
+            if (query.Length == 0)
+            {
+                ErrorMessage = "Unesite odredište.";
+                return false;
+            }
+
+            if (await GeocodeFirstAsync(query) is { } destination)
+            {
+                await MainThread.InvokeOnMainThreadAsync(() => SetPoint("destination", destination));
+            }
+            else
+            {
+                ErrorMessage = $"Odredište „{query}“ nije pronađeno.";
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private async Task<GeocodeResult?> GeocodeFirstAsync(string query)
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            var results = await apiClient.GeocodeAsync(query, cts.Token);
+            return results.FirstOrDefault();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    // Sets a resolved point without triggering a new search (keeps the typed text).
+    private void SetPoint(string field, GeocodeResult item)
+    {
+        suppressSearch = true;
+        var lat = item.Lat.ToString("0.000000", CultureInfo.InvariantCulture);
+        var lon = item.Lon.ToString("0.000000", CultureInfo.InvariantCulture);
+        if (field == "start")
+        {
+            StartLatitude = lat;
+            StartLongitude = lon;
+        }
+        else
+        {
+            DestinationLatitude = lat;
+            DestinationLongitude = lon;
+        }
+        suppressSearch = false;
+        ReplaceItems(Suggestions, []);
+        RaisePropertyChanged(nameof(HasSuggestions));
+    }
+
     private async Task CalculateRouteAsync(GeoPoint? overrideStart = null, bool autoReroute = false)
     {
         ErrorMessage = null;
 
-        if (overrideStart is null && string.IsNullOrEmpty(StartLatitude) && CurrentLocation is not null)
+        if (overrideStart is null && !await ResolveMissingPointsAsync())
         {
-            UseMyLocation();
-        }
-
-        if (string.IsNullOrEmpty(StartLatitude) || string.IsNullOrEmpty(DestinationLatitude))
-        {
-            ErrorMessage = "Izaberite polazak i odredište iz predloga.";
             return;
         }
 
@@ -779,7 +880,7 @@ public class NavigationViewModel : ViewModelBase
 
         if (!IsValidLatitude(startLat) || !IsValidLatitude(destinationLat) || !IsValidLongitude(startLon) || !IsValidLongitude(destinationLon))
         {
-            ErrorMessage = "Coordinates are outside valid latitude/longitude ranges.";
+            ErrorMessage = "Koordinate su van dozvoljenog opsega.";
             await notifier.ShowWarningAsync(ErrorMessage).ConfigureAwait(false);
             return;
         }

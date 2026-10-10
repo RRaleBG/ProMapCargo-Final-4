@@ -530,6 +530,9 @@
         <Setter Property="FontSize" Value="15" />
         <Setter Property="HeightRequest" Value="48" />
         <Setter Property="BackgroundColor" Value="Transparent" />
+        <!--  Addresses and e-mails: autocorrect rewrites them ("Moja lokacija" -> "lockjaw").  -->
+        <Setter Property="IsSpellCheckEnabled" Value="False" />
+        <Setter Property="IsTextPredictionEnabled" Value="False" />
     </Style>
 
     <Style x:Key="PmFieldBorder" TargetType="Border">
