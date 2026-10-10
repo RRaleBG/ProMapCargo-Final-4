@@ -1123,12 +1123,49 @@ public class NavigationViewModel : ViewModelBase
         return OfflineRoutingAvailable ? "offline" : "online";
     }
 
+    private GeoPoint? speedSamplePoint;
+    private DateTimeOffset speedSampleAt;
+
+    /// <summary>
+    /// GPS speed when the fix carries one; otherwise derived from the distance and
+    /// time since the previous fix (emulators and some devices report no speed).
+    /// Implausible jumps (above 160 km/h for a truck) are ignored.
+    /// </summary>
+    private double ResolveSpeedKph(double latitude, double longitude, double? speedMps)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var previous = speedSamplePoint;
+        var previousAt = speedSampleAt;
+        speedSamplePoint = new GeoPoint(latitude, longitude);
+        speedSampleAt = now;
+
+        if (speedMps is > 0)
+        {
+            return speedMps.Value * 3.6;
+        }
+
+        if (previous is null)
+        {
+            return 0;
+        }
+
+        var seconds = (now - previousAt).TotalSeconds;
+        if (seconds < 0.5)
+        {
+            return 0;
+        }
+
+        var meters = Location.CalculateDistance(previous.Lat, previous.Lon, latitude, longitude, DistanceUnits.Kilometers) * 1000;
+        var kph = meters / seconds * 3.6;
+        return kph is > 1 and <= 160 ? kph : 0;
+    }
+
     private Task SetBusyAsync(bool value)
         => MainThread.InvokeOnMainThreadAsync(() => IsBusy = value);
 
     private void UpdateCurrentLocation(double latitude, double longitude, double? speedMps = null)
     {
-        CurrentSpeedText = speedMps is > 0 ? (speedMps.Value * 3.6).ToString("0", CultureInfo.InvariantCulture) : "0";
+        CurrentSpeedText = ResolveSpeedKph(latitude, longitude, speedMps).ToString("0", CultureInfo.InvariantCulture);
         var latest = new GeoPoint(latitude, longitude);
         CurrentLocation = latest;
         CurrentLocationText = $"GPS: {latitude:0.00000}, {longitude:0.00000}";

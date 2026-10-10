@@ -184,7 +184,11 @@ public partial class MobileNavigationPage : ContentPage
             destination = ToWebPoint(viewModel.RouteDestinationPoint),
             current,
             heading = motion.Heading,
-            speedKph = motion.SpeedKph,
+            // Same filtered speed the bubble shows; drives the speed-dependent zoom.
+            speedKph = double.TryParse(viewModel.CurrentSpeedText, System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out var shownSpeed)
+                ? shownSpeed
+                : motion.SpeedKph,
             route = viewModel.RoutePolylinePoints
                 .Select(point => new
                 {

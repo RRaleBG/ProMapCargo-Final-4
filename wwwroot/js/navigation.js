@@ -299,9 +299,9 @@ window.ProMap = window.ProMap || {};
         if (state.mobileMode) {
             const maneuvers = Array.isArray(payload.maneuvers) ? payload.maneuvers : [];
             const nextIndex = Number(payload.nextManeuverIndex);
-            updateMobileManeuverMarker(
-                Number.isInteger(nextIndex) ? maneuvers[nextIndex] : maneuvers[1] ?? maneuvers[0],
-            );
+            state.mobileNextManeuver =
+                Number.isInteger(nextIndex) ? maneuvers[nextIndex] : maneuvers[1] ?? maneuvers[0];
+            updateMobileManeuverMarker(state.mobileNextManeuver);
 
             if (current && state.liveFollow) {
                 followMobilePosition(
@@ -327,6 +327,7 @@ window.ProMap = window.ProMap || {};
         window.proMapMobile.applyState = (payload) => {
             state.pendingMobilePayload = payload || {};
             state.mobileMode = toBoolean(payload?.mobile, state.mobileMode);
+            state.mobileSpeedKph = Number(payload?.speedKph) || 0;
 
             const current = normalizePoint(payload?.current);
 
@@ -3763,8 +3764,24 @@ window.ProMap = window.ProMap || {};
 
     // Driving camera for the MAUI app (TomTom-style): close zoom, tilted,
     // map rotated to the direction of travel, vehicle in the lower third.
-    const MOBILE_FOLLOW_ZOOM = 18;
     const MOBILE_FOLLOW_PITCH = 60;
+
+    // TomTom-style zoom: close in town and before a turn, wider at highway speed
+    // so the driver sees more road ahead.
+    function mobileFollowZoom(latitude, longitude) {
+        const speed = Number(state.mobileSpeedKph) || 0;
+        let zoom = speed < 30 ? 18.5 : speed < 70 ? 17.5 : 16.5;
+
+        const next = state.mobileNextManeuver;
+        if (next && Number.isFinite(Number(next.latitude)) && Number.isFinite(Number(next.longitude))) {
+            const toTurn = haversineMeters(latitude, longitude, Number(next.latitude), Number(next.longitude));
+            if (toTurn < 250) {
+                zoom = 18.5;
+            }
+        }
+
+        return zoom;
+    }
 
     // Direction of the route where the truck is (TomTom snaps the view to the road):
     // bearing from the nearest route point to a point ~40 m further along.
@@ -3884,7 +3901,7 @@ window.ProMap = window.ProMap || {};
 
         state.map.easeTo({
             center: [longitude, latitude],
-            zoom: Math.max(MOBILE_FOLLOW_ZOOM, force ? 0 : state.map.getZoom() || 0),
+            zoom: mobileFollowZoom(latitude, longitude),
             pitch: MOBILE_FOLLOW_PITCH,
             bearing: heading ?? state.map.getBearing(),
             padding: { top: Math.round(height * 0.45), bottom: 0, left: 0, right: 0 },
