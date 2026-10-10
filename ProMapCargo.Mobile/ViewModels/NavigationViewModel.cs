@@ -1256,7 +1256,9 @@ public class NavigationViewModel : ViewModelBase
 
         UpdateTurnByTurnCard();
         UpdateOffRouteState();
-        RouteVisualizationChanged?.Invoke(this, EventArgs.Empty);
+        // No RouteVisualizationChanged here: the CurrentLocation change already pushes
+        // the position to the map; raising it too sent every fix twice (2 ms apart),
+        // which halved the measured fix interval and made the truck stall.
     }
 
     private void UpdateTurnByTurnCard()

@@ -4027,6 +4027,13 @@ window.ProMap = window.ProMap || {};
         const heading = mobileHeading(target.latitude, target.longitude, position);
         const now = performance.now();
         const from = state.mobileShown ?? { ...target, bearing: heading ?? 0 };
+        // The same fix can arrive twice; it must not restart the glide or count
+        // as a 2 ms interval.
+        const last = state.mobileAnim?.to;
+        if (last && haversineMeters(last.latitude, last.longitude, target.latitude, target.longitude) < 0.5) {
+            return;
+        }
+
         const interval = state.mobileLastFixAt ? now - state.mobileLastFixAt : 1000;
         // Fixes arrive unevenly (two in 0.3 s, then a 1.7 s gap); a smoothed interval
         // keeps every glide long enough to still be running when the next fix comes.
