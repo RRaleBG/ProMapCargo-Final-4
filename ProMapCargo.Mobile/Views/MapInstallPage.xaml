@@ -30,7 +30,10 @@
                             VerticalOptions="Center"
                             WidthRequest="28" />
                     </Border>
-                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="2"
+                        VerticalOptions="Center">
                         <Label Style="{StaticResource PmPageTitleLabel}" Text="Offline mape" />
                         <Label Style="{StaticResource PmMutedLabel}" Text="Preuzmite mape i pakete za rad bez interneta." />
                     </VerticalStackLayout>
@@ -67,23 +70,40 @@
                     <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding AvailablePackages}">
                             <BindableLayout.EmptyView>
-                                <Label Padding="0,14" Style="{StaticResource PmMutedLabel}" Text="Nema dostupnih mapa. Osvežite listu." />
+                                <Label
+                                    Padding="0,14"
+                                    Style="{StaticResource PmMutedLabel}"
+                                    Text="Nema dostupnih mapa. Osvežite listu." />
                             </BindableLayout.EmptyView>
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:MapPackageCatalogItem">
-                                    <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                                    <Grid
+                                        Padding="0,12"
+                                        ColumnDefinitions="*,Auto"
+                                        ColumnSpacing="12"
+                                        RowDefinitions="Auto,Auto">
                                         <VerticalStackLayout Spacing="2">
-                                            <Label FontFamily="OpenSansSemibold" Style="{StaticResource PmBodyLabel}" Text="{Binding DisplayName}" />
-                                            <Label LineBreakMode="TailTruncation" Style="{StaticResource PmMutedLabel}" Text="{Binding FileName}" />
+                                            <Label
+                                                FontFamily="OpenSansSemibold"
+                                                Style="{StaticResource PmBodyLabel}"
+                                                Text="{Binding DisplayName}" />
+                                            <Label
+                                                LineBreakMode="TailTruncation"
+                                                Style="{StaticResource PmMutedLabel}"
+                                                Text="{Binding FileName}" />
                                         </VerticalStackLayout>
                                         <Button
                                             Grid.Column="1"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.InstallCommand}"
+                                            Clicked="OnInstallClicked"
                                             CommandParameter="{Binding .}"
                                             Style="{StaticResource PmTonalButton}"
                                             Text="Preuzmi"
                                             VerticalOptions="Center" />
-                                        <BoxView Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0" Style="{StaticResource PmDivider}" />
+                                        <BoxView
+                                            Grid.Row="1"
+                                            Grid.ColumnSpan="2"
+                                            Margin="0,12,0,0"
+                                            Style="{StaticResource PmDivider}" />
                                     </Grid>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
@@ -97,19 +117,39 @@
                     <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding InstalledPackages}">
                             <BindableLayout.EmptyView>
-                                <Label Padding="0,14" Style="{StaticResource PmMutedLabel}" Text="Još nema instaliranih mapa." />
+                                <Label
+                                    Padding="0,14"
+                                    Style="{StaticResource PmMutedLabel}"
+                                    Text="Još nema instaliranih mapa." />
                             </BindableLayout.EmptyView>
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:InstalledMapPackage">
-                                    <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                                    <Grid
+                                        Padding="0,12"
+                                        ColumnDefinitions="*,Auto"
+                                        ColumnSpacing="12"
+                                        RowDefinitions="Auto,Auto">
                                         <VerticalStackLayout Spacing="2">
-                                            <Label FontFamily="OpenSansSemibold" Style="{StaticResource PmBodyLabel}" Text="{Binding DisplayName}" />
-                                            <Label LineBreakMode="TailTruncation" Style="{StaticResource PmMutedLabel}" Text="{Binding FileName}" />
+                                            <Label
+                                                FontFamily="OpenSansSemibold"
+                                                Style="{StaticResource PmBodyLabel}"
+                                                Text="{Binding DisplayName}" />
+                                            <Label
+                                                LineBreakMode="TailTruncation"
+                                                Style="{StaticResource PmMutedLabel}"
+                                                Text="{Binding FileName}" />
                                         </VerticalStackLayout>
-                                        <Border Grid.Column="1" Style="{StaticResource PmChip}" VerticalOptions="Center">
+                                        <Border
+                                            Grid.Column="1"
+                                            Style="{StaticResource PmChip}"
+                                            VerticalOptions="Center">
                                             <Label Style="{StaticResource PmChipLabel}" Text="Instalirano" />
                                         </Border>
-                                        <BoxView Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0" Style="{StaticResource PmDivider}" />
+                                        <BoxView
+                                            Grid.Row="1"
+                                            Grid.ColumnSpan="2"
+                                            Margin="0,12,0,0"
+                                            Style="{StaticResource PmDivider}" />
                                     </Grid>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
@@ -123,23 +163,37 @@
                     <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding AvailableBundles}">
                             <BindableLayout.EmptyView>
-                                <Label Padding="0,14" Style="{StaticResource PmMutedLabel}" Text="Nema dostupnih paketa." />
+                                <Label
+                                    Padding="0,14"
+                                    Style="{StaticResource PmMutedLabel}"
+                                    Text="Nema dostupnih paketa." />
                             </BindableLayout.EmptyView>
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:OfflineRoutingBundleCatalogItem">
-                                    <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                                    <Grid
+                                        Padding="0,12"
+                                        ColumnDefinitions="*,Auto"
+                                        ColumnSpacing="12"
+                                        RowDefinitions="Auto,Auto">
                                         <VerticalStackLayout Spacing="2">
-                                            <Label FontFamily="OpenSansSemibold" Style="{StaticResource PmBodyLabel}" Text="{Binding DisplayName}" />
+                                            <Label
+                                                FontFamily="OpenSansSemibold"
+                                                Style="{StaticResource PmBodyLabel}"
+                                                Text="{Binding DisplayName}" />
                                             <Label Style="{StaticResource PmMutedLabel}" Text="{Binding Version, StringFormat='Verzija {0}'}" />
                                         </VerticalStackLayout>
                                         <Button
                                             Grid.Column="1"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.InstallBundleCommand}"
+                                            Clicked="OnInstallBundleClicked"
                                             CommandParameter="{Binding .}"
                                             Style="{StaticResource PmTonalButton}"
                                             Text="Instaliraj"
                                             VerticalOptions="Center" />
-                                        <BoxView Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0" Style="{StaticResource PmDivider}" />
+                                        <BoxView
+                                            Grid.Row="1"
+                                            Grid.ColumnSpan="2"
+                                            Margin="0,12,0,0"
+                                            Style="{StaticResource PmDivider}" />
                                     </Grid>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>

@@ -215,3 +215,29 @@
   left: 12px;
   right: auto;
 }
+
+/* ---- Embedded mobile: next-maneuver marker on the map (TomTom-style) ---- */
+.pm-mobile-maneuver-marker {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 3px solid #ecfdf5;
+  box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.pm-mobile-maneuver-marker svg {
+  width: 26px;
+  height: 26px;
+  fill: #031712;
+  transition: transform 0.2s ease;
+}
+
+.pm-mobile-maneuver-marker.is-arrive {
+  background: #ecfdf5;
+  border-color: #10b981;
+}

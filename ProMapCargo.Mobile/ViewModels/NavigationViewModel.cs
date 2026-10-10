@@ -56,10 +56,20 @@ public class NavigationViewModel : ViewModelBase
     private string selectedRoutingMode = "Auto";
     private string activeRoutingModeText = "Režim rutiranja: online";
     private bool offlineRoutingAvailable;
-    private string offRouteStatusText = "Off-route monitoring inactive";
+    private string offRouteStatusText = "Praćenje skretanja sa rute nije aktivno";
     private string nextManeuverInstruction = "Izračunajte rutu za početak navođenja";
     private string nextManeuverDistanceText = "—";
     private string nextManeuverType = "Nastavite pravo";
+    private string nextManeuverKind = "continue";
+    private string nextManeuverDistanceShort = "—";
+    private string nextManeuverRoad = "Izračunajte rutu za početak navođenja";
+    private string thenManeuverKind = "";
+    private bool hasThenManeuver;
+    private string remainingDistanceText = "—";
+    private string remainingTimeText = "—";
+    private string arrivalTimeText = "—";
+    private double routeTotalDistanceMeters;
+    private double routeTotalDurationSeconds;
     private string nextManeuverSymbol = "↑";
     private GeoPoint? routeStartPoint;
     private GeoPoint? routeDestinationPoint;
@@ -454,6 +464,102 @@ public class NavigationViewModel : ViewModelBase
         private set => SetProperty(ref nextManeuverType, value);
     }
 
+    // ---- TomTom-style guidance banner ----
+
+    /// <summary>Raw maneuver type (left, slight-right, roundabout, arrive…) used to pick the banner icon.</summary>
+    public string NextManeuverKind
+    {
+        get => nextManeuverKind;
+        private set => SetProperty(ref nextManeuverKind, value);
+    }
+
+    /// <summary>Distance to the next maneuver without the "Za" prefix, e.g. "350 m" or "1,2 km".</summary>
+    public string NextManeuverDistanceShort
+    {
+        get => nextManeuverDistanceShort;
+        private set => SetProperty(ref nextManeuverDistanceShort, value);
+    }
+
+    /// <summary>Road the next maneuver leads onto; falls back to the instruction text.</summary>
+    public string NextManeuverRoad
+    {
+        get => nextManeuverRoad;
+        private set => SetProperty(ref nextManeuverRoad, value);
+    }
+
+    /// <summary>The maneuver after the next one, shown small as "zatim".</summary>
+    public string ThenManeuverKind
+    {
+        get => thenManeuverKind;
+        private set => SetProperty(ref thenManeuverKind, value);
+    }
+
+    public bool HasThenManeuver
+    {
+        get => hasThenManeuver;
+        private set => SetProperty(ref hasThenManeuver, value);
+    }
+
+    public string RemainingDistanceText
+    {
+        get => remainingDistanceText;
+        private set => SetProperty(ref remainingDistanceText, value);
+    }
+
+    public string RemainingTimeText
+    {
+        get => remainingTimeText;
+        private set => SetProperty(ref remainingTimeText, value);
+    }
+
+    public string ArrivalTimeText
+    {
+        get => arrivalTimeText;
+        private set => SetProperty(ref arrivalTimeText, value);
+    }
+
+    private void UpdateGuidanceBanner(int nextIndex, double? nextDistanceMeters)
+    {
+        var next = RouteManeuvers[nextIndex];
+        NextManeuverKind = (next.Type ?? "").Trim().ToLowerInvariant();
+        NextManeuverRoad = !string.IsNullOrWhiteSpace(next.RoadName)
+            ? next.RoadName!
+            : !string.IsNullOrWhiteSpace(next.RoadRef) ? next.RoadRef! : next.Instruction;
+        NextManeuverDistanceShort = nextDistanceMeters is null
+            ? "—"
+            : FormatDistance(nextDistanceMeters.Value);
+
+        var hasThen = nextIndex + 1 < RouteManeuvers.Count;
+        HasThenManeuver = hasThen;
+        ThenManeuverKind = hasThen ? (RouteManeuvers[nextIndex + 1].Type ?? "").Trim().ToLowerInvariant() : "";
+
+        // Remaining distance = what is left after the next maneuver + the way to it.
+        if (routeTotalDistanceMeters > 0)
+        {
+            var remaining = Math.Max(0, routeTotalDistanceMeters - next.DistanceFromRouteStartMeters)
+                + (nextDistanceMeters ?? 0);
+            remaining = Math.Min(remaining, routeTotalDistanceMeters);
+            var seconds = routeTotalDurationSeconds * remaining / routeTotalDistanceMeters;
+            RemainingDistanceText = FormatDistance(remaining);
+            RemainingTimeText = FormatDuration(seconds);
+            ArrivalTimeText = DateTime.Now.AddSeconds(seconds).ToString("HH:mm", CultureInfo.InvariantCulture);
+        }
+    }
+
+    private static string FormatDistance(double meters) => meters switch
+    {
+        < 50 => $"{Math.Round(meters / 5) * 5:0} m",
+        < 1000 => $"{Math.Round(meters / 10) * 10:0} m",
+        < 10_000 => $"{meters / 1000:0.0} km",
+        _ => $"{meters / 1000:0} km"
+    };
+
+    private static string FormatDuration(double seconds)
+    {
+        var time = TimeSpan.FromSeconds(Math.Max(0, seconds));
+        return time.TotalHours >= 1 ? $"{(int)time.TotalHours} h {time.Minutes} min" : $"{Math.Max(1, time.Minutes)} min";
+    }
+
     public string NextManeuverSymbol
     {
         get => nextManeuverSymbol;
@@ -777,6 +883,13 @@ public class NavigationViewModel : ViewModelBase
 
         var distanceMeters = selectedRoute?.Distance ?? route?.Summary?.DistanceMeters ?? 0;
         var durationSeconds = selectedRoute?.Duration ?? route?.Summary?.DurationSeconds ?? 0;
+        routeTotalDistanceMeters = distanceMeters;
+        routeTotalDurationSeconds = durationSeconds;
+        RemainingDistanceText = distanceMeters > 0 ? FormatDistance(distanceMeters) : "—";
+        RemainingTimeText = durationSeconds > 0 ? FormatDuration(durationSeconds) : "—";
+        ArrivalTimeText = durationSeconds > 0
+            ? DateTime.Now.AddSeconds(durationSeconds).ToString("HH:mm", CultureInfo.InvariantCulture)
+            : "—";
 
         RouteSummary = selectedRoute is null
             ? "Servis za rute nije vratio izabranu rutu."
@@ -917,6 +1030,10 @@ public class NavigationViewModel : ViewModelBase
             NextManeuverDistanceText = "—";
             NextManeuverType = "Nastavite pravo";
             NextManeuverSymbol = "↑";
+            NextManeuverKind = "continue";
+            NextManeuverDistanceShort = "—";
+            NextManeuverRoad = "Izračunajte rutu za početak navođenja";
+            HasThenManeuver = false;
             NextManeuverIndex = 0;
             NextManeuverProgress = 0;
             UpdateLaneRibbon(NextManeuverSymbol);
@@ -931,6 +1048,7 @@ public class NavigationViewModel : ViewModelBase
             NextManeuverDistanceText = "Čeka se GPS";
             NextManeuverType = ToManeuverLabel(first.Type);
             NextManeuverSymbol = ToManeuverSymbol(first.Type);
+            UpdateGuidanceBanner(RouteManeuvers.Count > 1 ? 1 : 0, null);
             NextManeuverIndex = 1;
             NextManeuverProgress = 0;
             maneuverInitialDistanceMeters = 1;
@@ -984,6 +1102,7 @@ public class NavigationViewModel : ViewModelBase
             : $"Za {nextDistance / 1000:0.0} km";
         NextManeuverType = ToManeuverLabel(nextManeuver.Type);
         NextManeuverSymbol = ToManeuverSymbol(nextManeuver.Type);
+        UpdateGuidanceBanner(nextIndex, nextDistance);
         NextManeuverIndex = nextIndex + 1;
         NextManeuverProgress = Math.Clamp(1d - (nextDistance / Math.Max(maneuverInitialDistanceMeters, 1)), 0d, 1d);
         UpdateLaneRibbon(NextManeuverSymbol);
@@ -997,7 +1116,7 @@ public class NavigationViewModel : ViewModelBase
         {
             OffRouteDistanceMeters = 0;
             IsOffRoute = false;
-            OffRouteStatusText = "Off-route monitoring active";
+            OffRouteStatusText = "Praćenje skretanja sa rute je aktivno";
             return;
         }
 
@@ -1005,8 +1124,8 @@ public class NavigationViewModel : ViewModelBase
         OffRouteDistanceMeters = distanceMeters;
         IsOffRoute = distanceMeters > OffRouteThresholdMeters;
         OffRouteStatusText = IsOffRoute
-            ? $"OFF ROUTE · {distanceMeters:0} m"
-            : $"ON ROUTE · dev {distanceMeters:0} m";
+            ? $"VAN RUTE · {distanceMeters:0} m"
+            : $"NA RUTI · odstupanje {distanceMeters:0} m";
 
         if (!IsOffRoute || !AutoRerouteEnabled || IsBusy || CurrentLocation is null)
         {

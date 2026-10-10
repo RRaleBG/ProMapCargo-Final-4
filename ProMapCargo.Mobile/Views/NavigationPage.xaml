@@ -3,9 +3,14 @@
     x:Class="ProMapCargo.Mobile.Views.MobileNavigationPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:ProMapCargo.Mobile.Converters"
+    xmlns:models="clr-namespace:ProMapCargo.Mobile.Models"
     Title="Navigacija"
     BackgroundColor="{StaticResource SurfaceBase}"
     Shell.NavBarIsVisible="False">
+    <ContentPage.Resources>
+        <converters:ManeuverIconConverter x:Key="ManeuverIcon" />
+    </ContentPage.Resources>
     <Grid BackgroundColor="{StaticResource SurfaceBase}">
         <WebView
             x:Name="NavigationWebView"
@@ -50,37 +55,75 @@
             RowDefinitions="Auto,*,Auto"
             ZIndex="20">
 
-            <!--  Next maneuver card  -->
+            <!--  Guidance banner (TomTom-style): maneuver icon + distance, road below, "then" on the right  -->
             <Border
                 Grid.Row="0"
+                Padding="0"
                 InputTransparent="False"
                 Style="{StaticResource PmMapGlassCard}">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" RowDefinitions="Auto,Auto" RowSpacing="6">
-                    <Label
-                        LineBreakMode="WordWrap"
-                        Style="{StaticResource PmSectionTitleLabel}"
-                        Text="{Binding NextManeuverInstruction}" />
-                    <Label
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Border
+                        BackgroundColor="{StaticResource Brand}"
+                        StrokeShape="RoundRectangle 19,0,19,0"
+                        StrokeThickness="0"
+                        WidthRequest="100">
+                        <Path
+                            Aspect="Uniform"
+                            Data="{Binding NextManeuverKind, Converter={StaticResource ManeuverIcon}}"
+                            Fill="{StaticResource BrandOn}"
+                            HeightRequest="64"
+                            HorizontalOptions="Center"
+                            SemanticProperties.Description="{Binding NextManeuverType}"
+                            VerticalOptions="Center"
+                            WidthRequest="64" />
+                    </Border>
+
+                    <VerticalStackLayout
                         Grid.Column="1"
-                        HorizontalOptions="End"
-                        Style="{StaticResource PmMapBadgeLabel}"
-                        Text="{Binding RouteEngine}"
-                        VerticalOptions="Start" />
-                    <Label
-                        Grid.Row="1"
-                        FontFamily="OpenSansSemibold"
-                        FontSize="20"
-                        Text="{Binding NextManeuverDistanceText}"
-                        TextColor="{StaticResource Brand}" />
-                    <Label
-                        Grid.Row="1"
-                        Grid.Column="1"
-                        HorizontalOptions="End"
-                        LineBreakMode="TailTruncation"
-                        MaximumWidthRequest="160"
-                        Style="{StaticResource PmMutedLabel}"
-                        Text="{Binding CurrentLocationText}"
-                        VerticalOptions="Center" />
+                        Padding="16,12,8,12"
+                        Spacing="2"
+                        VerticalOptions="Center">
+                        <Label
+                            FontFamily="OpenSansSemibold"
+                            FontSize="36"
+                            LineHeight="1"
+                            Text="{Binding NextManeuverDistanceShort}"
+                            TextColor="{StaticResource TextPrimary}" />
+                        <Label
+                            FontFamily="OpenSansSemibold"
+                            FontSize="16"
+                            LineBreakMode="TailTruncation"
+                            MaxLines="1"
+                            Text="{Binding NextManeuverRoad}"
+                            TextColor="{StaticResource TextSecondary}" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout
+                        Grid.Column="2"
+                        Padding="0,12,14,12"
+                        IsVisible="{Binding HasThenManeuver}"
+                        Spacing="4"
+                        VerticalOptions="Center">
+                        <Label
+                            HorizontalTextAlignment="Center"
+                            Style="{StaticResource PmCaptionLabel}"
+                            Text="zatim" />
+                        <Border
+                            BackgroundColor="{StaticResource SurfaceInset}"
+                            HeightRequest="40"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0"
+                            WidthRequest="40">
+                            <Path
+                                Aspect="Uniform"
+                                Data="{Binding ThenManeuverKind, Converter={StaticResource ManeuverIcon}}"
+                                Fill="{StaticResource TextPrimary}"
+                                HeightRequest="24"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                WidthRequest="24" />
+                        </Border>
+                    </VerticalStackLayout>
                 </Grid>
             </Border>
 
@@ -91,47 +134,100 @@
                 InputTransparent="True"
                 Spacing="10"
                 VerticalOptions="End">
-            <Grid InputTransparent="False">
-                <VerticalStackLayout HorizontalOptions="End" Spacing="12">
-                    <ImageButton
-                        x:Name="RecenterButton"
-                        Command="{Binding RerouteCommand}"
-                        SemanticProperties.Description="Centriraj i ponovo izračunaj rutu"
-                        Source="nav_recenter.svg"
-                        Style="{StaticResource PmMapFloatingButton}" />
-                    <ImageButton
-                        x:Name="VoicePromptButton"
-                        Command="{Binding SpeakNextPromptCommand}"
-                        SemanticProperties.Description="Glasovno uputstvo"
-                        Source="nav_voice.svg"
-                        Style="{StaticResource PmMapFloatingButton}" />
-                    <Button
-                        Command="{Binding ToggleRouteInputCommand}"
-                        Style="{StaticResource PmMapMiniButton}"
-                        Text="{Binding RouteInputButtonText}" />
-                </VerticalStackLayout>
-            </Grid>
+                <Grid ColumnDefinitions="Auto,*" InputTransparent="False">
+                    <!--  Current speed bubble (bottom-left, like TomTom)  -->
+                    <Border
+                        BackgroundColor="{StaticResource MapGlass}"
+                        HeightRequest="68"
+                        IsVisible="{Binding HasRoute}"
+                        Stroke="{StaticResource StrokeStrong}"
+                        StrokeShape="Ellipse"
+                        StrokeThickness="2"
+                        VerticalOptions="End"
+                        WidthRequest="68">
+                        <VerticalStackLayout
+                            HorizontalOptions="Center"
+                            Spacing="0"
+                            VerticalOptions="Center">
+                            <Label
+                                FontFamily="OpenSansSemibold"
+                                FontSize="24"
+                                HorizontalTextAlignment="Center"
+                                LineHeight="1"
+                                Text="{Binding CurrentSpeedText}"
+                                TextColor="{StaticResource TextPrimary}" />
+                            <Label
+                                FontSize="10"
+                                HorizontalTextAlignment="Center"
+                                Text="km/h"
+                                TextColor="{StaticResource TextSecondary}" />
+                        </VerticalStackLayout>
+                    </Border>
 
-            <Border
-                InputTransparent="False"
-                IsVisible="{Binding HasRoute}"
-                StrokeShape="RoundRectangle 18"
-                Style="{StaticResource PmMapGlassCard}">
-                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
-                    <VerticalStackLayout>
-                        <Label Style="{StaticResource PmRouteDataCaption}" Text="DOLAZAK" />
-                        <Label Style="{StaticResource PmRouteDataLabel}" Text="{Binding RouteEstimatedArrival}" />
-                    </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="1">
-                        <Label Style="{StaticResource PmRouteDataCaption}" Text="RUTA" />
-                        <Label Style="{StaticResource PmRouteDataLabel}" Text="{Binding RouteSummary}" />
-                    </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="2" HorizontalOptions="End">
-                        <Label HorizontalTextAlignment="End" Style="{StaticResource PmRouteDataCaption}" Text="KM/H" />
-                        <Label HorizontalTextAlignment="End" Style="{StaticResource PmRouteDataLabel}" Text="{Binding CurrentSpeedText}" />
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        HorizontalOptions="End"
+                        Spacing="12">
+                        <ImageButton
+                            x:Name="RecenterButton"
+                            Command="{Binding RerouteCommand}"
+                            SemanticProperties.Description="Centriraj i ponovo izračunaj rutu"
+                            Source="nav_recenter.svg"
+                            Style="{StaticResource PmMapFloatingButton}" />
+                        <ImageButton
+                            x:Name="VoicePromptButton"
+                            Command="{Binding SpeakNextPromptCommand}"
+                            SemanticProperties.Description="Glasovno uputstvo"
+                            Source="nav_voice.svg"
+                            Style="{StaticResource PmMapFloatingButton}" />
+                        <Button
+                            Command="{Binding ToggleRouteInputCommand}"
+                            Style="{StaticResource PmMapMiniButton}"
+                            Text="{Binding RouteInputButtonText}" />
                     </VerticalStackLayout>
                 </Grid>
-            </Border>
+
+                <Border
+                    InputTransparent="False"
+                    IsVisible="{Binding HasRoute}"
+                    StrokeShape="RoundRectangle 18"
+                    Style="{StaticResource PmMapGlassCard}">
+                    <!--  Trip bar: arrival time · time left · distance left  -->
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                        <VerticalStackLayout>
+                            <Label Style="{StaticResource PmRouteDataCaption}" Text="DOLAZAK" />
+                            <Label
+                                FontFamily="OpenSansSemibold"
+                                FontSize="20"
+                                Text="{Binding ArrivalTimeText}"
+                                TextColor="{StaticResource TextPrimary}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
+                            <Label
+                                HorizontalTextAlignment="Center"
+                                Style="{StaticResource PmRouteDataCaption}"
+                                Text="PREOSTALO" />
+                            <Label
+                                FontFamily="OpenSansSemibold"
+                                FontSize="20"
+                                HorizontalTextAlignment="Center"
+                                Text="{Binding RemainingTimeText}"
+                                TextColor="{StaticResource TextPrimary}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2" HorizontalOptions="End">
+                            <Label
+                                HorizontalTextAlignment="End"
+                                Style="{StaticResource PmRouteDataCaption}"
+                                Text="DO CILJA" />
+                            <Label
+                                FontFamily="OpenSansSemibold"
+                                FontSize="20"
+                                HorizontalTextAlignment="End"
+                                Text="{Binding RemainingDistanceText}"
+                                TextColor="{StaticResource TextPrimary}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
             </VerticalStackLayout>
 
             <!--  Route planning bottom sheet  -->
@@ -140,17 +236,20 @@
                 Grid.Row="1"
                 Grid.RowSpan="2"
                 HorizontalOptions="Fill"
-                VerticalOptions="End"
                 InputTransparent="True"
                 IsVisible="False"
                 Opacity="0"
-                TranslationY="28"
-                ZIndex="30"
                 StrokeShape="RoundRectangle 22,22,22,22"
-                Style="{StaticResource PmBottomPanel}">
+                Style="{StaticResource PmBottomPanel}"
+                TranslationY="28"
+                VerticalOptions="End"
+                ZIndex="30">
                 <VerticalStackLayout Spacing="10">
                     <Grid ColumnDefinitions="*,Auto">
-                        <Label Style="{StaticResource PmSectionTitleLabel}" Text="Planiranje rute" VerticalTextAlignment="Center" />
+                        <Label
+                            Style="{StaticResource PmSectionTitleLabel}"
+                            Text="Planiranje rute"
+                            VerticalTextAlignment="Center" />
                         <Button
                             Grid.Column="1"
                             Command="{Binding ToggleRouteInputCommand}"
@@ -189,12 +288,10 @@
                     <ScrollView IsVisible="{Binding HasSuggestions}" MaximumHeightRequest="170">
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding Suggestions}" Spacing="2">
                             <BindableLayout.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="models:GeocodeResult">
                                     <VerticalStackLayout Padding="6,8" Spacing="1">
                                         <VerticalStackLayout.GestureRecognizers>
-                                            <TapGestureRecognizer
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectSuggestionCommand}"
-                                                CommandParameter="{Binding .}" />
+                                            <TapGestureRecognizer CommandParameter="{Binding .}" Tapped="OnSuggestionTapped" />
                                         </VerticalStackLayout.GestureRecognizers>
                                         <Label Style="{StaticResource PmRouteDataLabel}" Text="{Binding Title}" />
                                         <Label

@@ -33,6 +33,20 @@ public partial class DashboardPage : ContentPage
         await Shell.Current.GoToAsync("//dashboard/mobile-navigation");
     }
 
+    private void OnQuickLinkClicked(object? sender, EventArgs e)
+    {
+        if (sender is not Button button)
+        {
+            return;
+        }
+
+        var link = button.CommandParameter;
+        if (viewModel.OpenLinkCommand.CanExecute(link))
+        {
+            viewModel.OpenLinkCommand.Execute(link);
+        }
+    }
+
     private void OnToggleDiagnosticsClicked(object? sender, EventArgs e)
     {
         DiagnosticsPanel.IsVisible = !DiagnosticsPanel.IsVisible;

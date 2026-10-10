@@ -1,3 +1,4 @@
+using ProMapCargo.Mobile.Models;
 using ProMapCargo.Mobile.ViewModels;
 
 namespace ProMapCargo.Mobile.Views;
@@ -38,5 +39,31 @@ public partial class MapInstallPage : ContentPage
 
             await shell.GoToAsync("//dashboard");
         });
+    }
+
+    private void OnInstallClicked(object? sender, EventArgs e)
+    {
+        if (sender is not Button { CommandParameter: MapPackageCatalogItem package })
+        {
+            return;
+        }
+
+        if (viewModel.InstallCommand.CanExecute(package))
+        {
+            viewModel.InstallCommand.Execute(package);
+        }
+    }
+
+    private void OnInstallBundleClicked(object? sender, EventArgs e)
+    {
+        if (sender is not Button { CommandParameter: OfflineRoutingBundleCatalogItem bundle })
+        {
+            return;
+        }
+
+        if (viewModel.InstallBundleCommand.CanExecute(bundle))
+        {
+            viewModel.InstallBundleCommand.Execute(bundle);
+        }
     }
 }

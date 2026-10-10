@@ -414,7 +414,10 @@
         <Setter Property="LineBreakMode" Value="TailTruncation" />
     </Style>
 
-    <Style x:Key="PmHeroCaptionLabel" TargetType="Label" BasedOn="{StaticResource PmCaptionLabel}">
+    <Style
+        x:Key="PmHeroCaptionLabel"
+        BasedOn="{StaticResource PmCaptionLabel}"
+        TargetType="Label">
         <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
     </Style>
 
@@ -553,19 +556,31 @@
         <Setter Property="LineBreakMode" Value="TailTruncation" />
     </Style>
 
-    <Style x:Key="PmChipInfo" TargetType="Border" BasedOn="{StaticResource PmChip}">
+    <Style
+        x:Key="PmChipInfo"
+        BasedOn="{StaticResource PmChip}"
+        TargetType="Border">
         <Setter Property="BackgroundColor" Value="{StaticResource StatusInfoBg}" />
     </Style>
 
-    <Style x:Key="PmChipInfoLabel" TargetType="Label" BasedOn="{StaticResource PmChipLabel}">
+    <Style
+        x:Key="PmChipInfoLabel"
+        BasedOn="{StaticResource PmChipLabel}"
+        TargetType="Label">
         <Setter Property="TextColor" Value="{StaticResource StatusInfoStrong}" />
     </Style>
 
-    <Style x:Key="PmChipWarning" TargetType="Border" BasedOn="{StaticResource PmChip}">
+    <Style
+        x:Key="PmChipWarning"
+        BasedOn="{StaticResource PmChip}"
+        TargetType="Border">
         <Setter Property="BackgroundColor" Value="{StaticResource StatusWarningBg}" />
     </Style>
 
-    <Style x:Key="PmChipWarningLabel" TargetType="Label" BasedOn="{StaticResource PmChipLabel}">
+    <Style
+        x:Key="PmChipWarningLabel"
+        BasedOn="{StaticResource PmChipLabel}"
+        TargetType="Label">
         <Setter Property="TextColor" Value="{StaticResource StatusWarning}" />
     </Style>
 
@@ -620,8 +635,14 @@
         <Setter Property="StrokeThickness" Value="1" />
     </Style>
 
-    <Style x:Key="PmStatusChip" TargetType="Border" BasedOn="{StaticResource PmChip}" />
-    <Style x:Key="PmStatusChipLabel" TargetType="Label" BasedOn="{StaticResource PmChipLabel}" />
+    <Style
+        x:Key="PmStatusChip"
+        BasedOn="{StaticResource PmChip}"
+        TargetType="Border" />
+    <Style
+        x:Key="PmStatusChipLabel"
+        BasedOn="{StaticResource PmChipLabel}"
+        TargetType="Label" />
 
     <Style x:Key="PmRouteDataLabel" TargetType="Label">
         <Setter Property="FontSize" Value="14" />
@@ -629,7 +650,10 @@
         <Setter Property="LineBreakMode" Value="TailTruncation" />
     </Style>
 
-    <Style x:Key="PmRouteDataCaption" TargetType="Label" BasedOn="{StaticResource PmCaptionLabel}" />
+    <Style
+        x:Key="PmRouteDataCaption"
+        BasedOn="{StaticResource PmCaptionLabel}"
+        TargetType="Label" />
 
     <Style x:Key="PmLaneChip" TargetType="Border">
         <Setter Property="Padding" Value="6,4" />

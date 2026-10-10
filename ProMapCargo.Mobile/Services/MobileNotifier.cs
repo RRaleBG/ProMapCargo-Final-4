@@ -47,18 +47,26 @@ public sealed class MobileNotifier : IMobileNotifier
 
             try
             {
-                await Task.WhenAll(
-                    toast.FadeTo(1, EnterDurationMs, Easing.CubicOut),
-                    toast.TranslateTo(0, 0, EnterDurationMs, Easing.CubicOut));
+                await AnimateToastAsync(
+                    toast,
+                    targetOpacity: 1,
+                    targetTranslationX: 0,
+                    EnterDurationMs,
+                    Easing.CubicOut,
+                    cancellationToken);
 
                 if (VisibleDuration > TimeSpan.Zero)
                 {
                     await Task.Delay(VisibleDuration, cancellationToken);
                 }
 
-                await Task.WhenAll(
-                    toast.FadeTo(0, ExitDurationMs, Easing.CubicIn),
-                    toast.TranslateTo(-24, 0, ExitDurationMs, Easing.CubicIn));
+                await AnimateToastAsync(
+                    toast,
+                    targetOpacity: 0,
+                    targetTranslationX: -24,
+                    ExitDurationMs,
+                    Easing.CubicIn,
+                    cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -69,6 +77,57 @@ public sealed class MobileNotifier : IMobileNotifier
                 host.Children.Remove(toast);
             }
         });
+    }
+
+    private static Task AnimateToastAsync(
+        VisualElement element,
+        double targetOpacity,
+        double targetTranslationX,
+        uint duration,
+        Easing easing,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var completionSource = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var animation = new Animation();
+
+        animation.Add(
+            0,
+            1,
+            new Animation(
+                callback: value => element.Opacity = value,
+                start: element.Opacity,
+                end: targetOpacity,
+                easing: easing));
+
+        animation.Add(
+            0,
+            1,
+            new Animation(
+                callback: value => element.TranslationX = value,
+                start: element.TranslationX,
+                end: targetTranslationX,
+                easing: easing));
+
+        animation.Commit(
+            owner: element,
+            name: nameof(MobileNotifier),
+            rate: 16,
+            length: duration,
+            easing: easing,
+            finished: (_, wasCanceled) =>
+            {
+                if (wasCanceled)
+                {
+                    completionSource.TrySetCanceled(cancellationToken);
+                    return;
+                }
+
+                completionSource.TrySetResult(null);
+            });
+
+        return completionSource.Task;
     }
 
     private static Grid BuildToast(string message, Color accentColor)

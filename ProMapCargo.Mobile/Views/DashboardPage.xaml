@@ -204,7 +204,7 @@
                                         </VerticalStackLayout>
                                         <Button
                                             Grid.Column="1"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenLinkCommand}"
+                                            Clicked="OnQuickLinkClicked"
                                             CommandParameter="{Binding .}"
                                             Style="{StaticResource PmTonalButton}"
                                             Text="Otvori"

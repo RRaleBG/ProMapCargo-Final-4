@@ -277,7 +277,28 @@ window.ProMap = window.ProMap || {};
 
             if (response) {
                 renderRouteResponse(response);
-                selectRoute(0, true);
+                // In the app the camera follows the driver instead of showing the whole route.
+                selectRoute(0, !(state.mobileMode && current && state.liveFollow));
+            }
+        }
+
+        if (state.mobileMode) {
+            const maneuvers = Array.isArray(payload.maneuvers) ? payload.maneuvers : [];
+            const nextIndex = Number(payload.nextManeuverIndex);
+            updateMobileManeuverMarker(
+                Number.isInteger(nextIndex) ? maneuvers[nextIndex] : maneuvers[1] ?? maneuvers[0],
+            );
+
+            if (current && state.liveFollow) {
+                followMobilePosition(
+                    {
+                        latitude: current.latitude,
+                        longitude: current.longitude,
+                        heading: Number(payload.heading),
+                    },
+                    !state.mobileCameraStarted,
+                );
+                state.mobileCameraStarted = true;
             }
         }
 
@@ -3641,6 +3662,11 @@ window.ProMap = window.ProMap || {};
             return;
         }
 
+        if (state.mobileMode) {
+            followMobilePosition(position, force);
+            return;
+        }
+
         const latitude = Number(
             position.latitude ??
             position.coords?.latitude,
@@ -3708,6 +3734,83 @@ window.ProMap = window.ProMap || {};
             duration: force ? 0 : 900,
             essential: true,
         });
+    }
+
+    // Driving camera for the MAUI app (TomTom-style): close zoom, tilted,
+    // map rotated to the direction of travel, vehicle in the lower third.
+    const MOBILE_FOLLOW_ZOOM = 17;
+    const MOBILE_FOLLOW_PITCH = 55;
+
+    function followMobilePosition(position, force = false) {
+        const latitude = Number(position.latitude ?? position.coords?.latitude);
+        const longitude = Number(position.longitude ?? position.coords?.longitude);
+
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+            return;
+        }
+
+        const heading = effectiveHeading(position);
+        const height = state.map.getContainer()?.clientHeight || 700;
+
+        state.map.easeTo({
+            center: [longitude, latitude],
+            zoom: Math.max(MOBILE_FOLLOW_ZOOM, force ? 0 : state.map.getZoom() || 0),
+            pitch: MOBILE_FOLLOW_PITCH,
+            bearing: heading ?? state.map.getBearing(),
+            padding: { top: Math.round(height * 0.45), bottom: 0, left: 0, right: 0 },
+            duration: force ? 600 : 900,
+            essential: true,
+        });
+    }
+
+    const MANEUVER_ARROW_ROTATION = {
+        "left": -90, "turn-left": -90,
+        "right": 90, "turn-right": 90,
+        "slight-left": -45, "slight-right": 45,
+        "sharp-left": -135, "sharp-right": 135,
+        "u-turn": 180, "uturn": 180,
+    };
+
+    // Marker at the next turn so the driver sees where the maneuver happens.
+    function updateMobileManeuverMarker(maneuver) {
+        const maplibregl = window.maplibregl;
+
+        if (!maplibregl || !state.map) {
+            return;
+        }
+
+        const latitude = Number(maneuver?.latitude);
+        const longitude = Number(maneuver?.longitude);
+
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || (latitude === 0 && longitude === 0)) {
+            state.mobileManeuverMarker?.remove();
+            state.mobileManeuverMarker = null;
+            return;
+        }
+
+        const type = String(maneuver?.type || "").toLowerCase();
+        const rotation = MANEUVER_ARROW_ROTATION[type] ?? 0;
+        const arrive = type === "arrive" || type === "destination";
+
+        if (!state.mobileManeuverMarker) {
+            const element = document.createElement("div");
+            element.className = "pm-mobile-maneuver-marker";
+            element.innerHTML =
+                '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 11h4.5v10h5V11H19z"/></svg>';
+            state.mobileManeuverMarker = new maplibregl.Marker({
+                element,
+                anchor: "center",
+                rotationAlignment: "map",
+                pitchAlignment: "map",
+            })
+                .setLngLat([longitude, latitude])
+                .addTo(state.map);
+        }
+
+        const element = state.mobileManeuverMarker.getElement();
+        element.classList.toggle("is-arrive", arrive);
+        element.querySelector("svg").style.transform = `rotate(${arrive ? 0 : rotation}deg)`;
+        state.mobileManeuverMarker.setLngLat([longitude, latitude]);
     }
 
     function createGpsMarker(

@@ -93,6 +93,19 @@ public partial class MobileNavigationPage : ContentPage
         await notifier.ShowErrorAsync("Mapa za navigaciju nije učitana. Proverite da li server radi.");
     }
 
+    private void OnSuggestionTapped(object? sender, TappedEventArgs e)
+    {
+        if (sender is not TapGestureRecognizer { CommandParameter: GeocodeResult suggestion })
+        {
+            return;
+        }
+
+        if (viewModel.SelectSuggestionCommand.CanExecute(suggestion))
+        {
+            viewModel.SelectSuggestionCommand.Execute(suggestion);
+        }
+    }
+
     private void OnRouteVisualizationChanged(object? sender, EventArgs e)
     {
         _ = PushStateToWebAsync(force: true);
@@ -165,7 +178,9 @@ public partial class MobileNavigationPage : ContentPage
                     longitude = maneuver.Longitude
                 })
                 .ToArray(),
-            restrictionCount = viewModel.RouteViolations.Count
+            restrictionCount = viewModel.RouteViolations.Count,
+            // NextManeuverIndex is 1-based; the web map marks the upcoming turn.
+            nextManeuverIndex = Math.Max(0, viewModel.NextManeuverIndex - 1)
         };
 
         var json = JsonSerializer.Serialize(payload);
@@ -217,15 +232,15 @@ public partial class MobileNavigationPage : ContentPage
                 RoutePopupPanel.Opacity = 0;
 
                 await Task.WhenAll(
-                    RoutePopupPanel.TranslateTo(0, 0, PanelEnterDurationMs, Easing.CubicOut),
-                    RoutePopupPanel.FadeTo(1, PanelEnterDurationMs, Easing.CubicOut));
+                    RoutePopupPanel.TranslateToAsync(0, 0, PanelEnterDurationMs, Easing.CubicOut),
+                    RoutePopupPanel.FadeToAsync(1, PanelEnterDurationMs, Easing.CubicOut));
 
                 return;
             }
 
             await Task.WhenAll(
-                RoutePopupPanel.TranslateTo(0, 28, PanelExitDurationMs, Easing.CubicIn),
-                RoutePopupPanel.FadeTo(0, PanelExitDurationMs, Easing.CubicIn));
+                RoutePopupPanel.TranslateToAsync(0, 28, PanelExitDurationMs, Easing.CubicIn),
+                RoutePopupPanel.FadeToAsync(0, PanelExitDurationMs, Easing.CubicIn));
 
             RoutePopupPanel.InputTransparent = true;
             RoutePopupPanel.IsVisible = false;
