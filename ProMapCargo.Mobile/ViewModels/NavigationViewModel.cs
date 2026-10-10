@@ -1199,6 +1199,7 @@ public class NavigationViewModel : ViewModelBase
         return nearestDistance <= 60 ? routeCumulativeMeters[nearest] : null;
     }
 
+    private double smoothedSpeedKph;
     private GeoPoint? speedSamplePoint;
     private DateTimeOffset speedSampleAt;
 
@@ -1228,7 +1229,7 @@ public class NavigationViewModel : ViewModelBase
         var seconds = (now - previousAt).TotalSeconds;
         if (seconds < 0.5)
         {
-            return 0;
+            return -1; // too close to measure: keep the current speed
         }
 
         var meters = Location.CalculateDistance(previous.Lat, previous.Lon, latitude, longitude, DistanceUnits.Kilometers) * 1000;
@@ -1241,7 +1242,14 @@ public class NavigationViewModel : ViewModelBase
 
     private void UpdateCurrentLocation(double latitude, double longitude, double? speedMps = null)
     {
-        CurrentSpeedText = ResolveSpeedKph(latitude, longitude, speedMps).ToString("0", CultureInfo.InvariantCulture);
+        // Exponential smoothing: fixes arriving close together (or late) made the
+        // derived speed jump, e.g. 54 -> 122 km/h.
+        var rawKph = ResolveSpeedKph(latitude, longitude, speedMps);
+        smoothedSpeedKph = rawKph < 0
+            ? smoothedSpeedKph
+            : rawKph == 0 ? smoothedSpeedKph * 0.5 : smoothedSpeedKph * 0.7 + rawKph * 0.3;
+        if (smoothedSpeedKph < 1) smoothedSpeedKph = 0;
+        CurrentSpeedText = smoothedSpeedKph.ToString("0", CultureInfo.InvariantCulture);
         var latest = new GeoPoint(latitude, longitude);
         CurrentLocation = latest;
         CurrentLocationText = $"GPS: {latitude:0.00000}, {longitude:0.00000}";

@@ -3909,6 +3909,16 @@ window.ProMap = window.ProMap || {};
             }
         };
 
+        // The camera moves every frame while following, which cancels MapLibre gesture
+
+        // detection before dragstart fires; any touch on the map pauses following instead.
+
+        const container = state.map.getCanvasContainer();
+
+        container.addEventListener("touchstart", () => { state.liveFollow = false; }, { passive: true });
+
+        container.addEventListener("mousedown", () => { state.liveFollow = false; });
+
         state.map.on("dragstart", pause);
         state.map.on("zoomstart", pause);
         state.map.on("rotatestart", pause);
