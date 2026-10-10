@@ -4002,8 +4002,11 @@ window.ProMap = window.ProMap || {};
         element.classList.toggle("is-arrive", arrive);
         // The marker lies on the map (north-relative), so the arrow is the arrival
         // direction of the route plus the turn angle.
+        // Exactly where the road goes after the turn; the type-based angle is the fallback.
+        const leaving = routeBearingAt(latitude, longitude);
         const arrival = routeBearingArrivingAt(latitude, longitude) ?? state.lastHeading ?? 0;
-        element.querySelector("svg").style.transform = `rotate(${arrive ? 0 : arrival + rotation}deg)`;
+        const arrowBearing = leaving ?? arrival + rotation;
+        element.querySelector("svg").style.transform = `rotate(${arrive ? 0 : arrowBearing}deg)`;
         state.mobileManeuverMarker.setLngLat([longitude, latitude]);
     }
 
