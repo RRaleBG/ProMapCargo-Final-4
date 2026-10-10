@@ -18,6 +18,8 @@ public partial class DashboardPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        viewModel.ReloadRecents();
+
         if (!viewModel.IsBusy)
         {
             await viewModel.LoadAsync();
@@ -25,34 +27,46 @@ public partial class DashboardPage : ContentPage
     }
 
     private async void OnOpenSettingsClicked(object? sender, EventArgs e)
-    {
-        await AppNavigation.GoToAsync("//settings");
-    }
+        => await AppNavigation.GoToAsync(AppNavigation.Settings);
 
     private async void OnOpenNavigationClicked(object? sender, EventArgs e)
+        => await AppNavigation.GoToAsync(AppNavigation.Navigation);
+
+    // "Kuda idemo?": open navigation with the route planner already showing.
+    private async void OnSearchTapped(object? sender, TappedEventArgs e)
     {
-        await AppNavigation.GoToAsync("//dashboard/mobile-navigation");
+        NavigationRequests.OpenPlanner();
+        await AppNavigation.GoToAsync(AppNavigation.Navigation);
     }
 
-    private void OnQuickLinkClicked(object? sender, EventArgs e)
+    // A recent destination: route there from the current position right away.
+    private async void OnRecentTapped(object? sender, TappedEventArgs e)
     {
-        if (sender is not Button button)
+        if (e.Parameter is not RecentDestination destination)
         {
             return;
         }
 
-        var link = button.CommandParameter;
-        if (viewModel.OpenLinkCommand.CanExecute(link))
+        NavigationRequests.RouteTo(destination);
+        await AppNavigation.GoToAsync(AppNavigation.Navigation);
+    }
+
+    private async void OnTileNavigationTapped(object? sender, TappedEventArgs e)
+        => await AppNavigation.GoToAsync(AppNavigation.Navigation);
+
+    private async void OnTileMapsTapped(object? sender, TappedEventArgs e)
+        => await AppNavigation.GoToAsync(AppNavigation.InstallMaps);
+
+    private async void OnTileSettingsTapped(object? sender, TappedEventArgs e)
+        => await AppNavigation.GoToAsync(AppNavigation.Settings);
+
+    // Dispatch has no mobile screen yet; the view model tells the driver it is on the web portal.
+    private void OnTileDispatchTapped(object? sender, TappedEventArgs e)
+    {
+        var link = viewModel.QuickLinks.FirstOrDefault(item => item.Title == "Dispečing");
+        if (link is not null && viewModel.OpenLinkCommand.CanExecute(link))
         {
             viewModel.OpenLinkCommand.Execute(link);
         }
-    }
-
-    private void OnToggleDiagnosticsClicked(object? sender, EventArgs e)
-    {
-        DiagnosticsPanel.IsVisible = !DiagnosticsPanel.IsVisible;
-        DiagnosticsToggle.Text = DiagnosticsPanel.IsVisible
-            ? "Sakrij dijagnostiku rute"
-            : "Prikaži dijagnostiku rute";
     }
 }

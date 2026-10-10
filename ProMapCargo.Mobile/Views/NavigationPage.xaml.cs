@@ -68,6 +68,12 @@ public partial class MobileNavigationPage : ContentPage
 
         await viewModel.LoadInitialRouteAsync();
         await PushStateToWebAsync(force: true);
+
+        // "Kuda idemo?" or a recent destination tapped on the home screen.
+        if (NavigationRequests.Take() is { } request)
+        {
+            await viewModel.ApplyRequestAsync(request);
+        }
     }
 
     private const string ThenFillAnimationName = "ThenFill";

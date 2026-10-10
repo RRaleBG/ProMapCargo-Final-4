@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Home screen modelled on TomTom GO Truck: search first ("Kuda idemo?"), recent
+    destinations one tap away, the active route, the truck profile used for
+    routing, and an icon menu. Fleet numbers are reduced to one line.
+-->
 <ContentPage
     x:Class="ProMapCargo.Mobile.Views.DashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -10,39 +15,33 @@
     <ContentPage.Resources>
         <converters:ManeuverIconConverter x:Key="ManeuverIcon" />
 
-        <!--  Compact section caption with a small count on the right  -->
-        <Style x:Key="DashSectionCaption" BasedOn="{StaticResource PmCaptionLabel}" TargetType="Label">
+        <Style x:Key="HomeCaption" BasedOn="{StaticResource PmCaptionLabel}" TargetType="Label">
             <Setter Property="Margin" Value="4,0,0,0" />
         </Style>
 
-        <!--  Dense list row inside a card  -->
-        <Style x:Key="DashRowTitle" BasedOn="{StaticResource PmBodyLabel}" TargetType="Label">
-            <Setter Property="FontFamily" Value="OpenSansSemibold" />
-            <Setter Property="LineBreakMode" Value="TailTruncation" />
-            <Setter Property="MaxLines" Value="1" />
-        </Style>
-        <Style x:Key="DashRowSub" BasedOn="{StaticResource PmMutedLabel}" TargetType="Label">
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="LineBreakMode" Value="TailTruncation" />
-            <Setter Property="MaxLines" Value="1" />
-        </Style>
-        <Style x:Key="DashEmpty" BasedOn="{StaticResource PmMutedLabel}" TargetType="Label">
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="Padding" Value="0,6" />
-        </Style>
-
-        <!--  Quick-action tile  -->
-        <Style x:Key="DashTile" TargetType="Button">
+        <!--  Menu tile: icon over label, tappable Border  -->
+        <Style x:Key="HomeTile" TargetType="Border">
             <Setter Property="BackgroundColor" Value="{StaticResource SurfaceOverlay}" />
-            <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+            <Setter Property="Stroke" Value="{StaticResource StrokeSubtle}" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+            <Setter Property="Padding" Value="14,12" />
+            <Setter Property="HeightRequest" Value="78" />
+        </Style>
+        <Style x:Key="HomeTileIcon" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="{StaticResource SurfaceInset}" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+            <Setter Property="HeightRequest" Value="32" />
+            <Setter Property="WidthRequest" Value="32" />
+            <Setter Property="HorizontalOptions" Value="Start" />
+        </Style>
+        <Style x:Key="HomeTileLabel" TargetType="Label">
             <Setter Property="FontFamily" Value="OpenSansSemibold" />
             <Setter Property="FontSize" Value="13" />
-            <Setter Property="CornerRadius" Value="14" />
-            <Setter Property="BorderColor" Value="{StaticResource StrokeSubtle}" />
-            <Setter Property="BorderWidth" Value="1" />
-            <Setter Property="HeightRequest" Value="44" />
-            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
             <Setter Property="LineBreakMode" Value="TailTruncation" />
+            <Setter Property="VerticalOptions" Value="End" />
         </Style>
     </ContentPage.Resources>
 
@@ -54,9 +53,9 @@
             <VerticalStackLayout
                 Padding="16,14,16,24"
                 MaximumWidthRequest="720"
-                Spacing="14">
+                Spacing="16">
 
-                <!--  Header: greeting + sync status, settings on the right  -->
+                <!--  Header  -->
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                     <VerticalStackLayout Spacing="0" VerticalOptions="Center">
                         <Label
@@ -87,7 +86,99 @@
                         WidthRequest="44" />
                 </Grid>
 
-                <!--  Active route: summary, chips and the main action in one compact card  -->
+                <!--  Search first, like TomTom: "Kuda idemo?"  -->
+                <Border
+                    Padding="18,0"
+                    BackgroundColor="{StaticResource SurfaceOverlay}"
+                    HeightRequest="56"
+                    SemanticProperties.Description="Kuda idemo? Planiraj rutu"
+                    Stroke="{StaticResource StrokeStrong}"
+                    StrokeShape="RoundRectangle 28"
+                    StrokeThickness="1">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSearchTapped" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Path
+                            Aspect="Uniform"
+                            Data="F0 M10.5 3 A7.5 7.5 0 1 1 10.5 18 A7.5 7.5 0 1 1 10.5 3 Z M10.5 5 A5.5 5.5 0 1 0 10.5 16 A5.5 5.5 0 1 0 10.5 5 Z M15.6 14.2 L21 19.6 L19.6 21 L14.2 15.6 Z"
+                            Fill="{StaticResource Brand}"
+                            HeightRequest="22"
+                            VerticalOptions="Center"
+                            WidthRequest="22" />
+                        <Label
+                            Grid.Column="1"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="17"
+                            Text="Kuda idemo?"
+                            TextColor="{StaticResource TextSecondary}"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Column="2"
+                            FontSize="20"
+                            Text="›"
+                            TextColor="{StaticResource TextTertiary}"
+                            VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!--  Recent destinations: one tap routes there from the current position  -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Style="{StaticResource HomeCaption}" Text="Nedavno" />
+                    <Border Padding="14,2" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Recents}">
+                            <BindableLayout.EmptyView>
+                                <Label
+                                    Padding="0,12"
+                                    FontSize="12"
+                                    Text="Odredišta do kojih napravite rutu pojaviće se ovde."
+                                    TextColor="{StaticResource TextSecondary}" />
+                            </BindableLayout.EmptyView>
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid
+                                        Padding="0,10"
+                                        ColumnDefinitions="32,*,Auto"
+                                        ColumnSpacing="12">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer CommandParameter="{Binding .}" Tapped="OnRecentTapped" />
+                                        </Grid.GestureRecognizers>
+                                        <Border Style="{StaticResource HomeTileIcon}" VerticalOptions="Center">
+                                            <Path
+                                                Aspect="Uniform"
+                                                Data="{Binding Source='arrive', Converter={StaticResource ManeuverIcon}}"
+                                                Fill="{StaticResource Brand}"
+                                                HeightRequest="18"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center"
+                                                WidthRequest="18" />
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
+                                            <Label
+                                                FontFamily="OpenSansSemibold"
+                                                FontSize="15"
+                                                LineBreakMode="TailTruncation"
+                                                Text="{Binding Title}"
+                                                TextColor="{StaticResource TextPrimary}" />
+                                            <Label
+                                                FontSize="12"
+                                                Text="{Binding UsedAt, StringFormat='Ruta odavde · {0:dd.MM. HH:mm}'}"
+                                                TextColor="{StaticResource TextSecondary}" />
+                                        </VerticalStackLayout>
+                                        <Label
+                                            Grid.Column="2"
+                                            FontSize="20"
+                                            Text="›"
+                                            TextColor="{StaticResource TextTertiary}"
+                                            VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Active route  -->
                 <Border Padding="16,14" Style="{StaticResource PmHeroBorder}">
                     <VerticalStackLayout Spacing="10">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
@@ -103,252 +194,117 @@
                             MaxLines="2"
                             Text="{Binding RouteSummary}"
                             TextColor="{StaticResource TextPrimary}" />
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                            <Label
-                                FontSize="12"
-                                LineBreakMode="TailTruncation"
-                                Text="{Binding RouteEngine}"
-                                TextColor="{StaticResource StatusInfoStrong}"
-                                VerticalOptions="Center" />
-                            <Button
-                                Grid.Column="1"
-                                Padding="18,0"
-                                Clicked="OnOpenNavigationClicked"
-                                CornerRadius="12"
-                                HeightRequest="44"
-                                Style="{StaticResource PmPrimaryButton}"
-                                Text="Navigacija →" />
-                        </Grid>
+                        <Button
+                            Clicked="OnOpenNavigationClicked"
+                            CornerRadius="14"
+                            HeightRequest="48"
+                            Style="{StaticResource PmPrimaryButton}"
+                            Text="Nastavi navigaciju" />
                     </VerticalStackLayout>
                 </Border>
 
-                <!--  KPI strip: three counts in one card  -->
-                <Border Padding="0,10" Style="{StaticResource PmCardBorder}">
-                    <Grid ColumnDefinitions="*,1,*,1,*">
-                        <VerticalStackLayout HorizontalOptions="Center" Spacing="0">
+                <!--  Truck profile used for routing  -->
+                <Border Padding="14,12" Style="{StaticResource PmCardBorder}">
+                    <Grid ColumnDefinitions="40,*,Auto" ColumnSpacing="12">
+                        <Border
+                            BackgroundColor="{StaticResource SurfaceInset}"
+                            HeightRequest="40"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0"
+                            WidthRequest="40">
+                            <Path
+                                Aspect="Uniform"
+                                Data="M7 2 L17 2 A3 3 0 0 1 20 5 L20 9 L4 9 L4 5 A3 3 0 0 1 7 2 Z M4 10 L20 10 L20 22 L4 22 Z"
+                                Fill="{StaticResource Brand}"
+                                HeightRequest="22"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                WidthRequest="22" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
                             <Label
                                 FontFamily="OpenSansSemibold"
-                                FontSize="20"
-                                HorizontalTextAlignment="Center"
-                                Text="{Binding Vehicles.Count}"
+                                FontSize="15"
+                                Text="Profil kamiona"
                                 TextColor="{StaticResource TextPrimary}" />
-                            <Label HorizontalTextAlignment="Center" Style="{StaticResource PmCaptionLabel}" Text="Vozila" />
-                        </VerticalStackLayout>
-                        <BoxView Grid.Column="1" Style="{StaticResource PmDivider}" HeightRequest="-1" WidthRequest="1" />
-                        <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="0">
                             <Label
-                                FontFamily="OpenSansSemibold"
-                                FontSize="20"
-                                HorizontalTextAlignment="Center"
-                                Text="{Binding Orders.Count}"
-                                TextColor="{StaticResource TextPrimary}" />
-                            <Label HorizontalTextAlignment="Center" Style="{StaticResource PmCaptionLabel}" Text="Nalozi" />
+                                FontSize="12"
+                                Text="{Binding TruckProfileText}"
+                                TextColor="{StaticResource TextSecondary}" />
                         </VerticalStackLayout>
-                        <BoxView Grid.Column="3" Style="{StaticResource PmDivider}" HeightRequest="-1" WidthRequest="1" />
-                        <VerticalStackLayout Grid.Column="4" HorizontalOptions="Center" Spacing="0">
-                            <Label
-                                FontFamily="OpenSansSemibold"
-                                FontSize="20"
-                                HorizontalTextAlignment="Center"
-                                Text="{Binding Trips.Count}"
-                                TextColor="{StaticResource TextPrimary}" />
-                            <Label HorizontalTextAlignment="Center" Style="{StaticResource PmCaptionLabel}" Text="Ture" />
-                        </VerticalStackLayout>
+                        <Border
+                            Grid.Column="2"
+                            Padding="8,3"
+                            Style="{StaticResource PmChipInfo}"
+                            VerticalOptions="Center">
+                            <Label Style="{StaticResource PmChipInfoLabel}" Text="Podrazumevani" />
+                        </Border>
                     </Grid>
                 </Border>
 
-                <!--  Next maneuvers: icon + instruction + distance per line  -->
-                <VerticalStackLayout Spacing="6">
-                    <Label Style="{StaticResource DashSectionCaption}" Text="Sledeći manevri" />
-                    <Border Padding="14,4" Style="{StaticResource PmCardBorder}">
-                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding RouteManeuvers}">
-                            <BindableLayout.EmptyView>
-                                <Label Style="{StaticResource DashEmpty}" Text="Izračunajte rutu da biste videli manevre." />
-                            </BindableLayout.EmptyView>
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid
-                                        Padding="0,8"
-                                        ColumnDefinitions="32,*,Auto"
-                                        ColumnSpacing="10">
-                                        <Border
-                                            BackgroundColor="{StaticResource SurfaceInset}"
-                                            HeightRequest="32"
-                                            StrokeShape="RoundRectangle 10"
-                                            StrokeThickness="0"
-                                            WidthRequest="32">
-                                            <Path
-                                                Aspect="Uniform"
-                                                Data="{Binding Type, Converter={StaticResource ManeuverIcon}}"
-                                                Fill="{StaticResource Brand}"
-                                                HeightRequest="18"
-                                                HorizontalOptions="Center"
-                                                VerticalOptions="Center"
-                                                WidthRequest="18" />
-                                        </Border>
-                                        <Label
-                                            Grid.Column="1"
-                                            Style="{StaticResource DashRowTitle}"
-                                            Text="{Binding Instruction}"
-                                            VerticalOptions="Center" />
-                                        <Label
-                                            Grid.Column="2"
-                                            FontSize="12"
-                                            Text="{Binding DistanceFromPreviousMeters, StringFormat='{0:0} m'}"
-                                            TextColor="{StaticResource TextAccent}"
-                                            VerticalOptions="Center" />
-                                    </Grid>
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
+                <!--  Icon menu  -->
+                <Grid
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="10"
+                    RowDefinitions="Auto,Auto"
+                    RowSpacing="10">
+                    <Border Style="{StaticResource HomeTile}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnTileNavigationTapped" />
+                        </Border.GestureRecognizers>
+                        <Grid RowDefinitions="*,Auto">
+                            <Border Style="{StaticResource HomeTileIcon}">
+                                <Image HeightRequest="18" Source="ic_tab_navigation.svg" WidthRequest="18" />
+                            </Border>
+                            <Label Grid.Row="1" Style="{StaticResource HomeTileLabel}" Text="Navigacija" />
+                        </Grid>
                     </Border>
-                </VerticalStackLayout>
-
-                <!--  Fleet: vehicles, orders and trips in one card  -->
-                <VerticalStackLayout Spacing="6">
-                    <Label Style="{StaticResource DashSectionCaption}" Text="Flota" />
-                    <Border Padding="14,8" Style="{StaticResource PmCardBorder}">
-                        <VerticalStackLayout Spacing="6">
-
-                            <Label FontSize="11" Text="VOZILA" TextColor="{StaticResource TextTertiary}" />
-                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Vehicles}">
-                                <BindableLayout.EmptyView>
-                                    <Label Style="{StaticResource DashEmpty}" Text="Nema vozila." />
-                                </BindableLayout.EmptyView>
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Padding="0,6" ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                                            <VerticalStackLayout Spacing="0">
-                                                <Label Style="{StaticResource DashRowTitle}" Text="{Binding Registration}" />
-                                                <Label Style="{StaticResource DashRowSub}" Text="{Binding LastGpsAt, StringFormat='GPS {0:dd.MM. HH:mm}'}" />
-                                            </VerticalStackLayout>
-                                            <Border Grid.Column="1" Padding="8,3" Style="{StaticResource PmChip}" VerticalOptions="Center">
-                                                <Label Style="{StaticResource PmChipLabel}" Text="{Binding Status}" />
-                                            </Border>
-                                        </Grid>
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </VerticalStackLayout>
-
-                            <BoxView Style="{StaticResource PmDivider}" />
-
-                            <Label FontSize="11" Text="NALOZI" TextColor="{StaticResource TextTertiary}" />
-                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Orders}">
-                                <BindableLayout.EmptyView>
-                                    <Label Style="{StaticResource DashEmpty}" Text="Nema aktivnih naloga." />
-                                </BindableLayout.EmptyView>
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Padding="0,6" ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                                            <VerticalStackLayout Spacing="0">
-                                                <Label Style="{StaticResource DashRowTitle}" Text="{Binding OrderNumber}" />
-                                                <Label Style="{StaticResource DashRowSub}" Text="{Binding CustomerName}" />
-                                            </VerticalStackLayout>
-                                            <Border Grid.Column="1" Padding="8,3" Style="{StaticResource PmChip}" VerticalOptions="Center">
-                                                <Label Style="{StaticResource PmChipLabel}" Text="{Binding Status}" />
-                                            </Border>
-                                        </Grid>
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </VerticalStackLayout>
-
-                            <BoxView Style="{StaticResource PmDivider}" />
-
-                            <Label FontSize="11" Text="TURE U TOKU" TextColor="{StaticResource TextTertiary}" />
-                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Trips}">
-                                <BindableLayout.EmptyView>
-                                    <Label Style="{StaticResource DashEmpty}" Text="Nema aktivnih tura." />
-                                </BindableLayout.EmptyView>
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Padding="0,6" ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                                            <VerticalStackLayout Spacing="0">
-                                                <Label Style="{StaticResource DashRowTitle}" Text="{Binding ExecutionState}" />
-                                                <Label Style="{StaticResource DashRowSub}" Text="{Binding Status}" />
-                                            </VerticalStackLayout>
-                                            <Label
-                                                Grid.Column="1"
-                                                FontFamily="OpenSansSemibold"
-                                                FontSize="13"
-                                                Text="{Binding RouteProgressPercent, StringFormat='{0:0}%'}"
-                                                TextColor="{StaticResource TextAccent}"
-                                                VerticalOptions="Center" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </VerticalStackLayout>
-                        </VerticalStackLayout>
+                    <Border Grid.Column="1" Style="{StaticResource HomeTile}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnTileMapsTapped" />
+                        </Border.GestureRecognizers>
+                        <Grid RowDefinitions="*,Auto">
+                            <Border Style="{StaticResource HomeTileIcon}">
+                                <Image HeightRequest="18" Source="ic_map.svg" WidthRequest="18" />
+                            </Border>
+                            <Label Grid.Row="1" Style="{StaticResource HomeTileLabel}" Text="Offline mape" />
+                        </Grid>
                     </Border>
-                </VerticalStackLayout>
+                    <Border Grid.Row="1" Style="{StaticResource HomeTile}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnTileDispatchTapped" />
+                        </Border.GestureRecognizers>
+                        <Grid RowDefinitions="*,Auto">
+                            <Border Style="{StaticResource HomeTileIcon}">
+                                <Image HeightRequest="18" Source="ic_tab_operations.svg" WidthRequest="18" />
+                            </Border>
+                            <Label Grid.Row="1" Style="{StaticResource HomeTileLabel}" Text="Dispečing" />
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource HomeTile}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnTileSettingsTapped" />
+                        </Border.GestureRecognizers>
+                        <Grid RowDefinitions="*,Auto">
+                            <Border Style="{StaticResource HomeTileIcon}">
+                                <Image HeightRequest="18" Source="ic_settings.svg" WidthRequest="18" />
+                            </Border>
+                            <Label Grid.Row="1" Style="{StaticResource HomeTileLabel}" Text="Podešavanja" />
+                        </Grid>
+                    </Border>
+                </Grid>
 
-                <!--  Quick actions: compact tile grid  -->
-                <VerticalStackLayout Spacing="6">
-                    <Label Style="{StaticResource DashSectionCaption}" Text="Brze akcije" />
-                    <FlexLayout
-                        AlignContent="Start"
-                        BindableLayout.ItemsSource="{Binding QuickLinks}"
-                        Direction="Row"
-                        JustifyContent="SpaceBetween"
-                        Wrap="Wrap">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate>
-                                <Button
-                                    Margin="0,0,0,8"
-                                    Clicked="OnQuickLinkClicked"
-                                    CommandParameter="{Binding .}"
-                                    FlexLayout.Basis="48.5%"
-                                    Style="{StaticResource DashTile}"
-                                    Text="{Binding Title}" />
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </FlexLayout>
-                </VerticalStackLayout>
-
-                <!--  Diagnostics (collapsed by default)  -->
-                <VerticalStackLayout Spacing="6">
-                    <Button
-                        x:Name="DiagnosticsToggle"
-                        Padding="4,0"
-                        Clicked="OnToggleDiagnosticsClicked"
+                <!--  Fleet in one line  -->
+                <Grid Padding="4,0" ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <Label Style="{StaticResource PmCaptionLabel}" Text="Flota" VerticalOptions="Center" />
+                    <Label
+                        Grid.Column="1"
                         FontSize="12"
-                        HeightRequest="36"
-                        HorizontalOptions="Start"
-                        Style="{StaticResource PmGhostButton}"
-                        Text="Prikaži dijagnostiku rute" />
-                    <Border
-                        x:Name="DiagnosticsPanel"
-                        Padding="14,10"
-                        IsVisible="False"
-                        Style="{StaticResource PmCardBorder}">
-                        <VerticalStackLayout Spacing="8">
-                            <VerticalStackLayout Spacing="0">
-                                <Label Style="{StaticResource PmCaptionLabel}" Text="Sažetak" />
-                                <Label FontSize="13" LineBreakMode="WordWrap" Text="{Binding RouteDiagnosticsSummary}" TextColor="{StaticResource TextPrimary}" />
-                            </VerticalStackLayout>
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                                <VerticalStackLayout Spacing="0">
-                                    <Label Style="{StaticResource PmCaptionLabel}" Text="Početna tačka" />
-                                    <Label LineBreakMode="WordWrap" Style="{StaticResource DashRowSub}" MaxLines="3" Text="{Binding RouteStartSnap}" />
-                                </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="1" Spacing="0">
-                                    <Label Style="{StaticResource PmCaptionLabel}" Text="Krajnja tačka" />
-                                    <Label LineBreakMode="WordWrap" Style="{StaticResource DashRowSub}" MaxLines="3" Text="{Binding RouteEndSnap}" />
-                                </VerticalStackLayout>
-                            </Grid>
-                            <VerticalStackLayout Spacing="0">
-                                <Label Style="{StaticResource PmCaptionLabel}" Text="Greške / provera" />
-                                <Label LineBreakMode="WordWrap" Style="{StaticResource DashRowSub}" MaxLines="3" Text="{Binding RouteFailureReason}" />
-                            </VerticalStackLayout>
-                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding RouteHighlights}" Spacing="2">
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate>
-                                        <Label FontSize="12" LineBreakMode="WordWrap" Text="{Binding ., StringFormat='• {0}'}" TextColor="{StaticResource TextSecondary}" />
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </VerticalStackLayout>
-                        </VerticalStackLayout>
-                    </Border>
-                </VerticalStackLayout>
+                        HorizontalTextAlignment="End"
+                        Text="{Binding FleetSummary}"
+                        TextColor="{StaticResource TextSecondary}"
+                        VerticalOptions="Center" />
+                </Grid>
             </VerticalStackLayout>
         </ScrollView>
     </RefreshView>

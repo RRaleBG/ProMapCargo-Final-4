@@ -67,6 +67,23 @@ public sealed class DashboardViewModel : ViewModelBase
 
     public IReadOnlyList<DashboardLink> QuickLinks { get; }
 
+    /// <summary>Places the driver routed to, newest first (TomTom-style recents).</summary>
+    public ObservableCollection<RecentDestination> Recents { get; } = new();
+
+    public bool HasRecents => Recents.Count > 0;
+
+    // The app sends no truck profile, so routing uses the server default
+    // (RoutingController: 40 t, 4.0 m high, 2.55 m wide, 16.5 m long).
+    public string TruckProfileText => "40 t · 4,0 m · 2,55 m · 16,5 m";
+
+    public string FleetSummary => $"{Vehicles.Count} vozila · {Orders.Count} naloga · {Trips.Count} tura";
+
+    public void ReloadRecents()
+    {
+        ReplaceItems(Recents, RecentDestinations.Load());
+        RaisePropertyChanged(nameof(HasRecents));
+    }
+
     public ICommand RefreshCommand { get; }
 
     public ICommand OpenLinkCommand { get; }
@@ -171,6 +188,7 @@ public sealed class DashboardViewModel : ViewModelBase
                 ReplaceItems(Drivers, drivers);
                 ReplaceItems(Orders, orders);
                 ReplaceItems(Trips, trips);
+                RaisePropertyChanged(nameof(FleetSummary));
                 ApplyRoute(route);
                 RaisePropertyChanged(nameof(WelcomeText));
                 StatusText = $"Sinhronizovano {DateTime.Now:HH:mm} · {sessionService.LastStatus}";

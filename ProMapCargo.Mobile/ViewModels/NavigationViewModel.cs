@@ -338,6 +338,33 @@ public class NavigationViewModel : ViewModelBase
 
     public string RouteInputButtonText => IsRouteInputVisible ? "Sakrij planer" : "Planiraj rutu";
 
+    /// <summary>
+    /// Runs a request from the home screen: open the planner, or route from the
+    /// current position to a recent destination.
+    /// </summary>
+    public async Task ApplyRequestAsync(HomeNavigationRequest request)
+    {
+        if (request.Destination is { } destination)
+        {
+            suppressSearch = true;
+            DestinationQuery = destination.Title;
+            DestinationLatitude = destination.Latitude.ToString("0.000000", CultureInfo.InvariantCulture);
+            DestinationLongitude = destination.Longitude.ToString("0.000000", CultureInfo.InvariantCulture);
+            StartQuery = MyLocationLabel;
+            StartLatitude = string.Empty;
+            StartLongitude = string.Empty;
+            suppressSearch = false;
+
+            await CalculateRouteAsync();
+            return;
+        }
+
+        if (request.OpenPlanner)
+        {
+            IsRouteInputVisible = true;
+        }
+    }
+
     public bool AutoRerouteEnabled
     {
         get => autoRerouteEnabled;
@@ -969,6 +996,11 @@ public class NavigationViewModel : ViewModelBase
                 // Like TomTom: once the route is ready the planner gets out of the way.
                 IsRouteInputVisible = false;
             });
+
+            if (!autoReroute)
+            {
+                RecentDestinations.Add(DestinationQuery, destinationLat, destinationLon);
+            }
             await notifier.ShowSuccessAsync(autoReroute ? "Ruta je preračunata od trenutne lokacije." : "Ruta je izračunata.").ConfigureAwait(false);
         }
         catch (HttpRequestException ex)
