@@ -8,6 +8,10 @@ public sealed class PostGisAStarRouter(PostGisRoutingRepository repo, TruckEdgeE
 {
     private const int MaxExpandedStates = 1_000_000;
 
+    private const double MinPreloadPaddingDegrees = 0.04;
+    private const double MaxPreloadPaddingDegrees = 0.30;
+    private const double MaxPreloadAreaSquareDegrees = 2.5;
+
     private readonly record struct SearchState(
         long Node,
         long? PreviousWay);
@@ -360,6 +364,48 @@ public sealed class PostGisAStarRouter(PostGisRoutingRepository repo, TruckEdgeE
                 long,
                 IReadOnlyList<(RoadEdge Edge, bool Forward)>>();
 
+        /*
+         * Preload the graph around the start/destination with ONE query.
+         *
+         * Without this the search issues one database round trip for
+         * every batch of cache misses (thousands of queries on a long
+         * route). Nodes inside the preloaded box are complete; nodes
+         * outside it are still loaded lazily below.
+         */
+
+        var preloadBounds =
+            PlanPreloadBounds(
+                start.SnappedPoint.Coordinate,
+                end.SnappedPoint.Coordinate);
+
+        if (preloadBounds is { } box)
+        {
+            try
+            {
+                var preloaded =
+                    await repo.LoadAreaAdjacencyAsync(
+                        box.MinLon,
+                        box.MinLat,
+                        box.MaxLon,
+                        box.MaxLat,
+                        version,
+                        ct);
+
+                outgoingCache = new Dictionary<
+                    long,
+                    IReadOnlyList<(RoadEdge Edge, bool Forward)>>(preloaded);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                // Already logged by the repository. Fall back to lazy loading.
+                preloadBounds = null;
+            }
+        }
+
         var frontierPrefetchNodes = new HashSet<long>();
 
         var stopwatch = Stopwatch.StartNew();
@@ -396,9 +442,12 @@ public sealed class PostGisAStarRouter(PostGisRoutingRepository repo, TruckEdgeE
                     BuildSnapDebug(end, endEdge));
             }
 
-            queue.TryPeek(
-                out _,
-                out var peekPriority);
+            if (!queue.TryDequeue(
+                    out var state,
+                    out var entryPriority))
+            {
+                break;
+            }
 
             /*
              * Once the smallest possible f-score is already worse
@@ -407,13 +456,10 @@ public sealed class PostGisAStarRouter(PostGisRoutingRepository repo, TruckEdgeE
              */
 
             if (bestGoalState is not null &&
-                peekPriority >= bestGoalCost)
+                entryPriority >= bestGoalCost)
             {
                 break;
             }
-
-            var state =
-                queue.Dequeue();
 
             if (!dist.TryGetValue(
                     state,
@@ -433,9 +479,17 @@ public sealed class PostGisAStarRouter(PostGisRoutingRepository repo, TruckEdgeE
 
             /*
              * Ignore stale PriorityQueue entries.
+             *
+             * PriorityQueue has no decrease-key, so a state is enqueued
+             * again every time a cheaper path to it is found. The older
+             * entry carries a WORSE (higher) priority than the state's
+             * current best f-score, so it is the entry priority that
+             * must be compared against the current one. Without this
+             * check every duplicate re-expands the node and all of its
+             * outgoing edges.
              */
 
-            if (currentPriority > peekPriority + 0.000001)
+            if (entryPriority > currentPriority + 0.000001)
             {
                 continue;
             }
@@ -536,7 +590,18 @@ public sealed class PostGisAStarRouter(PostGisRoutingRepository repo, TruckEdgeE
 
             if (!outgoingCache.TryGetValue(
                     state.Node,
-                    out var outgoing))
+                    out var outgoing) &&
+                preloadBounds is { } loadedBox &&
+                nodeCoordinates.TryGetValue(
+                    state.Node,
+                    out var nodeCoordinate) &&
+                loadedBox.Contains(nodeCoordinate))
+            {
+                // Inside the preloaded box and absent from it: a node with
+                // no traversable options (dead end), nothing to query.
+                outgoing = [];
+            }
+            else if (outgoing is null)
             {
                 frontierPrefetchNodes.Clear();
                 frontierPrefetchNodes.Add(state.Node);
@@ -778,6 +843,52 @@ public sealed class PostGisAStarRouter(PostGisRoutingRepository repo, TruckEdgeE
             highlights,
             BuildSnapDebug(start, startEdge),
             BuildSnapDebug(end, endEdge));
+    }
+
+    private readonly record struct PreloadBounds(
+        double MinLon,
+        double MinLat,
+        double MaxLon,
+        double MaxLat)
+    {
+        public bool Contains(Coordinate c) =>
+            c.X >= MinLon && c.X <= MaxLon &&
+            c.Y >= MinLat && c.Y <= MaxLat;
+    }
+
+    /// <summary>
+    /// Chooses the box whose graph is loaded with a single query before the
+    /// search starts: the start/destination box padded by 30% of its longer
+    /// side (at least 0.04 and at most 0.30 degrees). Very large boxes are
+    /// not preloaded (memory), those routes keep using lazy loading.
+    /// </summary>
+    private static PreloadBounds? PlanPreloadBounds(Coordinate a, Coordinate b)
+    {
+        var minLon = Math.Min(a.X, b.X);
+        var maxLon = Math.Max(a.X, b.X);
+        var minLat = Math.Min(a.Y, b.Y);
+        var maxLat = Math.Max(a.Y, b.Y);
+
+        var padding =
+            Math.Clamp(
+                0.30 * Math.Max(maxLon - minLon, maxLat - minLat),
+                MinPreloadPaddingDegrees,
+                MaxPreloadPaddingDegrees);
+
+        var box =
+            new PreloadBounds(
+                minLon - padding,
+                minLat - padding,
+                maxLon + padding,
+                maxLat + padding);
+
+        var area =
+            (box.MaxLon - box.MinLon) *
+            (box.MaxLat - box.MinLat);
+
+        return area <= MaxPreloadAreaSquareDegrees
+            ? box
+            : null;
     }
 
     private static void AddSeed(

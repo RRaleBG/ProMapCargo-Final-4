@@ -10,7 +10,21 @@ public sealed class PostGisRoutingRepository(
 {
     private const string EdgeColumns = "id, way_id, source_node, target_node, direction, highway, name, ref, length_m, speed_kmh, routable, ST_AsText(geom) AS wkt, access, vehicle, motor_vehicle, hgv, goods, hazmat, maxheight, maxwidth, maxlength, maxweight, maxaxleload, graph_version, country_code";
 
-    private const string OutgoingEdgeColumns = "id, way_id, source_node, target_node, direction, highway, name, ref, length_m, speed_kmh, routable, ST_AsText(ST_MakeLine(ST_StartPoint(geom), ST_EndPoint(geom))) AS wkt, ST_X(ST_StartPoint(geom)) AS source_x, ST_Y(ST_StartPoint(geom)) AS source_y, ST_X(ST_EndPoint(geom)) AS target_x, ST_Y(ST_EndPoint(geom)) AS target_y, access, vehicle, motor_vehicle, hgv, goods, hazmat, maxheight, maxwidth, maxlength, maxweight, maxaxleload, graph_version, country_code";
+    /*
+     * Lightweight column set used by the A* search. Column order is
+     * significant: ReadLightEdge reads by ordinal. No WKT is produced or
+     * parsed; only the end point coordinates are returned. Name/ref are
+     * not needed during the search (terminal edges and the final route
+     * are loaded with EdgeColumns).
+     */
+    private const string LightEdgeColumns = "id, way_id, source_node, target_node, direction, highway, length_m, speed_kmh, ST_X(ST_StartPoint(geom)) AS source_x, ST_Y(ST_StartPoint(geom)) AS source_y, ST_X(ST_EndPoint(geom)) AS target_x, ST_Y(ST_EndPoint(geom)) AS target_y, access, vehicle, motor_vehicle, hgv, goods, hazmat, maxheight, maxwidth, maxlength, maxweight, maxaxleload, country_code";
+
+    /*
+     * Shared placeholder for edges loaded by the search. The A* router
+     * only reads SourceCoordinate/TargetCoordinate from these edges.
+     */
+    private static readonly LineString PlaceholderGeometry =
+        new GeometryFactory().CreateLineString(Array.Empty<Coordinate>());
 
 
     public async Task<bool> CanConnectAsync(CancellationToken ct)
@@ -254,40 +268,39 @@ public sealed class PostGisRoutingRepository(
 
         try
         {
-            await using var connection = await dataSource.OpenConnectionAsync(ct);
             var sql = $"""
-                SELECT {OutgoingEdgeColumns}
+                SELECT {LightEdgeColumns}
                 FROM road_edges
                 WHERE graph_version = @version
                   AND routable
                   AND (source_node = ANY(@nodes) OR target_node = ANY(@nodes));
                 """;
-            var rows = await connection.QueryAsync<dynamic>(
-                new CommandDefinition(
-                    sql,
-                    new
-                    {
-                        nodes = nodes.ToArray(),
-                        version
-                    },
-                    cancellationToken: ct));
 
-            var result = nodes.ToDictionary<long, long, List<(RoadEdge Edge, bool Forward)>>(
+            await using var command = dataSource.CreateCommand(sql);
+            command.Parameters.AddWithValue("version", version);
+            command.Parameters.AddWithValue("nodes", nodes.ToArray());
+
+            var result = nodes.Distinct().ToDictionary<long, long, List<(RoadEdge Edge, bool Forward)>>(
                 node => node,
                 _ => []);
 
-            foreach (var row in rows)
+            var pool = new Dictionary<string, string>();
+
+            await using (var reader = await command.ExecuteReaderAsync(ct))
             {
-                var edge = Map(row);
-
-                if (edge.Direction >= 0 && result.ContainsKey(edge.SourceNode))
+                while (await reader.ReadAsync(ct))
                 {
-                    result[edge.SourceNode].Add((edge, true));
-                }
+                    var edge = ReadLightEdge(reader, version, pool);
 
-                if (edge.Direction <= 0 && result.ContainsKey(edge.TargetNode))
-                {
-                    result[edge.TargetNode].Add((edge, false));
+                    if (edge.Direction >= 0 && result.TryGetValue(edge.SourceNode, out var forwardList))
+                    {
+                        forwardList.Add((edge, true));
+                    }
+
+                    if (edge.Direction <= 0 && result.TryGetValue(edge.TargetNode, out var reverseList))
+                    {
+                        reverseList.Add((edge, false));
+                    }
                 }
             }
 
@@ -315,6 +328,176 @@ public sealed class PostGisRoutingRepository(
         }
     }
 
+
+    /// <summary>
+    /// Loads the routable graph inside a bounding box with ONE query and
+    /// returns the traversable options per node. Only nodes whose own
+    /// coordinate lies inside the box are returned: every edge incident to
+    /// such a node intersects the box, so their option lists are complete.
+    /// Nodes outside the box must still be loaded lazily.
+    /// </summary>
+    public async Task<Dictionary<long, IReadOnlyList<(RoadEdge Edge, bool Forward)>>> LoadAreaAdjacencyAsync(
+        double minLon,
+        double minLat,
+        double maxLon,
+        double maxLat,
+        long version,
+        CancellationToken ct)
+    {
+        logger.LogInformation(
+            "PostGIS query started: area adjacency preload. GraphVersion={GraphVersion} Box={MinLon},{MinLat},{MaxLon},{MaxLat}",
+            version,
+            minLon,
+            minLat,
+            maxLon,
+            maxLat);
+
+        try
+        {
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            var sql = $"""
+                SELECT {LightEdgeColumns}
+                FROM road_edges
+                WHERE graph_version = @version
+                  AND routable
+                  AND geom && ST_MakeEnvelope(@minLon, @minLat, @maxLon, @maxLat, 4326);
+                """;
+
+            await using var command = dataSource.CreateCommand(sql);
+            command.CommandTimeout = 120;
+            command.Parameters.AddWithValue("version", version);
+            command.Parameters.AddWithValue("minLon", minLon);
+            command.Parameters.AddWithValue("minLat", minLat);
+            command.Parameters.AddWithValue("maxLon", maxLon);
+            command.Parameters.AddWithValue("maxLat", maxLat);
+
+            var lists = new Dictionary<long, List<(RoadEdge Edge, bool Forward)>>();
+            var pool = new Dictionary<string, string>();
+            var edgeCount = 0;
+
+            await using (var reader = await command.ExecuteReaderAsync(ct))
+            {
+                while (await reader.ReadAsync(ct))
+                {
+                    var edge = ReadLightEdge(reader, version, pool);
+                    edgeCount++;
+
+                    if (edge.Direction >= 0 &&
+                        edge.SourceCoordinate is { } source &&
+                        Inside(source, minLon, minLat, maxLon, maxLat))
+                    {
+                        AddOption(lists, edge.SourceNode, edge, true);
+                    }
+
+                    if (edge.Direction <= 0 &&
+                        edge.TargetCoordinate is { } target &&
+                        Inside(target, minLon, minLat, maxLon, maxLat))
+                    {
+                        AddOption(lists, edge.TargetNode, edge, false);
+                    }
+                }
+            }
+
+            var result = new Dictionary<long, IReadOnlyList<(RoadEdge Edge, bool Forward)>>(lists.Count);
+
+            foreach (var pair in lists)
+            {
+                result[pair.Key] = pair.Value;
+            }
+
+            logger.LogInformation(
+                "PostGIS query completed: area adjacency preload. GraphVersion={GraphVersion} Edges={Edges} Nodes={Nodes} ElapsedMs={ElapsedMs}",
+                version,
+                edgeCount,
+                result.Count,
+                stopwatch.ElapsedMilliseconds);
+
+            return result;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogError(ex, "PostGIS query failed: area adjacency preload. GraphVersion={GraphVersion}", version);
+            throw;
+        }
+    }
+
+    private static bool Inside(Coordinate c, double minLon, double minLat, double maxLon, double maxLat) =>
+        c.X >= minLon && c.X <= maxLon && c.Y >= minLat && c.Y <= maxLat;
+
+    private static void AddOption(
+        Dictionary<long, List<(RoadEdge Edge, bool Forward)>> lists,
+        long node,
+        RoadEdge edge,
+        bool forward)
+    {
+        if (!lists.TryGetValue(node, out var list))
+        {
+            list = new List<(RoadEdge Edge, bool Forward)>(3);
+            lists[node] = list;
+        }
+
+        list.Add((edge, forward));
+    }
+
+    private static RoadEdge ReadLightEdge(
+        Npgsql.NpgsqlDataReader reader,
+        long version,
+        Dictionary<string, string> pool) =>
+        new(
+            reader.GetInt64(0),
+            reader.GetInt64(1),
+            reader.GetInt64(2),
+            reader.GetInt64(3),
+            reader.GetInt16(4),
+            ReadPooled(reader, 5, pool),
+            null,
+            null,
+            reader.GetDouble(6),
+            reader.GetDouble(7),
+            true,
+            PlaceholderGeometry,
+            new Coordinate(reader.GetDouble(8), reader.GetDouble(9)),
+            new Coordinate(reader.GetDouble(10), reader.GetDouble(11)),
+            ReadPooled(reader, 12, pool),
+            ReadPooled(reader, 13, pool),
+            ReadPooled(reader, 14, pool),
+            ReadPooled(reader, 15, pool),
+            ReadPooled(reader, 16, pool),
+            ReadPooled(reader, 17, pool),
+            ReadNullableDouble(reader, 18),
+            ReadNullableDouble(reader, 19),
+            ReadNullableDouble(reader, 20),
+            ReadNullableDouble(reader, 21),
+            ReadNullableDouble(reader, 22),
+            version,
+            ReadPooled(reader, 23, pool));
+
+    private static double? ReadNullableDouble(Npgsql.NpgsqlDataReader reader, int ordinal) =>
+        reader.IsDBNull(ordinal) ? null : reader.GetDouble(ordinal);
+
+    /// <summary>
+    /// Reads a text column and reuses one string instance per distinct
+    /// value (highway/access/... have only a handful of distinct values),
+    /// which keeps a large preloaded graph small.
+    /// </summary>
+    private static string? ReadPooled(Npgsql.NpgsqlDataReader reader, int ordinal, Dictionary<string, string> pool)
+    {
+        if (reader.IsDBNull(ordinal))
+        {
+            return null;
+        }
+
+        var value = reader.GetString(ordinal);
+
+        if (pool.TryGetValue(value, out var existing))
+        {
+            return existing;
+        }
+
+        pool[value] = value;
+        return value;
+    }
 
     private static RoadEdge Map(dynamic row)
     {
