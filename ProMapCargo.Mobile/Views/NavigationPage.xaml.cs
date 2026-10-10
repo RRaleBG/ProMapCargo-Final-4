@@ -18,6 +18,8 @@ public partial class MobileNavigationPage : ContentPage
     private bool routePopupOpen;
     private bool panelAnimating;
     private DateTimeOffset lastWebPushAt = DateTimeOffset.MinValue;
+    // Route last delivered to the web map; empty forces a full resend (page load).
+    private string lastSentRouteKey = string.Empty;
     private WebPoint? lastWebLocation;
     private DateTimeOffset? lastWebLocationAt;
 
@@ -62,13 +64,33 @@ public partial class MobileNavigationPage : ContentPage
         LoadingOverlay.IsVisible = true;
 
         NavigationWebView.Source = NavigationUrl;
+        StartThenFillAnimation();
 
         await viewModel.LoadInitialRouteAsync();
         await PushStateToWebAsync(force: true);
     }
 
+    private const string ThenFillAnimationName = "ThenFill";
+
+    // The "zatim" tile fills with Brand from the bottom and drains again, in a loop,
+    // so the following maneuver catches the eye without words.
+    private void StartThenFillAnimation()
+    {
+        this.AbortAnimation(ThenFillAnimationName);
+
+        const double tileHeight = 40;
+        var loop = new Animation
+        {
+            { 0, 0.5, new Animation(v => ThenFill.HeightRequest = v, 0, tileHeight, Easing.SinInOut) },
+            { 0.5, 1, new Animation(v => ThenFill.HeightRequest = v, tileHeight, 0, Easing.SinInOut) },
+        };
+
+        loop.Commit(this, ThenFillAnimationName, 16, 2400, repeat: () => pageActive);
+    }
+
     protected override void OnDisappearing()
     {
+        this.AbortAnimation(ThenFillAnimationName);
         pageActive = false;
         webViewReady = false;
 
@@ -80,6 +102,7 @@ public partial class MobileNavigationPage : ContentPage
     private async void OnWebViewNavigated(object? sender, WebNavigatedEventArgs e)
     {
         webViewReady = e.Result == WebNavigationResult.Success;
+        lastSentRouteKey = string.Empty;
         LoadingOverlay.IsVisible = !webViewReady;
 
         if (webViewReady)
@@ -175,6 +198,12 @@ public partial class MobileNavigationPage : ContentPage
         var current = ToWebPoint(viewModel.CurrentLocation);
         var motion = CalculateMotion(current);
 
+        var points = viewModel.RoutePolylinePoints;
+        var routeKey = points.Count == 0
+            ? ""
+            : $"{points.Count}:{points[0].Lat},{points[0].Lon}:{points[^1].Lat},{points[^1].Lon}:{viewModel.RouteManeuvers.Count}";
+        var includeRoute = routeKey != lastSentRouteKey;
+
         var payload = new
         {
             mobile = true,
@@ -189,23 +218,29 @@ public partial class MobileNavigationPage : ContentPage
                 System.Globalization.CultureInfo.InvariantCulture, out var shownSpeed)
                 ? shownSpeed
                 : motion.SpeedKph,
-            route = viewModel.RoutePolylinePoints
-                .Select(point => new
-                {
-                    latitude = point.Lat,
-                    longitude = point.Lon
-                })
-                .ToArray(),
-            maneuvers = viewModel.RouteManeuvers
-                .Select(maneuver => new
-                {
-                    type = maneuver.Type,
-                    instruction = maneuver.Instruction,
-                    distanceMeters = maneuver.DistanceFromRouteStartMeters,
-                    latitude = maneuver.Latitude,
-                    longitude = maneuver.Longitude
-                })
-                .ToArray(),
+            // Route and maneuvers (thousands of points) only when they changed; the
+            // map keeps the last ones. Sending them on every GPS fix made it stutter.
+            route = includeRoute
+                ? viewModel.RoutePolylinePoints
+                    .Select(point => new
+                    {
+                        latitude = point.Lat,
+                        longitude = point.Lon
+                    })
+                    .ToArray()
+                : null,
+            maneuvers = includeRoute
+                ? viewModel.RouteManeuvers
+                    .Select(maneuver => new
+                    {
+                        type = maneuver.Type,
+                        instruction = maneuver.Instruction,
+                        distanceMeters = maneuver.DistanceFromRouteStartMeters,
+                        latitude = maneuver.Latitude,
+                        longitude = maneuver.Longitude
+                    })
+                    .ToArray()
+                : null,
             restrictionCount = viewModel.RouteViolations.Count,
             // NextManeuverIndex is 1-based; the web map marks the upcoming turn.
             nextManeuverIndex = Math.Max(0, viewModel.NextManeuverIndex - 1)
@@ -222,6 +257,10 @@ public partial class MobileNavigationPage : ContentPage
 
                 if (string.Equals(result, "true", StringComparison.OrdinalIgnoreCase))
                 {
+                    if (includeRoute)
+                    {
+                        lastSentRouteKey = routeKey;
+                    }
                     return;
                 }
             }

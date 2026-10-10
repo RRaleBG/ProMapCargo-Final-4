@@ -14,7 +14,7 @@ public class NavigationViewModel : ViewModelBase
     private const string MyLocationLabel = "Moja lokacija";
     // A maneuver counts as passed once the truck is this far beyond it along the route.
     private const double ManeuverPassedToleranceMeters = 10;
-    private static readonly TimeSpan GpsPollInterval = TimeSpan.FromSeconds(4);
+    private static readonly TimeSpan GpsPollInterval = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan AutoRerouteCooldown = TimeSpan.FromSeconds(20);
     private readonly ApiClient apiClient;
     private readonly OfflineRoutingBundleService offlineRoutingBundleService;
@@ -690,6 +690,13 @@ public class NavigationViewModel : ViewModelBase
     {
         gpsTrackingCts?.Cancel();
         gpsTrackingCts = null;
+
+        if (isGpsListening)
+        {
+            Geolocation.Default.LocationChanged -= OnGpsLocationChanged;
+            Geolocation.Default.StopListeningForeground();
+            isGpsListening = false;
+        }
     }
 
     private async Task StartGpsTrackingAsync()
@@ -713,7 +720,33 @@ public class NavigationViewModel : ViewModelBase
         }
 
         gpsTrackingCts = new CancellationTokenSource();
-        _ = TrackGpsLoopAsync(gpsTrackingCts.Token);
+
+        // Continuous updates (~1 s) keep the truck moving smoothly; polling every
+        // few seconds made it jump. Polling stays as the fallback.
+        try
+        {
+            Geolocation.Default.LocationChanged += OnGpsLocationChanged;
+            isGpsListening = await Geolocation.Default.StartListeningForegroundAsync(
+                new GeolocationListeningRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(1)));
+        }
+        catch (Exception)
+        {
+            isGpsListening = false;
+        }
+
+        if (!isGpsListening)
+        {
+            Geolocation.Default.LocationChanged -= OnGpsLocationChanged;
+            _ = TrackGpsLoopAsync(gpsTrackingCts.Token);
+        }
+    }
+
+    private bool isGpsListening;
+
+    private void OnGpsLocationChanged(object? sender, GeolocationLocationChangedEventArgs e)
+    {
+        var location = e.Location;
+        MainThread.BeginInvokeOnMainThread(() => UpdateCurrentLocation(location.Latitude, location.Longitude, location.Speed));
     }
 
     private async Task TrackGpsLoopAsync(CancellationToken cancellationToken)

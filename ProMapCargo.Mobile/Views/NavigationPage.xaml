@@ -114,14 +114,23 @@
                             StrokeShape="RoundRectangle 12"
                             StrokeThickness="0"
                             WidthRequest="40">
-                            <Path
-                                Aspect="Uniform"
-                                Data="{Binding ThenManeuverKind, Converter={StaticResource ManeuverIcon}}"
-                                Fill="{StaticResource TextPrimary}"
-                                HeightRequest="24"
-                                HorizontalOptions="Center"
-                                VerticalOptions="Center"
-                                WidthRequest="24" />
+                            <Grid>
+                                <!--  Brand fill that rises and drains in a loop (animated in code-behind)  -->
+                                <BoxView
+                                    x:Name="ThenFill"
+                                    HeightRequest="0"
+                                    Opacity="0.65"
+                                    VerticalOptions="End"
+                                    Color="{StaticResource Brand}" />
+                                <Path
+                                    Aspect="Uniform"
+                                    Data="{Binding ThenManeuverKind, Converter={StaticResource ManeuverIcon}}"
+                                    Fill="{StaticResource TextPrimary}"
+                                    HeightRequest="24"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    WidthRequest="24" />
+                            </Grid>
                         </Border>
                     </VerticalStackLayout>
                 </Grid>

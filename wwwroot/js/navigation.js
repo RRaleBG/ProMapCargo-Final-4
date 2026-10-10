@@ -297,7 +297,11 @@ window.ProMap = window.ProMap || {};
         }
 
         if (state.mobileMode) {
-            const maneuvers = Array.isArray(payload.maneuvers) ? payload.maneuvers : [];
+            // The app sends maneuvers only when the route changes; keep the last list.
+            if (Array.isArray(payload.maneuvers)) {
+                state.mobileManeuvers = payload.maneuvers;
+            }
+            const maneuvers = state.mobileManeuvers || [];
             const nextIndex = Number(payload.nextManeuverIndex);
             state.mobileNextManeuver =
                 Number.isInteger(nextIndex) ? maneuvers[nextIndex] : maneuvers[1] ?? maneuvers[0];
@@ -3931,6 +3935,12 @@ window.ProMap = window.ProMap || {};
             return;
         }
 
+        // Regular follow is driven frame by frame by the animator; only the first
+        // framing and recenter use a one-off camera move.
+        if (!force) {
+            return;
+        }
+
         const heading = mobileHeading(latitude, longitude, position);
         const height = state.map.getContainer()?.clientHeight || 700;
 
@@ -3944,6 +3954,127 @@ window.ProMap = window.ProMap || {};
             duration: force ? 600 : 900,
             essential: true,
         });
+    }
+
+    // Snap a GPS fix onto the route (TomTom keeps the truck on the road) when it is
+    // within 40 m; returns null otherwise.
+    function projectOntoRoute(latitude, longitude) {
+        const route = state.routeCoordinates;
+
+        if (!Array.isArray(route) || route.length < 2) {
+            return null;
+        }
+
+        const k = Math.cos(latitude * Math.PI / 180);
+        let nearest = 0;
+        let nearestSq = Infinity;
+
+        for (let i = 0; i < route.length; i++) {
+            const dy = route[i][0] - latitude;
+            const dx = (route[i][1] - longitude) * k;
+            const d = dy * dy + dx * dx;
+            if (d < nearestSq) {
+                nearestSq = d;
+                nearest = i;
+            }
+        }
+
+        let best = null;
+        let bestSq = Infinity;
+
+        for (const i of [nearest - 1, nearest]) {
+            if (i < 0 || i >= route.length - 1) {
+                continue;
+            }
+
+            const [aLat, aLon] = route[i];
+            const [bLat, bLon] = route[i + 1];
+            const ax = 0, ay = 0;
+            const bx = (bLon - aLon) * k, by = bLat - aLat;
+            const px = (longitude - aLon) * k, py = latitude - aLat;
+            const len = bx * bx + by * by;
+            const t = len === 0 ? 0 : Math.max(0, Math.min(1, ((px - ax) * bx + (py - ay) * by) / len));
+            const qx = bx * t, qy = by * t;
+            const d = (px - qx) ** 2 + (py - qy) ** 2;
+
+            if (d < bestSq) {
+                bestSq = d;
+                best = { latitude: aLat + qy, longitude: aLon + qx / k };
+            }
+        }
+
+        return best && Math.sqrt(bestSq) * 111320 <= 40 ? best : null;
+    }
+
+    // Moves the truck (and the following camera) smoothly from where it is shown
+    // to the new fix over the time between fixes, so it looks live, not jumpy.
+    function mobileAnimateTo(latitude, longitude, position) {
+        if (!state.map) {
+            return;
+        }
+
+        const target = projectOntoRoute(latitude, longitude) ?? { latitude, longitude };
+        const heading = mobileHeading(target.latitude, target.longitude, position);
+        const now = performance.now();
+        const from = state.mobileShown ?? { ...target, bearing: heading ?? 0 };
+        const interval = state.mobileLastFixAt ? now - state.mobileLastFixAt : 1000;
+        state.mobileLastFixAt = now;
+
+        const jump = haversineMeters(from.latitude, from.longitude, target.latitude, target.longitude);
+
+        state.mobileAnim = {
+            from: { ...from },
+            to: { latitude: target.latitude, longitude: target.longitude, bearing: heading ?? from.bearing },
+            start: now,
+            // Same duration as the gap between fixes keeps the motion continuous;
+            // a big jump (new route, GPS reset) is shown at once.
+            duration: jump > 300 ? 0 : Math.min(Math.max(interval, 300), 2500),
+        };
+
+        if (!state.mobileAnimRunning) {
+            state.mobileAnimRunning = true;
+            requestAnimationFrame(mobileAnimFrame);
+        }
+    }
+
+    function mobileAnimFrame(now) {
+        const anim = state.mobileAnim;
+
+        if (!anim || !state.map) {
+            state.mobileAnimRunning = false;
+            return;
+        }
+
+        const t = anim.duration === 0 ? 1 : Math.min(1, (now - anim.start) / anim.duration);
+        const latitude = anim.from.latitude + (anim.to.latitude - anim.from.latitude) * t;
+        const longitude = anim.from.longitude + (anim.to.longitude - anim.from.longitude) * t;
+        // Shortest way round (350° -> 10° turns 20°, not 340°).
+        const turn = ((anim.to.bearing - anim.from.bearing + 540) % 360) - 180;
+        const bearing = (anim.from.bearing + turn * t + 360) % 360;
+
+        state.mobileShown = { latitude, longitude, bearing };
+        state.gpsMarker?.setLngLat([longitude, latitude]);
+        state.gpsMarker?.setRotation?.(bearing);
+
+        if (state.liveFollow) {
+            const currentZoom = state.map.getZoom();
+            const height = state.map.getContainer()?.clientHeight || 700;
+
+            state.map.jumpTo({
+                center: [longitude, latitude],
+                bearing,
+                pitch: MOBILE_FOLLOW_PITCH,
+                // Ease towards the speed/turn zoom instead of snapping to it.
+                zoom: currentZoom + (mobileFollowZoom(latitude, longitude) - currentZoom) * 0.05,
+                padding: { top: Math.round(height * 0.3), bottom: 0, left: 0, right: 0 },
+            });
+        }
+
+        if (t < 1) {
+            requestAnimationFrame(mobileAnimFrame);
+        } else {
+            state.mobileAnimRunning = false;
+        }
     }
 
     const MANEUVER_ARROW_ROTATION = {
@@ -4106,6 +4237,7 @@ window.ProMap = window.ProMap || {};
                     longitude,
                 );
         } else if (
+            !state.mobileMode &&
             typeof state.gpsMarker.setLngLat === "function"
         ) {
             state.gpsMarker.setLngLat([
@@ -4114,11 +4246,10 @@ window.ProMap = window.ProMap || {};
             ]);
         }
 
-        if (state.mobileMode && typeof state.gpsMarker?.setRotation === "function") {
-            const heading = mobileHeading(latitude, longitude, position);
-            if (heading != null) {
-                state.gpsMarker.setRotation(heading);
-            }
+        // In the app the truck glides to each new fix (and the camera with it)
+        // instead of jumping; this also runs while following is paused.
+        if (state.mobileMode) {
+            mobileAnimateTo(latitude, longitude, position);
         }
 
         const speed = Number(
