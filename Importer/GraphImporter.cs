@@ -74,8 +74,11 @@ public sealed class GraphImporter(string connection)
         await CopyNodes(ds, nodes, version, ct);
         Console.WriteLine("[IMPORT] Nodes copied.");
 
+        var junctions = FindJunctionNodes(ways, restrictions);
+        Console.WriteLine($"[IMPORT] Junction nodes: {junctions.Count:n0}");
+
         Console.WriteLine("[IMPORT] Copying ways and edges to database...");
-        await CopyWays(ds, ways, nodes, version, ct);
+        await CopyWays(ds, ways, nodes, junctions, version, ct);
         Console.WriteLine("[IMPORT] Ways copied.");
 
         Console.WriteLine("[IMPORT] Copying restrictions to database...");
@@ -144,7 +147,7 @@ public sealed class GraphImporter(string connection)
     }
 
 
-    async Task CopyWays(NpgsqlDataSource ds, List<WayRecord> ways, Dictionary<long, Coordinate> nodes, long v, CancellationToken ct)
+    async Task CopyWays(NpgsqlDataSource ds, List<WayRecord> ways, Dictionary<long, Coordinate> nodes, HashSet<long> junctions, long v, CancellationToken ct)
     {
         Console.WriteLine("[COPYWAYS] Opening database connections...");
         await using var wayConnection = await ds.OpenConnectionAsync(ct);
@@ -256,6 +259,7 @@ public sealed class GraphImporter(string connection)
                 edgeConnection,
                 x,
                 nodes,
+                junctions,
                 v,
                 ct);
 
@@ -274,7 +278,13 @@ public sealed class GraphImporter(string connection)
     }
 
 
-    async Task WriteEdges(NpgsqlConnection c, WayRecord x, Dictionary<long, Coordinate> nodes, long v,  CancellationToken ct)
+    /// <summary>
+    /// A way is stored as one edge per stretch between two junctions, not one
+    /// edge per OSM segment. The full geometry of the stretch is kept as a
+    /// polyline, so the drawn route is unchanged, but the graph has several
+    /// times fewer edges and the router expands far fewer states.
+    /// </summary>
+    async Task WriteEdges(NpgsqlConnection c, WayRecord x, Dictionary<long, Coordinate> nodes, HashSet<long> junctions, long v,  CancellationToken ct)
     {
         if (x.Nodes.Length < 2)
         {
@@ -283,15 +293,9 @@ public sealed class GraphImporter(string connection)
 
         var dir = Direction(x.Tags);
 
-        for (var i = 0; i < x.Nodes.Length - 1; i++)
+        foreach (var chain in BuildChains(x, nodes, junctions))
         {
-            if (!nodes.TryGetValue(x.Nodes[i], out var a) ||
-                !nodes.TryGetValue(x.Nodes[i + 1], out var b))
-            {
-                continue;
-            }
-
-            var line = Gf.CreateLineString([a, b]);
+            var line = Gf.CreateLineString(chain.Coordinates);
 
             const string sql = """
             INSERT INTO road_edges(
@@ -360,8 +364,8 @@ public sealed class GraphImporter(string connection)
 
             cmd.Parameters.AddWithValue("v", v);
             cmd.Parameters.AddWithValue("w", x.Id);
-            cmd.Parameters.AddWithValue("s", x.Nodes[i]);
-            cmd.Parameters.AddWithValue("t", x.Nodes[i + 1]);
+            cmd.Parameters.AddWithValue("s", chain.SourceNode);
+            cmd.Parameters.AddWithValue("t", chain.TargetNode);
             cmd.Parameters.AddWithValue("d", dir);
             cmd.Parameters.AddWithValue("hw", (object?)V(x.Tags, "highway") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("name", (object?)V(x.Tags, "name") ?? DBNull.Value);
@@ -389,6 +393,99 @@ public sealed class GraphImporter(string connection)
         }
     }
 
+
+    /// <summary>
+    /// Nodes where an edge must start or end: way endpoints, nodes shared by
+    /// more than one way (or visited twice by one way), and via nodes of turn
+    /// restrictions (the router matches restrictions on those nodes).
+    /// </summary>
+    static HashSet<long> FindJunctionNodes(List<WayRecord> ways, List<RelationRecord> restrictions)
+    {
+        var seen = new HashSet<long>();
+        var junctions = new HashSet<long>();
+
+        foreach (var way in ways)
+        {
+            for (var i = 0; i < way.Nodes.Length; i++)
+            {
+                var id = way.Nodes[i];
+
+                if (i == 0 || i == way.Nodes.Length - 1)
+                {
+                    junctions.Add(id);
+                }
+
+                if (!seen.Add(id))
+                {
+                    junctions.Add(id);
+                }
+            }
+        }
+
+        foreach (var restriction in restrictions)
+        {
+            foreach (var member in restriction.Members)
+            {
+                if (member.Role == "via" &&
+                    member.Type.ToString().Equals("Node", StringComparison.OrdinalIgnoreCase))
+                {
+                    junctions.Add((long)member.Id);
+                }
+            }
+        }
+
+        return junctions;
+    }
+
+    /// <summary>
+    /// Splits a way into stretches between junctions. A node missing from the
+    /// extract ends the current stretch (the same segments were skipped before).
+    /// </summary>
+    static IEnumerable<EdgeChain> BuildChains(WayRecord way, Dictionary<long, Coordinate> nodes, HashSet<long> junctions)
+    {
+        var coordinates = new List<Coordinate>();
+        long sourceNode = 0;
+        long lastNode = 0;
+
+        foreach (var id in way.Nodes)
+        {
+            if (!nodes.TryGetValue(id, out var coordinate))
+            {
+                if (coordinates.Count >= 2)
+                {
+                    yield return new EdgeChain(sourceNode, lastNode, coordinates.ToArray());
+                }
+
+                coordinates.Clear();
+                continue;
+            }
+
+            if (coordinates.Count == 0)
+            {
+                sourceNode = id;
+                lastNode = id;
+                coordinates.Add(coordinate);
+                continue;
+            }
+
+            coordinates.Add(coordinate);
+            lastNode = id;
+
+            if (junctions.Contains(id))
+            {
+                yield return new EdgeChain(sourceNode, id, coordinates.ToArray());
+
+                coordinates.Clear();
+                sourceNode = id;
+                coordinates.Add(coordinate);
+            }
+        }
+
+        if (coordinates.Count >= 2)
+        {
+            yield return new EdgeChain(sourceNode, lastNode, coordinates.ToArray());
+        }
+    }
 
     async Task CopyRestrictions(NpgsqlDataSource ds, List<RelationRecord> rs, long v, CancellationToken ct)
     {
@@ -522,6 +619,7 @@ public sealed class GraphImporter(string connection)
         return penalty;
     }
 
+    sealed record EdgeChain(long SourceNode, long TargetNode, Coordinate[] Coordinates);
     sealed record WayRecord(long Id, long[] Nodes, Dictionary<string, string> Tags);
     sealed record RelationRecord(long Id, OsmSharp.RelationMember[] Members, Dictionary<string, string> Tags);
 }

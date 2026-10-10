@@ -25,9 +25,14 @@ public sealed class EdgeSnapper(PostGisRoutingRepository repo, TruckEdgeEvaluato
                 {
                     SRID = 4326
                 };
-                var frac = line.Length <= 0 ? 0 : idx / line.Length;
-                return new SnapResult(e.Id, e.SourceNode, e.TargetNode, input, snapped, DistanceMeters(input, snapped), idx, line.Length - idx,
-                    line.Length, frac, e.Direction >= 0, e.Direction <= 0);
+                // idx and line.Length are planar lengths in degrees, so they only
+                // serve to get the fraction along the edge. Distances handed to the
+                // router must be metres (edge.LengthM), otherwise the partial cost
+                // of the first/last edge is ~0, which is wrong for long edges.
+                var frac = line.Length <= 0 ? 0 : Math.Clamp(idx / line.Length, 0d, 1d);
+                return new SnapResult(e.Id, e.SourceNode, e.TargetNode, input, snapped, DistanceMeters(input, snapped),
+                    frac * e.LengthM, (1d - frac) * e.LengthM,
+                    e.LengthM, frac, e.Direction >= 0, e.Direction <= 0);
             }
         }
         return null;

@@ -129,6 +129,12 @@ Optionally provide a graph version:
 
 The importer creates a versioned graph, imports OSM nodes/ways/edges/restrictions and activates the completed graph only after the import succeeds.
 
+Since the routing speed-up, an edge is a whole stretch of road between two junctions (stored as a polyline), not a single OSM segment. Graphs imported before this change still work, but they are several times larger and slower. To get the fast graph:
+
+1. Re-run the importer (it creates a new `graph_version` and the newest ready version becomes active automatically).
+2. Check that routing works on the new version, then free the old ones with `Sql/06-graph-maintenance.sql` (list versions, delete old ones, `CLUSTER`, `ANALYZE`).
+3. Restart the API so the in-memory graph cache (`RoutingGraphCache`, tiles of 0.1 degrees, `RoutingGraphCache__MaxTiles`) and the turn restriction cache are rebuilt for the new version.
+
 ## Important routing note
 
 The PostGIS graph must contain an imported Europe OSM PBF before the truck-aware router can calculate a real graph route that matches the Europe basemap. If no active PostGIS graph exists, the API attempts the configured Europe truck OSRM fallback.
