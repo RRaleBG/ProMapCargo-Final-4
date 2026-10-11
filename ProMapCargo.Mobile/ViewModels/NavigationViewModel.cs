@@ -1178,10 +1178,29 @@ public class NavigationViewModel : ViewModelBase
         {
             try
             {
-                return await apiClient.GetRouteAsync(request, CancellationToken.None).ConfigureAwait(false);
+                var online = await apiClient.GetRouteAsync(request, CancellationToken.None).ConfigureAwait(false);
+
+                // The server only covers its own region (Serbia): a route that does not
+                // reach the requested points (Belgrade-Zagreb ending at the border) is not
+                // a route. Use an installed offline region that covers both ends instead.
+                if (!ReachesEnds(online, request))
+                {
+                    if (await offlineEngine.RouteAsync(request.Start, request.Destination).ConfigureAwait(false) is { } covering)
+                    {
+                        await MainThread.InvokeOnMainThreadAsync(() => ActiveRoutingModeText = "Režim rutiranja: telefon (offline region)");
+                        return covering;
+                    }
+
+                    throw new InvalidOperationException(
+                        "Server pokriva samo Srbiju, a ruta izlazi iz nje. Preuzmite region koji obuhvata celu rutu " +
+                        "(Offline mape → Paketi za rutiranje, npr. Zapadni Balkan).");
+                }
+
+                return online;
             }
             catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException)
             {
+                // Includes the server's "OutOfCoverage" answer for points outside its region.
                 if (!await offlineEngine.EnsureLoadedAsync(request.Start).ConfigureAwait(false))
                 {
                     throw;
@@ -1200,6 +1219,29 @@ public class NavigationViewModel : ViewModelBase
 
         await MainThread.InvokeOnMainThreadAsync(() => ActiveRoutingModeText = "Režim rutiranja: telefon (offline)");
         return offline;
+    }
+
+    /// <summary>True when the route starts and ends within 2 km of the requested points.</summary>
+    private static bool ReachesEnds(RouteResponse? response, RouteRequest request)
+    {
+        var route = response?.Routes.Count > 0
+            ? response.Routes[Math.Clamp(response.SelectedRouteIndex, 0, response.Routes.Count - 1)]
+            : null;
+        var points = ExtractGeometryPoints(route?.Geometry);
+        if (points.Count < 2)
+        {
+            return true; // nothing to judge by; keep the server's answer
+        }
+
+        static double Gap(GeoPoint a, GeoPoint b)
+        {
+            var lat = (a.Lat + b.Lat) / 2 * Math.PI / 180;
+            var dx = (b.Lon - a.Lon) * 111_320 * Math.Cos(lat);
+            var dy = (b.Lat - a.Lat) * 110_540;
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        return Gap(points[0], request.Start) <= 2000 && Gap(points[^1], request.Destination) <= 2000;
     }
 
     // The fleet drives in Serbia: "Nis" must mean Niš before Nice. Keeps the geocoder's
@@ -1347,7 +1389,7 @@ public class NavigationViewModel : ViewModelBase
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 ErrorMessage = ex.Message;
-                StatusText = "Odgovor servisa za rute nije ispravan.";
+                StatusText = "Ruta nije izračunata.";
             });
 
             await notifier.ShowErrorAsync(ex.Message).ConfigureAwait(false);

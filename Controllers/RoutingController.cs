@@ -306,6 +306,36 @@ public sealed class RoutingController(
         }
 
         /*
+         * OSRM only has the server's region (Serbia): a point outside it is silently
+         * moved to the nearest road inside (Zagreb -> the Croatian border) and the route
+         * looks valid. A route that does not start or end near the requested points is
+         * reported as out of coverage instead, so the app can use its offline region.
+         */
+        var firstRoute = ExtractPoints(osrm.Routes[0].Geometry);
+        if (firstRoute.Count >= 2)
+        {
+            var startGap = GapMeters(firstRoute[0], normalizedRequest.ResolvedStart);
+            var endGap = GapMeters(firstRoute[^1], normalizedRequest.Target);
+            if (startGap > CoverageToleranceMeters || endGap > CoverageToleranceMeters)
+            {
+                logger.LogWarning(
+                    "Route outside server coverage. StartGapM={StartGap} EndGapM={EndGap}",
+                    startGap,
+                    endGap);
+
+                return UnprocessableEntity(new
+                {
+                    code = "OutOfCoverage",
+                    message = endGap > CoverageToleranceMeters
+                        ? "Odredište je van oblasti koju server pokriva (mreža: Srbija)."
+                        : "Polazak je van oblasti koju server pokriva (mreža: Srbija).",
+                    startGapMeters = Math.Round(startGap),
+                    endGapMeters = Math.Round(endGap)
+                });
+            }
+        }
+
+        /*
          * ============================================================
          * 3. OSRM -> RouteCandidate
          * ============================================================
@@ -679,6 +709,16 @@ public sealed class RoutingController(
                 : truck.VehicleClass,
             MaxSpeedKmh = maxSpeed,
         };
+    }
+
+    private const double CoverageToleranceMeters = 2000;
+
+    private static double GapMeters(GeoPoint a, GeoPoint b)
+    {
+        var lat = (a.Lat + b.Lat) / 2 * Math.PI / 180;
+        var dx = (b.Lon - a.Lon) * 111_320 * Math.Cos(lat);
+        var dy = (b.Lat - a.Lat) * 110_540;
+        return Math.Sqrt(dx * dx + dy * dy);
     }
 
     private static List<GeoPoint> ExtractPoints(
