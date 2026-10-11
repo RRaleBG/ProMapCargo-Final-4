@@ -82,6 +82,12 @@ public sealed class MapPackagesController(IWebHostEnvironment environment) : Con
             return "Map package";
         }
 
+        // Maps without a routing package have no stored title; the app is in Serbian.
+        if (string.Equals(RegionOf(value), "europe", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Evropa";
+        }
+
         var tokens = RegionOf(value)
             .Replace('-', ' ')
             .Replace('_', ' ')

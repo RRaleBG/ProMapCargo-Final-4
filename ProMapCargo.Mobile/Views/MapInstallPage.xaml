@@ -97,7 +97,7 @@
                                             Clicked="OnInstallClicked"
                                             CommandParameter="{Binding .}"
                                             Style="{StaticResource PmTonalButton}"
-                                            Text="Preuzmi"
+                                            Text="{Binding InstallState}"
                                             VerticalOptions="Center" />
                                         <BoxView
                                             Grid.Row="1"
@@ -211,22 +211,33 @@
             Stroke="{StaticResource StrokeSubtle}"
             StrokeShape="RoundRectangle 24,24,0,0"
             StrokeThickness="1">
-            <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
-                <Button
-                    Command="{Binding RefreshCommand}"
-                    Style="{StaticResource PmGhostButton}"
-                    Text="Osveži" />
-                <Button
-                    Grid.Column="1"
-                    Command="{Binding OpenSettingsCommand}"
-                    Style="{StaticResource PmGhostButton}"
-                    Text="Podešavanja" />
-                <Button
-                    Grid.Column="2"
-                    Command="{Binding ContinueCommand}"
-                    Style="{StaticResource PmPrimaryButton}"
-                    Text="Nastavi" />
-            </Grid>
+            <VerticalStackLayout Spacing="12">
+                <!--  Download progress: the packages are far below the status card, so it stays visible here  -->
+                <VerticalStackLayout IsVisible="{Binding IsDownloading}" Spacing="6">
+                    <Label
+                        FontFamily="OpenSansSemibold"
+                        LineBreakMode="TailTruncation"
+                        Style="{StaticResource PmBodyLabel}"
+                        Text="{Binding StatusText}" />
+                    <ProgressBar Progress="{Binding DownloadProgress}" />
+                </VerticalStackLayout>
+                <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
+                    <Button
+                        Command="{Binding RefreshCommand}"
+                        Style="{StaticResource PmGhostButton}"
+                        Text="Osveži" />
+                    <Button
+                        Grid.Column="1"
+                        Command="{Binding OpenSettingsCommand}"
+                        Style="{StaticResource PmGhostButton}"
+                        Text="Podešavanja" />
+                    <Button
+                        Grid.Column="2"
+                        Command="{Binding ContinueCommand}"
+                        Style="{StaticResource PmPrimaryButton}"
+                        Text="Nastavi" />
+                </Grid>
+            </VerticalStackLayout>
         </Border>
     </Grid>
 </ContentPage>

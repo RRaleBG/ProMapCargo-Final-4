@@ -10,6 +10,8 @@ public sealed class MapInstallViewModel : ViewModelBase
     private readonly OfflineMapService offlineMapService;
     private readonly OfflineRoutingBundleService offlineRoutingBundleService;
     private bool isBusy;
+    private bool isDownloading;
+    private double downloadProgress;
     private string statusText = "Učitavanje paketa mapa…";
     private string bundleStatusText = "Offline paketi za rutiranje nisu instalirani.";
     private bool offlineBundleReady;
@@ -63,6 +65,20 @@ public sealed class MapInstallViewModel : ViewModelBase
         private set => SetProperty(ref isBusy, value);
     }
 
+    /// <summary>A package download is running (drives the progress strip in the bottom bar).</summary>
+    public bool IsDownloading
+    {
+        get => isDownloading;
+        private set => SetProperty(ref isDownloading, value);
+    }
+
+    /// <summary>0..1 progress of the running download.</summary>
+    public double DownloadProgress
+    {
+        get => downloadProgress;
+        private set => SetProperty(ref downloadProgress, value);
+    }
+
     public string BundleStatusText
     {
         get => bundleStatusText;
@@ -94,7 +110,7 @@ public sealed class MapInstallViewModel : ViewModelBase
 
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
-                Replace(AvailablePackages, catalog);
+                Replace(AvailablePackages, catalog.Select(item => item.WithInstallState(installedManifest.Packages)).ToList());
                 Replace(InstalledPackages, installedManifest.Packages);
                 Replace(AvailableBundles, bundleCatalog.Select(item => item.WithInstallState(installedBundleManifest.Bundles)).ToList());
                 Replace(InstalledBundles, installedBundleManifest.Bundles);
@@ -128,15 +144,22 @@ public sealed class MapInstallViewModel : ViewModelBase
             return;
         }
 
+        if (package.InstallState == PackageInstallState.Installed)
+        {
+            StatusText = $"Mapa {package.DisplayName} je već instalirana.";
+            return;
+        }
+
         try
         {
-            await SetBusyAsync(true);
+            await SetDownloadingAsync(true);
             StatusText = $"Preuzimanje: {package.DisplayName}…";
 
             var progress = new Progress<double>(value =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
+                    DownloadProgress = value;
                     StatusText = $"Preuzimanje mape {package.DisplayName}: {Math.Round(value * 100)}%";
                 });
             });
@@ -147,6 +170,7 @@ public sealed class MapInstallViewModel : ViewModelBase
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 Replace(InstalledPackages, manifest.Packages);
+                Replace(AvailablePackages, AvailablePackages.Select(item => item.WithInstallState(manifest.Packages)).ToList());
                 StatusText = $"Instalirano: {package.DisplayName}.";
             });
         }
@@ -156,7 +180,7 @@ public sealed class MapInstallViewModel : ViewModelBase
         }
         finally
         {
-            await SetBusyAsync(false);
+            await SetDownloadingAsync(false);
         }
     }
 
@@ -167,15 +191,22 @@ public sealed class MapInstallViewModel : ViewModelBase
             return;
         }
 
+        if (bundle.InstallState == PackageInstallState.Installed)
+        {
+            StatusText = $"Paket {bundle.DisplayName} je već instaliran.";
+            return;
+        }
+
         try
         {
-            await SetBusyAsync(true);
+            await SetDownloadingAsync(true);
             StatusText = $"Instaliranje offline paketa: {bundle.DisplayName}…";
 
             var progress = new Progress<double>(value =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
+                    DownloadProgress = value;
                     StatusText = $"Preuzimanje paketa {bundle.DisplayName}: {Math.Round(value * 100)}%";
                 });
             });
@@ -201,12 +232,20 @@ public sealed class MapInstallViewModel : ViewModelBase
         }
         finally
         {
-            await SetBusyAsync(false);
+            await SetDownloadingAsync(false);
         }
     }
 
     private Task SetBusyAsync(bool value)
         => MainThread.InvokeOnMainThreadAsync(() => IsBusy = value);
+
+    private Task SetDownloadingAsync(bool value)
+        => MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            IsBusy = value;
+            IsDownloading = value;
+            DownloadProgress = 0;
+        });
 
     private Task ContinueAsync()
     {

@@ -18,14 +18,16 @@ public sealed record OfflineRoutingBundleCatalogItem(
 {
     /// <summary>Button text in "Offline mape": Instaliraj / Ažuriraj / Instalirano (set by the app).</summary>
     [JsonIgnore]
-    public string InstallState { get; init; } = "Instaliraj";
+    public string InstallState { get; init; } = PackageInstallState.Install;
 
     public OfflineRoutingBundleCatalogItem WithInstallState(IEnumerable<InstalledOfflineRoutingBundle> installed)
     {
         var current = installed.FirstOrDefault(b => string.Equals(b.Id, Id, StringComparison.OrdinalIgnoreCase));
         return this with
         {
-            InstallState = current is null ? "Instaliraj" : current.Version == Version ? "Instalirano" : "Ažuriraj",
+            InstallState = current is null ? PackageInstallState.Install
+                : current.Version == Version ? PackageInstallState.Installed
+                : PackageInstallState.Update,
         };
     }
 }
