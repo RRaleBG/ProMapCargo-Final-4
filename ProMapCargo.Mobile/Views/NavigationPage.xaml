@@ -26,6 +26,7 @@
             IsVisible="True"
             ZIndex="100">
             <VerticalStackLayout
+                x:Name="LoadingPanel"
                 HorizontalOptions="Center"
                 Spacing="14"
                 VerticalOptions="Center">
@@ -45,6 +46,30 @@
                     Style="{StaticResource PmMutedLabel}"
                     Text="Pokretanje navigacije…" />
             </VerticalStackLayout>
+
+            <!--  Map could not load (server unreachable): explain and offer a way out instead of a screen that ignores every tap  -->
+            <Border
+                x:Name="LoadErrorPanel"
+                Margin="24,0"
+                IsVisible="False"
+                Style="{StaticResource PmCardBorder}"
+                VerticalOptions="Center">
+                <VerticalStackLayout Spacing="12">
+                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Mapa nije učitana" />
+                    <Label
+                        x:Name="LoadErrorText"
+                        LineBreakMode="WordWrap"
+                        Style="{StaticResource PmMutedLabel}" />
+                    <Button
+                        Clicked="OnRetryMapClicked"
+                        Style="{StaticResource PmPrimaryButton}"
+                        Text="Pokušaj ponovo" />
+                    <Button
+                        Clicked="OnOpenServerSettingsClicked"
+                        Style="{StaticResource PmSecondaryButton}"
+                        Text="Podešavanja (adresa servera)" />
+                </VerticalStackLayout>
+            </Border>
         </Grid>
 
         <!--  Native overlays  -->

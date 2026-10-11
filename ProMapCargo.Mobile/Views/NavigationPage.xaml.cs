@@ -13,7 +13,9 @@ public partial class MobileNavigationPage : ContentPage
 
     private readonly NavigationViewModel viewModel;
     private readonly IMobileNotifier notifier;
+    private readonly MobileServerEndpointService serverEndpointService;
     private bool pageActive;
+    private int mapLoadAttempt;
     private bool webViewReady;
     private bool routePopupOpen;
     private bool panelAnimating;
@@ -23,10 +25,7 @@ public partial class MobileNavigationPage : ContentPage
     private WebPoint? lastWebLocation;
     private DateTimeOffset? lastWebLocationAt;
 
-    private static string NavigationUrl =>
-        DeviceInfo.Platform == DevicePlatform.Android
-            ? "http://10.0.2.2:8080/navigation?embedded=1&mobile=1"
-            : "http://localhost:8080/navigation?embedded=1&mobile=1";
+    private string NavigationUrl => serverEndpointService.NavigationUrl;
 
     public MobileNavigationPage()
     {
@@ -41,6 +40,9 @@ public partial class MobileNavigationPage : ContentPage
 
         notifier = services
             .GetRequiredService<IMobileNotifier>();
+
+        serverEndpointService = services
+            .GetRequiredService<MobileServerEndpointService>();
 
         BindingContext = viewModel;
 
@@ -61,7 +63,7 @@ public partial class MobileNavigationPage : ContentPage
         webViewReady = false;
         lastWebLocation = null;
         lastWebLocationAt = null;
-        LoadingOverlay.IsVisible = true;
+        ShowMapLoading();
 
         NavigationWebView.Source = NavigationUrl;
         StartThenFillAnimation();
@@ -109,18 +111,61 @@ public partial class MobileNavigationPage : ContentPage
     {
         webViewReady = e.Result == WebNavigationResult.Success;
         lastSentRouteKey = string.Empty;
-        LoadingOverlay.IsVisible = !webViewReady;
 
         if (webViewReady)
         {
+            LoadingOverlay.IsVisible = false;
             await ApplyEmbeddedMobileLayoutTweaksAsync();
             await notifier.ShowSuccessAsync("Mapa za navigaciju je spremna.");
             await PushStateToWebAsync(force: true);
             return;
         }
 
-        await notifier.ShowErrorAsync("Mapa za navigaciju nije učitana. Proverite da li server radi.");
+        ShowMapLoadError();
     }
+
+    // The full-screen loading overlay takes every tap; if the map never loads (e.g.
+    // a phone still pointing at the emulator address 10.0.2.2) it must turn into an
+    // error with a way out, or no button on this screen works.
+    private static readonly TimeSpan MapLoadTimeout = TimeSpan.FromSeconds(20);
+
+    private void ShowMapLoading()
+    {
+        LoadingOverlay.IsVisible = true;
+        LoadingPanel.IsVisible = true;
+        LoadErrorPanel.IsVisible = false;
+
+        var attempt = ++mapLoadAttempt;
+        Dispatcher.DispatchDelayed(MapLoadTimeout, () =>
+        {
+            if (pageActive && !webViewReady && attempt == mapLoadAttempt)
+            {
+                ShowMapLoadError();
+            }
+        });
+    }
+
+    private void ShowMapLoadError()
+    {
+        LoadingOverlay.IsVisible = true;
+        LoadingPanel.IsVisible = false;
+        LoadErrorPanel.IsVisible = true;
+        LoadErrorText.Text =
+            $"Server {serverEndpointService.CurrentApiBaseUrl} nije dostupan. Proverite da li server radi i da li je " +
+            "telefon na istoj mreži. Na telefonu unesite IP adresu računara (npr. http://192.168.1.10:8080/), " +
+            "adresa 10.0.2.2 radi samo u emulatoru.";
+    }
+
+    private void OnRetryMapClicked(object? sender, EventArgs e)
+    {
+        webViewReady = false;
+        ShowMapLoading();
+        // A new URL forces a real reload even when the address did not change.
+        NavigationWebView.Source = $"{NavigationUrl}&t={DateTime.UtcNow.Ticks}";
+    }
+
+    private async void OnOpenServerSettingsClicked(object? sender, EventArgs e)
+        => await AppNavigation.GoToAsync(AppNavigation.Settings);
 
     private void OnSuggestionTapped(object? sender, TappedEventArgs e)
     {
@@ -149,13 +194,26 @@ public partial class MobileNavigationPage : ContentPage
             return;
         }
 
+        if (!await viewModel.EnsureCurrentLocationAsync(showWarnings: true))
+        {
+            return;
+        }
+
+        await PushStateToWebAsync(force: true);
+
         try
         {
-            await NavigationWebView.EvaluateJavaScriptAsync("window.proMapMobile?.recenter?.() ?? false;");
+            var result = await NavigationWebView.EvaluateJavaScriptAsync("window.proMapMobile?.recenter?.() ?? false;");
+            if (!string.Equals(result, "true", StringComparison.OrdinalIgnoreCase) && viewModel.CurrentLocation is { } current)
+            {
+                await NavigationWebView.EvaluateJavaScriptAsync(
+                    $"window.proMapMobile?.updateLocation?.({{ latitude: {current.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}, longitude: {current.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)}, follow: true }}) ?? false;");
+            }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Recenter failed: {ex.Message}");
+            await notifier.ShowInfoAsync("Centriranje nije uspelo. Sačekajte GPS lokaciju i pokušajte ponovo.");
         }
     }
 

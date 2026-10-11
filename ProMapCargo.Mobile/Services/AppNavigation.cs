@@ -28,7 +28,21 @@ public static class AppNavigation
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Navigation to '{route}' failed: {ex.Message}");
+            // Never silent: a button that does nothing looks broken. Tell the driver.
+            System.Diagnostics.Debug.WriteLine($"Navigation to '{route}' failed: {ex}");
+            try
+            {
+                if (Shell.Current is { } shell)
+                {
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                        shell.DisplayAlertAsync("Ekran nije otvoren", $"Prelazak na „{route}“ nije uspeo: {ex.Message}", "U redu"));
+                }
+            }
+            catch (Exception)
+            {
+                // Showing the message must not throw either.
+            }
+
             return false;
         }
     }

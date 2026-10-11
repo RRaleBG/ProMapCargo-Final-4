@@ -34,6 +34,7 @@ public static class MauiProgram
         });
 
         builder.Services.AddSingleton<TokenStore>();
+        builder.Services.AddSingleton<MobileServerEndpointService>();
         // DelegatingHandlers used with AddHttpMessageHandler must be transient: HttpClientFactory
         // builds a new handler chain on every rotation and a reused instance throws.
         builder.Services.AddTransient<ApiAuthHandler>();

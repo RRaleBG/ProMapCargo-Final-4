@@ -4,7 +4,7 @@ using ProMapCargo.Mobile.Models;
 
 namespace ProMapCargo.Mobile.Services;
 
-public sealed class OfflineRoutingBundleService(HttpClient httpClient)
+public sealed class OfflineRoutingBundleService(HttpClient httpClient, MobileServerEndpointService serverEndpointService)
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
     {
@@ -19,7 +19,7 @@ public sealed class OfflineRoutingBundleService(HttpClient httpClient)
         cancellationToken.ThrowIfCancellationRequested();
 
         var items = await httpClient
-            .GetFromJsonAsync<List<OfflineRoutingBundleCatalogItem>>("api/offline-routing-bundles", SerializerOptions, cancellationToken)
+            .GetFromJsonAsync<List<OfflineRoutingBundleCatalogItem>>(serverEndpointService.CreateUri("api/offline-routing-bundles"), SerializerOptions, cancellationToken)
             .ConfigureAwait(false);
 
         return items ?? [];
@@ -123,9 +123,7 @@ public sealed class OfflineRoutingBundleService(HttpClient httpClient)
             throw new ArgumentException("Bundle URL is missing.", nameof(relativeUrl));
         }
 
-        var url = relativeUrl.StartsWith('/') ? relativeUrl[1..] : relativeUrl;
-
-        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        using var request = new HttpRequestMessage(HttpMethod.Get, serverEndpointService.CreateUri(relativeUrl));
         using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 

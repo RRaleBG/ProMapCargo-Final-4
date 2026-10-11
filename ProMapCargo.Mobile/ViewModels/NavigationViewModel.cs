@@ -106,7 +106,7 @@ public class NavigationViewModel : ViewModelBase
 
         Suggestions = [];
         SelectSuggestionCommand = new Command<GeocodeResult>(SelectSuggestion);
-        UseMyLocationCommand = new Command(UseMyLocation);
+        UseMyLocationCommand = new Command(async () => await UseMyLocationAsync());
         SwapPointsCommand = new Command(SwapPoints);
     }
 
@@ -219,20 +219,24 @@ public class NavigationViewModel : ViewModelBase
         RaisePropertyChanged(nameof(HasSuggestions));
     }
 
-    private void UseMyLocation()
+    private async Task UseMyLocationAsync()
     {
-        if (CurrentLocation is null)
+        if (!await EnsureCurrentLocationAsync(showWarnings: true).ConfigureAwait(false) || CurrentLocation is null)
         {
             ErrorMessage = "GPS lokacija još nije dostupna.";
             return;
         }
-        suppressSearch = true;
-        StartQuery = MyLocationLabel;
-        StartLatitude = CurrentLocation.Lat.ToString("0.000000", CultureInfo.InvariantCulture);
-        StartLongitude = CurrentLocation.Lon.ToString("0.000000", CultureInfo.InvariantCulture);
-        suppressSearch = false;
-        ReplaceItems(Suggestions, []);
-        RaisePropertyChanged(nameof(HasSuggestions));
+
+        await MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            suppressSearch = true;
+            StartQuery = MyLocationLabel;
+            StartLatitude = CurrentLocation.Lat.ToString("0.000000", CultureInfo.InvariantCulture);
+            StartLongitude = CurrentLocation.Lon.ToString("0.000000", CultureInfo.InvariantCulture);
+            suppressSearch = false;
+            ReplaceItems(Suggestions, []);
+            RaisePropertyChanged(nameof(HasSuggestions));
+        });
     }
 
     private void SwapPoints()
@@ -707,9 +711,14 @@ public class NavigationViewModel : ViewModelBase
         await RefreshRoutingModeAsync();
         await StartGpsTrackingAsync();
 
+        if (CurrentLocation is null)
+        {
+            await EnsureCurrentLocationAsync(showWarnings: false).ConfigureAwait(false);
+        }
+
         if (CurrentLocation is not null && string.IsNullOrEmpty(StartLatitude))
         {
-            await MainThread.InvokeOnMainThreadAsync(UseMyLocation);
+            await UseMyLocationAsync().ConfigureAwait(false);
         }
     }
 
@@ -724,6 +733,86 @@ public class NavigationViewModel : ViewModelBase
             Geolocation.Default.StopListeningForeground();
             isGpsListening = false;
         }
+    }
+
+    /// <summary>
+    /// Ensures that a usable current GPS fix is available for mobile navigation actions.
+    /// </summary>
+    public async Task<bool> EnsureCurrentLocationAsync(bool showWarnings)
+    {
+        if (CurrentLocation is not null)
+        {
+            return true;
+        }
+
+        var permissionStatus = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>().ConfigureAwait(false);
+        if (permissionStatus != PermissionStatus.Granted)
+        {
+            // The permission prompt must be shown from the main thread (after the
+            // ConfigureAwait(false) above this runs on a background thread).
+            permissionStatus = await MainThread.InvokeOnMainThreadAsync(Permissions.RequestAsync<Permissions.LocationWhenInUse>);
+        }
+
+        if (permissionStatus != PermissionStatus.Granted)
+        {
+            const string deniedMessage = "Pristup lokaciji je odbijen. Uključite dozvolu za lokaciju.";
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                ErrorMessage = deniedMessage;
+                OffRouteStatusText = "Pristup lokaciji je odbijen. Praćenje skretanja sa rute je isključeno.";
+            });
+
+            if (showWarnings)
+            {
+                await notifier.ShowWarningAsync(deniedMessage).ConfigureAwait(false);
+            }
+
+            return false;
+        }
+
+        try
+        {
+            var lastKnown = await Geolocation.Default.GetLastKnownLocationAsync().ConfigureAwait(false);
+            if (lastKnown is not null)
+            {
+                await MainThread.InvokeOnMainThreadAsync(() => UpdateCurrentLocation(lastKnown.Latitude, lastKnown.Longitude, lastKnown.Speed));
+                return true;
+            }
+
+            var location = await Geolocation.Default.GetLocationAsync(
+                new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(10))).ConfigureAwait(false);
+
+            if (location is not null)
+            {
+                await MainThread.InvokeOnMainThreadAsync(() => UpdateCurrentLocation(location.Latitude, location.Longitude, location.Speed));
+                return true;
+            }
+        }
+        catch (FeatureNotEnabledException)
+        {
+            ErrorMessage = "Uključite lokaciju na uređaju za navigaciju uživo.";
+            OffRouteStatusText = ErrorMessage;
+
+            if (showWarnings)
+            {
+                await notifier.ShowWarningAsync(ErrorMessage).ConfigureAwait(false);
+            }
+
+            return false;
+        }
+        catch (Exception)
+        {
+            // Continuous listening / polling remains the fallback; this method only tries
+            // to get a usable fix faster for buttons that act immediately.
+        }
+
+        ErrorMessage = "GPS lokacija trenutno nije dostupna.";
+        if (showWarnings)
+        {
+            await notifier.ShowInfoAsync(ErrorMessage).ConfigureAwait(false);
+        }
+
+        return CurrentLocation is not null;
     }
 
     private async Task StartGpsTrackingAsync()
@@ -846,7 +935,7 @@ public class NavigationViewModel : ViewModelBase
                     return false;
                 }
 
-                await MainThread.InvokeOnMainThreadAsync(UseMyLocation);
+                await UseMyLocationAsync().ConfigureAwait(false);
             }
             else if (await GeocodeFirstAsync(query) is { } start)
             {

@@ -50,6 +50,27 @@
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="10">
+                <Label Style="{StaticResource PmCaptionLabel}" Text="Veza sa serverom" />
+                <Border Style="{StaticResource PmCardBorder}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource PmMutedLabel}" Text="Za fizički telefon unesite LAN adresu računara, na primer http://192.168.1.10:8080/. Telefon i računar moraju biti na istoj Wi‑Fi mreži." />
+                        <Border Padding="0" Style="{StaticResource PmFieldBorder}">
+                            <Entry
+                                Keyboard="Url"
+                                Placeholder="http://192.168.1.10:8080/"
+                                Style="{StaticResource PmEntry}"
+                                Text="{Binding ServerBaseUrl}" />
+                        </Border>
+                        <Button
+                            Command="{Binding SaveServerBaseUrlCommand}"
+                            Style="{StaticResource PmSecondaryButton}"
+                            Text="Sačuvaj adresu servera" />
+                        <Label Style="{StaticResource PmMutedLabel}" Text="{Binding ServerStatusText}" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="10">
                 <Label Style="{StaticResource PmCaptionLabel}" Text="Mape i paketi" />
                 <Border Style="{StaticResource PmCardBorder}">
                     <VerticalStackLayout Spacing="12">

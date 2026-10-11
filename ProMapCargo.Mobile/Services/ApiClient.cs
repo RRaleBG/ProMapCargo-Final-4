@@ -5,7 +5,7 @@ using ProMapCargo.Mobile.Models;
 
 namespace ProMapCargo.Mobile.Services;
 
-public sealed class ApiClient(HttpClient httpClient)
+public sealed class ApiClient(HttpClient httpClient, MobileServerEndpointService serverEndpointService)
 {
     private const int MaxAttempts = 2;
     private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(12);
@@ -82,7 +82,7 @@ public sealed class ApiClient(HttpClient httpClient)
     {
         return await ExecuteWithRetryAsync(async token =>
         {
-            using var response = await httpClient.PostAsJsonAsync(uri, request, SerializerOptions, token).ConfigureAwait(false);
+            using var response = await httpClient.PostAsJsonAsync(serverEndpointService.CreateUri(uri), request, SerializerOptions, token).ConfigureAwait(false);
             var payload = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -104,7 +104,7 @@ public sealed class ApiClient(HttpClient httpClient)
     {
         return await ExecuteWithRetryAsync(async token =>
         {
-            using var response = await httpClient.GetAsync(uri, token).ConfigureAwait(false);
+            using var response = await httpClient.GetAsync(serverEndpointService.CreateUri(uri), token).ConfigureAwait(false);
             var payload = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)

@@ -1,11 +1,10 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using Microsoft.Extensions.Options;
 using ProMapCargo.Mobile.Models;
 
 namespace ProMapCargo.Mobile.Services;
 
-public sealed class OfflineMapService(HttpClient httpClient, IOptions<MobileAppOptions> options)
+public sealed class OfflineMapService(HttpClient httpClient, MobileServerEndpointService serverEndpointService)
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
     {
@@ -20,7 +19,7 @@ public sealed class OfflineMapService(HttpClient httpClient, IOptions<MobileAppO
         cancellationToken.ThrowIfCancellationRequested();
 
         var items = await httpClient
-            .GetFromJsonAsync<List<MapPackageCatalogItem>>("api/map-packages", SerializerOptions, cancellationToken)
+            .GetFromJsonAsync<List<MapPackageCatalogItem>>(serverEndpointService.CreateUri("api/map-packages"), SerializerOptions, cancellationToken)
             .ConfigureAwait(false);
 
         return items ?? [];
@@ -53,9 +52,7 @@ public sealed class OfflineMapService(HttpClient httpClient, IOptions<MobileAppO
 
         Directory.CreateDirectory(mapsRootPath);
 
-        var normalizedBaseUrl = options.Value.ApiBaseUrl.TrimEnd('/');
-        var relative = package.DownloadUrl.StartsWith('/') ? package.DownloadUrl : $"/{package.DownloadUrl}";
-        var downloadUrl = new Uri($"{normalizedBaseUrl}{relative}");
+        var downloadUrl = serverEndpointService.CreateUri(package.DownloadUrl);
 
         using var request = new HttpRequestMessage(HttpMethod.Get, downloadUrl);
         using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);

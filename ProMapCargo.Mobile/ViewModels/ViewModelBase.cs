@@ -15,10 +15,24 @@ public abstract class ViewModelBase : INotifyPropertyChanged
         }
 
         backingField = value;
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        RaisePropertyChanged(propertyName);
         return true;
     }
 
+    // Many view model methods continue on a background thread after
+    // ConfigureAwait(false). Bound views must be updated on the main thread, or
+    // Android throws / silently ignores the change, so the event is marshalled.
     protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    {
+        var args = new PropertyChangedEventArgs(propertyName);
+
+        if (MainThread.IsMainThread)
+        {
+            PropertyChanged?.Invoke(this, args);
+        }
+        else
+        {
+            MainThread.BeginInvokeOnMainThread(() => PropertyChanged?.Invoke(this, args));
+        }
+    }
 }
