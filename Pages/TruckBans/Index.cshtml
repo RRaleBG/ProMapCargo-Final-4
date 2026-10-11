@@ -1,0 +1,142 @@
+@page "/truck-bans"
+@model ProMapCargo.Api.Pages.TruckBans.IndexModel
+@{
+    ViewData["Title"] = "Zabrane vožnje · ProMap Cargo";
+}
+
+<div class="pm-page" data-module="truck-bans">
+    <section class="pm-kpi-grid" aria-label="Zabrane vožnje pregled">
+        <article class="pm-kpi">
+            <div class="pm-kpi-label">Čeka potvrdu</div>
+            <div class="pm-kpi-value">@Model.ForReview.Count</div>
+            <div class="pm-kpi-footer">ne koristi se dok se ne potvrdi</div>
+            <i data-lucide="shield-alert" class="pm-kpi-icon" aria-hidden="true"></i>
+        </article>
+        <article class="pm-kpi">
+            <div class="pm-kpi-label">Aktivne narednih 14 dana</div>
+            <div class="pm-kpi-value">@Model.Upcoming.Count</div>
+            <div class="pm-kpi-footer">potvrđene zabrane</div>
+            <i data-lucide="calendar-x" class="pm-kpi-icon" aria-hidden="true"></i>
+        </article>
+        <article class="pm-kpi">
+            <div class="pm-kpi-label">Poslednje preuzimanje</div>
+            <div class="pm-kpi-value">@(Model.LastSyncUtc?.ToLocalTime().ToString("dd.MM. HH:mm") ?? "—")</div>
+            <div class="pm-kpi-footer">@(Model.LastSync is null ? "truckban.eu, jednom dnevno" : Model.LastSync.Error ?? $"{Model.LastSync.Bans} zabrana, {Model.LastSync.Days} dana")</div>
+            <i data-lucide="refresh-cw" class="pm-kpi-icon" aria-hidden="true"></i>
+        </article>
+    </section>
+
+    <section class="pm-card pm-panel">
+        <header class="pm-card-header">
+            <div>
+                <h2 class="pm-card-title">Čeka potvrdu</h2>
+                <p class="pm-card-subtitle">Nove ili izmenjene zabrane, i potvrđene zabrane koje je izvor uklonio. Na mapu, u rutiranje i na telefone ide samo potvrđeno.</p>
+            </div>
+            <form method="post" asp-page-handler="Sync">
+                <button type="submit" class="pm-btn pm-btn-secondary">Preuzmi sada</button>
+            </form>
+        </header>
+
+        @if (Model.ForReview.Count == 0)
+        {
+            <p class="pm-card-subtitle">Nema zabrana koje čekaju potvrdu.</p>
+        }
+        else
+        {
+            <form method="post" asp-page-handler="Review">
+                <div class="pm-table-wrap">
+                    <table class="pm-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" onclick="document.querySelectorAll('input[name=ids]').forEach(c => c.checked = this.checked)" aria-label="Izaberi sve" /></th>
+                                <th>Datum</th>
+                                <th>Država</th>
+                                <th>Vreme (lokalno)</th>
+                                <th>Važi za</th>
+                                <th>Stanje</th>
+                                <th>Putevi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ban in Model.ForReview)
+                            {
+                                <tr>
+                                    <td><input type="checkbox" name="ids" value="@ban.Id" /></td>
+                                    <td>@ban.BanDate.ToString("ddd dd.MM.yyyy")</td>
+                                    <td>@ban.CountryName (@ban.CountryCode)</td>
+                                    <td>@IndexModel.Clock(ban.StartMinute) – @IndexModel.Clock(ban.EndMinute)</td>
+                                    <td>@(ban.Regional ? "deo puteva" : "cela država")</td>
+                                    <td>@(ban.RemovedAtSource is null ? "nova" : "uklonjena na izvoru")</td>
+                                    <td style="white-space: pre-line; max-width: 32rem;">@ban.Info</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pm-toolbar">
+                    <button type="submit" name="approve" value="true" class="pm-btn">Potvrdi izabrane</button>
+                    <button type="submit" name="approve" value="false" class="pm-btn pm-btn-secondary">Odbij izabrane / potvrdi uklanjanje</button>
+                </div>
+            </form>
+        }
+    </section>
+
+    <section class="pm-card pm-panel">
+        <header class="pm-card-header">
+            <div>
+                <h2 class="pm-card-title">Na koje kamione se odnosi</h2>
+                <p class="pm-card-subtitle">Granica ukupne mase po državi, iz teksta izvora. Dok nije uneta, zabrana važi za sve kamione.</p>
+            </div>
+        </header>
+        <div class="pm-table-wrap">
+            <table class="pm-table">
+                <thead>
+                    <tr><th>Država</th><th>Tekst izvora</th><th>Preko (t)</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var country in Model.Countries)
+                    {
+                        <tr>
+                            <td>@country.CountryName (@country.CountryCode)@(country.NeedsReview ? " · proveriti" : "")</td>
+                            <td style="max-width: 36rem;">@country.VehiclesText</td>
+                            <td colspan="2">
+                                <form method="post" asp-page-handler="Weight" class="pm-toolbar">
+                                    <input type="hidden" name="countryCode" value="@country.CountryCode" />
+                                    <input type="number" name="minWeightT" value="@country.MinWeightT" step="0.5" min="0" max="60" class="pm-input" style="width: 6rem;" />
+                                    <button type="submit" class="pm-btn pm-btn-secondary">Sačuvaj</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="pm-card pm-panel">
+        <header class="pm-card-header">
+            <div>
+                <h2 class="pm-card-title">Potvrđene, narednih 14 dana</h2>
+            </div>
+        </header>
+        <div class="pm-table-wrap">
+            <table class="pm-table">
+                <thead>
+                    <tr><th>Datum</th><th>Država</th><th>Vreme (lokalno)</th><th>Važi za</th><th>Potvrdio</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var ban in Model.Upcoming)
+                    {
+                        <tr>
+                            <td>@ban.BanDate.ToString("ddd dd.MM.yyyy")</td>
+                            <td>@ban.CountryName</td>
+                            <td>@IndexModel.Clock(ban.StartMinute) – @IndexModel.Clock(ban.EndMinute)</td>
+                            <td>@(ban.Regional ? "deo puteva" : "cela država")</td>
+                            <td>@ban.ReviewedBy</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

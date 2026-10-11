@@ -227,6 +227,16 @@ builder.Services.AddScoped<IAccountAdminService, AccountAdminService>();
 // Place search from the offline place indexes (no external geocoder).
 builder.Services.AddSingleton<IGeocodingService, OfflinePlaceGeocodingService>();
 
+// Truck driving bans: daily read of the truckban.eu calendar, used only after review (/truck-bans).
+builder.Services.AddSingleton<TruckBanRepository>();
+builder.Services.AddSingleton<TruckBanSyncService>();
+builder.Services.AddHostedService(services => services.GetRequiredService<TruckBanSyncService>());
+builder.Services.AddHttpClient(TruckBanSyncService.HttpClientName, client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("ProMapCargo/1.0 (truck navigation; daily ban calendar)");
+});
+
 builder.Services.AddHttpClient<IRoutingService, OsrmRoutingService>(client =>
 {
     client.Timeout = TimeSpan.FromSeconds(40);
@@ -432,6 +442,11 @@ static async Task InitializeDatabaseAsync(WebApplication app)
         ALTER TABLE IF EXISTS asp_net_users
         ADD COLUMN IF NOT EXISTS profile_image_url text;
         """).ConfigureAwait(false);
+
+    // Truck bans (idempotent: CREATE ... IF NOT EXISTS).
+    await db.Database.ExecuteSqlRawAsync(
+        await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Sql", "07-truck-bans.sql")).ConfigureAwait(false))
+        .ConfigureAwait(false);
 }
 
 static async Task<bool> SchemaExistsAsync(ProMapCargoDbContext db)
