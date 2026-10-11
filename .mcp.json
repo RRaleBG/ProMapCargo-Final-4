@@ -3,7 +3,26 @@
     "github-mcp-server": {
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/",
-      "headers": {}
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_PAT:-}"
+      }
+    },
+    "postgres": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "uvx", "postgres-mcp", "--access-mode=restricted"],
+      "env": {
+        "DATABASE_URI": "${PROMAP_DATABASE_URI:-}"
+      }
+    },
+    "mobile": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@mobilenext/mobile-mcp@latest"]
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
     }
   }
 }
