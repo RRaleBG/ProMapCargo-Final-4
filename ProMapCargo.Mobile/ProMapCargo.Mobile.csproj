@@ -66,6 +66,23 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
+	<!--
+		Release signing with the real key (created by Tools/release/create-signing-key.ps1,
+		kept outside the repository). The password comes only from the environment
+		variable PROMAP_KEYSTORE_PASS (Tools/release/build-release.ps1 asks for it).
+		Without the key file Release builds keep the debug signature.
+	-->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-android' and '$(Configuration)' == 'Release'">
+		<PromapKeystore Condition="'$(PromapKeystore)' == ''">$(USERPROFILE)\.promap\promapcargo-release.keystore</PromapKeystore>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-android' and '$(Configuration)' == 'Release' and Exists('$(PromapKeystore)')">
+		<AndroidKeyStore>true</AndroidKeyStore>
+		<AndroidSigningKeyStore>$(PromapKeystore)</AndroidSigningKeyStore>
+		<AndroidSigningKeyAlias>promapcargo</AndroidSigningKeyAlias>
+		<AndroidSigningStorePass>env:PROMAP_KEYSTORE_PASS</AndroidSigningStorePass>
+		<AndroidSigningKeyPass>env:PROMAP_KEYSTORE_PASS</AndroidSigningKeyPass>
+	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-android'">
 		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
 		<!-- .NET 10 builds only 64-bit by default; 32-bit Android tablets/phones (e.g. Galaxy Tab A SM-T290) need android-arm. -->
