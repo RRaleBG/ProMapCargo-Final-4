@@ -96,7 +96,7 @@ public sealed class MapInstallViewModel : ViewModelBase
             {
                 Replace(AvailablePackages, catalog);
                 Replace(InstalledPackages, installedManifest.Packages);
-                Replace(AvailableBundles, bundleCatalog);
+                Replace(AvailableBundles, bundleCatalog.Select(item => item.WithInstallState(installedBundleManifest.Bundles)).ToList());
                 Replace(InstalledBundles, installedBundleManifest.Bundles);
 
                 OfflineBundleReady = installedBundleManifest.Bundles.Any(bundle =>
@@ -137,7 +137,7 @@ public sealed class MapInstallViewModel : ViewModelBase
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    StatusText = $"Downloading {package.DisplayName}: {Math.Round(value * 100)}%";
+                    StatusText = $"Preuzimanje mape {package.DisplayName}: {Math.Round(value * 100)}%";
                 });
             });
 
@@ -176,7 +176,7 @@ public sealed class MapInstallViewModel : ViewModelBase
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    StatusText = $"Installing bundle {bundle.DisplayName}: {Math.Round(value * 100)}%";
+                    StatusText = $"Preuzimanje paketa {bundle.DisplayName}: {Math.Round(value * 100)}%";
                 });
             });
 
@@ -186,6 +186,7 @@ public sealed class MapInstallViewModel : ViewModelBase
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 Replace(InstalledBundles, installedBundleManifest.Bundles);
+                Replace(AvailableBundles, AvailableBundles.Select(item => item.WithInstallState(installedBundleManifest.Bundles)).ToList());
                 OfflineBundleReady = installedBundleManifest.Bundles.Any(item =>
                     File.Exists(item.GraphLocalPath) && File.Exists(item.PlacesLocalPath));
                 BundleStatusText = OfflineBundleReady

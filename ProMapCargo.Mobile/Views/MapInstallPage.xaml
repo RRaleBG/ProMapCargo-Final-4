@@ -187,7 +187,7 @@
                                             Clicked="OnInstallBundleClicked"
                                             CommandParameter="{Binding .}"
                                             Style="{StaticResource PmTonalButton}"
-                                            Text="Instaliraj"
+                                            Text="{Binding InstallState}"
                                             VerticalOptions="Center" />
                                         <BoxView
                                             Grid.Row="1"

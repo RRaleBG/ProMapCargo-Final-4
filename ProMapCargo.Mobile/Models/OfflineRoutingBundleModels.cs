@@ -14,7 +14,21 @@ public sealed record OfflineRoutingBundleCatalogItem(
     [property: JsonPropertyName("placesDownloadUrl")] string PlacesDownloadUrl,
     [property: JsonPropertyName("placesSizeBytes")] long PlacesSizeBytes,
     [property: JsonPropertyName("checksumSha256")] string ChecksumSha256,
-    [property: JsonPropertyName("generatedAtUtc")] DateTime GeneratedAtUtc);
+    [property: JsonPropertyName("generatedAtUtc")] DateTime GeneratedAtUtc)
+{
+    /// <summary>Button text in "Offline mape": Instaliraj / Ažuriraj / Instalirano (set by the app).</summary>
+    [JsonIgnore]
+    public string InstallState { get; init; } = "Instaliraj";
+
+    public OfflineRoutingBundleCatalogItem WithInstallState(IEnumerable<InstalledOfflineRoutingBundle> installed)
+    {
+        var current = installed.FirstOrDefault(b => string.Equals(b.Id, Id, StringComparison.OrdinalIgnoreCase));
+        return this with
+        {
+            InstallState = current is null ? "Instaliraj" : current.Version == Version ? "Instalirano" : "Ažuriraj",
+        };
+    }
+}
 
 public sealed record InstalledOfflineRoutingBundle(
     string Id,
