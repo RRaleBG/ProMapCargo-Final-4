@@ -70,8 +70,8 @@ They exist locally even though they are missing on GitHub: check `.gitignore` be
 
 Tools for all of them: `pwsh scripts/install-dev-tools.ps1` (winget; also sets `PROMAP_DATABASE_URI`).
 
-- `postgres`: read-only DB access. Needs `PROMAP_DATABASE_URI`, e.g.
-  `setx PROMAP_DATABASE_URI "postgresql://promap:<password>@localhost:5432/promapcargo"`, plus `uv`.
+- `postgres`: read-only DB access (needs `uv`). Defaults to the local docker-compose database; override with `PROMAP_DATABASE_URI`, e.g.
+  `setx PROMAP_DATABASE_URI "postgresql://promap:<password>@host:5432/promapcargo"`.
 - `mobile`: drives the phone or emulator through adb (needs Node.js and `adb` on PATH).
 - `context7`: current library docs (MAUI, Npgsql, NetTopologySuite).
 - `github-mcp-server`: uses the `GITHUB_TOKEN` environment variable (same token `gh` uses).

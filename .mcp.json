@@ -12,7 +12,7 @@
       "command": "cmd",
       "args": ["/c", "uvx", "postgres-mcp", "--access-mode=restricted"],
       "env": {
-        "DATABASE_URI": "${PROMAP_DATABASE_URI:-}"
+        "DATABASE_URI": "${PROMAP_DATABASE_URI:-postgresql://promap:promap_dev_change_me@localhost:5432/promapcargo}"
       }
     },
     "mobile": {
