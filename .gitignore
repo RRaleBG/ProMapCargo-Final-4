@@ -271,3 +271,6 @@ apm_modules/
 # Android signing keys (never in the repository)
 *.keystore
 *.jks
+
+# Local release notes (keys, passwords, procedure) - stays on this machine
+Tools/release/README.md

@@ -4,6 +4,7 @@
 #   pwsh Tools/release/build-release.ps1                    # APK in ProMapCargo.Mobile/bin/release-publish
 #   pwsh Tools/release/build-release.ps1 -Install           # also install via adb
 #   pwsh Tools/release/build-release.ps1 -Version 1.1 -Build 2
+#   pwsh Tools/release/build-release.ps1 -Aab               # .aab for Google Play
 #
 # The password is asked for and only passed to this build through an environment
 # variable; it is not stored anywhere.
@@ -12,6 +13,7 @@ param(
     [string]$Version,
     [int]$Build,
     [switch]$Install,
+    [switch]$Aab,
     [string]$Device
 )
 
@@ -28,7 +30,7 @@ $secure = Read-Host "Lozinka ključa" -AsSecureString
 $env:PROMAP_KEYSTORE_PASS = [System.Net.NetworkCredential]::new("", $secure).Password
 try {
     $arguments = @("publish", $project, "-f", "net10.0-android", "-c", "Release", "-nologo", "-v", "q",
-        "-p:AndroidPackageFormat=apk", "-p:PromapKeystore=$KeystorePath", "-o", $output)
+        "-p:AndroidPackageFormat=$(if ($Aab) { 'aab' } else { 'apk' })", "-p:PromapKeystore=$KeystorePath", "-o", $output)
     if ($Version) { $arguments += "-p:ApplicationDisplayVersion=$Version" }
     if ($Build) { $arguments += "-p:ApplicationVersion=$Build" }
     dotnet @arguments
@@ -38,10 +40,10 @@ finally {
     Remove-Item Env:PROMAP_KEYSTORE_PASS -ErrorAction SilentlyContinue
 }
 
-$apk = Get-ChildItem $output -Filter "*-Signed.apk" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-Write-Host "Potpisan APK: $($apk.FullName)" -ForegroundColor Green
+$apk = Get-ChildItem $output -Filter "*-Signed.$(if ($Aab) { 'aab' } else { 'apk' })" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+Write-Host "Potpisan paket: $($apk.FullName)" -ForegroundColor Green
 
-if ($Install) {
+if ($Install -and -not $Aab) {
     $adb = "C:/Program Files (x86)/Android/android-sdk/platform-tools/adb.exe"
     $target = if ($Device) { @("-s", $Device) } else { @() }
     & $adb @target install -r --no-incremental $apk.FullName

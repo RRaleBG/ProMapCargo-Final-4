@@ -29,10 +29,10 @@
 		<MauiXamlInflator>SourceGen</MauiXamlInflator>
 
 		<!-- Display name -->
-		<ApplicationTitle>ProMapCargo.Mobile</ApplicationTitle>
+		<ApplicationTitle>ProMap Cargo</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.promapcargo.mobile</ApplicationId>
+		<ApplicationId>rs.promapcargo.mobile</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
