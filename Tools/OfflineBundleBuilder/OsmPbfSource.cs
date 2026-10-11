@@ -42,6 +42,9 @@ public static class OsmPbfSource
 
         // Pass 1: ways and restriction relations (nodes are skipped, only ids counted).
         var ways = new Dictionary<long, WayRecord>();
+        // Slim packages: minor roads are kept aside to connect ferry piers (port access
+        // roads are mostly "service") to the main network afterwards.
+        var minorWays = slim ? new List<WayRecord>() : null;
         var restrictions = new Dictionary<long, (string Type, long From, long To, long[] ViaNodes, long[] ViaWays, string? Except)>();
         foreach (var file in pbfFiles)
         {
@@ -56,6 +59,10 @@ public static class OsmPbfSource
                     if (tags.TryGetValue("highway", out var highway) && allowed.Contains(highway))
                     {
                         ways[wayId] = new WayRecord(wayId, way.Nodes, tags);
+                    }
+                    else if (minorWays is not null && tags.TryGetValue("highway", out var minor) && Highways.Contains(minor))
+                    {
+                        minorWays.Add(new WayRecord(wayId, way.Nodes, tags));
                     }
                     else if (IsVehicleFerry(tags))
                     {
@@ -87,6 +94,12 @@ public static class OsmPbfSource
                     restrictions[relationId] = (restriction, from.Id, to.Id, viaNodes, viaWays, except);
                 }
             }
+        }
+
+        if (minorWays is not null)
+        {
+            ConnectFerries(ways, minorWays);
+            minorWays = null;
         }
 
         Console.WriteLine($"  {ways.Count:N0} roads (OSM ways), {restrictions.Count:N0} turn restrictions");
@@ -223,6 +236,55 @@ public static class OsmPbfSource
 
         Console.WriteLine($"  {roads.Count:N0} road segments between junctions, {places.Count:N0} places");
         return new Result(roads, restrictions.Values.ToList(), places);
+    }
+
+    /// <summary>
+    /// Adds the minor roads that lead from each ferry end to the kept network (breadth
+    /// first, a few steps), so a ferry is not an island in a slim package.
+    /// </summary>
+    private static void ConnectFerries(Dictionary<long, WayRecord> ways, List<WayRecord> minorWays)
+    {
+        var mainNodes = new HashSet<long>();
+        var ferryEnds = new HashSet<long>();
+        foreach (var way in ways.Values)
+        {
+            if (way.Tags.TryGetValue("highway", out var highway) && highway == "ferry")
+            {
+                ferryEnds.Add(way.Nodes[0]);
+                ferryEnds.Add(way.Nodes[^1]);
+            }
+            else
+            {
+                foreach (var id in way.Nodes) mainNodes.Add(id);
+            }
+        }
+
+        var frontier = new HashSet<long>(ferryEnds.Where(id => !mainNodes.Contains(id)));
+        var added = 0;
+        for (var step = 0; step < 8 && frontier.Count > 0; step++)
+        {
+            var next = new HashSet<long>();
+            foreach (var way in minorWays)
+            {
+                if (ways.ContainsKey(way.Id) || !way.Nodes.Any(frontier.Contains))
+                {
+                    continue;
+                }
+
+                ways[way.Id] = way;
+                added++;
+                if (way.Nodes.Any(mainNodes.Contains))
+                {
+                    continue; // reached the network
+                }
+
+                foreach (var id in way.Nodes) next.Add(id);
+            }
+
+            frontier = next;
+        }
+
+        Console.WriteLine($"  ferries: {ferryEnds.Count / 2:N0} lines, {added:N0} access roads added");
     }
 
     private static PlaceEntry? PlaceFrom(Node node, double lat, double lon)

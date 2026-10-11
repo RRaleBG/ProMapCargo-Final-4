@@ -68,8 +68,27 @@ public sealed class OfflineRouter
     public OfflineRoute? Route(double startLat, double startLon, double destinationLat, double destinationLon, TruckDimensions? truck = null)
     {
         currentTruck = truck;
-        var start = Snap(startLat, startLon);
-        var end = Snap(destinationLat, destinationLon);
+
+        // The nearest road may be a dead end in the driving direction (or a one-way the
+        // wrong way); try the few nearest roads at each end before giving up.
+        var starts = SnapCandidates(startLat, startLon, 3);
+        var ends = SnapCandidates(destinationLat, destinationLon, 3);
+        foreach (var start in starts)
+        {
+            foreach (var end in ends)
+            {
+                if (RouteBetween(start, end) is { } route)
+                {
+                    return route;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private OfflineRoute? RouteBetween(SnapPoint? start, SnapPoint? end)
+    {
         if (start is null || end is null)
         {
             return null;
@@ -108,14 +127,16 @@ public sealed class OfflineRouter
 
     public readonly record struct SnapPoint(int Road, double Along, double Length, double Lat, double Lon, double DistanceMeters);
 
-    public SnapPoint? Snap(double lat, double lon)
+    public SnapPoint? Snap(double lat, double lon) => SnapCandidates(lat, lon, 1).FirstOrDefault();
+
+    /// <summary>The nearest drivable roads (distinct), closest first, within the snap limit.</summary>
+    public List<SnapPoint?> SnapCandidates(double lat, double lon, int count)
     {
-        SnapPoint? best = null;
+        var found = new List<SnapPoint>();
         var cellRow = (int)Math.Floor((lat - graph.GridMinLat) / graph.GridCellDegrees);
         var cellCol = (int)Math.Floor((lon - graph.GridMinLon) / graph.GridCellDegrees);
         var seen = new HashSet<int>();
 
-        // Rings of cells outward until a road is found (and one more ring to be safe).
         for (var ring = 0; ring <= 30; ring++)
         {
             for (var row = cellRow - ring; row <= cellRow + ring; row++)
@@ -132,28 +153,28 @@ public sealed class OfflineRouter
                     for (var i = graph.GridOffsets[cell]; i < graph.GridOffsets[cell + 1]; i++)
                     {
                         var road = graph.GridRoads[i];
-                        if (!seen.Add(road))
+                        if (seen.Add(road))
                         {
-                            continue;
-                        }
-
-                        var candidate = ProjectOnRoad(road, lat, lon);
-                        if (best is null || candidate.DistanceMeters < best.Value.DistanceMeters)
-                        {
-                            best = candidate;
+                            found.Add(ProjectOnRoad(road, lat, lon));
                         }
                     }
                 }
             }
 
+            // Stop once enough roads are known that nothing in an unvisited ring can be closer.
             var ringMeters = ring * graph.GridCellDegrees * 111_000 * Math.Cos(lat * Math.PI / 180);
-            if (best is not null && best.Value.DistanceMeters < ringMeters)
+            if (found.Count >= count && found.OrderBy(f => f.DistanceMeters).ElementAt(count - 1).DistanceMeters < ringMeters)
             {
                 break;
             }
         }
 
-        return best is { } found && found.DistanceMeters <= MaxSnapMeters ? found : null;
+        return found
+            .Where(f => f.DistanceMeters <= MaxSnapMeters)
+            .OrderBy(f => f.DistanceMeters)
+            .Take(count)
+            .Select(f => (SnapPoint?)f)
+            .ToList();
     }
 
     private SnapPoint ProjectOnRoad(int road, double lat, double lon)

@@ -131,7 +131,7 @@ if (!pbfMode && !args.Contains("--force") && File.Exists(existingGraph) && File.
 var allowed = roads.Where(road => road.Coordinates.Length >= 4 && TruckRules.Allowed(road)).ToList();
 Console.WriteLine($"  {allowed.Count:N0} usable by the default truck");
 
-// ---- 2. Largest connected network only (drops private parking lots, islands) ----
+// ---- 2. Connected network only (drops private parking lots, islands, dead-end one-ways) ----
 var nodeIds = new Dictionary<long, int>();
 int NodeIndex(long id)
 {
@@ -150,32 +150,104 @@ foreach (var road in allowed)
     NodeIndex(road.TargetNode);
 }
 
-var parent = Enumerable.Range(0, nodeIds.Count).ToArray();
-int Find(int x)
-{
-    while (parent[x] != x)
-    {
-        parent[x] = parent[parent[x]];
-        x = parent[x];
-    }
-
-    return x;
-}
-
+// Strongly connected parts only (every junction reachable from every other in the
+// driving direction): one-way stubs left as dead ends (e.g. after dropping town streets
+// in slim packages) would trap a route that snaps onto them.
+var adjacencyOffsets = new int[nodeIds.Count + 1];
 foreach (var road in allowed)
 {
-    var a = Find(nodeIds[road.SourceNode]);
-    var b = Find(nodeIds[road.TargetNode]);
-    if (a != b) parent[a] = b;
+    if (road.Direction >= 0) adjacencyOffsets[nodeIds[road.SourceNode] + 1]++;
+    if (road.Direction <= 0) adjacencyOffsets[nodeIds[road.TargetNode] + 1]++;
+}
+
+for (var i = 0; i < nodeIds.Count; i++) adjacencyOffsets[i + 1] += adjacencyOffsets[i];
+var adjacency = new int[adjacencyOffsets[^1]];
+var fillAt = (int[])adjacencyOffsets.Clone();
+foreach (var road in allowed)
+{
+    var a = nodeIds[road.SourceNode];
+    var b = nodeIds[road.TargetNode];
+    if (road.Direction >= 0) adjacency[fillAt[a]++] = b;
+    if (road.Direction <= 0) adjacency[fillAt[b]++] = a;
+}
+
+// Iterative Tarjan.
+var componentOf = new int[nodeIds.Count];
+Array.Fill(componentOf, -1);
+var indexOf = new int[nodeIds.Count];
+Array.Fill(indexOf, -1);
+var lowLink = new int[nodeIds.Count];
+var onStack = new bool[nodeIds.Count];
+var sccStack = new Stack<int>();
+var callStack = new Stack<(int Node, int Edge)>();
+var counter = 0;
+var componentCount = 0;
+var componentSizeList = new List<int>();
+for (var root = 0; root < nodeIds.Count; root++)
+{
+    if (indexOf[root] >= 0) continue;
+    callStack.Push((root, adjacencyOffsets[root]));
+    indexOf[root] = lowLink[root] = counter++;
+    sccStack.Push(root);
+    onStack[root] = true;
+    while (callStack.Count > 0)
+    {
+        var (v, edge) = callStack.Pop();
+        if (edge < adjacencyOffsets[v + 1])
+        {
+            callStack.Push((v, edge + 1));
+            var w = adjacency[edge];
+            if (indexOf[w] < 0)
+            {
+                indexOf[w] = lowLink[w] = counter++;
+                sccStack.Push(w);
+                onStack[w] = true;
+                callStack.Push((w, adjacencyOffsets[w]));
+            }
+            else if (onStack[w])
+            {
+                lowLink[v] = Math.Min(lowLink[v], indexOf[w]);
+            }
+
+            continue;
+        }
+
+        if (lowLink[v] == indexOf[v])
+        {
+            var size = 0;
+            int w;
+            do
+            {
+                w = sccStack.Pop();
+                onStack[w] = false;
+                componentOf[w] = componentCount;
+                size++;
+            }
+            while (w != v);
+            componentSizeList.Add(size);
+            componentCount++;
+        }
+
+        if (callStack.Count > 0)
+        {
+            var parentNode = callStack.Peek().Node;
+            lowLink[parentNode] = Math.Min(lowLink[parentNode], lowLink[v]);
+        }
+    }
 }
 
 // Every sizeable network is kept, not only the largest: a region can consist of parts
 // joined only by sea (e.g. Finland), and ferries may be missing from an extract.
-var componentSizes = Enumerable.Range(0, nodeIds.Count).GroupBy(Find).ToDictionary(g => g.Key, g => g.Count());
-var largestSize = componentSizes.Values.Max();
-var keptComponents = componentSizes.Where(c => c.Value == largestSize || c.Value >= 20_000).Select(c => c.Key).ToHashSet();
-Console.WriteLine($"  networks kept: {keptComponents.Count} ({string.Join(", ", componentSizes.Where(c => keptComponents.Contains(c.Key)).Select(c => c.Value.ToString("N0")))} junctions)");
-var kept = allowed.Where(road => keptComponents.Contains(Find(nodeIds[road.SourceNode]))).ToList();
+var largestSize = componentSizeList.Max();
+var keptComponents = Enumerable.Range(0, componentCount)
+    .Where(c => componentSizeList[c] == largestSize || componentSizeList[c] >= 20_000)
+    .ToHashSet();
+Console.WriteLine($"  networks kept: {keptComponents.Count} ({string.Join(", ", keptComponents.Select(c => componentSizeList[c].ToString("N0")))} junctions, strongly connected)");
+var kept = allowed.Where(road =>
+{
+    var a = componentOf[nodeIds[road.SourceNode]];
+    return keptComponents.Contains(a) && componentOf[nodeIds[road.TargetNode]] == a;
+}).ToList();
 Console.WriteLine($"  {kept.Count:N0} roads in the main network");
 
 // Compact node numbering for the kept roads.
