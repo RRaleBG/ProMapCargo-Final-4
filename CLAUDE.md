@@ -68,9 +68,9 @@ They exist locally even though they are missing on GitHub: check `.gitignore` be
 
 ## MCP servers (`.mcp.json`)
 
-Tools for all of them: `pwsh scripts/install-dev-tools.ps1` (winget; also sets `PROMAP_DATABASE_URI`).
+Tools for all of them: `pwsh scripts/install-dev-tools.ps1` (winget).
 
-- `postgres`: read-only DB access (needs `uv`). Defaults to the local docker-compose database; override with `PROMAP_DATABASE_URI`, e.g.
+- `postgres`: read-only SQL queries (runs through npx, needs Node.js). Defaults to the local docker-compose database; override with `PROMAP_DATABASE_URI`, e.g.
   `setx PROMAP_DATABASE_URI "postgresql://promap:<password>@host:5432/promapcargo"`.
 - `mobile`: drives the phone or emulator through adb (needs Node.js and `adb` on PATH).
 - `context7`: current library docs (MAUI, Npgsql, NetTopologySuite).

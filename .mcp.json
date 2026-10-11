@@ -10,15 +10,23 @@
     "postgres": {
       "type": "stdio",
       "command": "cmd",
-      "args": ["/c", "uvx", "postgres-mcp", "--access-mode=restricted"],
-      "env": {
-        "DATABASE_URI": "${PROMAP_DATABASE_URI:-postgresql://promap:promap_dev_change_me@localhost:5432/promapcargo}"
-      }
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "${PROMAP_DATABASE_URI:-postgresql://promap:promap_dev_change_me@localhost:5432/promapcargo}"
+      ]
     },
     "mobile": {
       "type": "stdio",
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@mobilenext/mobile-mcp@latest"]
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@mobilenext/mobile-mcp@latest"
+      ]
     },
     "context7": {
       "type": "http",
