@@ -26,7 +26,14 @@ $repo = Resolve-Path (Join-Path $PSScriptRoot "../..")
 $project = Join-Path $repo "ProMapCargo.Mobile/ProMapCargo.Mobile.csproj"
 $output = Join-Path $repo "ProMapCargo.Mobile/bin/release-publish"
 
-$secure = Read-Host "Lozinka ključa" -AsSecureString
+# Password: from the DPAPI-protected file next to the key (only this Windows user can
+# decrypt it, see create-signing-key.ps1 -GeneratePassword), otherwise asked for.
+$passwordFile = Join-Path (Split-Path $KeystorePath) "keystore-password.dpapi"
+$secure = if (Test-Path $passwordFile) {
+    Get-Content $passwordFile | ConvertTo-SecureString
+} else {
+    Read-Host "Lozinka ključa" -AsSecureString
+}
 $env:PROMAP_KEYSTORE_PASS = [System.Net.NetworkCredential]::new("", $secure).Password
 try {
     $arguments = @("publish", $project, "-f", "net10.0-android", "-c", "Release", "-nologo", "-v", "q",
