@@ -245,6 +245,15 @@ public partial class MobileNavigationPage : ContentPage
             _ = PushStateToWebAsync();
         }
 
+        // GPS or the route arrived after the page opened: if another installed region covers
+        // it, reload the map from that region (else the map stays empty there).
+        if (e.PropertyName is nameof(NavigationViewModel.CurrentLocation) or nameof(NavigationViewModel.RouteStartPoint) &&
+            (viewModel.CurrentLocation ?? viewModel.RouteStartPoint) is { } where &&
+            offlineWebCache.SelectMapFor(where.Lat, where.Lon))
+        {
+            OnRetryMapClicked(null, EventArgs.Empty);
+        }
+
         if (e.PropertyName == nameof(NavigationViewModel.IsRouteInputVisible))
         {
             _ = ToggleRoutePopupAsync(viewModel.IsRouteInputVisible);

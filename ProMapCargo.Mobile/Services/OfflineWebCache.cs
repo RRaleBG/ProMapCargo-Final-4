@@ -81,10 +81,43 @@ public sealed class OfflineWebCache
 
     /// <summary>
     /// Where the map will be looked at (truck position or route start): with several
-    /// regional maps installed, the one covering this point is served. Set before the
-    /// navigation page loads; the archive is not switched while the page is open.
+    /// regional maps installed, the one covering this point is served. Remembered across
+    /// app starts: when the page opens before GPS or the route is known, the last place is
+    /// used instead of the largest map (which may not cover the truck: a black map).
     /// </summary>
-    public (double Lat, double Lon)? PreferredPoint { get; set; }
+    public (double Lat, double Lon)? PreferredPoint
+    {
+        get => preferredPoint ?? (Preferences.ContainsKey(LastLatKey)
+            ? (Preferences.Get(LastLatKey, 0d), Preferences.Get(LastLonKey, 0d))
+            : null);
+        set
+        {
+            preferredPoint = value;
+            if (value is { } point)
+            {
+                Preferences.Set(LastLatKey, point.Lat);
+                Preferences.Set(LastLonKey, point.Lon);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Points the map at a new place; true when another installed map covers it, so the
+    /// page must reload the map (an open PMTiles archive cannot be swapped underneath).
+    /// </summary>
+    public bool SelectMapFor(double lat, double lon)
+    {
+        PreferredPoint = (lat, lon);
+        var before = localMapPath;
+        var selected = FindInstalledMap();
+        localMapPath = selected;
+        localMapCheckedAt = DateTimeOffset.UtcNow;
+        return selected is not null && !string.Equals(before, selected, StringComparison.Ordinal);
+    }
+
+    private const string LastLatKey = "map.last_lat";
+    private const string LastLonKey = "map.last_lon";
+    private (double Lat, double Lon)? preferredPoint;
 
     /// <summary>
     /// Answers a WebView request, or returns null to let the WebView load it itself
