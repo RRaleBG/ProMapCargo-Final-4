@@ -12,6 +12,9 @@ public sealed class PostGisAStarRouter(
 {
     private const int MaxExpandedStates = 1_000_000;
 
+    // PreviousWay is set only at via nodes of turn restrictions (RestrictionSet.IsViaNode):
+    // elsewhere it does not change what may follow, and splitting the state by the
+    // incoming way only made A* expand each junction once per way.
     private readonly record struct SearchState(
         long Node,
         long? PreviousWay);
@@ -242,7 +245,7 @@ public sealed class PostGisAStarRouter(
             var state =
                 new SearchState(
                     startEdge.TargetNode,
-                    startEdge.WayId);
+                    restrictionSet.IsViaNode(startEdge.TargetNode) ? startEdge.WayId : null);
 
             var traversal =
                 new RoutedTraversal(
@@ -277,7 +280,7 @@ public sealed class PostGisAStarRouter(
             var state =
                 new SearchState(
                     startEdge.SourceNode,
-                    startEdge.WayId);
+                    restrictionSet.IsViaNode(startEdge.SourceNode) ? startEdge.WayId : null);
 
             var traversal =
                 new RoutedTraversal(
@@ -655,7 +658,7 @@ public sealed class PostGisAStarRouter(
                 var nextState =
                     new SearchState(
                         nextNode,
-                        edge.WayId);
+                        restrictionSet.IsViaNode(nextNode) ? edge.WayId : null);
 
                 if (dist.TryGetValue(
                         nextState,

@@ -60,6 +60,41 @@ public sealed class RoutingGraphCache(
 
     public int MaxTiles => maxTiles;
 
+    /// <summary>
+    /// Loads the tiles of an area ahead of the first request (RoutingGraphWarmupService), so
+    /// a long route there does not wait for dozens of tile queries. Stops before the cache
+    /// would start evicting. Returns the number of tiles in memory for the area.
+    /// </summary>
+    public async Task<int> WarmUpAsync(long version, double minLon, double minLat, double maxLon, double maxLat, CancellationToken ct)
+    {
+        var keys = new List<GraphTileKey>();
+        for (var x = (int)Math.Floor(minLon / TileSizeDegrees); x <= (int)Math.Floor(maxLon / TileSizeDegrees); x++)
+        {
+            for (var y = (int)Math.Floor(minLat / TileSizeDegrees); y <= (int)Math.Floor(maxLat / TileSizeDegrees); y++)
+            {
+                keys.Add(new GraphTileKey(version, x, y));
+            }
+        }
+
+        // Headroom for tiles of routes outside the area.
+        var budget = Math.Max(0, maxTiles - 100);
+        var loaded = 0;
+        foreach (var batch in keys.Take(budget).Chunk(MaxParallelTileLoads))
+        {
+            await Task.WhenAll(batch.Select(key => GetTileAsync(key, ct)));
+            loaded += batch.Length;
+        }
+
+        if (keys.Count > budget)
+        {
+            log.LogWarning(
+                "Routing graph warm-up covered {Loaded} of {Total} tiles: raise RoutingGraphCache:MaxTiles to keep the whole area in memory.",
+                loaded, keys.Count);
+        }
+
+        return loaded;
+    }
+
     /// <summary>Creates a per-request view onto the cache for one graph version.</summary>
     public RoutingGraphView CreateView(long version) => new(this, version);
 

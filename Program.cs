@@ -253,6 +253,7 @@ builder.Services.AddScoped<IRestrictionEngine, PostgresRestrictionEngine>();
 builder.Services.AddSingleton<PostGisRoutingRepository>();
 builder.Services.AddSingleton<TurnRestrictionMatcher>();
 builder.Services.AddSingleton<RoutingGraphCache>();
+builder.Services.AddHostedService<RoutingGraphWarmupService>();
 builder.Services.AddScoped<ManeuverBuilder>();
 builder.Services.AddScoped<TruckEdgeEvaluator>();
 builder.Services.AddScoped<EdgeSnapper>();

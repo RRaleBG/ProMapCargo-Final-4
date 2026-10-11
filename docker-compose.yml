@@ -70,8 +70,10 @@ services:
       DOTNET_gcServer: "1"
       DOTNET_GCHeapHardLimitPercent: "75"
       DOTNET_ThreadPool_MinThreads: "8"
-      # In-memory routing graph cache: number of 0.1 degree tiles kept in RAM.
-      RoutingGraphCache__MaxTiles: "120"
+      # In-memory routing graph cache: number of 0.1 degree tiles kept in RAM (~0.8 MB each).
+      # Serbia is 1,804 tiles, loaded at start (RoutingGraphCache__WarmUpBox, default Serbia);
+      # the rest serves routes into the Western Balkans without reloading tiles.
+      RoutingGraphCache__MaxTiles: "3000"
     ports:
       - "8080:8080"
     volumes:
@@ -81,9 +83,9 @@ services:
       - ./wwwroot/fonts:/app/wwwroot/fonts:ro
       - ./wwwroot/lib:/app/wwwroot/lib:ro
       - dataprotection_keys:/root/.aspnet/DataProtection-Keys
-    # Raised from 1g: the routing graph cache keeps several hundred MB of
-    # edges in memory (GC heap hard limit is 75% of this value).
-    mem_limit: "2g"
+    # The routing graph cache keeps Serbia in memory (~1.5 GB with the place search;
+    # GC heap hard limit is 75% of this value).
+    mem_limit: "4g"
     depends_on:
       postgres:
         condition: service_healthy

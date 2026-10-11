@@ -112,6 +112,7 @@ public sealed record Rule(string? Type, long? FromWay, long? ToWay, long[] ViaNo
 public sealed class RestrictionSet
 {
     private readonly Dictionary<long, List<Rule>> rulesByFromWay;
+    private readonly HashSet<long> viaNodes;
 
     public RestrictionSet(IReadOnlyList<Rule> rules)
     {
@@ -119,7 +120,14 @@ public sealed class RestrictionSet
             .Where(rule => rule.FromWay.HasValue)
             .GroupBy(rule => rule.FromWay!.Value)
             .ToDictionary(group => group.Key, group => group.ToList());
+        viaNodes = rules.SelectMany(rule => rule.ViaNodes).ToHashSet();
     }
+
+    /// <summary>
+    /// Every rule has a via node (others are skipped when loading), so the way a node was
+    /// reached only matters at those nodes; elsewhere the router keeps one state per node.
+    /// </summary>
+    public bool IsViaNode(long node) => viaNodes.Contains(node);
 
     public bool Allows(long? previousWay, long nextWay, long node)
     {
