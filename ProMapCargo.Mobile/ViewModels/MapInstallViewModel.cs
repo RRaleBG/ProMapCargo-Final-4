@@ -9,6 +9,7 @@ public sealed class MapInstallViewModel : ViewModelBase
 {
     private readonly OfflineMapService offlineMapService;
     private readonly OfflineRoutingBundleService offlineRoutingBundleService;
+    private readonly IMobileNotifier notifier;
     private bool isBusy;
     private bool isDownloading;
     private double downloadProgress;
@@ -16,10 +17,11 @@ public sealed class MapInstallViewModel : ViewModelBase
     private string bundleStatusText = "Offline paketi za rutiranje nisu instalirani.";
     private bool offlineBundleReady;
 
-    public MapInstallViewModel(OfflineMapService offlineMapService, OfflineRoutingBundleService offlineRoutingBundleService)
+    public MapInstallViewModel(OfflineMapService offlineMapService, OfflineRoutingBundleService offlineRoutingBundleService, IMobileNotifier notifier)
     {
         this.offlineMapService = offlineMapService;
         this.offlineRoutingBundleService = offlineRoutingBundleService;
+        this.notifier = notifier;
 
         AvailablePackages = [];
         InstalledPackages = [];
@@ -139,7 +141,7 @@ public sealed class MapInstallViewModel : ViewModelBase
 
     private async Task InstallAsync(MapPackageCatalogItem? package)
     {
-        if (package is null || IsBusy)
+        if (package is null || await IsBusyNotifiedAsync())
         {
             return;
         }
@@ -160,7 +162,10 @@ public sealed class MapInstallViewModel : ViewModelBase
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     DownloadProgress = value;
-                    StatusText = $"Preuzimanje mape {package.DisplayName}: {Math.Round(value * 100)}%";
+                    // At 100% the file is checked against the server's SHA-256 (a few seconds).
+                    StatusText = value >= 1
+                        ? $"Provera mape {package.DisplayName}…"
+                        : $"Preuzimanje mape {package.DisplayName}: {Math.Round(value * 100)}%";
                 });
             });
 
@@ -186,7 +191,7 @@ public sealed class MapInstallViewModel : ViewModelBase
 
     private async Task InstallBundleAsync(OfflineRoutingBundleCatalogItem? bundle)
     {
-        if (bundle is null || IsBusy)
+        if (bundle is null || await IsBusyNotifiedAsync())
         {
             return;
         }
@@ -207,7 +212,9 @@ public sealed class MapInstallViewModel : ViewModelBase
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     DownloadProgress = value;
-                    StatusText = $"Preuzimanje paketa {bundle.DisplayName}: {Math.Round(value * 100)}%";
+                    StatusText = value >= 1
+                        ? $"Provera paketa {bundle.DisplayName}…"
+                        : $"Preuzimanje paketa {bundle.DisplayName}: {Math.Round(value * 100)}%";
                 });
             });
 
@@ -234,6 +241,20 @@ public sealed class MapInstallViewModel : ViewModelBase
         {
             await SetDownloadingAsync(false);
         }
+    }
+
+    // One download at a time: a tap meanwhile says why nothing starts instead of doing nothing.
+    private async Task<bool> IsBusyNotifiedAsync()
+    {
+        if (!IsBusy)
+        {
+            return false;
+        }
+
+        await notifier.ShowInfoAsync(IsDownloading
+            ? "Sačekajte da se završi preuzimanje koje je u toku."
+            : "Katalog mapa se još učitava, pokušajte za trenutak.");
+        return true;
     }
 
     private Task SetBusyAsync(bool value)

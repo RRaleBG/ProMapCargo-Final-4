@@ -52,38 +52,11 @@ public sealed class OfflineMapService(HttpClient httpClient, MobileServerEndpoin
 
         Directory.CreateDirectory(mapsRootPath);
 
-        var downloadUrl = serverEndpointService.CreateUri(package.DownloadUrl);
-
-        using var request = new HttpRequestMessage(HttpMethod.Get, downloadUrl);
-        using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
-
+        // The installed map stays usable until the new one is complete (an update used to
+        // overwrite it in place, so a lost connection left a broken map).
         var targetPath = Path.Combine(mapsRootPath, package.FileName);
-        await using var target = File.Create(targetPath);
-        await using var source = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-        var buffer = new byte[1024 * 64];
-        long totalRead = 0;
-        var contentLength = response.Content.Headers.ContentLength;
-
-        while (true)
-        {
-            var read = await source.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
-            if (read == 0)
-            {
-                break;
-            }
-
-            await target.WriteAsync(buffer.AsMemory(0, read), cancellationToken).ConfigureAwait(false);
-            totalRead += read;
-
-            if (contentLength.HasValue && contentLength.Value > 0)
-            {
-                progress?.Report((double)totalRead / contentLength.Value);
-            }
-        }
-
-        progress?.Report(1d);
+        await ResumableDownload.DownloadAsync(httpClient, serverEndpointService.CreateUri(package.DownloadUrl), targetPath, package.Sha256, progress, cancellationToken)
+            .ConfigureAwait(false);
 
         var installed = new InstalledMapPackage(
             package.Id,

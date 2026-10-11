@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ProMapCargo.Api.Services;
 
 namespace ProMapCargo.Api.Controllers;
 
@@ -33,7 +34,8 @@ public sealed class MapPackagesController(IWebHostEnvironment environment) : Con
                     FileName: fileName,
                     DownloadUrl: $"/maps/{Uri.EscapeDataString(fileName)}",
                     SizeBytes: fileInfo.Length,
-                    LastModifiedUtc: fileInfo.LastWriteTimeUtc);
+                    LastModifiedUtc: fileInfo.LastWriteTimeUtc,
+                    Sha256: FileChecksum.Read(filePath));
             })
             .OrderBy(item => item.DisplayName, StringComparer.OrdinalIgnoreCase)
             .ToArray();
@@ -108,5 +110,6 @@ public sealed class MapPackagesController(IWebHostEnvironment environment) : Con
         string FileName,
         string DownloadUrl,
         long SizeBytes,
-        DateTime LastModifiedUtc);
+        DateTime LastModifiedUtc,
+        string? Sha256);
 }

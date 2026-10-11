@@ -82,14 +82,9 @@ public sealed class OfflineRoutingBundleService(HttpClient httpClient, MobileSer
         Directory.CreateDirectory(bundlesRootPath);
 
         var bundleDir = Path.Combine(bundlesRootPath, catalogItem.Id);
+        // Kept after a failed download: the next attempt resumes the .part files.
         var tempDir = Path.Combine(bundleDir, "_tmp");
         Directory.CreateDirectory(bundleDir);
-
-        if (Directory.Exists(tempDir))
-        {
-            Directory.Delete(tempDir, recursive: true);
-        }
-
         Directory.CreateDirectory(tempDir);
 
         var graphTempPath = Path.Combine(tempDir, catalogItem.GraphFileName);
@@ -102,82 +97,39 @@ public sealed class OfflineRoutingBundleService(HttpClient httpClient, MobileSer
         var graphProgress = new Progress<double>(value => progress?.Report((value * graphWeight) / totalWeight));
         var placesProgress = new Progress<double>(value => progress?.Report((graphWeight + (value * placesWeight)) / totalWeight));
 
-        try
-        {
-            await DownloadToFileAsync(catalogItem.GraphDownloadUrl, graphTempPath, graphProgress, cancellationToken).ConfigureAwait(false);
-            await DownloadToFileAsync(catalogItem.PlacesDownloadUrl, placesTempPath, placesProgress, cancellationToken).ConfigureAwait(false);
+        await DownloadToFileAsync(catalogItem.GraphDownloadUrl, graphTempPath, catalogItem.ChecksumSha256, graphProgress, cancellationToken).ConfigureAwait(false);
+        await DownloadToFileAsync(catalogItem.PlacesDownloadUrl, placesTempPath, catalogItem.PlacesChecksumSha256, placesProgress, cancellationToken).ConfigureAwait(false);
 
-            var graphFinalPath = Path.Combine(bundleDir, catalogItem.GraphFileName);
-            var placesFinalPath = Path.Combine(bundleDir, catalogItem.PlacesFileName);
+        var graphFinalPath = Path.Combine(bundleDir, catalogItem.GraphFileName);
+        var placesFinalPath = Path.Combine(bundleDir, catalogItem.PlacesFileName);
+        File.Move(graphTempPath, graphFinalPath, overwrite: true);
+        File.Move(placesTempPath, placesFinalPath, overwrite: true);
 
-            MoveFileAtomic(graphTempPath, graphFinalPath);
-            MoveFileAtomic(placesTempPath, placesFinalPath);
+        var installed = new InstalledOfflineRoutingBundle(
+            catalogItem.Id,
+            catalogItem.CountryCode,
+            catalogItem.DisplayName,
+            catalogItem.Version,
+            graphFinalPath,
+            placesFinalPath,
+            catalogItem.ChecksumSha256,
+            DateTime.UtcNow);
 
-            var installed = new InstalledOfflineRoutingBundle(
-                catalogItem.Id,
-                catalogItem.CountryCode,
-                catalogItem.DisplayName,
-                catalogItem.Version,
-                graphFinalPath,
-                placesFinalPath,
-                catalogItem.ChecksumSha256,
-                DateTime.UtcNow);
-
-            await UpsertManifestAsync(installed, cancellationToken).ConfigureAwait(false);
-            progress?.Report(1d);
-            return installed;
-        }
-        catch
-        {
-            SafeDeleteFile(graphTempPath);
-            SafeDeleteFile(placesTempPath);
-            throw;
-        }
-        finally
-        {
-            if (Directory.Exists(tempDir))
-            {
-                Directory.Delete(tempDir, recursive: true);
-            }
-        }
+        await UpsertManifestAsync(installed, cancellationToken).ConfigureAwait(false);
+        Directory.Delete(tempDir, recursive: true);
+        progress?.Report(1d);
+        return installed;
     }
 
-    private async Task DownloadToFileAsync(string relativeUrl, string targetPath, IProgress<double>? progress, CancellationToken cancellationToken)
+    private async Task DownloadToFileAsync(string relativeUrl, string targetPath, string? sha256, IProgress<double>? progress, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(relativeUrl))
         {
             throw new ArgumentException("Bundle URL is missing.", nameof(relativeUrl));
         }
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, serverEndpointService.CreateUri(relativeUrl));
-        using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
-
-        await using var destination = File.Create(targetPath);
-        await using var source = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-        var buffer = new byte[1024 * 64];
-        long totalRead = 0;
-        var contentLength = response.Content.Headers.ContentLength;
-
-        while (true)
-        {
-            var read = await source.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
-            if (read == 0)
-            {
-                break;
-            }
-
-            await destination.WriteAsync(buffer.AsMemory(0, read), cancellationToken).ConfigureAwait(false);
-            totalRead += read;
-
-            if (contentLength.HasValue && contentLength.Value > 0)
-            {
-                progress?.Report((double)totalRead / contentLength.Value);
-            }
-        }
-
-        progress?.Report(1d);
+        await ResumableDownload.DownloadAsync(httpClient, serverEndpointService.CreateUri(relativeUrl), targetPath, sha256, progress, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     private async Task UpsertManifestAsync(InstalledOfflineRoutingBundle bundle, CancellationToken cancellationToken)
@@ -195,29 +147,5 @@ public sealed class OfflineRoutingBundleService(HttpClient httpClient, MobileSer
         Directory.CreateDirectory(bundlesRootPath);
         await using var stream = File.Create(manifestPath);
         await JsonSerializer.SerializeAsync(stream, updated, SerializerOptions, cancellationToken).ConfigureAwait(false);
-    }
-
-    private static void MoveFileAtomic(string source, string destination)
-    {
-        if (File.Exists(destination))
-        {
-            File.Delete(destination);
-        }
-
-        File.Move(source, destination);
-    }
-
-    private static void SafeDeleteFile(string path)
-    {
-        try
-        {
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
-        }
-        catch
-        {
-        }
     }
 }

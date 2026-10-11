@@ -17,7 +17,8 @@ public sealed record MapPackageCatalogItem(
     [property: JsonPropertyName("fileName")] string FileName,
     [property: JsonPropertyName("downloadUrl")] string DownloadUrl,
     [property: JsonPropertyName("sizeBytes")] long SizeBytes,
-    [property: JsonPropertyName("lastModifiedUtc")] DateTime LastModifiedUtc)
+    [property: JsonPropertyName("lastModifiedUtc")] DateTime LastModifiedUtc,
+    [property: JsonPropertyName("sha256")] string? Sha256 = null)
 {
     /// <summary>Instaliraj / Ažuriraj / Instalirano (set by the app).</summary>
     [JsonIgnore]

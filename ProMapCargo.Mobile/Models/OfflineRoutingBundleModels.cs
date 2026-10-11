@@ -14,7 +14,8 @@ public sealed record OfflineRoutingBundleCatalogItem(
     [property: JsonPropertyName("placesDownloadUrl")] string PlacesDownloadUrl,
     [property: JsonPropertyName("placesSizeBytes")] long PlacesSizeBytes,
     [property: JsonPropertyName("checksumSha256")] string ChecksumSha256,
-    [property: JsonPropertyName("generatedAtUtc")] DateTime GeneratedAtUtc)
+    [property: JsonPropertyName("generatedAtUtc")] DateTime GeneratedAtUtc,
+    [property: JsonPropertyName("placesChecksumSha256")] string? PlacesChecksumSha256 = null)
 {
     /// <summary>Button text in "Offline mape": Instaliraj / Ažuriraj / Instalirano (set by the app).</summary>
     [JsonIgnore]

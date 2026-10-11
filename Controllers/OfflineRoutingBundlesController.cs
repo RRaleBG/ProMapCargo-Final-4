@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ProMapCargo.Api.Models;
+using ProMapCargo.Api.Services;
 
 namespace ProMapCargo.Api.Controllers;
 
@@ -47,8 +48,9 @@ public sealed class OfflineRoutingBundlesController(IWebHostEnvironment environm
                     PlacesFileName: places.Name,
                     PlacesDownloadUrl: $"/offline-bundles/{Uri.EscapeDataString(places.Name)}",
                     PlacesSizeBytes: places.Length,
-                    ChecksumSha256: string.Empty,
-                    GeneratedAtUtc: generatedAt);
+                    ChecksumSha256: FileChecksum.Read(graph.FullName) ?? string.Empty,
+                    GeneratedAtUtc: generatedAt,
+                    PlacesChecksumSha256: FileChecksum.Read(places.FullName));
             })
             .OrderBy(item => item.DisplayName, StringComparer.OrdinalIgnoreCase)
             .ToArray();

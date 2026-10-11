@@ -230,6 +230,9 @@ COMMIT;
         }
     }
 
+    # Checksums of the new files: the app verifies every download against them.
+    & "$repo/scripts/write-checksums.ps1"
+
     # ---- 6. Checks against the running API ----
     Step "6. Checks"
     foreach ($query in "Zagreb", "Niš", "pumpa, Novi Sad", "granični prelaz Batrovci") {

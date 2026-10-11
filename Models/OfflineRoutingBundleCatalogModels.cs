@@ -14,4 +14,6 @@ public sealed record OfflineRoutingBundleCatalogItem(
     [property: JsonPropertyName("placesDownloadUrl")] string PlacesDownloadUrl,
     [property: JsonPropertyName("placesSizeBytes")] long PlacesSizeBytes,
     [property: JsonPropertyName("checksumSha256")] string ChecksumSha256,
-    [property: JsonPropertyName("generatedAtUtc")] DateTime GeneratedAtUtc);
+    [property: JsonPropertyName("generatedAtUtc")] DateTime GeneratedAtUtc,
+    // SHA-256 of the places file (checksumSha256 is the graph file's); null when unknown.
+    [property: JsonPropertyName("placesChecksumSha256")] string? PlacesChecksumSha256 = null);
