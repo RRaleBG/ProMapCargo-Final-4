@@ -5,6 +5,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY ProMapCargo.Api.csproj .
+COPY OfflineRouting/ProMapCargo.OfflineRouting.csproj OfflineRouting/
 
 RUN dotnet restore ProMapCargo.Api.csproj
 

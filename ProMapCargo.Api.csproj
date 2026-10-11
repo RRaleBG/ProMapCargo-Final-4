@@ -53,6 +53,9 @@
     <None Remove="Tools\**" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="OfflineRouting\ProMapCargo.OfflineRouting.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Remove="wwwroot\maps\pmtiles.exe" />
   </ItemGroup>
   <ItemGroup>

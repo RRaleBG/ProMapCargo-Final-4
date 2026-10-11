@@ -135,7 +135,7 @@ Truck-aware PostGIS routing engine:
 #### Services (`Services/`)
 Core business logic:
 - `IRoutingService.cs`, `OsrmRoutingService.cs` — Fallback OSRM routing
-- `IGeocodingService.cs`, `NominatimGeocodingService.cs` — Nominatim geocoding
+- `IGeocodingService.cs`, `OfflinePlaceGeocodingService.cs` — place search from the offline place indexes (`wwwroot/offline-bundles/*.places`, `OfflineRouting` `PlaceIndex`); no external geocoder
 - `IRestrictionEngine.cs`, `PostgresRestrictionEngine.cs`, `RestrictionEngine.cs` — Truck restriction evaluation
 - `IRestrictionRepository.cs`, `PostgresRestrictionRepository.cs`, `JsonRestrictionRepository.cs` — Restriction data
 - `MobileTokenService.cs`, `ApiAuthHandler.cs` — Mobile authentication & JWT
@@ -195,7 +195,7 @@ Server-rendered UI using .NET MAUI-agnostic patterns:
 - `maps/serbia.pmtiles` — Serbia vector tiles
 - `maps/europe.pmtiles` — Europe vector tiles
 - `fonts/Noto Sans Regular/*.pbf` — Glyphs for MapLibre text rendering
-- `styles/promap-dark.json` — MapLibre style definition
+- `styles/promap-dark3.json` — MapLibre style definition
 
 #### SQL Scripts (`Sql/`)
 - `03-routing-graph.sql` — PostGIS routing schema (nodes, edges, restrictions, cells)
@@ -524,7 +524,7 @@ Local development stack (`docker-compose.yml`):
 **Environment Variables** (`.env`):
 - `ConnectionStrings__Postgres` — API database connection
 - `OSM_URL` — ORM service endpoint from local  only !!
-- `NOMINATIM_URL` — Nominatim geocoding  local endpoint
+- Geocoding has no endpoint: it reads the local `*.places` indexes. No external OSRM or geocoding service is used.
 
 **Important**: 
 - Container-to-container: use service name (`postgres`), not `localhost`
@@ -673,7 +673,7 @@ ProMapCargo.Api/
 │
 ├── Services/                            ← Business services
 │   ├── IRoutingService.cs, OsrmRoutingService.cs    ← OSRM fallback
-│   ├── IGeocodingService.cs, NominatimGeocodingService.cs
+│   ├── IGeocodingService.cs, OfflinePlaceGeocodingService.cs
 │   ├── IRestrictionEngine.cs, PostgresRestrictionEngine.cs, RestrictionEngine.cs
 │   ├── IRestrictionRepository.cs, PostgresRestrictionRepository.cs, JsonRestrictionRepository.cs
 │   ├── MobileTokenService.cs, ApiAuthHandler.cs
@@ -782,7 +782,7 @@ ProMapCargo.Api/
 	│       └── 1024-1279.pbf
 	│
 	└── styles/
-		└── promap-dark.json             ← MapLibre style
+		└── promap-dark3.json             ← MapLibre style
 ### ProMapCargo.Mobile
 ProMapCargo.Mobile/
 ├── ProMapCargo.Mobile.csproj            ← MAUI project

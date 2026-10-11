@@ -224,11 +224,8 @@ builder.Services.AddScoped<IAccountAdminService, AccountAdminService>();
 // GEOCODING & ROUTING HTTP CLIENTS
 // ============================================================
 
-builder.Services.AddHttpClient<IGeocodingService, NominatimGeocodingService>(client =>
-{
-    client.Timeout = TimeSpan.FromSeconds(15);
-    client.DefaultRequestHeaders.UserAgent.ParseAdd("ProMapCargo/1.0");
-});
+// Place search from the offline place indexes (no external geocoder).
+builder.Services.AddSingleton<IGeocodingService, OfflinePlaceGeocodingService>();
 
 builder.Services.AddHttpClient<IRoutingService, OsrmRoutingService>(client =>
 {

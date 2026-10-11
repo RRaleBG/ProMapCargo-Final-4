@@ -16,7 +16,6 @@ TestResults/
 # Nested projects not needed for the API image build
 ProMapCargo.Mobile/
 Importer/
-OfflineRouting/
 Tools/
 
 # Large local datasets and generated routing/map assets
