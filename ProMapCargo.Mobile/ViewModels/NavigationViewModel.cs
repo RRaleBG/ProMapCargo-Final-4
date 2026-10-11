@@ -101,6 +101,7 @@ public class NavigationViewModel : ViewModelBase
         ToggleRouteInputCommand = new Command(ToggleRouteInput);
         RerouteCommand = new Command(async () => await RerouteFromCurrentLocationAsync(), () => !IsBusy);
         SpeakNextPromptCommand = new Command(async () => await SpeakNextPromptAsync(force: true));
+        ToggleSimulationCommand = new Command(ToggleSimulation);
 
         RoutingModes = ["Auto", "Online", "Offline"];
 
@@ -269,6 +270,106 @@ public class NavigationViewModel : ViewModelBase
     public ICommand RerouteCommand { get; }
 
     public ICommand SpeakNextPromptCommand { get; }
+
+    public ICommand ToggleSimulationCommand { get; }
+
+    // ---- Drive simulation (testing without driving) ----
+    // Feeds positions along the calculated route once per second, like a GPS fix;
+    // real GPS fixes are ignored while it runs.
+    private const double SimulationSpeedMps = 50 / 3.6;
+    private CancellationTokenSource? simulationCts;
+
+    public bool IsSimulating => simulationCts is not null;
+
+    public string SimulationButtonText => IsSimulating ? "Zaustavi simulaciju" : "Simuliraj vožnju";
+
+    private void ToggleSimulation()
+    {
+        if (simulationCts is { } running)
+        {
+            running.Cancel();
+            simulationCts = null;
+            RaiseSimulationChanged();
+            return;
+        }
+
+        if (RoutePolylinePoints.Count < 2)
+        {
+            _ = notifier.ShowInfoAsync("Prvo izračunajte rutu, pa pokrenite simulaciju.");
+            return;
+        }
+
+        var cts = new CancellationTokenSource();
+        simulationCts = cts;
+        RaiseSimulationChanged();
+        _ = RunSimulationAsync(RoutePolylinePoints.ToList(), cts);
+    }
+
+    private void RaiseSimulationChanged()
+    {
+        RaisePropertyChanged(nameof(IsSimulating));
+        RaisePropertyChanged(nameof(SimulationButtonText));
+    }
+
+    private async Task RunSimulationAsync(IReadOnlyList<GeoPoint> route, CancellationTokenSource cts)
+    {
+        try
+        {
+            var segment = 0;
+            var intoSegment = 0.0;
+
+            while (!cts.IsCancellationRequested && segment < route.Count - 1)
+            {
+                var from = route[segment];
+                var to = route[segment + 1];
+                var length = DistanceMeters(from, to);
+                var t = length > 0 ? Math.Min(1, intoSegment / length) : 1;
+                var lat = from.Lat + (to.Lat - from.Lat) * t;
+                var lon = from.Lon + (to.Lon - from.Lon) * t;
+
+                await MainThread.InvokeOnMainThreadAsync(() => UpdateCurrentLocation(lat, lon, SimulationSpeedMps));
+                await Task.Delay(1000, cts.Token);
+
+                // Advance one second of driving, across as many route points as needed.
+                intoSegment += SimulationSpeedMps;
+                while (segment < route.Count - 1)
+                {
+                    var segmentLength = DistanceMeters(route[segment], route[segment + 1]);
+                    if (intoSegment <= segmentLength)
+                    {
+                        break;
+                    }
+
+                    intoSegment -= segmentLength;
+                    segment++;
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        finally
+        {
+            if (ReferenceEquals(simulationCts, cts))
+            {
+                simulationCts = null;
+                await MainThread.InvokeOnMainThreadAsync(RaiseSimulationChanged);
+            }
+
+            cts.Dispose();
+        }
+    }
+
+    private static double DistanceMeters(GeoPoint a, GeoPoint b)
+    {
+        const double earthRadius = 6371000;
+        var dLat = (b.Lat - a.Lat) * Math.PI / 180;
+        var dLon = (b.Lon - a.Lon) * Math.PI / 180;
+        var h = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+            Math.Cos(a.Lat * Math.PI / 180) * Math.Cos(b.Lat * Math.PI / 180) *
+            Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+        return earthRadius * 2 * Math.Atan2(Math.Sqrt(h), Math.Sqrt(1 - h));
+    }
 
     public string StartLatitude
     {
@@ -732,6 +833,10 @@ public class NavigationViewModel : ViewModelBase
 
     public void StopGpsTracking()
     {
+        simulationCts?.Cancel();
+        simulationCts = null;
+        RaiseSimulationChanged();
+
         gpsTrackingCts?.Cancel();
         gpsTrackingCts = null;
 
@@ -870,6 +975,11 @@ public class NavigationViewModel : ViewModelBase
     private void OnGpsLocationChanged(object? sender, GeolocationLocationChangedEventArgs e)
     {
         var location = e.Location;
+        if (IsSimulating)
+        {
+            return;
+        }
+
         MainThread.BeginInvokeOnMainThread(() => UpdateCurrentLocation(location.Latitude, location.Longitude, location.Speed));
     }
 
@@ -883,7 +993,7 @@ public class NavigationViewModel : ViewModelBase
                     new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(10)),
                     cancellationToken);
 
-                if (location is not null)
+                if (location is not null && !IsSimulating)
                 {
                     await MainThread.InvokeOnMainThreadAsync(() => UpdateCurrentLocation(location.Latitude, location.Longitude, location.Speed));
                 }

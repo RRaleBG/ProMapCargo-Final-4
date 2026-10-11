@@ -219,6 +219,12 @@
                             Command="{Binding ToggleRouteInputCommand}"
                             Style="{StaticResource PmMapMiniButton}"
                             Text="{Binding RouteInputButtonText}" />
+                        <!--  Test drive along the route without moving (no real GPS needed)  -->
+                        <Button
+                            Command="{Binding ToggleSimulationCommand}"
+                            IsVisible="{Binding HasRoute}"
+                            Style="{StaticResource PmMapMiniButton}"
+                            Text="{Binding SimulationButtonText}" />
                     </VerticalStackLayout>
                 </Grid>
 
