@@ -11,7 +11,7 @@
 - `promap-map-layers.js`
 - `promap-map-enhancements.js`
 - `navigation.js`
-- `promap-dark.json`
+- `promap-dark3.json`
 
 ## Debug checklist
 When a source/layer error appears:

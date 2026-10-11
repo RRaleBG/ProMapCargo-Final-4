@@ -1076,7 +1076,7 @@ window.ProMap = window.ProMap || {};
                 cache: "no-store",
             }).then(async (response) => {
                 if (!response.ok) {
-                    throw new Error(`promap-dark.json HTTP ${response.status}`);
+                    throw new Error(`promap-dark3.json HTTP ${response.status}`);
                 }
 
                 return response.json();
@@ -1092,11 +1092,11 @@ window.ProMap = window.ProMap || {};
             );
 
             if (Number(style.version) !== 8) {
-                throw new Error("promap-dark.json mora biti MapLibre Style v8.");
+                throw new Error("promap-dark3.json mora biti MapLibre Style v8.");
             }
 
             if (!Array.isArray(style.layers)) {
-                throw new Error("promap-dark.json nema layers array.");
+                throw new Error("promap-dark3.json nema layers array.");
             }
 
             const map = new maplibregl.Map({
@@ -1496,7 +1496,7 @@ window.ProMap = window.ProMap || {};
              * LOCAL MAP ICONS
              * =====================================================
              *
-             * promap-dark.json koristi runtime image ID-jeve:
+             * promap-dark3.json koristi runtime image ID-jeve:
              *
              * promap-shield-motorway
              * promap-shield-trunk

@@ -8,7 +8,7 @@
  * IMPORTANT:
  * This module ONLY registers runtime images.
  * It does NOT create MapLibre layers.
- * Layers are defined by promap-dark.json.
+ * Layers are defined by promap-dark3.json.
  * ============================================================ */
 
 (() => {

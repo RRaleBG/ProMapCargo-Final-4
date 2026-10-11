@@ -63,7 +63,7 @@ route-warnings
 
 Main style:
 
-promap-dark.json
+promap-dark3.json
 
 Map implementation:
 

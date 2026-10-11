@@ -30,7 +30,7 @@ Search:
 promap-map-layers.js
 navigation.js
 promap-map-enhancements.js
-promap-dark.json
+promap-dark3.json
 
 Do not initialize multiple MapLibre maps for the same navigation page.
 

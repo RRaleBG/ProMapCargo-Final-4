@@ -430,7 +430,7 @@
          * ROUTE
          * =========================================================
          *
-         * Route layer-i već postoje u promap-dark.json.
+         * Route layer-i već postoje u promap-dark3.json.
          * Ne dodajemo ih ponovo.
          */
 

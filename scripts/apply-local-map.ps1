@@ -11,8 +11,8 @@ $compose = Join-Path $Root "docker-compose.yml"
 $docker = Join-Path $Root "Dockerfile"
 $navSrc = Join-Path $PSScriptRoot "../wwwroot/js/navigation.js"
 $navDst = Join-Path $Root "wwwroot/js/navigation.js"
-$styleSrc = Join-Path $PSScriptRoot "../wwwroot/styles/promap-dark.json"
-$styleDst = Join-Path $Root "wwwroot/styles/promap-dark.json"
+$styleSrc = Join-Path $PSScriptRoot "../wwwroot/styles/promap-dark3.json"
+$styleDst = Join-Path $Root "wwwroot/styles/promap-dark3.json"
 
 Copy-Item $navSrc $navDst -Force
 Copy-Item $styleSrc $styleDst -Force

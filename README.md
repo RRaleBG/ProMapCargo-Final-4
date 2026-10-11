@@ -102,7 +102,7 @@ The Docker stack includes:
 
 Required local map/runtime assets for the `api` container:
 
-- `wwwroot/styles/promap-dark.json`
+- `wwwroot/styles/promap-dark3.json`
 - `wwwroot/maps/serbia.pmtiles`
 - `wwwroot/maps/europe.pmtiles`
 - self-hosted frontend libraries and glyphs under `wwwroot/lib` and `wwwroot/fonts`

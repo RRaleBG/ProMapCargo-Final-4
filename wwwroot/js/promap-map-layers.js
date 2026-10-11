@@ -168,7 +168,7 @@
         }).then(async (response) => {
             if (!response.ok) {
                 throw new Error(
-                    `promap-dark.json HTTP ${response.status}`,
+                    `promap-dark3.json HTTP ${response.status}`,
                 );
             }
 

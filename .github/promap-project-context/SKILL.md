@@ -20,7 +20,7 @@ Important files:
 - `promap-map-layers.js`
 - `navigation.js`
 - `promap-map-enhancements.js`
-- `promap-dark.json`
+- `promap-dark3.json`
 
 Required route sources/layers must remain internally consistent:
 - `route-main`
