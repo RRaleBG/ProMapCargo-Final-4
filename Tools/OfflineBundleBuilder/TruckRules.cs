@@ -15,6 +15,7 @@ public static class TruckRules
 
     public sealed record RoadRow(
         long Id,
+        long WayId,
         long SourceNode,
         long TargetNode,
         short Direction,

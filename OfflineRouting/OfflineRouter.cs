@@ -18,7 +18,14 @@ public sealed record OfflineRoute(
     IReadOnlyList<OfflineManeuver> Maneuvers,
     string StartSnap,
     string EndSnap,
-    int SettledNodes);
+    int SettledNodes,
+    IReadOnlyList<OfflineLimitViolation> Violations);
+
+/// <summary>Truck size and weight to check a route against (metres, tonnes).</summary>
+public sealed record TruckDimensions(double HeightMeters, double WidthMeters, double LengthMeters, double WeightTons);
+
+/// <summary>A road on the route whose posted limit the truck exceeds.</summary>
+public sealed record OfflineLimitViolation(string Road, string Type, double Limit, double Latitude, double Longitude);
 
 /// <summary>
 /// Truck routing on the phone over a <see cref="GraphBundle"/>: snaps start and
@@ -39,6 +46,8 @@ public sealed class OfflineRouter
     private readonly int[] backwardParentNode;
     private readonly List<int> touched = [];
     private readonly List<(int Lat, int Lon)> pointBuffer = [];
+    private TruckDimensions? currentTruck;
+    private Dictionary<int, int>? limitIndex;
 
     public OfflineRouter(GraphBundle graph)
     {
@@ -56,8 +65,9 @@ public sealed class OfflineRouter
 
     public GraphBundle Graph => graph;
 
-    public OfflineRoute? Route(double startLat, double startLon, double destinationLat, double destinationLon)
+    public OfflineRoute? Route(double startLat, double startLon, double destinationLat, double destinationLon, TruckDimensions? truck = null)
     {
+        currentTruck = truck;
         var start = Snap(startLat, startLon);
         var end = Snap(destinationLat, destinationLon);
         if (start is null || end is null)
@@ -189,6 +199,8 @@ public sealed class OfflineRouter
 
     // ---- Search ----
 
+    // Start: drive along the snapped road to its end and arrive at the junction node
+    // for that direction (a restricted junction has one node per arriving road).
     private List<(int Node, int Cost)> EntryNodes(SnapPoint snap)
     {
         var result = new List<(int, int)>(2);
@@ -196,34 +208,40 @@ public sealed class OfflineRouter
         var direction = graph.RoadDirection[snap.Road];
         if (direction >= 0)
         {
-            result.Add((graph.RoadTo[snap.Road], (int)Math.Round((snap.Length - snap.Along) / snap.Length * weight)));
+            result.Add((graph.ArriveNode[snap.Road * 2], (int)Math.Round((snap.Length - snap.Along) / snap.Length * weight)));
         }
 
         if (direction <= 0)
         {
-            result.Add((graph.RoadFrom[snap.Road], (int)Math.Round(snap.Along / snap.Length * weight)));
+            result.Add((graph.ArriveNode[snap.Road * 2 + 1], (int)Math.Round(snap.Along / snap.Length * weight)));
         }
 
         return result;
     }
 
+    // Destination: any junction node the destination road may be entered from.
     private List<(int Node, int Cost)> ExitNodes(SnapPoint snap)
     {
-        var result = new List<(int, int)>(2);
+        var result = new List<(int, int)>(4);
         var weight = graph.RoadWeight[snap.Road];
         var direction = graph.RoadDirection[snap.Road];
         if (direction >= 0)
         {
-            result.Add((graph.RoadFrom[snap.Road], (int)Math.Round(snap.Along / snap.Length * weight)));
+            var cost = (int)Math.Round(snap.Along / snap.Length * weight);
+            foreach (var node in DepartNodes(snap.Road * 2)) result.Add((node, cost));
         }
 
         if (direction <= 0)
         {
-            result.Add((graph.RoadTo[snap.Road], (int)Math.Round((snap.Length - snap.Along) / snap.Length * weight)));
+            var cost = (int)Math.Round((snap.Length - snap.Along) / snap.Length * weight);
+            foreach (var node in DepartNodes(snap.Road * 2 + 1)) result.Add((node, cost));
         }
 
         return result;
     }
+
+    private ReadOnlySpan<int> DepartNodes(int arcCode)
+        => graph.DepartNodes.AsSpan(graph.DepartOffsets[arcCode], graph.DepartOffsets[arcCode + 1] - graph.DepartOffsets[arcCode]);
 
     private int? DirectCost(SnapPoint start, SnapPoint end)
     {
@@ -405,14 +423,16 @@ public sealed class OfflineRouter
         else
         {
             var (roads, firstNode, lastNode) = path.Value;
-            legs.Add((start.Road, start.Along, firstNode == graph.RoadTo[start.Road] ? start.Length : 0));
+            var startForward = graph.RoadDirection[start.Road] >= 0 && firstNode == graph.ArriveNode[start.Road * 2];
+            legs.Add((start.Road, start.Along, startForward ? start.Length : 0));
             foreach (var (road, backward) in roads)
             {
                 var length = RoadGeometryLength(road);
                 legs.Add(backward ? (road, length, 0) : (road, 0, length));
             }
 
-            legs.Add((end.Road, lastNode == graph.RoadFrom[end.Road] ? 0 : end.Length, end.Along));
+            var endForward = graph.RoadDirection[end.Road] >= 0 && DepartNodes(end.Road * 2).Contains(lastNode);
+            legs.Add((end.Road, endForward ? 0 : end.Length, end.Along));
         }
 
         var points = new List<(double Lat, double Lon)>();
@@ -444,7 +464,55 @@ public sealed class OfflineRouter
             maneuvers,
             $"{start.DistanceMeters:0} m od puta",
             $"{end.DistanceMeters:0} m od puta",
-            settled);
+            settled,
+            CheckLimits(legs.Select(leg => leg.Road).ToList(), legPoints));
+    }
+
+    /// <summary>
+    /// Roads on the route whose posted limits the given truck exceeds. The package
+    /// already leaves out roads the default truck may not use, so this only finds
+    /// something for a larger or heavier truck.
+    /// </summary>
+    private List<OfflineLimitViolation> CheckLimits(List<int> roads, List<List<(double Lat, double Lon)>> legPoints)
+    {
+        var violations = new List<OfflineLimitViolation>();
+        if (currentTruck is not { } truck || graph.LimitRoad.Length == 0)
+        {
+            return violations;
+        }
+
+        if (limitIndex is null)
+        {
+            limitIndex = new Dictionary<int, int>(graph.LimitRoad.Length);
+            for (var i = 0; i < graph.LimitRoad.Length; i++) limitIndex[graph.LimitRoad[i]] = i;
+        }
+
+        var seen = new HashSet<int>();
+        for (var leg = 0; leg < roads.Count; leg++)
+        {
+            var road = roads[leg];
+            if (!seen.Add(road) || !limitIndex.TryGetValue(road, out var i))
+            {
+                continue;
+            }
+
+            (double Lat, double Lon) point = legPoints[leg].Count > 0 ? legPoints[leg][0] : (0d, 0d);
+            var name = graph.StringAt(graph.RoadName[road]) ?? graph.StringAt(graph.RoadRef[road]) ?? "put bez naziva";
+            Add(graph.LimitHeight[i], truck.HeightMeters, "visina");
+            Add(graph.LimitWidth[i], truck.WidthMeters, "širina");
+            Add(graph.LimitLength[i], truck.LengthMeters, "dužina");
+            Add(graph.LimitWeight[i], truck.WeightTons, "težina");
+
+            void Add(float limit, double value, string type)
+            {
+                if (limit > 0 && value > limit)
+                {
+                    violations.Add(new OfflineLimitViolation(name, type, limit, point.Lat, point.Lon));
+                }
+            }
+        }
+
+        return violations;
     }
 
     private double RoadGeometryLength(int road)

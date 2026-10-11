@@ -35,7 +35,7 @@ public sealed record PlaceMatch(PlaceEntry Entry, double Score);
 /// </summary>
 public sealed class PlaceIndex
 {
-    public const int FormatVersion = 1;
+    public const int FormatVersion = 2;
     private static readonly byte[] Magic = "PMPL"u8.ToArray();
 
     public PlaceIndex(IReadOnlyList<PlaceEntry> entries)
@@ -157,6 +157,9 @@ public sealed class PlaceIndex
             writer.Write((int)Math.Round(entry.Lat * 1e6));
             writer.Write((int)Math.Round(entry.Lon * 1e6));
             writer.Write(entry.Importance);
+            // Search keys stored so the phone does not normalise ~100k names on load.
+            writer.Write(entry.Key);
+            writer.Write(entry.ContextKey);
         }
     }
 
@@ -184,7 +187,9 @@ public sealed class PlaceIndex
             var lat = reader.ReadInt32() / 1e6;
             var lon = reader.ReadInt32() / 1e6;
             var importance = reader.ReadInt32();
-            entries.Add(PlaceEntry.Create(kind, name, context, lat, lon, importance));
+            var key = reader.ReadString();
+            var contextKey = reader.ReadString();
+            entries.Add(new PlaceEntry(kind, name, context, lat, lon, importance, key, contextKey));
         }
 
         return new PlaceIndex(entries);

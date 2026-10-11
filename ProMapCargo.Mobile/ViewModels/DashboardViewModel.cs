@@ -9,6 +9,8 @@ public sealed class DashboardViewModel : ViewModelBase
 {
     private readonly ApiClient apiClient;
     private readonly OfflineWebCache offlineWebCache;
+    private readonly OfflineRoutingBundleService offlineBundles;
+    private string? announcedBundleVersion;
     private readonly MobileSessionService sessionService;
     private readonly IMobileNotifier notifier;
     private const int DashboardManeuverPreviewCount = 5;
@@ -25,8 +27,9 @@ public sealed class DashboardViewModel : ViewModelBase
     private string routeFailureReason = "—";
 
 
-    public DashboardViewModel(ApiClient apiClient, MobileSessionService sessionService, IMobileNotifier notifier, OfflineWebCache offlineWebCache)
+    public DashboardViewModel(ApiClient apiClient, MobileSessionService sessionService, IMobileNotifier notifier, OfflineWebCache offlineWebCache, OfflineRoutingBundleService offlineBundles)
     {
+        this.offlineBundles = offlineBundles;
         this.offlineWebCache = offlineWebCache;
         this.apiClient = apiClient;
         this.sessionService = sessionService;
@@ -224,6 +227,16 @@ public sealed class DashboardViewModel : ViewModelBase
             });
 
             await notifier.ShowSuccessAsync("Podaci su sinhronizovani.").ConfigureAwait(false);
+
+            // The offline routing package is rebuilt on the server after a map update;
+            // remind once per version to download it while there is a connection.
+            if (await offlineBundles.FindNewerOnServerAsync(cancellationToken).ConfigureAwait(false) is { } newer &&
+                newer.Version != announcedBundleVersion)
+            {
+                announcedBundleVersion = newer.Version;
+                await MainThread.InvokeOnMainThreadAsync(() => StatusText += " · nova verzija offline paketa");
+                await notifier.ShowInfoAsync($"Dostupna je nova verzija offline paketa „{newer.DisplayName}“ (Offline mape → Paketi za rutiranje).").ConfigureAwait(false);
+            }
         }
         catch (OperationCanceledException) when (loadCts.IsCancellationRequested)
         {

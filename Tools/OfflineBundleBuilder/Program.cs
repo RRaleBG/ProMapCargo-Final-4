@@ -7,13 +7,13 @@ using ProMapCargo.OfflineRouting;
 
 if (args.Length < 2)
 {
-    Console.Error.WriteLine("Usage: OfflineBundleBuilder <out-dir> <region.osm.pbf> [name=serbia]");
+    Console.Error.WriteLine("Usage: OfflineBundleBuilder <out-dir> <region.osm.pbf> [name=serbia] [--force]");
     return 1;
 }
 
 var outDir = Path.GetFullPath(args[0]);
 var pbfPath = Path.GetFullPath(args[1]);
-var name = args.Length > 2 ? args[2] : "serbia";
+var name = args.Length > 2 && !args[2].StartsWith("--") ? args[2] : "serbia";
 var connectionString = Environment.GetEnvironmentVariable("PROMAP_POSTGRES")
     ?? "Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me;Command Timeout=0";
 Directory.CreateDirectory(outDir);
@@ -32,7 +32,7 @@ await using (var connection = new NpgsqlConnection(connectionString))
     }
 
     const string sql = """
-        select id, source_node, target_node, direction, highway, name, ref, access, vehicle, motor_vehicle,
+        select id, way_id, source_node, target_node, direction, highway, name, ref, access, vehicle, motor_vehicle,
                hgv, goods, hazmat, maxheight, maxwidth, maxlength, maxweight, speed_kmh, length_m,
                ST_AsBinary(geom)
         from road_edges
@@ -43,31 +43,36 @@ await using (var connection = new NpgsqlConnection(connectionString))
     await using var reader = await command.ExecuteReaderAsync();
     while (await reader.ReadAsync())
     {
+        string? Text(int i) => reader.IsDBNull(i) ? null : reader.GetString(i);
+        double? Number(int i) => reader.IsDBNull(i) ? null : reader.GetDouble(i);
         roads.Add(new TruckRules.RoadRow(
             reader.GetInt64(0),
             reader.GetInt64(1),
             reader.GetInt64(2),
-            reader.GetInt16(3),
-            reader.IsDBNull(4) ? null : reader.GetString(4),
-            reader.IsDBNull(5) ? null : reader.GetString(5),
-            reader.IsDBNull(6) ? null : reader.GetString(6),
-            reader.IsDBNull(7) ? null : reader.GetString(7),
-            reader.IsDBNull(8) ? null : reader.GetString(8),
-            reader.IsDBNull(9) ? null : reader.GetString(9),
-            reader.IsDBNull(10) ? null : reader.GetString(10),
-            reader.IsDBNull(11) ? null : reader.GetString(11),
-            reader.IsDBNull(12) ? null : reader.GetString(12),
-            reader.IsDBNull(13) ? null : reader.GetDouble(13),
-            reader.IsDBNull(14) ? null : reader.GetDouble(14),
-            reader.IsDBNull(15) ? null : reader.GetDouble(15),
-            reader.IsDBNull(16) ? null : reader.GetDouble(16),
-            reader.GetDouble(17),
+            reader.GetInt64(3),
+            reader.GetInt16(4),
+            Text(5), Text(6), Text(7), Text(8), Text(9), Text(10), Text(11), Text(12), Text(13),
+            Number(14), Number(15), Number(16), Number(17),
             reader.GetDouble(18),
-            ParseWkbLineString((byte[])reader.GetValue(19))));
+            reader.GetDouble(19),
+            ParseWkbLineString((byte[])reader.GetValue(20))));
     }
 }
 
 Console.WriteLine($"  {roads.Count:N0} roads (graph {graphVersion}) in {total.Elapsed.TotalSeconds:0} s");
+
+// Nothing to do when the package already matches this graph and format (use --force to rebuild).
+var existingGraph = Path.Combine(outDir, $"{name}.graphbundle");
+if (!args.Contains("--force") && File.Exists(existingGraph) && File.Exists(Path.Combine(outDir, $"{name}.places")))
+{
+    using var header = new BinaryReader(File.OpenRead(existingGraph));
+    header.ReadBytes(4);
+    if (header.ReadInt32() == GraphBundle.FormatVersion && header.ReadInt64() == graphVersion)
+    {
+        Console.WriteLine($"Package {name} is up to date (graph {graphVersion}). Nothing to do.");
+        return 0;
+    }
+}
 
 var allowed = roads.Where(road => road.Coordinates.Length >= 4 && TruckRules.Allowed(road)).ToList();
 Console.WriteLine($"  {allowed.Count:N0} usable by the default truck");
@@ -189,6 +194,138 @@ for (var r = 0; r < roadCount; r++)
     }
 }
 
+// ---- 3b. Turn restrictions: one node per arriving road at restricted junctions ----
+// Same rules as the server (Routing/TurnRestrictionMatcher.cs): via-node rules only,
+// via-way rules and rules that exempt trucks (except=hgv) are skipped.
+var rulesByNode = new Dictionary<long, List<(string Type, long From, long To)>>();
+await using (var connection = new NpgsqlConnection(connectionString))
+{
+    await connection.OpenAsync();
+    const string restrictionSql = """
+        select restriction, from_way_id, to_way_id, via_node_ids, via_way_ids, except_values
+        from turn_restrictions where graph_version = @version
+        """;
+    await using var command = new NpgsqlCommand(restrictionSql, connection);
+    command.Parameters.AddWithValue("version", graphVersion);
+    await using var reader = await command.ExecuteReaderAsync();
+    while (await reader.ReadAsync())
+    {
+        var type = reader.IsDBNull(0) ? null : reader.GetString(0);
+        if (type is null || reader.IsDBNull(1) || reader.IsDBNull(2) || reader.IsDBNull(3)) continue;
+        var viaNodes = (long[])reader.GetValue(3);
+        var viaWays = reader.IsDBNull(4) ? [] : (long[])reader.GetValue(4);
+        var except = reader.IsDBNull(5) ? null : reader.GetString(5);
+        if (viaNodes.Length == 0 || viaWays.Length > 0) continue;
+        if (except?.Split([';', ','], StringSplitOptions.TrimEntries).Any(v => v.Equals("hgv", StringComparison.OrdinalIgnoreCase)) == true) continue;
+        if (!type.StartsWith("no_", StringComparison.OrdinalIgnoreCase) && !type.StartsWith("only_", StringComparison.OrdinalIgnoreCase)) continue;
+        foreach (var via in viaNodes)
+        {
+            (rulesByNode.TryGetValue(via, out var list) ? list : rulesByNode[via] = []).Add((type, reader.GetInt64(1), reader.GetInt64(2)));
+        }
+    }
+}
+
+var osmNodeOf = new long[nodeMap.Count];
+foreach (var (osmId, nodeIndex) in nodeMap) osmNodeOf[nodeIndex] = osmId;
+var baseNodeCount = nodeMap.Count;
+var restricted = new HashSet<int>();
+for (var n = 0; n < baseNodeCount; n++)
+{
+    if (rulesByNode.ContainsKey(osmNodeOf[n])) restricted.Add(n);
+}
+
+bool TurnAllowed(long fromWay, long toWay, int node)
+{
+    if (!rulesByNode.TryGetValue(osmNodeOf[node], out var rules)) return true;
+    foreach (var (type, from, to) in rules)
+    {
+        if (from != fromWay) continue;
+        if (type.StartsWith("no_", StringComparison.OrdinalIgnoreCase) && to == toWay) return false;
+        if (type.StartsWith("only_", StringComparison.OrdinalIgnoreCase) && to != toWay) return false;
+    }
+
+    return true;
+}
+
+var arcCodes = roadCount * 2;
+bool ArcExists(int code) => code % 2 == 0 ? roadDirection[code / 2] >= 0 : roadDirection[code / 2] <= 0;
+int ArcFromNode(int code) => code % 2 == 0 ? roadFrom[code / 2] : roadTo[code / 2];
+int ArcToNode(int code) => code % 2 == 0 ? roadTo[code / 2] : roadFrom[code / 2];
+
+var arriveNode = new int[arcCodes];
+Array.Fill(arriveNode, -1);
+var copiesAt = new Dictionary<int, List<(int ArcIn, int Copy)>>();
+for (var code = 0; code < arcCodes; code++)
+{
+    if (!ArcExists(code)) continue;
+    var to = ArcToNode(code);
+    if (!restricted.Contains(to))
+    {
+        arriveNode[code] = to;
+        continue;
+    }
+
+    var copy = nodeLat.Count;
+    nodeLat.Add(nodeLat[to]);
+    nodeLon.Add(nodeLon[to]);
+    arriveNode[code] = copy;
+    (copiesAt.TryGetValue(to, out var list) ? list : copiesAt[to] = []).Add((code, copy));
+}
+
+var departOffsets = new int[arcCodes + 1];
+var departNodes = new List<int>(arcCodes);
+var forbiddenTurns = 0;
+for (var code = 0; code < arcCodes; code++)
+{
+    if (ArcExists(code))
+    {
+        var from = ArcFromNode(code);
+        if (copiesAt.TryGetValue(from, out var copies))
+        {
+            var outWay = kept[code / 2].WayId;
+            foreach (var (arcIn, copy) in copies)
+            {
+                if (TurnAllowed(kept[arcIn / 2].WayId, outWay, from)) departNodes.Add(copy);
+                else forbiddenTurns++;
+            }
+        }
+        else
+        {
+            departNodes.Add(from);
+        }
+    }
+
+    departOffsets[code + 1] = departNodes.Count;
+}
+
+Console.WriteLine($"  turn restrictions: {restricted.Count:N0} junctions split into {nodeLat.Count - baseNodeCount:N0} nodes, {forbiddenTurns:N0} turns forbidden");
+
+// Posted limits (sparse) to check a route against a larger truck on the phone.
+var limitRoads = new List<int>();
+var limitHeight = new List<float>();
+var limitWidth = new List<float>();
+var limitLength = new List<float>();
+var limitWeight = new List<float>();
+for (var r = 0; r < roadCount; r++)
+{
+    var road = kept[r];
+    if (road.MaxHeight is null && road.MaxWidth is null && road.MaxLength is null && road.MaxWeight is null) continue;
+    limitRoads.Add(r);
+    limitHeight.Add((float)(road.MaxHeight ?? 0));
+    limitWidth.Add((float)(road.MaxWidth ?? 0));
+    limitLength.Add((float)(road.MaxLength ?? 0));
+    limitWeight.Add((float)(road.MaxWeight ?? 0));
+}
+
+bundle.ArriveNode = arriveNode;
+bundle.DepartOffsets = departOffsets;
+bundle.DepartNodes = [.. departNodes];
+bundle.LimitRoad = [.. limitRoads];
+bundle.LimitHeight = [.. limitHeight];
+bundle.LimitWidth = [.. limitWidth];
+bundle.LimitLength = [.. limitLength];
+bundle.LimitWeight = [.. limitWeight];
+
 bundle.NodeLat = [.. nodeLat];
 bundle.NodeLon = [.. nodeLon];
 bundle.RoadFrom = roadFrom;
@@ -203,15 +340,18 @@ bundle.RoadGeometryOffset = roadOffset;
 bundle.RoadPointCount = roadPoints;
 bundle.Strings = [.. strings];
 bundle.Geometry = [.. geometry];
-Console.WriteLine($"  {bundle.NodeCount:N0} junctions, geometry {geometry.Count / 1e6:0.0} MB");
+Console.WriteLine($"  {bundle.NodeCount:N0} nodes, geometry {geometry.Count / 1e6:0.0} MB, {limitRoads.Count:N0} roads with posted limits");
 
 // ---- 4. Contraction Hierarchies ----
 Console.WriteLine("Contracting…");
 var contractor = new Contractor(bundle.NodeCount);
-for (var r = 0; r < roadCount; r++)
+for (var code = 0; code < arcCodes; code++)
 {
-    if (roadDirection[r] >= 0) contractor.AddOriginalArc(roadFrom[r], roadTo[r], roadWeight[r], r * 2);
-    if (roadDirection[r] <= 0) contractor.AddOriginalArc(roadTo[r], roadFrom[r], roadWeight[r], r * 2 + 1);
+    if (!ArcExists(code)) continue;
+    for (var i = departOffsets[code]; i < departOffsets[code + 1]; i++)
+    {
+        contractor.AddOriginalArc(departNodes[i], arriveNode[code], roadWeight[code / 2], code);
+    }
 }
 
 contractor.Run();
@@ -422,15 +562,18 @@ var router = new OfflineRouter(loaded);
     ("Beograd → Niš", 44.8125, 20.4573, 43.3209, 21.8958),
     ("Subotica → Vranje", 46.1003, 19.6658, 42.5514, 21.9002),
     ("Beograd (grad)", 44.8176, 20.4633, 44.7866, 20.4489),
+    ("Beograd Slavija → Autokomanda", 44.8023, 20.4664, 44.7889, 20.4746),
+    ("Novi Sad centar → Liman", 45.2551, 19.8451, 45.2418, 19.8462),
+    ("Niš centar → Medijana", 43.3209, 21.8958, 43.3125, 21.9200),
 ];
 foreach (var test in tests)
 {
     var watch = Stopwatch.StartNew();
-    var route = router.Route(test.A, test.B, test.C, test.D);
+    var route = router.Route(test.A, test.B, test.C, test.D, new TruckDimensions(4.2, 2.6, 18.75, 44));
     watch.Stop();
     Console.WriteLine(route is null
         ? $"  {test.Name}: NO ROUTE"
-        : $"  {test.Name}: {route.DistanceMeters / 1000:0.0} km, {route.DurationSeconds / 60:0} min, {route.Maneuvers.Count} manevara, {route.SettledNodes} čvorova, {watch.ElapsedMilliseconds} ms");
+        : $"  {test.Name}: {route.DistanceMeters / 1000:0.0} km, {route.DurationSeconds / 60:0} min, {route.Maneuvers.Count} manevara, {route.SettledNodes} čvorova, {watch.ElapsedMilliseconds} ms, ograničenja za 44 t / 4,2 m: {route.Violations.Count}");
 }
 
 var index = PlaceIndex.Read(File.OpenRead(placesPath));

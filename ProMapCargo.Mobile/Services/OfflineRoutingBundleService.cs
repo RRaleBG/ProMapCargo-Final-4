@@ -39,6 +39,32 @@ public sealed class OfflineRoutingBundleService(HttpClient httpClient, MobileSer
         return manifest ?? InstalledOfflineRoutingManifest.Empty;
     }
 
+    /// <summary>
+    /// A routing package on the server that is newer than the installed one (or the
+    /// only one, when none is installed yet); null when up to date or unreachable.
+    /// </summary>
+    public async Task<OfflineRoutingBundleCatalogItem?> FindNewerOnServerAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var catalog = await GetCatalogAsync(cancellationToken).ConfigureAwait(false);
+            var installed = await GetInstalledManifestAsync(cancellationToken).ConfigureAwait(false);
+            foreach (var item in catalog)
+            {
+                var current = installed.Bundles.FirstOrDefault(bundle => string.Equals(bundle.Id, item.Id, StringComparison.OrdinalIgnoreCase));
+                if (current is not null && string.CompareOrdinal(item.Version, current.Version) > 0)
+                {
+                    return item;
+                }
+            }
+        }
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+        }
+
+        return null;
+    }
+
     public async Task<bool> HasAnyBundleAsync(CancellationToken cancellationToken)
     {
         var manifest = await GetInstalledManifestAsync(cancellationToken).ConfigureAwait(false);

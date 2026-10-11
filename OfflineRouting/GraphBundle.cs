@@ -15,7 +15,7 @@ namespace ProMapCargo.OfflineRouting;
 /// </summary>
 public sealed class GraphBundle
 {
-    public const int FormatVersion = 1;
+    public const int FormatVersion = 2;
     private static readonly byte[] Magic = "PMGB"u8.ToArray();
 
     public long GraphVersion { get; set; }
@@ -40,6 +40,22 @@ public sealed class GraphBundle
     public int[] RoadPointCount { get; set; } = [];
 
     public string[] Strings { get; set; } = [];
+
+    // Turn restrictions: a junction with restrictions is split into one node per
+    // arriving road direction, each with only the allowed exits. Per directed road
+    // ("arc code" = road*2 + backward): the node reached at its end, and the nodes it
+    // can be started from.
+    public int[] ArriveNode { get; set; } = [];
+    public int[] DepartOffsets { get; set; } = [];
+    public int[] DepartNodes { get; set; } = [];
+
+    // Posted limits of roads that have any (sparse; 0 = none), to check a route against
+    // a truck larger than the one the package was built for.
+    public int[] LimitRoad { get; set; } = [];
+    public float[] LimitHeight { get; set; } = [];
+    public float[] LimitWidth { get; set; } = [];
+    public float[] LimitLength { get; set; } = [];
+    public float[] LimitWeight { get; set; } = [];
 
     /// <summary>Zigzag-varint delta-encoded microdegree points (lat, lon) per road.</summary>
     public byte[] Geometry { get; set; } = [];
@@ -120,6 +136,15 @@ public sealed class GraphBundle
 
         WriteArray(writer, Geometry);
 
+        WriteArray(writer, ArriveNode);
+        WriteArray(writer, DepartOffsets);
+        WriteArray(writer, DepartNodes);
+        WriteArray(writer, LimitRoad);
+        WriteArray(writer, LimitHeight);
+        WriteArray(writer, LimitWidth);
+        WriteArray(writer, LimitLength);
+        WriteArray(writer, LimitWeight);
+
         WriteArray(writer, ArcA);
         WriteArray(writer, ArcB);
 
@@ -183,6 +208,14 @@ public sealed class GraphBundle
 
         bundle.Strings = strings;
         bundle.Geometry = ReadArray<byte>(reader);
+        bundle.ArriveNode = ReadArray<int>(reader);
+        bundle.DepartOffsets = ReadArray<int>(reader);
+        bundle.DepartNodes = ReadArray<int>(reader);
+        bundle.LimitRoad = ReadArray<int>(reader);
+        bundle.LimitHeight = ReadArray<float>(reader);
+        bundle.LimitWidth = ReadArray<float>(reader);
+        bundle.LimitLength = ReadArray<float>(reader);
+        bundle.LimitWeight = ReadArray<float>(reader);
         bundle.ArcA = ReadArray<int>(reader);
         bundle.ArcB = ReadArray<int>(reader);
         bundle.UpOffsets = ReadArray<int>(reader);

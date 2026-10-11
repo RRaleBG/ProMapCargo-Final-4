@@ -1194,7 +1194,7 @@ public class NavigationViewModel : ViewModelBase
         {
             throw new InvalidOperationException(await offlineEngine.EnsureLoadedAsync().ConfigureAwait(false)
                 ? "Offline ruta nije pronađena (tačka je predaleko od puta za kamione)."
-                : "Offline paket za rutiranje nije instaliran (Offline mape → Paketi za rutiranje).");
+                : offlineEngine.LoadProblem ?? "Offline paket za rutiranje nije instaliran (Offline mape → Paketi za rutiranje).");
         }
 
         await MainThread.InvokeOnMainThreadAsync(() => ActiveRoutingModeText = "Režim rutiranja: telefon (offline)");

@@ -25,6 +25,10 @@ pbfPath,
 graphVersion,
 CancellationToken.None);
 
+// The mobile offline routing package is built from this graph; rebuild it so the
+// app offers the new version on its next sync.
+Console.WriteLine("Graph imported. Update the mobile offline package: pwsh Tools/OfflineBundleBuilder/build-offline-package.ps1");
+
 
 static string MaskPassword(string connectionString)
 {
