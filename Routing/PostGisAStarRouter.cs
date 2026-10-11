@@ -871,7 +871,7 @@ public sealed class PostGisAStarRouter(
         return $"{road ?? "unknown"}{reference}: {distanceMeters:F0} m / {durationSeconds:F0} s";
     }
 
-    private static void RegisterEdgeCoordinates(
+    internal static void RegisterEdgeCoordinates(
         RoadEdge edge,
         Dictionary<long, Coordinate> coordinates)
     {
