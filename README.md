@@ -141,16 +141,12 @@ The PostGIS graph must contain an imported Europe OSM PBF before the truck-aware
 
 ## Seed administrator
 
-Development defaults:
+Development defaults (hardcoded in `SeedAdministratorUserAsync`, `Program.cs`):
 
-- Email: `admin@promapcargo.local`
-- Password: `Admin123!`
+- Email: `admin@promapcargo.com`
+- Password: `Admin1234!`
 
-Override these with:
-
-- `Seed__AdminEmail`
-- `Seed__AdminPassword`
-- `Seed__Enabled`
+The seed only creates the user when it does not exist; a password changed later is kept.
 
 Do not keep the development password in a production deployment.
 
