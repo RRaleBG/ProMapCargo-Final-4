@@ -27,6 +27,10 @@ $ErrorActionPreference = "Stop"
 $repo = Resolve-Path (Join-Path $PSScriptRoot "../..")
 $regions = Get-Content (Join-Path $PSScriptRoot "regions.json") -Raw | ConvertFrom-Json -AsHashtable
 $ids = if ($Region -eq "all") { $regions.Keys | Where-Object { $_ -notlike "_*" } } else { $Region -split "," }
+# Same commands on the Windows dev machine and the Linux server (pmtiles and curl on PATH).
+$pmtiles = if ($IsWindows) { Join-Path $repo "wwwroot/maps/pmtiles.exe" } else { "pmtiles" }
+$curl = if ($IsWindows) { "curl.exe" } else { "curl" }
+$python = if ($IsWindows) { "python" } else { "python3" }
 $extracts = Join-Path $repo "osm/geofabrik"
 New-Item -ItemType Directory -Force $extracts | Out-Null
 
@@ -48,7 +52,7 @@ try {
             if ($stale -and -not $SkipDownload) {
                 $url = "https://download.geofabrik.de/europe/$country-latest.osm.pbf"
                 Write-Host "  downloading $url"
-                curl.exe -L --fail --retry 3 -o "$file.part" $url
+                & $curl -L --fail --retry 3 -o "$file.part" $url
                 if ($LASTEXITCODE -ne 0) { throw "Download failed: $url" }
                 Move-Item -Force "$file.part" $file
             }
@@ -70,9 +74,9 @@ try {
             $mapFile = Join-Path $MapDir "$id-nav.pmtiles"
             if ($Force -or -not (Test-Path $mapFile)) {
                 $geojson = Join-Path ([System.IO.Path]::GetTempPath()) "$id-region.geojson"
-                python Tools/OfflineBundleBuilder/region-geojson.py osm/countries.geojson $geojson @($r.map)
+                & $python Tools/OfflineBundleBuilder/region-geojson.py osm/countries.geojson $geojson @($r.map)
                 if ($LASTEXITCODE -ne 0) { throw "Region polygon failed for $id." }
-                & wwwroot/maps/pmtiles.exe extract $MapSource $mapFile "--region=$geojson" "--maxzoom=$MaxZoom"
+                & $pmtiles extract $MapSource $mapFile "--region=$geojson" "--maxzoom=$MaxZoom"
                 if ($LASTEXITCODE -ne 0) { throw "Map extract failed for $id." }
                 Write-Host ("  map: {0} ({1:N0} MB)" -f $mapFile, ((Get-Item $mapFile).Length / 1MB))
             }

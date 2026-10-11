@@ -36,6 +36,9 @@ if ((Test-Path $lock) -and (Get-Process -Id (Get-Content $lock) -ErrorAction Sil
 }
 Set-Content $lock $PID
 
+# Same commands on the Windows dev machine and the Linux server (pmtiles and curl on PATH).
+$pmtiles = if ($IsWindows) { Join-Path $repo "wwwroot/maps/pmtiles.exe" } else { "pmtiles" }
+$curl = if ($IsWindows) { "curl.exe" } else { "curl" }
 $regions = Get-Content "Tools/OfflineBundleBuilder/regions.json" -Raw | ConvertFrom-Json -AsHashtable
 $server = $regions["_server"]
 $staging = Join-Path $repo "osm/staging-$stamp"
@@ -93,7 +96,7 @@ try {
         $file = "osm/geofabrik/$($country -replace '/', '-')-latest.osm.pbf"
         if ((Test-Path $file) -and ((Get-Date) - (Get-Item $file).LastWriteTime).TotalDays -lt $MaxAgeDays) { continue }
         Write-Host "  $country"
-        curl.exe -L --fail --retry 3 -s -o "$file.part" "https://download.geofabrik.de/europe/$country-latest.osm.pbf"
+        & $curl -L --fail --retry 3 -s -o "$file.part" "https://download.geofabrik.de/europe/$country-latest.osm.pbf"
         if ($LASTEXITCODE -ne 0) { throw "Download failed: $country" }
         Move-Item -Force "$file.part" $file
     }
@@ -105,7 +108,7 @@ try {
         $dates = if ($ProtomapsBuild) { @($ProtomapsBuild) } else { 0..3 | ForEach-Object { (Get-Date).AddDays(-$_).ToString("yyyyMMdd") } }
         foreach ($date in $dates) {
             $url = "https://build.protomaps.com/$date.pmtiles"
-            $metadata = & wwwroot/maps/pmtiles.exe show --metadata $url 2>$null
+            $metadata = & $pmtiles show --metadata $url 2>$null
             if ($LASTEXITCODE -eq 0 -and $metadata) { $mapSource = $url; break }
         }
 
@@ -135,7 +138,7 @@ try {
     & "$repo/Tools/OfflineBundleBuilder/build-region.ps1" @buildArgs
     if ($mapSource -and -not $SkipEurope) {
         Write-Host "  europe.pmtiles"
-        & wwwroot/maps/pmtiles.exe extract $mapSource "$staging/maps/europe.pmtiles" "--bbox=-25,34,45,72" "--maxzoom=12"
+        & $pmtiles extract $mapSource "$staging/maps/europe.pmtiles" "--bbox=-25,34,45,72" "--maxzoom=12"
         if ($LASTEXITCODE -ne 0) { $failures.Add("maps: europe.pmtiles extract failed") }
     }
 
