@@ -8,7 +8,7 @@
   "serbia": {
     "title": "Srbija",
     "geofabrik": [ "serbia" ],
-    "map": [ "RS" ]
+    "map": [ "bbox:18.7,42.1,23.1,46.3" ]
   },
   "zapadni-balkan": {
     "title": "Zapadni Balkan",
