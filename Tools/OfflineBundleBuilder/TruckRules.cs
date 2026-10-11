@@ -79,6 +79,7 @@ public static class TruckRules
         "residential" => 11,
         "living_street" => 12,
         "service" => 13,
+        "ferry" => 20,
         _ => 0,
     };
 
@@ -110,6 +111,7 @@ public static class TruckRules
 
     private static double HighwayFactor(string? highway) => highway?.ToLowerInvariant() switch
     {
+        "ferry" => 1.0,
         "motorway" or "trunk" => 1.0,
         "motorway_link" or "trunk_link" => 0.92,
         "primary" or "primary_link" => 0.92,

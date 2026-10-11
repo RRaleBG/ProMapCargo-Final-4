@@ -39,7 +39,7 @@ public sealed class OfflineRoutingBundlesController(IWebHostEnvironment environm
                 return new OfflineRoutingBundleCatalogItem(
                     Id: key,
                     CountryCode: country,
-                    DisplayName: ToDisplayName(key),
+                    DisplayName: PackageTitle(graph.FullName) ?? ToDisplayName(key),
                     Version: generatedAt.ToString("yyyyMMddHHmmss"),
                     GraphFileName: graph.Name,
                     GraphDownloadUrl: $"/offline-bundles/{Uri.EscapeDataString(graph.Name)}",
@@ -69,6 +69,31 @@ public sealed class OfflineRoutingBundlesController(IWebHostEnvironment environm
             "EUROPE" => "EU",
             _ => "INT"
         };
+
+    /// <summary>
+    /// Region title stored in a package header (format v3: magic, version, graph
+    /// version, build time, then the name), e.g. "Istočna Evropa"; null for older files.
+    /// </summary>
+    public static string? PackageTitle(string graphBundlePath)
+    {
+        try
+        {
+            using var reader = new BinaryReader(System.IO.File.OpenRead(graphBundlePath), System.Text.Encoding.UTF8);
+            if (!reader.ReadBytes(4).AsSpan().SequenceEqual("PMGB"u8) || reader.ReadInt32() < 3)
+            {
+                return null;
+            }
+
+            reader.ReadInt64();
+            reader.ReadInt64();
+            var name = reader.ReadString();
+            return string.IsNullOrWhiteSpace(name) ? null : name;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
 
     private static string ToDisplayName(string key)
     {

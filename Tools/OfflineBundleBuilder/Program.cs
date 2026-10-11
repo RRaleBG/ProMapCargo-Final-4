@@ -7,22 +7,68 @@ using ProMapCargo.OfflineRouting;
 
 if (args.Length < 2)
 {
-    Console.Error.WriteLine("Usage: OfflineBundleBuilder <out-dir> <region.osm.pbf> [name=serbia] [--force]");
+    Console.Error.WriteLine("Usage:");
+    Console.Error.WriteLine("  OfflineBundleBuilder <out-dir> <region.osm.pbf> [name=serbia] [--force]        (roads from PostGIS)");
+    Console.Error.WriteLine("  OfflineBundleBuilder <out-dir> --name <id> --pbf <a.pbf> [--pbf <b.pbf> ...] [--slim] [--title <text>] [--force]");
     return 1;
 }
 
 var outDir = Path.GetFullPath(args[0]);
-var pbfPath = Path.GetFullPath(args[1]);
-var name = args.Length > 2 && !args[2].StartsWith("--") ? args[2] : "serbia";
+// PBF mode: roads straight from one or more OSM extracts (countries merged), no PostGIS.
+var pbfFiles = new List<string>();
+string? pbfName = null;
+string? title = null;
+var slim = args.Contains("--slim");
+for (var i = 1; i < args.Length - 1; i++)
+{
+    if (args[i] == "--pbf") pbfFiles.Add(Path.GetFullPath(args[++i]));
+    else if (args[i] == "--name") pbfName = args[++i];
+    else if (args[i] == "--title") title = args[++i];
+}
+
+var pbfMode = pbfFiles.Count > 0;
+var pbfPath = pbfMode ? pbfFiles[0] : Path.GetFullPath(args[1]);
+var name = pbfMode
+    ? pbfName ?? throw new ArgumentException("--name is required with --pbf")
+    : args.Length > 2 && !args[2].StartsWith("--") ? args[2] : "serbia";
 var connectionString = Environment.GetEnvironmentVariable("PROMAP_POSTGRES")
     ?? "Host=localhost;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me;Command Timeout=0";
 Directory.CreateDirectory(outDir);
 var total = Stopwatch.StartNew();
 
-// ---- 1. Roads from PostGIS (latest graph version) ----
-Console.WriteLine("Reading roads from PostGIS…");
+// ---- 1. Roads: OSM extracts (PBF mode) or PostGIS (latest graph version) ----
 var roads = new List<TruckRules.RoadRow>();
 long graphVersion;
+OsmPbfSource.Result? pbfSource = null;
+if (pbfMode)
+{
+    // Version = newest extract date, so an unchanged download needs no rebuild.
+    graphVersion = long.Parse(pbfFiles.Max(f => File.GetLastWriteTimeUtc(f))!.ToString("yyyyMMddHHmm")) * 10 + (slim ? 1 : 0);
+    var existing = Path.Combine(outDir, $"{name}.graphbundle");
+    if (!args.Contains("--force") && File.Exists(existing) && File.Exists(Path.Combine(outDir, $"{name}.places")))
+    {
+        try
+        {
+            using var headerStream = File.OpenRead(existing);
+            if (GraphBundle.ReadHeader(headerStream).GraphVersion == graphVersion)
+            {
+                Console.WriteLine($"Package {name} is up to date ({graphVersion}). Nothing to do.");
+                return 0;
+            }
+        }
+        catch (InvalidDataException)
+        {
+            // Older format: rebuild.
+        }
+    }
+
+    Console.WriteLine($"Reading {pbfFiles.Count} OSM extract(s){(slim ? " (slim: main roads)" : "")}…");
+    pbfSource = OsmPbfSource.Load(pbfFiles, slim);
+    roads = pbfSource.Roads;
+}
+else
+{
+Console.WriteLine("Reading roads from PostGIS…");
 await using (var connection = new NpgsqlConnection(connectionString))
 {
     await connection.OpenAsync();
@@ -59,18 +105,26 @@ await using (var connection = new NpgsqlConnection(connectionString))
     }
 }
 
+}
+
 Console.WriteLine($"  {roads.Count:N0} roads (graph {graphVersion}) in {total.Elapsed.TotalSeconds:0} s");
 
 // Nothing to do when the package already matches this graph and format (use --force to rebuild).
 var existingGraph = Path.Combine(outDir, $"{name}.graphbundle");
-if (!args.Contains("--force") && File.Exists(existingGraph) && File.Exists(Path.Combine(outDir, $"{name}.places")))
+if (!pbfMode && !args.Contains("--force") && File.Exists(existingGraph) && File.Exists(Path.Combine(outDir, $"{name}.places")))
 {
-    using var header = new BinaryReader(File.OpenRead(existingGraph));
-    header.ReadBytes(4);
-    if (header.ReadInt32() == GraphBundle.FormatVersion && header.ReadInt64() == graphVersion)
+    try
     {
-        Console.WriteLine($"Package {name} is up to date (graph {graphVersion}). Nothing to do.");
-        return 0;
+        using var headerStream = File.OpenRead(existingGraph);
+        if (GraphBundle.ReadHeader(headerStream).GraphVersion == graphVersion)
+        {
+            Console.WriteLine($"Package {name} is up to date (graph {graphVersion}). Nothing to do.");
+            return 0;
+        }
+    }
+    catch (InvalidDataException)
+    {
+        // Older package format: rebuild.
     }
 }
 
@@ -115,8 +169,13 @@ foreach (var road in allowed)
     if (a != b) parent[a] = b;
 }
 
-var largest = Enumerable.Range(0, nodeIds.Count).GroupBy(Find).MaxBy(group => group.Count())!.Key;
-var kept = allowed.Where(road => Find(nodeIds[road.SourceNode]) == largest).ToList();
+// Every sizeable network is kept, not only the largest: a region can consist of parts
+// joined only by sea (e.g. Finland), and ferries may be missing from an extract.
+var componentSizes = Enumerable.Range(0, nodeIds.Count).GroupBy(Find).ToDictionary(g => g.Key, g => g.Count());
+var largestSize = componentSizes.Values.Max();
+var keptComponents = componentSizes.Where(c => c.Value == largestSize || c.Value >= 20_000).Select(c => c.Key).ToHashSet();
+Console.WriteLine($"  networks kept: {keptComponents.Count} ({string.Join(", ", componentSizes.Where(c => keptComponents.Contains(c.Key)).Select(c => c.Value.ToString("N0")))} junctions)");
+var kept = allowed.Where(road => keptComponents.Contains(Find(nodeIds[road.SourceNode]))).ToList();
 Console.WriteLine($"  {kept.Count:N0} roads in the main network");
 
 // Compact node numbering for the kept roads.
@@ -198,6 +257,22 @@ for (var r = 0; r < roadCount; r++)
 // Same rules as the server (Routing/TurnRestrictionMatcher.cs): via-node rules only,
 // via-way rules and rules that exempt trucks (except=hgv) are skipped.
 var rulesByNode = new Dictionary<long, List<(string Type, long From, long To)>>();
+void AddRule(string type, long from, long to, long[] viaNodes, long[] viaWays, string? except)
+{
+    if (viaNodes.Length == 0 || viaWays.Length > 0) return;
+    if (except?.Split([';', ','], StringSplitOptions.TrimEntries).Any(v => v.Equals("hgv", StringComparison.OrdinalIgnoreCase)) == true) return;
+    if (!type.StartsWith("no_", StringComparison.OrdinalIgnoreCase) && !type.StartsWith("only_", StringComparison.OrdinalIgnoreCase)) return;
+    foreach (var via in viaNodes)
+    {
+        (rulesByNode.TryGetValue(via, out var list) ? list : rulesByNode[via] = []).Add((type, from, to));
+    }
+}
+
+if (pbfSource is not null)
+{
+    foreach (var r in pbfSource.Restrictions) AddRule(r.Type, r.From, r.To, r.ViaNodes, r.ViaWays, r.Except);
+}
+else
 await using (var connection = new NpgsqlConnection(connectionString))
 {
     await connection.OpenAsync();
@@ -215,13 +290,7 @@ await using (var connection = new NpgsqlConnection(connectionString))
         var viaNodes = (long[])reader.GetValue(3);
         var viaWays = reader.IsDBNull(4) ? [] : (long[])reader.GetValue(4);
         var except = reader.IsDBNull(5) ? null : reader.GetString(5);
-        if (viaNodes.Length == 0 || viaWays.Length > 0) continue;
-        if (except?.Split([';', ','], StringSplitOptions.TrimEntries).Any(v => v.Equals("hgv", StringComparison.OrdinalIgnoreCase)) == true) continue;
-        if (!type.StartsWith("no_", StringComparison.OrdinalIgnoreCase) && !type.StartsWith("only_", StringComparison.OrdinalIgnoreCase)) continue;
-        foreach (var via in viaNodes)
-        {
-            (rulesByNode.TryGetValue(via, out var list) ? list : rulesByNode[via] = []).Add((type, reader.GetInt64(1), reader.GetInt64(2)));
-        }
+        AddRule(type, reader.GetInt64(1), reader.GetInt64(2), viaNodes, viaWays, except);
     }
 }
 
@@ -328,6 +397,11 @@ bundle.LimitWeight = [.. limitWeight];
 
 bundle.NodeLat = [.. nodeLat];
 bundle.NodeLon = [.. nodeLon];
+bundle.Name = title ?? name;
+bundle.MinLat = nodeLat.Min() / 1e6;
+bundle.MaxLat = nodeLat.Max() / 1e6;
+bundle.MinLon = nodeLon.Min() / 1e6;
+bundle.MaxLon = nodeLon.Max() / 1e6;
 bundle.RoadFrom = roadFrom;
 bundle.RoadTo = roadTo;
 bundle.RoadDirection = roadDirection;
@@ -441,6 +515,11 @@ Console.WriteLine($"Wrote {graphPath} ({new FileInfo(graphPath).Length / 1e6:0.0
 // ---- 6. Place index ----
 Console.WriteLine("Reading places from OSM…");
 var places = new List<PlaceEntry>();
+if (pbfSource is not null)
+{
+    places.AddRange(pbfSource.Places);
+}
+else
 using (var pbf = File.OpenRead(pbfPath))
 {
     var source = new PBFOsmStreamSource(pbf);
@@ -565,8 +644,17 @@ var router = new OfflineRouter(loaded);
     ("Beograd Slavija → Autokomanda", 44.8023, 20.4664, 44.7889, 20.4746),
     ("Novi Sad centar → Liman", 45.2551, 19.8451, 45.2418, 19.8462),
     ("Niš centar → Medijana", 43.3209, 21.8958, 43.3125, 21.9200),
+    ("Beograd → Zagreb", 44.8125, 20.4573, 45.8150, 15.9819),
+    ("Sarajevo → Podgorica", 43.8563, 18.4131, 42.4304, 19.2594),
+    ("Skoplje → Tirana", 41.9981, 21.4254, 41.3275, 19.8187),
+    ("Ljubljana → Priština", 46.0569, 14.5058, 42.6629, 21.1655),
+    ("Budimpešta → Beč", 47.4979, 19.0402, 48.2082, 16.3738),
+    ("Bratislava → Prag", 48.1486, 17.1077, 50.0755, 14.4378),
+    ("Beograd → Minhen", 44.8125, 20.4573, 48.1351, 11.5820),
+    ("Varšava → Talin", 52.2297, 21.0122, 59.4370, 24.7536),
+    ("Riga → Helsinki (trajekt Talin)", 56.9496, 24.1052, 60.1699, 24.9384),
 ];
-foreach (var test in tests)
+foreach (var test in tests.Where(t => loaded.Contains(t.A, t.B) && loaded.Contains(t.C, t.D)))
 {
     var watch = Stopwatch.StartNew();
     var route = router.Route(test.A, test.B, test.C, test.D, new TruckDimensions(4.2, 2.6, 18.75, 44));

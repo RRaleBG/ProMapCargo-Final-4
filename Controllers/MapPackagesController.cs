@@ -26,7 +26,10 @@ public sealed class MapPackagesController(IWebHostEnvironment environment) : Con
                 return new MapPackageDto(
                     Id: nameWithoutExtension,
                     CountryCode: GuessCountryCode(nameWithoutExtension),
-                    DisplayName: BuildDisplayName(nameWithoutExtension),
+                    // A regional map shares the title of its routing package ("Istočna Evropa").
+                    DisplayName: OfflineRoutingBundlesController.PackageTitle(
+                        Path.Combine(environment.WebRootPath!, "offline-bundles", $"{RegionOf(nameWithoutExtension)}.graphbundle"))
+                        ?? BuildDisplayName(nameWithoutExtension),
                     FileName: fileName,
                     DownloadUrl: $"/maps/{Uri.EscapeDataString(fileName)}",
                     SizeBytes: fileInfo.Length,

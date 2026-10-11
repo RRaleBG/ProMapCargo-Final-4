@@ -837,7 +837,7 @@ public class NavigationViewModel : ViewModelBase
     {
         // Load the offline package in the background, so the first search or route
         // without signal does not wait for it (reading it takes a few seconds).
-        _ = Task.Run(() => offlineEngine.EnsureLoadedAsync());
+        _ = Task.Run(() => offlineEngine.EnsureLoadedAsync(CurrentLocation));
 
         // Guidance survives an app restart without signal: bring back the last route.
         if (!HasRoute && savedRouteStore.Load() is { } saved)
@@ -1168,7 +1168,7 @@ public class NavigationViewModel : ViewModelBase
 
         // With a package installed, do not wait for a server that does not answer.
         if (!offlineOnly &&
-            await offlineEngine.EnsureLoadedAsync().ConfigureAwait(false) &&
+            await offlineEngine.EnsureLoadedAsync(request.Start).ConfigureAwait(false) &&
             !await apiClient.IsServerReachableAsync(TimeSpan.FromSeconds(4)).ConfigureAwait(false))
         {
             offlineOnly = true;
@@ -1182,7 +1182,7 @@ public class NavigationViewModel : ViewModelBase
             }
             catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException)
             {
-                if (!await offlineEngine.EnsureLoadedAsync().ConfigureAwait(false))
+                if (!await offlineEngine.EnsureLoadedAsync(request.Start).ConfigureAwait(false))
                 {
                     throw;
                 }
@@ -1192,9 +1192,10 @@ public class NavigationViewModel : ViewModelBase
         var offline = await offlineEngine.RouteAsync(request.Start, request.Destination).ConfigureAwait(false);
         if (offline is null)
         {
-            throw new InvalidOperationException(await offlineEngine.EnsureLoadedAsync().ConfigureAwait(false)
-                ? "Offline ruta nije pronađena (tačka je predaleko od puta za kamione)."
-                : offlineEngine.LoadProblem ?? "Offline paket za rutiranje nije instaliran (Offline mape → Paketi za rutiranje).");
+            throw new InvalidOperationException(offlineEngine.LoadProblem
+                ?? (await offlineEngine.EnsureLoadedAsync(request.Start).ConfigureAwait(false)
+                    ? "Offline ruta nije pronađena (tačka je predaleko od puta za kamione ili su delovi rute povezani samo trajektom koji nije u paketu)."
+                    : "Offline paket za rutiranje nije instaliran (Offline mape → Paketi za rutiranje)."));
         }
 
         await MainThread.InvokeOnMainThreadAsync(() => ActiveRoutingModeText = "Režim rutiranja: telefon (offline)");

@@ -80,6 +80,13 @@ public sealed class OfflineWebCache
     public void InvalidateLocalMap() => localMapCheckedAt = DateTimeOffset.MinValue;
 
     /// <summary>
+    /// Where the map will be looked at (truck position or route start): with several
+    /// regional maps installed, the one covering this point is served. Set before the
+    /// navigation page loads; the archive is not switched while the page is open.
+    /// </summary>
+    public (double Lat, double Lon)? PreferredPoint { get; set; }
+
+    /// <summary>
     /// Answers a WebView request, or returns null to let the WebView load it itself
     /// (other hosts, API calls, live data).
     /// </summary>
@@ -317,8 +324,50 @@ public sealed class OfflineWebCache
             // Only archives in the navigation (Protomaps) schema can be drawn by the
             // navigation style: the regional "-nav" cuts, or the full Europe archive.
             // The older serbia.pmtiles (OpenMapTiles schema) would show an empty map.
-            return paths.FirstOrDefault(path => Path.GetFileNameWithoutExtension(path).EndsWith("-nav", StringComparison.OrdinalIgnoreCase))
-                ?? paths.FirstOrDefault(path => string.Equals(Path.GetFileName(path), "europe.pmtiles", StringComparison.OrdinalIgnoreCase));
+            var maps = paths
+                .Where(path => Path.GetFileNameWithoutExtension(path).EndsWith("-nav", StringComparison.OrdinalIgnoreCase) ||
+                               string.Equals(Path.GetFileName(path), "europe.pmtiles", StringComparison.OrdinalIgnoreCase))
+                .Select(path => (Path: path, Bounds: PmtilesBounds(path)))
+                .ToList();
+            if (maps.Count == 0)
+            {
+                return null;
+            }
+
+            // The smallest map covering the truck (Srbija before Koridor 10), else the largest.
+            if (PreferredPoint is { } point &&
+                maps.Where(m => m.Bounds is { } b && point.Lat >= b.MinLat && point.Lat <= b.MaxLat && point.Lon >= b.MinLon && point.Lon <= b.MaxLon)
+                    .MinBy(m => Area(m.Bounds)) is { Path: { } covering })
+            {
+                return covering;
+            }
+
+            return maps.MaxBy(m => Area(m.Bounds)).Path;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    private static double Area((double MinLat, double MinLon, double MaxLat, double MaxLon)? b)
+        => b is { } v ? (v.MaxLat - v.MinLat) * (v.MaxLon - v.MinLon) : 0;
+
+    /// <summary>Bounds from the PMTiles v3 header (bytes 102-117: min/max lon/lat × 1e7).</summary>
+    private static (double MinLat, double MinLon, double MaxLat, double MaxLon)? PmtilesBounds(string path)
+    {
+        try
+        {
+            using var file = File.OpenRead(path);
+            var header = new byte[127];
+            file.ReadExactly(header);
+            if (header[7] != 3)
+            {
+                return null;
+            }
+
+            double At(int offset) => BitConverter.ToInt32(header, offset) / 1e7;
+            return (At(106), At(102), At(114), At(110));
         }
         catch (Exception)
         {

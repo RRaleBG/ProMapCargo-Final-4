@@ -1,0 +1,27 @@
+{
+  "_comment": "Offline packages for the mobile app. geofabrik = extracts from https://download.geofabrik.de/europe/<name>-latest.osm.pbf; map = countries (ISO alpha-2 or name from osm/countries.geojson) or bbox:minLon,minLat,maxLon,maxLat for the map cut from wwwroot/maps/europe.pmtiles; slim = main roads only (large regions).",
+  "zapadni-balkan": {
+    "title": "Zapadni Balkan",
+    "geofabrik": [ "serbia", "bosnia-herzegovina", "croatia", "montenegro", "macedonia", "slovenia", "albania", "kosovo" ],
+    "map": [ "RS", "BA", "HR", "ME", "MK", "SI", "AL", "Kosovo" ],
+    "slim": true
+  },
+  "srednja-evropa": {
+    "title": "Srednja Evropa",
+    "geofabrik": [ "hungary", "austria", "slovakia", "czech-republic", "slovenia" ],
+    "map": [ "HU", "AT", "SK", "CZ", "SI" ],
+    "slim": true
+  },
+  "koridor-10": {
+    "title": "Koridor 10",
+    "geofabrik": [ "serbia", "hungary", "austria", "germany/bayern", "germany/baden-wuerttemberg" ],
+    "map": [ "RS", "HU", "AT", "bbox:7.5,47.2,13.9,50.6" ],
+    "slim": true
+  },
+  "istocna-evropa": {
+    "title": "Istočna Evropa",
+    "geofabrik": [ "poland", "lithuania", "latvia", "estonia", "finland" ],
+    "map": [ "PL", "LT", "LV", "EE", "FI" ],
+    "slim": true
+  }
+}

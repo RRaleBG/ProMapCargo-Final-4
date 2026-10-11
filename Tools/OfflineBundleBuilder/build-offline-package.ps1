@@ -17,6 +17,7 @@ Push-Location $repo
 try {
     dotnet build Tools/OfflineBundleBuilder -c Release -nologo -v q
     $arguments = @("Tools/OfflineBundleBuilder/bin/Release/net10.0/ProMapCargo.OfflineBundleBuilder.dll", "wwwroot/offline-bundles", $Pbf, $Name)
+    if ($Name -eq "serbia") { $arguments += @("--title", "Srbija") }
     if ($Force) { $arguments += "--force" }
     dotnet @arguments
 }

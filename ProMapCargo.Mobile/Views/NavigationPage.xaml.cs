@@ -69,6 +69,10 @@ public partial class MobileNavigationPage : ContentPage
         lastWebLocationAt = null;
         ShowMapLoading();
 
+        // Several regional maps: serve the one covering the truck (or the planned route).
+        var where = viewModel.CurrentLocation ?? viewModel.RouteStartPoint;
+        offlineWebCache.PreferredPoint = where is null ? null : (where.Lat, where.Lon);
+        offlineWebCache.InvalidateLocalMap();
         NavigationWebView.Source = NavigationUrl;
         StartThenFillAnimation();
 

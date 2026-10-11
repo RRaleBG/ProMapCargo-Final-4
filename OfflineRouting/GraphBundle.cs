@@ -15,11 +15,46 @@ namespace ProMapCargo.OfflineRouting;
 /// </summary>
 public sealed class GraphBundle
 {
-    public const int FormatVersion = 2;
+    public const int FormatVersion = 3;
     private static readonly byte[] Magic = "PMGB"u8.ToArray();
 
     public long GraphVersion { get; set; }
     public DateTime BuiltAtUtc { get; set; }
+
+    // Region of the package (header, readable without loading the graph): lets the app
+    // pick the installed package that covers a route.
+    public string Name { get; set; } = string.Empty;
+    public double MinLat { get; set; }
+    public double MinLon { get; set; }
+    public double MaxLat { get; set; }
+    public double MaxLon { get; set; }
+
+    public bool Contains(double lat, double lon) => lat >= MinLat && lat <= MaxLat && lon >= MinLon && lon <= MaxLon;
+
+    public sealed record Header(long GraphVersion, DateTime BuiltAtUtc, string Name, double MinLat, double MinLon, double MaxLat, double MaxLon)
+    {
+        public bool Contains(double lat, double lon) => lat >= MinLat && lat <= MaxLat && lon >= MinLon && lon <= MaxLon;
+        public double Area => (MaxLat - MinLat) * (MaxLon - MinLon);
+    }
+
+    /// <summary>Reads only the header (version, name, bounds) of a package file.</summary>
+    public static Header ReadHeader(Stream stream)
+    {
+        using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+        if (!reader.ReadBytes(4).AsSpan().SequenceEqual(Magic))
+        {
+            throw new InvalidDataException("Nije ProMap paket za rutiranje.");
+        }
+
+        var version = reader.ReadInt32();
+        if (version != FormatVersion)
+        {
+            throw new InvalidDataException($"Nepodržana verzija paketa za rutiranje: {version}.");
+        }
+
+        return new Header(reader.ReadInt64(), DateTime.FromBinary(reader.ReadInt64()), reader.ReadString(),
+            reader.ReadDouble(), reader.ReadDouble(), reader.ReadDouble(), reader.ReadDouble());
+    }
 
     // Junctions, microdegrees.
     public int[] NodeLat { get; set; } = [];
@@ -113,6 +148,11 @@ public sealed class GraphBundle
         writer.Write(FormatVersion);
         writer.Write(GraphVersion);
         writer.Write(BuiltAtUtc.ToBinary());
+        writer.Write(Name);
+        writer.Write(MinLat);
+        writer.Write(MinLon);
+        writer.Write(MaxLat);
+        writer.Write(MaxLon);
 
         WriteArray(writer, NodeLat);
         WriteArray(writer, NodeLon);
@@ -185,6 +225,11 @@ public sealed class GraphBundle
         {
             GraphVersion = reader.ReadInt64(),
             BuiltAtUtc = DateTime.FromBinary(reader.ReadInt64()),
+            Name = reader.ReadString(),
+            MinLat = reader.ReadDouble(),
+            MinLon = reader.ReadDouble(),
+            MaxLat = reader.ReadDouble(),
+            MaxLon = reader.ReadDouble(),
             NodeLat = ReadArray<int>(reader),
             NodeLon = ReadArray<int>(reader),
             RoadFrom = ReadArray<int>(reader),
