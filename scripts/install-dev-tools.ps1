@@ -1,11 +1,10 @@
 # Installs the developer tools ProMap Cargo and its Claude Code MCP servers need
-# (see CLAUDE.md), skipping what is already installed, and sets PROMAP_DATABASE_URI
-# for the read-only Postgres MCP server.
+# (see CLAUDE.md), skipping what is already installed.
 #
 #   pwsh scripts/install-dev-tools.ps1
 #   pwsh scripts/install-dev-tools.ps1 -SkipDocker      # Docker Desktop already set up another way
 #
-# Open a new terminal afterwards so the updated PATH and variables are picked up.
+# Open a new terminal afterwards so the updated PATH is picked up.
 param(
     [switch]$SkipDocker
 )
@@ -20,8 +19,7 @@ $packages = [ordered]@{
     "Microsoft.PowerShell"     = "pwsh (skripte u Tools/ i scripts/)"
     "Microsoft.DotNet.SDK.10"  = ".NET 10 SDK"
     "GitHub.cli"               = "gh (GitHub)"
-    "astral-sh.uv"             = "uv / uvx (Postgres MCP)"
-    "OpenJS.NodeJS.LTS"        = "Node.js / npx (mobile MCP, Playwright MCP)"
+    "OpenJS.NodeJS.LTS"        = "Node.js / npx (postgres, mobile, playwright MCP)"
     "Python.Python.3.12"       = "python (region-geojson.py)"
     "Google.PlatformTools"     = "adb (telefon, mobile MCP)"
 }
@@ -53,15 +51,6 @@ if ($dotnet) {
     }
 } else {
     Write-Warning "dotnet još nije u PATH-u: otvori novi terminal i pokreni skriptu ponovo za MAUI workload."
-}
-
-# Connection for the Postgres MCP server (.mcp.json). Same local dev database as docker-compose.yml.
-if (-not [Environment]::GetEnvironmentVariable("PROMAP_DATABASE_URI", "User")) {
-    [Environment]::SetEnvironmentVariable("PROMAP_DATABASE_URI",
-        "postgresql://promap:promap_dev_change_me@localhost:5432/promapcargo", "User")
-    Write-Host "[set]     PROMAP_DATABASE_URI" -ForegroundColor Cyan
-} else {
-    Write-Host "[ok]      PROMAP_DATABASE_URI" -ForegroundColor Green
 }
 
 Write-Host ""
