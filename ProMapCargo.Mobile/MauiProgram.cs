@@ -67,6 +67,22 @@ public static class MauiProgram
             client.Timeout = TimeSpan.FromMinutes(10);
         });
 
+        builder.Services.AddSingleton<OfflineWebCache>();
+        builder.Services.AddSingleton<SavedRouteStore>();
+
+#if ANDROID
+        // Navigation WebView requests go through the offline cache (map from the
+        // downloaded file, page and assets from the stored copy when there is no signal).
+        Microsoft.Maui.Handlers.WebViewHandler.Mapper.AppendToMapping("WebViewClient", (handler, _) =>
+        {
+            var cache = handler.MauiContext?.Services.GetService<OfflineWebCache>();
+            if (cache is not null && handler is Microsoft.Maui.Handlers.WebViewHandler webViewHandler)
+            {
+                handler.PlatformView.SetWebViewClient(new OfflineWebViewClient(webViewHandler, cache));
+            }
+        });
+#endif
+
         builder.Services.AddSingleton<AppShell>();
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<DashboardViewModel>();

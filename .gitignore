@@ -259,3 +259,7 @@ docker-compose.override.yml
 # Local AI / MCP
 .ai/mcp/*.local.json
 .ai/secrets/
+
+
+# APM dependencies
+apm_modules/

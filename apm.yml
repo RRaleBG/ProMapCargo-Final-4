@@ -1,0 +1,13 @@
+name: ProMapCargo-Final-4
+version: 1.0.0
+description: APM project for ProMapCargo-Final-4
+author: Rados
+targets:
+- copilot
+dependencies:
+  apm:
+  - microsoft/apm-sample-package#v1.0.0
+  mcp:
+  - io.github.github/github-mcp-server
+includes: auto
+scripts: {}

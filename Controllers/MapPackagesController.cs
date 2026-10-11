@@ -35,8 +35,21 @@ public sealed class MapPackagesController(IWebHostEnvironment environment) : Con
             .OrderBy(item => item.DisplayName, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        return Ok(packages);
+        // "<name>-nav.pmtiles" is the navigation-schema (Protomaps) cut of a region; the
+        // plain "<name>.pmtiles" next to it uses another schema the navigation style
+        // cannot draw, so the app is offered only the navigation one.
+        var navigationIds = packages
+            .Where(item => item.Id.EndsWith(NavigationSuffix, StringComparison.OrdinalIgnoreCase))
+            .Select(item => item.Id[..^NavigationSuffix.Length])
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return Ok(packages.Where(item => !navigationIds.Contains(item.Id)).ToArray());
     }
+
+    private const string NavigationSuffix = "-nav";
+
+    private static string RegionOf(string value)
+        => value.EndsWith(NavigationSuffix, StringComparison.OrdinalIgnoreCase) ? value[..^NavigationSuffix.Length] : value;
 
     private static string GuessCountryCode(string value)
     {
@@ -45,7 +58,7 @@ public sealed class MapPackagesController(IWebHostEnvironment environment) : Con
             return "INT";
         }
 
-        return value.ToUpperInvariant() switch
+        return RegionOf(value).ToUpperInvariant() switch
         {
             "SERBIA" => "RS",
             "CROATIA" => "HR",
@@ -66,7 +79,7 @@ public sealed class MapPackagesController(IWebHostEnvironment environment) : Con
             return "Map package";
         }
 
-        var tokens = value
+        var tokens = RegionOf(value)
             .Replace('-', ' ')
             .Replace('_', ' ')
             .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

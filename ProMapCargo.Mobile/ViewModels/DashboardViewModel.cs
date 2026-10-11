@@ -49,7 +49,11 @@ public sealed class DashboardViewModel : ViewModelBase
             new DashboardLink("Upozorenja", "Operativna upozorenja i incidenti", null)
         ];
 
-        RefreshCommand = new Command(async () => await LoadAsync(), () => !IsBusy);
+        RefreshCommand = new Command(async () =>
+        {
+            await LoadAsync();
+            IsPullRefreshing = false;
+        }, () => !IsBusy);
         OpenLinkCommand = new Command<DashboardLink>(async link => await OpenLinkAsync(link));
     }
 
@@ -139,6 +143,17 @@ public sealed class DashboardViewModel : ViewModelBase
     public string WelcomeText => sessionService.CurrentSession?.User.DisplayName is { Length: > 0 } displayName
         ? $"Dobrodošli, {displayName}"
         : "Dobrodošli";
+
+    // Only pull-to-refresh shows the RefreshView spinner: while a RefreshView is
+    // refreshing, Android blocks every tap on the page, so the automatic load on
+    // opening the screen must not use it (buttons seemed dead for seconds).
+    private bool isPullRefreshing;
+
+    public bool IsPullRefreshing
+    {
+        get => isPullRefreshing;
+        set => SetProperty(ref isPullRefreshing, value);
+    }
 
     public bool IsBusy
     {

@@ -14,6 +14,7 @@ public partial class MobileNavigationPage : ContentPage
     private readonly NavigationViewModel viewModel;
     private readonly IMobileNotifier notifier;
     private readonly MobileServerEndpointService serverEndpointService;
+    private readonly OfflineWebCache offlineWebCache;
     private bool pageActive;
     private int mapLoadAttempt;
     private bool webViewReady;
@@ -43,6 +44,9 @@ public partial class MobileNavigationPage : ContentPage
 
         serverEndpointService = services
             .GetRequiredService<MobileServerEndpointService>();
+
+        offlineWebCache = services
+            .GetRequiredService<OfflineWebCache>();
 
         BindingContext = viewModel;
 
@@ -115,6 +119,8 @@ public partial class MobileNavigationPage : ContentPage
         if (webViewReady)
         {
             LoadingOverlay.IsVisible = false;
+            // While online, store the label fonts so names show offline too.
+            _ = offlineWebCache.PrefetchGlyphsAsync();
             await ApplyEmbeddedMobileLayoutTweaksAsync();
             await notifier.ShowSuccessAsync("Mapa za navigaciju je spremna.");
             await PushStateToWebAsync(force: true);

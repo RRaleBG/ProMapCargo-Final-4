@@ -19,6 +19,7 @@ public class NavigationViewModel : ViewModelBase
     private readonly ApiClient apiClient;
     private readonly OfflineRoutingBundleService offlineRoutingBundleService;
     private readonly IMobileNotifier notifier;
+    private readonly SavedRouteStore savedRouteStore;
     private CancellationTokenSource? gpsTrackingCts;
     private DateTimeOffset lastAutoRerouteAt = DateTimeOffset.MinValue;
     private string startLatitude = string.Empty;
@@ -85,11 +86,12 @@ public class NavigationViewModel : ViewModelBase
     private string currentSpeedText = "0";
     private bool hasRoute;
 
-    public NavigationViewModel(ApiClient apiClient, OfflineRoutingBundleService offlineRoutingBundleService, IMobileNotifier notifier)
+    public NavigationViewModel(ApiClient apiClient, OfflineRoutingBundleService offlineRoutingBundleService, IMobileNotifier notifier, SavedRouteStore savedRouteStore)
     {
         this.apiClient = apiClient;
         this.offlineRoutingBundleService = offlineRoutingBundleService;
         this.notifier = notifier;
+        this.savedRouteStore = savedRouteStore;
 
         RouteHighlights = [];
         RouteManeuvers = [];
@@ -817,6 +819,12 @@ public class NavigationViewModel : ViewModelBase
 
     public async Task LoadInitialRouteAsync()
     {
+        // Guidance survives an app restart without signal: bring back the last route.
+        if (!HasRoute && savedRouteStore.Load() is { } saved)
+        {
+            await MainThread.InvokeOnMainThreadAsync(() => RestoreSavedRoute(saved));
+        }
+
         await RefreshRoutingModeAsync();
         await StartGpsTrackingAsync();
 
@@ -1204,21 +1212,44 @@ public class NavigationViewModel : ViewModelBase
                 IsRouteInputVisible = false;
             });
 
+            if (response?.Routes.Count > 0)
+            {
+                savedRouteStore.Save(new SavedRoute(
+                    response,
+                    requestStart.Lat,
+                    requestStart.Lon,
+                    destinationLat,
+                    destinationLon,
+                    string.IsNullOrWhiteSpace(DestinationQuery) ? "Odredište" : DestinationQuery,
+                    DateTime.UtcNow));
+            }
+
             if (!autoReroute)
             {
                 RecentDestinations.Add(DestinationQuery, destinationLat, destinationLon);
             }
             await notifier.ShowSuccessAsync(autoReroute ? "Ruta je preračunata od trenutne lokacije." : "Ruta je izračunata.").ConfigureAwait(false);
         }
-        catch (HttpRequestException ex)
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException)
         {
+            // No signal / server unreachable. The current (saved) route keeps guiding;
+            // a new route needs the server until on-device routing exists.
+            const string offlineMessage = "Nema veze sa serverom. Nova ruta može da se izračuna kad se veza vrati.";
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
-                ErrorMessage = ex.Message;
-                StatusText = "Zahtev za rutu nije uspeo.";
+                StatusText = autoReroute
+                    ? "Van rute — preračunavanje čim se veza vrati."
+                    : "Zahtev za rutu nije uspeo.";
+                if (!autoReroute)
+                {
+                    ErrorMessage = HasRoute ? offlineMessage : $"{offlineMessage} ({ex.Message})";
+                }
             });
 
-            await notifier.ShowErrorAsync("Route request failed. Check network/API availability.").ConfigureAwait(false);
+            if (!autoReroute)
+            {
+                await notifier.ShowErrorAsync(offlineMessage).ConfigureAwait(false);
+            }
         }
         catch (InvalidOperationException ex)
         {
@@ -1234,6 +1265,20 @@ public class NavigationViewModel : ViewModelBase
         {
             await SetBusyAsync(false);
         }
+    }
+
+    private void RestoreSavedRoute(SavedRoute saved)
+    {
+        suppressSearch = true;
+        DestinationQuery = saved.DestinationTitle;
+        DestinationLatitude = saved.DestinationLat.ToString("0.000000", CultureInfo.InvariantCulture);
+        DestinationLongitude = saved.DestinationLon.ToString("0.000000", CultureInfo.InvariantCulture);
+        StartLatitude = saved.StartLat.ToString("0.000000", CultureInfo.InvariantCulture);
+        StartLongitude = saved.StartLon.ToString("0.000000", CultureInfo.InvariantCulture);
+        suppressSearch = false;
+
+        ApplyRoute(saved.Response, saved.StartLat, saved.StartLon, saved.DestinationLat, saved.DestinationLon);
+        StatusText = $"Sačuvana ruta ({saved.SavedAtUtc.ToLocalTime():dd.MM. HH:mm}) — radi i bez signala.";
     }
 
     private async Task RerouteFromCurrentLocationAsync()

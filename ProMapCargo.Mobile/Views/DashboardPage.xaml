@@ -59,7 +59,7 @@
 
     <RefreshView
         Command="{Binding RefreshCommand}"
-        IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+        IsRefreshing="{Binding IsPullRefreshing}"
         RefreshColor="{StaticResource Brand}">
         <ScrollView>
             <VerticalStackLayout
