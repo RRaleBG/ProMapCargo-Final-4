@@ -29,7 +29,7 @@ dotnet build ProMapCargo.sln
 dotnet run --project ProMapCargo.Api.csproj
 ```
 
-- Admin login (dev): `admin@promapcargo.local` / `Admin123!`
+- Admin login (dev, seeded in `Program.cs` `SeedAdministratorUserAsync`): `admin@promapcargo.com` / `Admin1234!`
 - The phone reaches the API via the PC's LAN address (default `http://192.168.1.2:8080/`, changeable in the app's Settings; emulator uses `10.0.2.2`).
 
 ## Mobile
@@ -74,4 +74,4 @@ Tools for all of them: `pwsh scripts/install-dev-tools.ps1` (winget; also sets `
   `setx PROMAP_DATABASE_URI "postgresql://promap:<password>@localhost:5432/promapcargo"`, plus `uv`.
 - `mobile`: drives the phone or emulator through adb (needs Node.js and `adb` on PATH).
 - `context7`: current library docs (MAUI, Npgsql, NetTopologySuite).
-- `github-mcp-server`: needs `GITHUB_PAT` (a GitHub personal access token).
+- `github-mcp-server`: uses the `GITHUB_TOKEN` environment variable (same token `gh` uses).
