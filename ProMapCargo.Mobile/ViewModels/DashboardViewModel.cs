@@ -154,16 +154,18 @@ public sealed class DashboardViewModel : ViewModelBase
 
     public async Task LoadAsync()
     {
+        // A newer load (page shown again) replaces this one; the replaced load
+        // must neither report "cancelled" nor clean up the newer one's state.
         loadCancellationTokenSource?.Cancel();
-        loadCancellationTokenSource?.Dispose();
-        loadCancellationTokenSource = new CancellationTokenSource();
+        var loadCts = new CancellationTokenSource();
+        loadCancellationTokenSource = loadCts;
 
         try
         {
             await SetBusyAsync(true).ConfigureAwait(false);
             StatusText = "Učitavanje operativnih podataka…";
 
-            var cancellationToken = loadCancellationTokenSource.Token;
+            var cancellationToken = loadCts.Token;
             var vehiclesTask = apiClient.GetVehiclesAsync(cancellationToken);
             var driversTask = apiClient.GetDriversAsync(cancellationToken);
             var ordersTask = apiClient.GetOrdersAsync(cancellationToken);
@@ -196,14 +198,17 @@ public sealed class DashboardViewModel : ViewModelBase
 
             await notifier.ShowSuccessAsync("Podaci su sinhronizovani.").ConfigureAwait(false);
         }
+        catch (OperationCanceledException) when (loadCts.IsCancellationRequested)
+        {
+            // Superseded by a newer load: nothing to report.
+        }
         catch (OperationCanceledException)
         {
+            // HttpClient timeout (not our cancellation): the server did not answer.
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
-                StatusText = "Sinhronizacija je otkazana.";
+                StatusText = $"Server ne odgovara · {sessionService.LastStatus}";
             });
-
-            await notifier.ShowInfoAsync("Sinhronizacija je otkazana.").ConfigureAwait(false);
         }
         catch (HttpRequestException ex)
         {
@@ -212,7 +217,7 @@ public sealed class DashboardViewModel : ViewModelBase
                 StatusText = $"Sinhronizacija nije uspela: {ex.Message} · {sessionService.LastStatus}";
             });
 
-            await notifier.ShowErrorAsync("Sync failed due to network/API error.").ConfigureAwait(false);
+            await notifier.ShowErrorAsync("Sinhronizacija nije uspela (mreža ili server).").ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -225,9 +230,13 @@ public sealed class DashboardViewModel : ViewModelBase
         }
         finally
         {
-            await SetBusyAsync(false).ConfigureAwait(false);
-            loadCancellationTokenSource?.Dispose();
-            loadCancellationTokenSource = null;
+            if (ReferenceEquals(loadCancellationTokenSource, loadCts))
+            {
+                loadCancellationTokenSource = null;
+                await SetBusyAsync(false).ConfigureAwait(false);
+            }
+
+            loadCts.Dispose();
         }
     }
 

@@ -360,6 +360,14 @@ public class NavigationViewModel : ViewModelBase
             suppressSearch = false;
 
             await CalculateRouteAsync();
+
+            // No route (e.g. no GPS fix indoors): show the planner with the destination
+            // filled in and the error, so the driver can type a start instead.
+            if (RoutePolylinePoints.Count == 0)
+            {
+                await MainThread.InvokeOnMainThreadAsync(() => IsRouteInputVisible = true);
+            }
+
             return;
         }
 

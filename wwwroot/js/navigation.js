@@ -292,7 +292,7 @@ window.ProMap = window.ProMap || {};
                 state.mobileRouteSignature = signature;
                 renderRouteResponse(response);
                 // In the app the camera follows the driver instead of showing the whole route.
-                selectRoute(0, !state.mobileMode);
+                selectRoute(0, !state.mobileMode || !state.currentPosition);
                 // A new route starts guidance: back to the driving camera.
                 if (state.mobileMode && state.mobileCameraStarted) {
                     state.currentPosition = state.currentPosition || current;
@@ -1413,6 +1413,11 @@ window.ProMap = window.ProMap || {};
 
                         pmtilesUrl:
                             PROMAP_PMTILES_ENDPOINT,
+
+                        // Serbia until the first GPS fix or route moves the camera.
+                        center: { lat: 44.2, lng: 20.9 },
+
+                        zoom: 6.3,
                     },
                 );
 
@@ -3441,8 +3446,9 @@ window.ProMap = window.ProMap || {};
     function fitRoute() {
         const map = state.map;
 
-        // In the app the driving camera owns the view while it follows the truck.
-        if (state.mobileMode && state.liveFollow) {
+        // In the app the driving camera owns the view while it follows the truck;
+        // without a GPS fix there is no truck to follow, so show the whole route.
+        if (state.mobileMode && state.liveFollow && state.currentPosition) {
             return;
         }
 

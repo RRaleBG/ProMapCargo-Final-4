@@ -167,12 +167,9 @@ public partial class MobileNavigationPage : ContentPage
     private async void OnOpenServerSettingsClicked(object? sender, EventArgs e)
         => await AppNavigation.GoToAsync(AppNavigation.Settings);
 
-    private void OnSuggestionTapped(object? sender, TappedEventArgs e)
+    private void OnSuggestionClicked(object? sender, EventArgs e)
     {
-        // In Tapped, sender is the tapped view (not the recognizer); the item comes
-        // from CommandParameter (e.Parameter) or the row's BindingContext.
-        var suggestion = e.Parameter as GeocodeResult
-            ?? (sender as BindableObject)?.BindingContext as GeocodeResult;
+        var suggestion = (sender as BindableObject)?.BindingContext as GeocodeResult;
 
         if (suggestion is null)
         {
@@ -369,6 +366,17 @@ public partial class MobileNavigationPage : ContentPage
                     RoutePopupPanel.FadeToAsync(1, PanelEnterDurationMs, Easing.CubicOut));
 
                 return;
+            }
+
+            // Closing the sheet (also after a route is calculated) hides the keyboard.
+            foreach (var entry in new[] { StartEntry, DestinationEntry })
+            {
+                if (entry.IsSoftInputShowing())
+                {
+                    await entry.HideSoftInputAsync(CancellationToken.None);
+                }
+
+                entry.Unfocus();
             }
 
             await Task.WhenAll(

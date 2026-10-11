@@ -33,16 +33,16 @@ public partial class DashboardPage : ContentPage
         => await AppNavigation.GoToAsync(AppNavigation.Navigation);
 
     // "Kuda idemo?": open navigation with the route planner already showing.
-    private async void OnSearchTapped(object? sender, TappedEventArgs e)
+    private async void OnSearchClicked(object? sender, EventArgs e)
     {
         NavigationRequests.OpenPlanner();
         await AppNavigation.GoToAsync(AppNavigation.Navigation);
     }
 
     // A recent destination: route there from the current position right away.
-    private async void OnRecentTapped(object? sender, TappedEventArgs e)
+    private async void OnRecentClicked(object? sender, EventArgs e)
     {
-        if (e.Parameter is not RecentDestination destination)
+        if ((sender as BindableObject)?.BindingContext is not RecentDestination destination)
         {
             return;
         }
@@ -51,17 +51,17 @@ public partial class DashboardPage : ContentPage
         await AppNavigation.GoToAsync(AppNavigation.Navigation);
     }
 
-    private async void OnTileNavigationTapped(object? sender, TappedEventArgs e)
+    private async void OnTileNavigationClicked(object? sender, EventArgs e)
         => await AppNavigation.GoToAsync(AppNavigation.Navigation);
 
-    private async void OnTileMapsTapped(object? sender, TappedEventArgs e)
+    private async void OnTileMapsClicked(object? sender, EventArgs e)
         => await AppNavigation.GoToAsync(AppNavigation.InstallMaps);
 
-    private async void OnTileSettingsTapped(object? sender, TappedEventArgs e)
+    private async void OnTileSettingsClicked(object? sender, EventArgs e)
         => await AppNavigation.GoToAsync(AppNavigation.Settings);
 
     // Dispatch has no mobile screen yet; the view model tells the driver it is on the web portal.
-    private void OnTileDispatchTapped(object? sender, TappedEventArgs e)
+    private void OnTileDispatchClicked(object? sender, EventArgs e)
     {
         var link = viewModel.QuickLinks.FirstOrDefault(item => item.Title == "Dispečing");
         if (link is not null && viewModel.OpenLinkCommand.CanExecute(link))

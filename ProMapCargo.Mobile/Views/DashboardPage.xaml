@@ -15,6 +15,18 @@
     <ContentPage.Resources>
         <converters:ManeuverIconConverter x:Key="ManeuverIcon" />
 
+        <!--  Transparent button over a card: a tap gesture on a Border inside
+              RefreshView/ScrollView does not fire on Android devices, a Button does.  -->
+        <Style x:Key="HomeTapTarget" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="BorderWidth" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Text" Value="" />
+            <Setter Property="MinimumHeightRequest" Value="0" />
+            <Setter Property="MinimumWidthRequest" Value="0" />
+        </Style>
+
         <Style x:Key="HomeCaption" BasedOn="{StaticResource PmCaptionLabel}" TargetType="Label">
             <Setter Property="Margin" Value="4,0,0,0" />
         </Style>
@@ -95,9 +107,6 @@
                     Stroke="{StaticResource StrokeStrong}"
                     StrokeShape="RoundRectangle 28"
                     StrokeThickness="1">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnSearchTapped" />
-                    </Border.GestureRecognizers>
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                         <Path
                             Aspect="Uniform"
@@ -119,6 +128,12 @@
                             Text="›"
                             TextColor="{StaticResource TextTertiary}"
                             VerticalOptions="Center" />
+                        <Button
+                            Grid.ColumnSpan="3"
+                            Margin="-18,0"
+                            Clicked="OnSearchClicked"
+                            SemanticProperties.Description="Kuda idemo? Planiraj rutu"
+                            Style="{StaticResource HomeTapTarget}" />
                     </Grid>
                 </Border>
 
@@ -140,9 +155,6 @@
                                         Padding="0,10"
                                         ColumnDefinitions="32,*,Auto"
                                         ColumnSpacing="12">
-                                        <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer CommandParameter="{Binding .}" Tapped="OnRecentTapped" />
-                                        </Grid.GestureRecognizers>
                                         <Border Style="{StaticResource HomeTileIcon}" VerticalOptions="Center">
                                             <Path
                                                 Aspect="Uniform"
@@ -171,6 +183,11 @@
                                             Text="›"
                                             TextColor="{StaticResource TextTertiary}"
                                             VerticalOptions="Center" />
+                                        <Button
+                                            Grid.ColumnSpan="3"
+                                            Margin="0,-10"
+                                            Clicked="OnRecentClicked"
+                                            Style="{StaticResource HomeTapTarget}" />
                                     </Grid>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
@@ -249,47 +266,55 @@
                     RowDefinitions="Auto,Auto"
                     RowSpacing="10">
                     <Border Style="{StaticResource HomeTile}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnTileNavigationTapped" />
-                        </Border.GestureRecognizers>
                         <Grid RowDefinitions="*,Auto">
                             <Border Style="{StaticResource HomeTileIcon}">
                                 <Image HeightRequest="18" Source="ic_tab_navigation.svg" WidthRequest="18" />
                             </Border>
                             <Label Grid.Row="1" Style="{StaticResource HomeTileLabel}" Text="Navigacija" />
+                            <Button
+                                Grid.RowSpan="2"
+                                Margin="-14,-12"
+                                Clicked="OnTileNavigationClicked"
+                                Style="{StaticResource HomeTapTarget}" />
                         </Grid>
                     </Border>
                     <Border Grid.Column="1" Style="{StaticResource HomeTile}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnTileMapsTapped" />
-                        </Border.GestureRecognizers>
                         <Grid RowDefinitions="*,Auto">
                             <Border Style="{StaticResource HomeTileIcon}">
                                 <Image HeightRequest="18" Source="ic_map.svg" WidthRequest="18" />
                             </Border>
                             <Label Grid.Row="1" Style="{StaticResource HomeTileLabel}" Text="Offline mape" />
+                            <Button
+                                Grid.RowSpan="2"
+                                Margin="-14,-12"
+                                Clicked="OnTileMapsClicked"
+                                Style="{StaticResource HomeTapTarget}" />
                         </Grid>
                     </Border>
                     <Border Grid.Row="1" Style="{StaticResource HomeTile}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnTileDispatchTapped" />
-                        </Border.GestureRecognizers>
                         <Grid RowDefinitions="*,Auto">
                             <Border Style="{StaticResource HomeTileIcon}">
                                 <Image HeightRequest="18" Source="ic_tab_operations.svg" WidthRequest="18" />
                             </Border>
                             <Label Grid.Row="1" Style="{StaticResource HomeTileLabel}" Text="Dispečing" />
+                            <Button
+                                Grid.RowSpan="2"
+                                Margin="-14,-12"
+                                Clicked="OnTileDispatchClicked"
+                                Style="{StaticResource HomeTapTarget}" />
                         </Grid>
                     </Border>
                     <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource HomeTile}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnTileSettingsTapped" />
-                        </Border.GestureRecognizers>
                         <Grid RowDefinitions="*,Auto">
                             <Border Style="{StaticResource HomeTileIcon}">
                                 <Image HeightRequest="18" Source="ic_settings.svg" WidthRequest="18" />
                             </Border>
                             <Label Grid.Row="1" Style="{StaticResource HomeTileLabel}" Text="Podešavanja" />
+                            <Button
+                                Grid.RowSpan="2"
+                                Margin="-14,-12"
+                                Clicked="OnTileSettingsClicked"
+                                Style="{StaticResource HomeTapTarget}" />
                         </Grid>
                     </Border>
                 </Grid>

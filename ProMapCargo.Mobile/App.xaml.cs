@@ -1,3 +1,4 @@
+using AndroidSpecific = Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;
 using ProMapCargo.Mobile.Services;
 
 namespace ProMapCargo.Mobile;
@@ -11,6 +12,11 @@ public partial class App : Application
     {
         InitializeComponent();
         UserAppTheme = AppTheme.Dark;
+        // The page shrinks above the keyboard, so the route planner (bottom sheet)
+        // stays visible while typing instead of being covered.
+        AndroidSpecific.Application.UseWindowSoftInputModeAdjust(
+            this.On<Microsoft.Maui.Controls.PlatformConfiguration.Android>(),
+            AndroidSpecific.WindowSoftInputModeAdjust.Resize);
         this.appShell = appShell;
     }
 

@@ -296,6 +296,7 @@
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                         <Border Style="{StaticResource PmFieldBorder}">
                             <Entry
+                                x:Name="StartEntry"
                                 Placeholder="Polazak (adresa ili mesto)"
                                 Style="{StaticResource PmEntry}"
                                 Text="{Binding StartQuery}" />
@@ -310,6 +311,7 @@
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                         <Border Style="{StaticResource PmFieldBorder}">
                             <Entry
+                                x:Name="DestinationEntry"
                                 Placeholder="Odredište (adresa ili mesto)"
                                 Style="{StaticResource PmEntry}"
                                 Text="{Binding DestinationQuery}" />
@@ -325,17 +327,25 @@
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding Suggestions}" Spacing="2">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:GeocodeResult">
-                                    <VerticalStackLayout Padding="6,8" Spacing="1">
-                                        <VerticalStackLayout.GestureRecognizers>
-                                            <TapGestureRecognizer CommandParameter="{Binding .}" Tapped="OnSuggestionTapped" />
-                                        </VerticalStackLayout.GestureRecognizers>
-                                        <Label Style="{StaticResource PmRouteDataLabel}" Text="{Binding Title}" />
-                                        <Label
-                                            LineBreakMode="TailTruncation"
-                                            MaxLines="1"
-                                            Style="{StaticResource PmRouteDataCaption}"
-                                            Text="{Binding Subtitle}" />
-                                    </VerticalStackLayout>
+                                    <Grid>
+                                        <VerticalStackLayout Padding="6,8" Spacing="1">
+                                            <Label Style="{StaticResource PmRouteDataLabel}" Text="{Binding Title}" />
+                                            <Label
+                                                LineBreakMode="TailTruncation"
+                                                MaxLines="1"
+                                                Style="{StaticResource PmRouteDataCaption}"
+                                                Text="{Binding Subtitle}" />
+                                        </VerticalStackLayout>
+                                        <!--  A tap gesture inside a ScrollView is unreliable on Android devices; a Button is not.  -->
+                                        <Button
+                                            Padding="0"
+                                            BackgroundColor="Transparent"
+                                            BorderWidth="0"
+                                            Clicked="OnSuggestionClicked"
+                                            CornerRadius="0"
+                                            MinimumHeightRequest="0"
+                                            Text="" />
+                                    </Grid>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
