@@ -103,9 +103,21 @@ public sealed class MobileServerEndpointService
         try
         {
             var storedValue = Preferences.Default.Get(PreferencesKey, string.Empty);
-            return string.IsNullOrWhiteSpace(storedValue)
-                ? null
-                : NormalizeApiBaseUrl(storedValue);
+            if (string.IsNullOrWhiteSpace(storedValue))
+            {
+                return null;
+            }
+
+            var normalized = NormalizeApiBaseUrl(storedValue);
+
+            // The emulator-only address saved earlier can never work on a real device.
+            if (DeviceInfo.DeviceType != DeviceType.Virtual &&
+                new Uri(normalized).Host == "10.0.2.2")
+            {
+                return null;
+            }
+
+            return normalized;
         }
         catch (Exception)
         {

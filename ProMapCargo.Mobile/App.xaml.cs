@@ -1,18 +1,16 @@
-﻿using ProMapCargo.Mobile.Services;
+using ProMapCargo.Mobile.Services;
 
 namespace ProMapCargo.Mobile;
 
 public partial class App : Application
 {
-    private readonly OfflineMapService offlineMapService;
     private readonly AppShell appShell;
     private bool initialNavigationApplied;
 
-    public App(OfflineMapService offlineMapService, AppShell appShell)
+    public App(AppShell appShell)
     {
         InitializeComponent();
         UserAppTheme = AppTheme.Dark;
-        this.offlineMapService = offlineMapService;
         this.appShell = appShell;
     }
 
@@ -28,24 +26,15 @@ public partial class App : Application
         if (initialNavigationApplied) return;
         initialNavigationApplied = true;
 
+        // Navigation and the map come from the server; offline maps are optional
+        // (Početna → Offline mape), so the app always opens on the home screen.
         try
         {
-            // Stvaramo CancellationToken koji prekida provere posle 3 sekunde ako backend ne odgovara
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
-
-            var hasInstalledMaps = await offlineMapService.HasInstalledMapsAsync(cts.Token).ConfigureAwait(false);
-            if (!hasInstalledMaps)
-            {
-                await MainThread.InvokeOnMainThreadAsync(() => appShell.GoToAsync("//install-maps"));
-                return;
-            }
-
             await MainThread.InvokeOnMainThreadAsync(() => appShell.GoToAsync("//dashboard"));
         }
-        catch
+        catch (Exception ex)
         {
-            // Ako backend padne ili izbaci timeout, bezbedno preusmeri na install-maps
-            await MainThread.InvokeOnMainThreadAsync(() => appShell.GoToAsync("//install-maps"));
+            System.Diagnostics.Debug.WriteLine($"Initial navigation failed: {ex}");
         }
     }
 }

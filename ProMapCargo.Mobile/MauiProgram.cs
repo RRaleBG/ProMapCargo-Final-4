@@ -28,9 +28,13 @@ public static class MauiProgram
 
         builder.Services.Configure<MobileAppOptions>(options =>
         {
-            options.ApiBaseUrl = DeviceInfo.Platform == DevicePlatform.Android
-                ? "http://10.0.2.2:8080/"
-                : "http://localhost:8080/";
+            // 10.0.2.2 is the host PC only inside the Android emulator; a real phone or
+            // tablet must use the PC's LAN address (changeable in Podešavanja).
+            options.ApiBaseUrl = DeviceInfo.Platform != DevicePlatform.Android
+                ? "http://localhost:8080/"
+                : DeviceInfo.DeviceType == DeviceType.Virtual
+                    ? "http://10.0.2.2:8080/"
+                    : "http://192.168.1.2:8080/";
         });
 
         builder.Services.AddSingleton<TokenStore>();
