@@ -357,6 +357,8 @@ public partial class MobileNavigationPage : ContentPage
             if (open)
             {
                 routePopupOpen = true;
+                // The speed bubble and buttons would show through and catch taps next to the sheet.
+                FloatingControls.IsVisible = false;
                 RoutePopupPanel.IsVisible = true;
                 RoutePopupPanel.InputTransparent = false;
                 RoutePopupPanel.TranslationY = 28;
@@ -375,6 +377,7 @@ public partial class MobileNavigationPage : ContentPage
 
             RoutePopupPanel.InputTransparent = true;
             RoutePopupPanel.IsVisible = false;
+            FloatingControls.IsVisible = true;
             routePopupOpen = false;
         }
         finally

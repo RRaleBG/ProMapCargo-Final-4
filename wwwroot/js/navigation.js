@@ -293,6 +293,11 @@ window.ProMap = window.ProMap || {};
                 renderRouteResponse(response);
                 // In the app the camera follows the driver instead of showing the whole route.
                 selectRoute(0, !state.mobileMode);
+                // A new route starts guidance: back to the driving camera.
+                if (state.mobileMode && state.mobileCameraStarted) {
+                    state.currentPosition = state.currentPosition || current;
+                    resumeMobileFollow();
+                }
             }
         }
 
@@ -3774,13 +3779,15 @@ window.ProMap = window.ProMap || {};
     // so the driver sees more road ahead.
     function mobileFollowZoom(latitude, longitude) {
         const speed = Number(state.mobileSpeedKph) || 0;
-        let zoom = speed < 30 ? 18 : speed < 70 ? 17.5 : 16.5;
+        // Kept below the tiles' detail limit: closer than ~17 the map turns into
+        // empty overzoomed polygons on the phone.
+        let zoom = speed < 30 ? 16.8 : speed < 70 ? 16.2 : 15.4;
 
         const next = state.mobileNextManeuver;
         if (next && Number.isFinite(Number(next.latitude)) && Number.isFinite(Number(next.longitude))) {
             const toTurn = haversineMeters(latitude, longitude, Number(next.latitude), Number(next.longitude));
             if (toTurn < 250) {
-                zoom = 18;
+                zoom = Math.max(zoom, 17);
             }
         }
 
@@ -3905,7 +3912,7 @@ window.ProMap = window.ProMap || {};
 
         const pause = (event) => {
             if (event?.originalEvent) {
-                state.liveFollow = false;
+                pauseMobileFollow();
             }
         };
 
@@ -3915,9 +3922,13 @@ window.ProMap = window.ProMap || {};
 
         const container = state.map.getCanvasContainer();
 
-        container.addEventListener("touchstart", () => { state.liveFollow = false; }, { passive: true });
+        // Only a real pan/pinch pauses (a plain tap must not freeze the camera), and
+        // following resumes by itself after a few seconds, like TomTom.
+        container.addEventListener("touchmove", () => pauseMobileFollow(), { passive: true });
 
-        container.addEventListener("mousedown", () => { state.liveFollow = false; });
+        container.addEventListener("mousemove", (event) => { if (event.buttons) pauseMobileFollow(); });
+
+        container.addEventListener("wheel", () => pauseMobileFollow(), { passive: true });
 
         state.map.on("dragstart", pause);
         state.map.on("zoomstart", pause);
@@ -3939,17 +3950,29 @@ window.ProMap = window.ProMap || {};
             };
         };
 
-        window.proMapMobile.recenter = () => {
-            state.liveFollow = true;
-            const position = state.currentPosition;
-            if (position) {
-                followMobilePosition(
-                    { latitude: position.latitude, longitude: position.longitude, heading: state.lastHeading },
-                    true,
-                );
-            }
-            return true;
-        };
+        window.proMapMobile.recenter = () => resumeMobileFollow();
+    }
+
+    const MOBILE_FOLLOW_RESUME_MS = 8000;
+
+    function pauseMobileFollow() {
+        state.liveFollow = false;
+        clearTimeout(state.mobileFollowResumeTimer);
+        state.mobileFollowResumeTimer = setTimeout(resumeMobileFollow, MOBILE_FOLLOW_RESUME_MS);
+    }
+
+    function resumeMobileFollow() {
+        clearTimeout(state.mobileFollowResumeTimer);
+        state.mobileFollowResumeTimer = null;
+        state.liveFollow = true;
+        const position = state.currentPosition;
+        if (position && state.map) {
+            followMobilePosition(
+                { latitude: position.latitude, longitude: position.longitude, heading: state.lastHeading },
+                true,
+            );
+        }
+        return true;
     }
 
     function followMobilePosition(position, force = false) {

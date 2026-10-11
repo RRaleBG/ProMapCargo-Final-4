@@ -163,6 +163,7 @@
 
             <!--  Floating controls  -->
             <VerticalStackLayout
+                x:Name="FloatingControls"
                 Grid.Row="2"
                 CascadeInputTransparent="False"
                 InputTransparent="True"
@@ -268,6 +269,7 @@
             <Border
                 x:Name="RoutePopupPanel"
                 Grid.Row="1"
+                BackgroundColor="{StaticResource SurfaceElevated}"
                 Grid.RowSpan="2"
                 HorizontalOptions="Fill"
                 InputTransparent="True"
