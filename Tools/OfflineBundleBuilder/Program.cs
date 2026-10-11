@@ -645,7 +645,7 @@ var settlementGrid = settlements
     .GroupBy(p => ((int)Math.Floor(p.Lat * 10), (int)Math.Floor(p.Lon * 10)))
     .ToDictionary(g => g.Key, g => g.ToList());
 
-PlaceEntry? NearestSettlement(double lat, double lon)
+PlaceEntry? NearestSettlement(double lat, double lon, bool townsOnly = false)
 {
     PlaceEntry? best = null;
     var bestDistance = double.MaxValue;
@@ -656,6 +656,7 @@ PlaceEntry? NearestSettlement(double lat, double lon)
         if (!settlementGrid.TryGetValue((row + dr, col + dc), out var list)) continue;
         foreach (var p in list)
         {
+            if (townsOnly && p.Kind is not (PlaceKind.City or PlaceKind.Town)) continue;
             var d = Math.Pow((p.Lat - lat) * 111, 2) + Math.Pow((p.Lon - lon) * 78, 2);
             // A suburb only counts when it is really close (inside a city).
             if (p.Kind == PlaceKind.Suburb) d *= 2.5;
@@ -670,6 +671,17 @@ PlaceEntry? NearestSettlement(double lat, double lon)
     return best;
 }
 
+// "Naselje, Grad" for a place inside a city, so "Ulica, Beograd" finds a street whose
+// nearest settlement is a Belgrade suburb.
+string ContextOf(double lat, double lon)
+{
+    var nearest = NearestSettlement(lat, lon);
+    if (nearest is null) return string.Empty;
+    if (nearest.Kind != PlaceKind.Suburb) return nearest.Name;
+    var town = NearestSettlement(lat, lon, townsOnly: true);
+    return town is null ? nearest.Name : $"{nearest.Name}, {town.Name}";
+}
+
 var streets = new Dictionary<(string Key, string Context), (string Name, double Lat, double Lon, double Length)>();
 foreach (var road in kept)
 {
@@ -677,7 +689,7 @@ foreach (var road in kept)
     var c = road.Coordinates;
     var mid = (c.Length / 4) * 2;
     var (lon, lat) = (c[mid], c[mid + 1]);
-    var context = NearestSettlement(lat, lon)?.Name ?? string.Empty;
+    var context = ContextOf(lat, lon);
     var key = (TextNormalizer.Key(road.Name), context);
     if (!streets.TryGetValue(key, out var existing) || road.LengthM > existing.Length)
     {
@@ -688,6 +700,17 @@ foreach (var road in kept)
 foreach (var ((_, context), street) in streets)
 {
     places.Add(PlaceEntry.Create(PlaceKind.Street, street.Name, context, street.Lat, street.Lon, (int)street.Length));
+}
+
+// Points of interest: the category is part of the search key ("pumpa, Novi Sad") and of
+// the context shown under the name ("pumpa, Novi Sad").
+Console.WriteLine("Reading points of interest…");
+foreach (var poi in PoiSource.Load(pbfMode ? pbfFiles : [pbfPath]))
+{
+    var where = ContextOf(poi.Lat, poi.Lon);
+    var context = where.Length == 0 ? poi.Category : $"{poi.Category}, {where}";
+    places.Add(new PlaceEntry(poi.Kind, poi.Name, context, poi.Lat, poi.Lon, poi.Importance,
+        TextNormalizer.Key($"{poi.Name} {poi.Category}"), TextNormalizer.Key(context)));
 }
 
 var placesPath = Path.Combine(outDir, $"{name}.places");
@@ -737,7 +760,8 @@ foreach (var test in tests.Where(t => loaded.Contains(t.A, t.B) && loaded.Contai
 }
 
 var index = PlaceIndex.Read(File.OpenRead(placesPath));
-foreach (var query in new[] { "novi sad", "Нови Сад", "cacak", "knez mihailova", "bulevar oslobodjenja, novi sad" })
+foreach (var query in new[] { "novi sad", "Нови Сад", "cacak", "knez mihailova", "bulevar oslobodjenja, novi sad",
+             "knez mihailova, beograd", "pumpa, novi sad", "granicni prelaz batrovci", "odmoriste" })
 {
     var hits = index.Search(query, 3);
     Console.WriteLine($"  \"{query}\": {string.Join(" | ", hits.Select(h => $"{h.Entry.Name} ({h.Entry.Context})"))}");

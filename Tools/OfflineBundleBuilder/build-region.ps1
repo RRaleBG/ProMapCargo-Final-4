@@ -8,18 +8,25 @@
 #   pwsh Tools/OfflineBundleBuilder/build-region.ps1 -Region zapadni-balkan
 #   pwsh Tools/OfflineBundleBuilder/build-region.ps1 -Region all
 #   pwsh Tools/OfflineBundleBuilder/build-region.ps1 -Region koridor-10 -SkipDownload -Force
+#
+# scripts/update-all.ps1 builds into a staging folder (-BundleDir, -MapDir) and cuts the
+# maps from a fresh Protomaps build (-MapSource https://build.protomaps.com/<date>.pmtiles).
 param(
     [Parameter(Mandatory)] [string]$Region,
     [int]$MaxAgeDays = 14,
     [switch]$SkipDownload,
     [switch]$SkipMap,
-    [switch]$Force
+    [switch]$Force,
+    [string]$BundleDir = "wwwroot/offline-bundles",
+    [string]$MapDir = "wwwroot/maps",
+    [string]$MapSource = "wwwroot/maps/europe.pmtiles",
+    [int]$MaxZoom = 12
 )
 
 $ErrorActionPreference = "Stop"
 $repo = Resolve-Path (Join-Path $PSScriptRoot "../..")
 $regions = Get-Content (Join-Path $PSScriptRoot "regions.json") -Raw | ConvertFrom-Json -AsHashtable
-$ids = if ($Region -eq "all") { $regions.Keys | Where-Object { $_ -notlike "_*" } } else { @($Region) }
+$ids = if ($Region -eq "all") { $regions.Keys | Where-Object { $_ -notlike "_*" } } else { $Region -split "," }
 $extracts = Join-Path $repo "osm/geofabrik"
 New-Item -ItemType Directory -Force $extracts | Out-Null
 
@@ -51,7 +58,7 @@ try {
 
         # 2. Routing + search package
         $builderArgs = @("Tools/OfflineBundleBuilder/bin/Release/net10.0/ProMapCargo.OfflineBundleBuilder.dll",
-            "wwwroot/offline-bundles", "--name", $id, "--title", $r.title) + $pbfArgs
+            $BundleDir, "--name", $id, "--title", $r.title) + $pbfArgs
         if ($r.slim) { $builderArgs += "--slim" }
         if ($Force) { $builderArgs += "--force" }
         dotnet @builderArgs
@@ -59,12 +66,13 @@ try {
 
         # 3. Navigation map cut from the Europe archive (same style as online)
         if (-not $SkipMap) {
-            $mapFile = "wwwroot/maps/$id-nav.pmtiles"
+            New-Item -ItemType Directory -Force $MapDir | Out-Null
+            $mapFile = Join-Path $MapDir "$id-nav.pmtiles"
             if ($Force -or -not (Test-Path $mapFile)) {
                 $geojson = Join-Path ([System.IO.Path]::GetTempPath()) "$id-region.geojson"
                 python Tools/OfflineBundleBuilder/region-geojson.py osm/countries.geojson $geojson @($r.map)
                 if ($LASTEXITCODE -ne 0) { throw "Region polygon failed for $id." }
-                & wwwroot/maps/pmtiles.exe extract wwwroot/maps/europe.pmtiles $mapFile "--region=$geojson"
+                & wwwroot/maps/pmtiles.exe extract $MapSource $mapFile "--region=$geojson" "--maxzoom=$MaxZoom"
                 if ($LASTEXITCODE -ne 0) { throw "Map extract failed for $id." }
                 Write-Host ("  map: {0} ({1:N0} MB)" -f $mapFile, ((Get-Item $mapFile).Length / 1MB))
             }

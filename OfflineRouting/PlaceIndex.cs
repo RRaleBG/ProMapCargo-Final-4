@@ -10,6 +10,15 @@ public enum PlaceKind : byte
     Suburb = 3,
     Hamlet = 4,
     Street = 10,
+
+    // Points of interest for trucks. New values only: older apps read them as plain places.
+    Fuel = 20,
+    TruckStop = 21,
+    TruckParking = 22,
+    BorderCrossing = 23,
+    Company = 24,
+    Factory = 25,
+    Warehouse = 26,
 }
 
 public sealed record PlaceEntry(
@@ -32,6 +41,9 @@ public sealed record PlaceMatch(PlaceEntry Entry, double Score);
 /// Offline search for the route planner (*.places): cities, towns, villages and
 /// streets of the region. Typed text is matched word by word as prefixes, in Latin
 /// or Cyrillic, with or without diacritics. "Ulica, Mesto" narrows a street to a place.
+/// Points of interest (fuel, truck stops and parking, border crossings, companies,
+/// factories, warehouses) carry their category in the search key ("pumpa", "granični
+/// prelaz"), so "pumpa, Novi Sad" finds the fuel stations of a town.
 /// </summary>
 public sealed class PlaceIndex
 {
@@ -87,6 +99,7 @@ public sealed class PlaceIndex
                 PlaceKind.Village => 20,
                 PlaceKind.Suburb => 15,
                 PlaceKind.Hamlet => 5,
+                PlaceKind.BorderCrossing => 30,
                 _ => 10,
             };
 
@@ -102,8 +115,11 @@ public sealed class PlaceIndex
             matches.Add(new PlaceMatch(entry, score));
         }
 
+        // One result per name and place: a border crossing is mapped once per direction,
+        // a parking lot as a node and an area.
         return matches
             .OrderByDescending(match => match.Score)
+            .DistinctBy(match => (match.Entry.Key, match.Entry.ContextKey))
             .Take(limit)
             .ToList();
     }

@@ -1,5 +1,15 @@
 {
   "_comment": "Offline packages for the mobile app. geofabrik = extracts from https://download.geofabrik.de/europe/<name>-latest.osm.pbf; map = countries (ISO alpha-2 or name from osm/countries.geojson) or bbox:minLon,minLat,maxLon,maxLat for the map cut from wwwroot/maps/europe.pmtiles; slim = main roads only (large regions).",
+  "_server": {
+    "_comment": "Countries of the server graph (PostGIS + OSRM), see scripts/build-server-graph.ps1.",
+    "name": "srbija-zapadni-balkan",
+    "geofabrik": [ "serbia", "croatia", "bosnia-herzegovina", "montenegro", "macedonia", "albania", "kosovo" ]
+  },
+  "serbia": {
+    "title": "Srbija",
+    "geofabrik": [ "serbia" ],
+    "map": [ "RS" ]
+  },
   "zapadni-balkan": {
     "title": "Zapadni Balkan",
     "geofabrik": [ "serbia", "bosnia-herzegovina", "croatia", "montenegro", "macedonia", "slovenia", "albania", "kosovo" ],
