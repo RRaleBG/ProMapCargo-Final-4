@@ -73,6 +73,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<!-- On-device truck routing and place search (offline). -->
+		<ProjectReference Include="..\OfflineRouting\ProMapCargo.OfflineRouting.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.12" />

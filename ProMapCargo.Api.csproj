@@ -34,15 +34,23 @@
     <Compile Remove="Pages\Fleet\**" />
     <Compile Remove="ProMapCargo.Mobile\**\*.cs" />
     <Compile Remove="Importer\**\*.cs" />
+    <Compile Remove="OfflineRouting\**\*.cs" />
+    <Compile Remove="Tools\**\*.cs" />
     <EmbeddedResource Remove="Pages\Fleet\**" />
     <EmbeddedResource Remove="ProMapCargo.Mobile\**" />
     <EmbeddedResource Remove="Importer\**" />
+    <EmbeddedResource Remove="OfflineRouting\**" />
+    <EmbeddedResource Remove="Tools\**" />
     <Content Remove="Pages\Fleet\**" />
     <Content Remove="ProMapCargo.Mobile\**" />
     <Content Remove="Importer\**" />
+    <Content Remove="OfflineRouting\**" />
+    <Content Remove="Tools\**" />
     <None Remove="Pages\Fleet\**" />
     <None Remove="ProMapCargo.Mobile\**" />
     <None Remove="Importer\**" />
+    <None Remove="OfflineRouting\**" />
+    <None Remove="Tools\**" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\maps\pmtiles.exe" />

@@ -64,6 +64,25 @@ public sealed class ApiClient(HttpClient httpClient, MobileServerEndpointService
             maxAttempts: 1).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Quick check whether the server answers at all. Without signal a connection
+    /// attempt can hang until the (long) route timeout; this gives up after a few seconds.
+    /// </summary>
+    public async Task<bool> IsServerReachableAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeoutCts.CancelAfter(timeout);
+            using var response = await httpClient.GetAsync(serverEndpointService.CreateUri("api/map-packages"), HttpCompletionOption.ResponseHeadersRead, timeoutCts.Token).ConfigureAwait(false);
+            return true;
+        }
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            return false;
+        }
+    }
+
     public async Task<IReadOnlyList<MapPackageCatalogItem>> GetMapPackagesAsync(CancellationToken cancellationToken)
         => await GetAsync<List<MapPackageCatalogItem>>("api/map-packages", cancellationToken).ConfigureAwait(false)
            ?? [];

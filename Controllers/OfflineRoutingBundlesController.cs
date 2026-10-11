@@ -21,20 +21,20 @@ public sealed class OfflineRoutingBundlesController(IWebHostEnvironment environm
             .Select(path => new FileInfo(path))
             .ToDictionary(file => Path.GetFileNameWithoutExtension(file.Name), StringComparer.OrdinalIgnoreCase);
 
-        var pmtilesFiles = Directory
-            .EnumerateFiles(root, "*.pmtiles", SearchOption.TopDirectoryOnly)
+        var placesFiles = Directory
+            .EnumerateFiles(root, "*.places", SearchOption.TopDirectoryOnly)
             .Select(path => new FileInfo(path))
             .ToDictionary(file => Path.GetFileNameWithoutExtension(file.Name), StringComparer.OrdinalIgnoreCase);
 
-        var keys = graphFiles.Keys.Intersect(pmtilesFiles.Keys, StringComparer.OrdinalIgnoreCase);
+        var keys = graphFiles.Keys.Intersect(placesFiles.Keys, StringComparer.OrdinalIgnoreCase);
 
         var items = keys
             .Select(key =>
             {
                 var graph = graphFiles[key];
-                var pmtiles = pmtilesFiles[key];
+                var places = placesFiles[key];
                 var country = ToCountryCode(key);
-                var generatedAt = graph.LastWriteTimeUtc > pmtiles.LastWriteTimeUtc ? graph.LastWriteTimeUtc : pmtiles.LastWriteTimeUtc;
+                var generatedAt = graph.LastWriteTimeUtc > places.LastWriteTimeUtc ? graph.LastWriteTimeUtc : places.LastWriteTimeUtc;
 
                 return new OfflineRoutingBundleCatalogItem(
                     Id: key,
@@ -44,9 +44,9 @@ public sealed class OfflineRoutingBundlesController(IWebHostEnvironment environm
                     GraphFileName: graph.Name,
                     GraphDownloadUrl: $"/offline-bundles/{Uri.EscapeDataString(graph.Name)}",
                     GraphSizeBytes: graph.Length,
-                    PmtilesFileName: pmtiles.Name,
-                    PmtilesDownloadUrl: $"/offline-bundles/{Uri.EscapeDataString(pmtiles.Name)}",
-                    PmtilesSizeBytes: pmtiles.Length,
+                    PlacesFileName: places.Name,
+                    PlacesDownloadUrl: $"/offline-bundles/{Uri.EscapeDataString(places.Name)}",
+                    PlacesSizeBytes: places.Length,
                     ChecksumSha256: string.Empty,
                     GeneratedAtUtc: generatedAt);
             })

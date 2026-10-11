@@ -13,6 +13,11 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        // A connection attempt without signal blocks a pool thread for many seconds
+        // (Android HttpURLConnection); a larger minimum keeps the app responsive meanwhile.
+        ThreadPool.GetMinThreads(out var workerThreads, out var ioThreads);
+        ThreadPool.SetMinThreads(Math.Max(workerThreads, 24), Math.Max(ioThreads, 24));
+
         var builder = MauiApp.CreateBuilder();
 
         builder
@@ -69,6 +74,7 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<OfflineWebCache>();
         builder.Services.AddSingleton<SavedRouteStore>();
+        builder.Services.AddSingleton<OfflineRoutingEngine>();
 
 #if ANDROID
         // Navigation WebView requests go through the offline cache (map from the

@@ -100,7 +100,7 @@ public sealed class MapInstallViewModel : ViewModelBase
                 Replace(InstalledBundles, installedBundleManifest.Bundles);
 
                 OfflineBundleReady = installedBundleManifest.Bundles.Any(bundle =>
-                    File.Exists(bundle.GraphLocalPath) && File.Exists(bundle.PmtilesLocalPath));
+                    File.Exists(bundle.GraphLocalPath) && File.Exists(bundle.PlacesLocalPath));
 
                 BundleStatusText = OfflineBundleReady
                     ? $"Offline rutiranje SPREMNO · instalirano paketa: {installedBundleManifest.Bundles.Count}"
@@ -187,7 +187,7 @@ public sealed class MapInstallViewModel : ViewModelBase
             {
                 Replace(InstalledBundles, installedBundleManifest.Bundles);
                 OfflineBundleReady = installedBundleManifest.Bundles.Any(item =>
-                    File.Exists(item.GraphLocalPath) && File.Exists(item.PmtilesLocalPath));
+                    File.Exists(item.GraphLocalPath) && File.Exists(item.PlacesLocalPath));
                 BundleStatusText = OfflineBundleReady
                     ? $"Offline rutiranje SPREMNO · instalirano paketa: {installedBundleManifest.Bundles.Count}"
                     : "Offline rutiranje NIJE SPREMNO · instalirajte bar jedan paket";

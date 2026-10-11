@@ -20,8 +20,12 @@ public class NavigationViewModel : ViewModelBase
     private readonly OfflineRoutingBundleService offlineRoutingBundleService;
     private readonly IMobileNotifier notifier;
     private readonly SavedRouteStore savedRouteStore;
+    private readonly OfflineRoutingEngine offlineEngine;
     private CancellationTokenSource? gpsTrackingCts;
     private DateTimeOffset lastAutoRerouteAt = DateTimeOffset.MinValue;
+    // Auto-reroute only after the truck has been on the route once: a route planned
+    // from somewhere else (start typed in) must not be replaced from the GPS position.
+    private bool hasBeenOnRoute;
     private string startLatitude = string.Empty;
     private string startLongitude = string.Empty;
     private string destinationLatitude = string.Empty;
@@ -81,13 +85,19 @@ public class NavigationViewModel : ViewModelBase
     private string startQuery = string.Empty;
     private string destinationQuery = string.Empty;
     private string activeField = "destination";
+    // Field the shown suggestions were searched for (a tap must fill that field, not
+    // whichever was edited last) and the name that belongs to the destination
+    // coordinates (saved with the route and the recent destinations).
+    private string suggestionsField = "destination";
+    private string? destinationLabel;
     private bool suppressSearch;
     private CancellationTokenSource? searchCts;
     private string currentSpeedText = "0";
     private bool hasRoute;
 
-    public NavigationViewModel(ApiClient apiClient, OfflineRoutingBundleService offlineRoutingBundleService, IMobileNotifier notifier, SavedRouteStore savedRouteStore)
+    public NavigationViewModel(ApiClient apiClient, OfflineRoutingBundleService offlineRoutingBundleService, IMobileNotifier notifier, SavedRouteStore savedRouteStore, OfflineRoutingEngine offlineEngine)
     {
+        this.offlineEngine = offlineEngine;
         this.apiClient = apiClient;
         this.offlineRoutingBundleService = offlineRoutingBundleService;
         this.notifier = notifier;
@@ -158,6 +168,7 @@ public class NavigationViewModel : ViewModelBase
             if (suppressSearch) return;
             DestinationLatitude = string.Empty;
             DestinationLongitude = string.Empty;
+            destinationLabel = null;
             activeField = "destination";
             _ = SearchAsync(value);
         }
@@ -167,6 +178,7 @@ public class NavigationViewModel : ViewModelBase
     {
         searchCts?.Cancel();
         var cts = searchCts = new CancellationTokenSource();
+        var field = activeField;
 
         if (string.IsNullOrWhiteSpace(query) || query.Trim().Length < 3)
         {
@@ -178,10 +190,11 @@ public class NavigationViewModel : ViewModelBase
         try
         {
             await Task.Delay(350, cts.Token);
-            var results = RankSerbiaFirst(await apiClient.GeocodeAsync(query.Trim(), cts.Token));
+            var results = await GeocodeWithFallbackAsync(query.Trim(), cts.Token);
             if (cts.IsCancellationRequested) return;
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
+                suggestionsField = field;
                 ReplaceItems(Suggestions, results);
                 RaisePropertyChanged(nameof(HasSuggestions));
             });
@@ -205,7 +218,7 @@ public class NavigationViewModel : ViewModelBase
         suppressSearch = true;
         var lat = item.Lat.ToString("0.000000", CultureInfo.InvariantCulture);
         var lon = item.Lon.ToString("0.000000", CultureInfo.InvariantCulture);
-        if (activeField == "start")
+        if (suggestionsField == "start")
         {
             StartQuery = item.Title;
             StartLatitude = lat;
@@ -216,6 +229,7 @@ public class NavigationViewModel : ViewModelBase
             DestinationQuery = item.Title;
             DestinationLatitude = lat;
             DestinationLongitude = lon;
+            destinationLabel = item.Title;
         }
         suppressSearch = false;
         ReplaceItems(Suggestions, []);
@@ -248,6 +262,7 @@ public class NavigationViewModel : ViewModelBase
         (StartQuery, DestinationQuery) = (DestinationQuery, StartQuery);
         (StartLatitude, DestinationLatitude) = (DestinationLatitude, StartLatitude);
         (StartLongitude, DestinationLongitude) = (DestinationLongitude, StartLongitude);
+        destinationLabel = string.IsNullOrEmpty(DestinationLatitude) ? null : DestinationQuery;
         suppressSearch = false;
     }
 
@@ -455,6 +470,7 @@ public class NavigationViewModel : ViewModelBase
         {
             suppressSearch = true;
             DestinationQuery = destination.Title;
+            destinationLabel = destination.Title;
             DestinationLatitude = destination.Latitude.ToString("0.000000", CultureInfo.InvariantCulture);
             DestinationLongitude = destination.Longitude.ToString("0.000000", CultureInfo.InvariantCulture);
             StartQuery = MyLocationLabel;
@@ -819,6 +835,10 @@ public class NavigationViewModel : ViewModelBase
 
     public async Task LoadInitialRouteAsync()
     {
+        // Load the offline package in the background, so the first search or route
+        // without signal does not wait for it (reading it takes a few seconds).
+        _ = Task.Run(() => offlineEngine.EnsureLoadedAsync());
+
         // Guidance survives an app restart without signal: bring back the last route.
         if (!HasRoute && savedRouteStore.Load() is { } saved)
         {
@@ -1102,13 +1122,83 @@ public class NavigationViewModel : ViewModelBase
         try
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            var results = await apiClient.GeocodeAsync(query, cts.Token);
-            return RankSerbiaFirst(results).FirstOrDefault();
+            var results = await GeocodeWithFallbackAsync(query, cts.Token);
+            return results.FirstOrDefault();
         }
         catch
         {
             return null;
         }
+    }
+
+    /// <summary>
+    /// Server geocoder first; without a connection (or no answer) the place index of
+    /// the installed offline package on the phone.
+    /// </summary>
+    private async Task<List<GeocodeResult>> GeocodeWithFallbackAsync(string query, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeout.CancelAfter(TimeSpan.FromSeconds(6));
+            var online = RankSerbiaFirst(await apiClient.GeocodeAsync(query, timeout.Token));
+            if (online.Count > 0)
+            {
+                return online;
+            }
+        }
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            // No connection: fall through to the phone.
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var offline = await offlineEngine.SearchAsync(query, CurrentLocation, 8, cancellationToken);
+        return offline.ToList();
+    }
+
+    /// <summary>
+    /// Route from the server (it also knows turn restrictions and live closures); when
+    /// the server cannot be reached, or offline mode is chosen, from the offline package
+    /// on the phone. Throws like the API call when neither works.
+    /// </summary>
+    private async Task<RouteResponse?> GetRouteWithFallbackAsync(RouteRequest request)
+    {
+        var offlineOnly = string.Equals(SelectedRoutingMode?.Trim(), "offline", StringComparison.OrdinalIgnoreCase);
+
+        // With a package installed, do not wait for a server that does not answer.
+        if (!offlineOnly &&
+            await offlineEngine.EnsureLoadedAsync().ConfigureAwait(false) &&
+            !await apiClient.IsServerReachableAsync(TimeSpan.FromSeconds(4)).ConfigureAwait(false))
+        {
+            offlineOnly = true;
+        }
+
+        if (!offlineOnly)
+        {
+            try
+            {
+                return await apiClient.GetRouteAsync(request, CancellationToken.None).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException)
+            {
+                if (!await offlineEngine.EnsureLoadedAsync().ConfigureAwait(false))
+                {
+                    throw;
+                }
+            }
+        }
+
+        var offline = await offlineEngine.RouteAsync(request.Start, request.Destination).ConfigureAwait(false);
+        if (offline is null)
+        {
+            throw new InvalidOperationException(await offlineEngine.EnsureLoadedAsync().ConfigureAwait(false)
+                ? "Offline ruta nije pronađena (tačka je predaleko od puta za kamione)."
+                : "Offline paket za rutiranje nije instaliran (Offline mape → Paketi za rutiranje).");
+        }
+
+        await MainThread.InvokeOnMainThreadAsync(() => ActiveRoutingModeText = "Režim rutiranja: telefon (offline)");
+        return offline;
     }
 
     // The fleet drives in Serbia: "Nis" must mean Niš before Nice. Keeps the geocoder's
@@ -1136,6 +1226,7 @@ public class NavigationViewModel : ViewModelBase
         {
             DestinationLatitude = lat;
             DestinationLongitude = lon;
+            destinationLabel = string.IsNullOrWhiteSpace(DestinationQuery) ? item.Title : DestinationQuery;
         }
         suppressSearch = false;
         ReplaceItems(Suggestions, []);
@@ -1197,13 +1288,12 @@ public class NavigationViewModel : ViewModelBase
                     ? $"Automatsko preračunavanje rute ({effectiveMode})…"
                     : $"Izračunavanje rute ({effectiveMode})…");
 
-            var response = await apiClient.GetRouteAsync(
+            var response = await GetRouteWithFallbackAsync(
                 new RouteRequest(
                     requestStart,
                     new GeoPoint(destinationLat, destinationLon),
                     Profile.Trim(),
-                    AvoidRestricted),
-                CancellationToken.None).ConfigureAwait(false);
+                    AvoidRestricted)).ConfigureAwait(false);
 
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
@@ -1220,13 +1310,13 @@ public class NavigationViewModel : ViewModelBase
                     requestStart.Lon,
                     destinationLat,
                     destinationLon,
-                    string.IsNullOrWhiteSpace(DestinationQuery) ? "Odredište" : DestinationQuery,
+                    destinationLabel ?? (string.IsNullOrWhiteSpace(DestinationQuery) ? "Odredište" : DestinationQuery),
                     DateTime.UtcNow));
             }
 
             if (!autoReroute)
             {
-                RecentDestinations.Add(DestinationQuery, destinationLat, destinationLon);
+                RecentDestinations.Add(destinationLabel ?? DestinationQuery, destinationLat, destinationLon);
             }
             await notifier.ShowSuccessAsync(autoReroute ? "Ruta je preračunata od trenutne lokacije." : "Ruta je izračunata.").ConfigureAwait(false);
         }
@@ -1259,7 +1349,7 @@ public class NavigationViewModel : ViewModelBase
                 StatusText = "Odgovor servisa za rute nije ispravan.";
             });
 
-            await notifier.ShowErrorAsync("Odgovor servisa za rute nije ispravan.").ConfigureAwait(false);
+            await notifier.ShowErrorAsync(ex.Message).ConfigureAwait(false);
         }
         finally
         {
@@ -1271,6 +1361,7 @@ public class NavigationViewModel : ViewModelBase
     {
         suppressSearch = true;
         DestinationQuery = saved.DestinationTitle;
+        destinationLabel = saved.DestinationTitle;
         DestinationLatitude = saved.DestinationLat.ToString("0.000000", CultureInfo.InvariantCulture);
         DestinationLongitude = saved.DestinationLon.ToString("0.000000", CultureInfo.InvariantCulture);
         StartLatitude = saved.StartLat.ToString("0.000000", CultureInfo.InvariantCulture);
@@ -1301,6 +1392,7 @@ public class NavigationViewModel : ViewModelBase
 
     private void ApplyRoute(RouteResponse? route, double startLat, double startLon, double destinationLat, double destinationLon)
     {
+        hasBeenOnRoute = false;
         var selectedRoute = route?.Routes.Count > 0
             ? route.Routes[Math.Clamp(route.SelectedRouteIndex, 0, route.Routes.Count - 1)]
             : null;
@@ -1439,7 +1531,8 @@ public class NavigationViewModel : ViewModelBase
             return "online";
         }
 
-        return OfflineRoutingAvailable ? "offline" : "online";
+        // Auto: server first, the phone when the server cannot be reached.
+        return OfflineRoutingAvailable ? "online + offline rezerva" : "online";
     }
 
     private double[] routeCumulativeMeters = [];
@@ -1673,6 +1766,16 @@ public class NavigationViewModel : ViewModelBase
         OffRouteStatusText = IsOffRoute
             ? $"VAN RUTE · {distanceMeters:0} m"
             : $"NA RUTI · odstupanje {distanceMeters:0} m";
+
+        if (!IsOffRoute)
+        {
+            hasBeenOnRoute = true;
+        }
+        else if (!hasBeenOnRoute)
+        {
+            OffRouteStatusText = $"Vozilo nije na planiranoj ruti ({distanceMeters / 1000:0.#} km od nje)";
+            return;
+        }
 
         if (!IsOffRoute || !AutoRerouteEnabled || IsBusy || CurrentLocation is null)
         {

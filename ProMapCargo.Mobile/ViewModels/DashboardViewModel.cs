@@ -8,6 +8,7 @@ namespace ProMapCargo.Mobile.ViewModels;
 public sealed class DashboardViewModel : ViewModelBase
 {
     private readonly ApiClient apiClient;
+    private readonly OfflineWebCache offlineWebCache;
     private readonly MobileSessionService sessionService;
     private readonly IMobileNotifier notifier;
     private const int DashboardManeuverPreviewCount = 5;
@@ -24,8 +25,9 @@ public sealed class DashboardViewModel : ViewModelBase
     private string routeFailureReason = "—";
 
 
-    public DashboardViewModel(ApiClient apiClient, MobileSessionService sessionService, IMobileNotifier notifier)
+    public DashboardViewModel(ApiClient apiClient, MobileSessionService sessionService, IMobileNotifier notifier, OfflineWebCache offlineWebCache)
     {
+        this.offlineWebCache = offlineWebCache;
         this.apiClient = apiClient;
         this.sessionService = sessionService;
         this.notifier = notifier;
@@ -181,6 +183,16 @@ public sealed class DashboardViewModel : ViewModelBase
             StatusText = "Učitavanje operativnih podataka…";
 
             var cancellationToken = loadCts.Token;
+
+            // Without signal every request would hang until its timeout (and keep
+            // threads busy); check once, quickly, and skip the sync when there is no server.
+            if (!await apiClient.IsServerReachableAsync(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(false))
+            {
+                offlineWebCache.MarkOffline();
+                await MainThread.InvokeOnMainThreadAsync(() => StatusText = "Bez veze sa serverom · podaci će se osvežiti kad se veza vrati");
+                return;
+            }
+
             var vehiclesTask = apiClient.GetVehiclesAsync(cancellationToken);
             var driversTask = apiClient.GetDriversAsync(cancellationToken);
             var ordersTask = apiClient.GetOrdersAsync(cancellationToken);
@@ -232,7 +244,7 @@ public sealed class DashboardViewModel : ViewModelBase
                 StatusText = $"Sinhronizacija nije uspela: {ex.Message} · {sessionService.LastStatus}";
             });
 
-            await notifier.ShowErrorAsync("Sinhronizacija nije uspela (mreža ili server).").ConfigureAwait(false);
+            // No toast: without signal it would pop up on every visit; the status line says it.
         }
         catch (Exception ex)
         {

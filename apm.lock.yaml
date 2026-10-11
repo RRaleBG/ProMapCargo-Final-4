@@ -22,6 +22,46 @@ dependencies:
     .github/prompts/accessibility-audit.prompt.md: sha256:c3382c6b7ac6ba38cf66d345923be79c5a46b8783a0d33aac457ff60f1b6597a
     .github/prompts/design-review.prompt.md: sha256:f10919f07eec83c62c7912e318382b472ad27eb1c22c11525b813522960e8e06
   content_hash: sha256:744cca54cc8ff7ca90aa1dd621c2f98c6291cd793815afe8518001cc94b8aba9
+- repo_url: syncfusion/maui-ui-builder
+  name: maui-ui-builder
+  host: github.com
+  resolved_commit: 603188b71b8a8b762e637f211b50fb3521fcb80d
+  version: 1.0.0
+  package_type: apm_package
+  deployed_files:
+  - .claude/agents/syncfusion-maui-ui-builder.md
+  - .claude/skills/syncfusion-maui-ui-builder
+  - .claude/skills/syncfusion-maui-ui-builder/SKILL.md
+  - .claude/skills/syncfusion-maui-ui-builder/assets/validation-rules.md
+  - .claude/skills/syncfusion-maui-ui-builder/references/build.md
+  - .claude/skills/syncfusion-maui-ui-builder/references/maui-dotnet-standards.md
+  - .claude/skills/syncfusion-maui-ui-builder/references/stage-1-intent-analysis.md
+  - .claude/skills/syncfusion-maui-ui-builder/references/stage-2-project-detection.md
+  - .claude/skills/syncfusion-maui-ui-builder/references/stage-3-layout-analysis.md
+  - .claude/skills/syncfusion-maui-ui-builder/references/stage-4-theming-and-design-system.md
+  - .claude/skills/syncfusion-maui-ui-builder/references/stage-5-code-generation.md
+  - .claude/skills/syncfusion-maui-ui-builder/references/stage-6-validation.md
+  - .claude/skills/syncfusion-maui-ui-builder/references/stage-7-dependencies.md
+  - .claude/skills/syncfusion-maui-ui-builder/references/syncfusion-themes.md
+  - .claude/skills/syncfusion-maui-ui-builder/scripts/controls.csv
+  - .claude/skills/syncfusion-maui-ui-builder/scripts/controls_search.cjs
+  deployed_file_hashes:
+    .claude/agents/syncfusion-maui-ui-builder.md: sha256:1a046a9d7eaead3fdbb0704a2394de83eb346217a5b71ce67c65cd610246b0b1
+    .claude/skills/syncfusion-maui-ui-builder/SKILL.md: sha256:3b27eff6c1daf99b9cffc815fbc11b235d2499085ec69d08fd32d1a143538626
+    .claude/skills/syncfusion-maui-ui-builder/assets/validation-rules.md: sha256:4062d1015ba990aeebc564f0dbbc257db25c07d45b7f27167479ae0ad9c2be7d
+    .claude/skills/syncfusion-maui-ui-builder/references/build.md: sha256:0dccee1db0c4bd7973f2ea42396528092452104a374fcd01ac67449492d0ded5
+    .claude/skills/syncfusion-maui-ui-builder/references/maui-dotnet-standards.md: sha256:350ebb8f1b70eddd6f0e08988c33a27063b8260c3b8a38be9b85c75d7a3b7ed8
+    .claude/skills/syncfusion-maui-ui-builder/references/stage-1-intent-analysis.md: sha256:a6e3dbe3f9e738fc5ee4ccecb95c2bbe58df758b9ccb78ff21dfdd8968d354a6
+    .claude/skills/syncfusion-maui-ui-builder/references/stage-2-project-detection.md: sha256:f59531474dc99e0e1b019c489389f963a5c8133a5894929f51e8346a71dc2059
+    .claude/skills/syncfusion-maui-ui-builder/references/stage-3-layout-analysis.md: sha256:22fc1346395b8feffc361be30440b6ecbd73cf81c70e18eea67249a777990986
+    .claude/skills/syncfusion-maui-ui-builder/references/stage-4-theming-and-design-system.md: sha256:e7d3ad16d7e63345ec38b98d435f3b4310ee759db3d66ff712e6656f5db21c07
+    .claude/skills/syncfusion-maui-ui-builder/references/stage-5-code-generation.md: sha256:0af57586189cb275d36c7c57f0f68e9dbe4922968fad4f822d8055aba31815a6
+    .claude/skills/syncfusion-maui-ui-builder/references/stage-6-validation.md: sha256:31619e6a031ad650def980393e20be8f5058243a914c17c536597be96836e0a9
+    .claude/skills/syncfusion-maui-ui-builder/references/stage-7-dependencies.md: sha256:4677b3d0ab577d0d40b3a1a3ed80a7d8e467345228b7934ce5000be8852f2d36
+    .claude/skills/syncfusion-maui-ui-builder/references/syncfusion-themes.md: sha256:ca9eebdfd13e951ca39e573f20241ed7149416c4918721514f54817c8f134c80
+    .claude/skills/syncfusion-maui-ui-builder/scripts/controls.csv: sha256:ce2ea5bafc72ce310b1ef461621504a4fab67dce30d09688ab6125b614f2888d
+    .claude/skills/syncfusion-maui-ui-builder/scripts/controls_search.cjs: sha256:7a6c224d38d5ab4aba72d7c08c261e04ca59019e3f473e01e4b8b73f67ea6f67
+  content_hash: sha256:874096ddce7766e903e1b38d69e6a660e2a4387408c4ac68ba9f97987596ea4c
 - repo_url: github/awesome-copilot
   name: review-and-refactor
   host: github.com
@@ -38,7 +78,2910 @@ dependencies:
   deployed_file_hashes:
     .agents/skills/review-and-refactor/SKILL.md: sha256:95b48ed4b137777ddc87b77cb0873ed7f485141a517825e71af1a984cf5a6cd6
   content_hash: sha256:9236d06a1500089ddb46975b866e9a63478e502afe7095b1980c618678a7c7fe
+- repo_url: syncfusion/document-sdk-skills
+  name: syncfusion-dotnet-calculate
+  host: github.com
+  resolved_commit: 5128a3ecaaeb712ff3239538bbd525c0ddf37dac
+  version: unknown
+  virtual_path: skills/syncfusion-dotnet-calculate
+  is_virtual: true
+  depth: 2
+  resolved_by: syncfusion/maui-ui-builder
+  package_type: claude_skill
+  deployed_files:
+  - .claude/skills/syncfusion-dotnet-calculate
+  - .claude/skills/syncfusion-dotnet-calculate/README.md
+  - .claude/skills/syncfusion-dotnet-calculate/SKILL.md
+  - .claude/skills/syncfusion-dotnet-calculate/references/calcengine.md
+  - .claude/skills/syncfusion-dotnet-calculate/references/calcquickbase.md
+  - .claude/skills/syncfusion-dotnet-calculate/references/customfunction.md
+  - .claude/skills/syncfusion-dotnet-calculate/references/getting-started.md
+  - .claude/skills/syncfusion-dotnet-calculate/references/icalcdata.md
+  - .claude/skills/syncfusion-dotnet-calculate/references/namedranges.md
+  - .claude/skills/syncfusion-dotnet-calculate/references/operators.md
+  - .claude/skills/syncfusion-dotnet-calculate/references/overview.md
+  - .claude/skills/syncfusion-dotnet-calculate/references/parse-compute.md
+  - .claude/skills/syncfusion-dotnet-calculate/references/performance.md
+  - .claude/skills/syncfusion-dotnet-calculate/references/xlsio.md
+  deployed_file_hashes:
+    .claude/skills/syncfusion-dotnet-calculate/README.md: sha256:e1eed54302d95edaf26bb74f2510e8726479f7841c7ba287ae6791b04e8fceaa
+    .claude/skills/syncfusion-dotnet-calculate/SKILL.md: sha256:313804b2069dd8bb51bbce723547bff9e588990541404866c5088dcdc9641b30
+    .claude/skills/syncfusion-dotnet-calculate/references/calcengine.md: sha256:d901222b5089be648bda4d4ae86d1236390a9432c906d9bdec4c95d5174a5ed1
+    .claude/skills/syncfusion-dotnet-calculate/references/calcquickbase.md: sha256:4393cfc4db22b6da5ab1cf6c451d9aac7bb433611d0cc1cf381b5112fdb60866
+    .claude/skills/syncfusion-dotnet-calculate/references/customfunction.md: sha256:20638a8c4d843d3870d539853ba5376bc7a400bc60fc2d81e7e8e198e8b5909d
+    .claude/skills/syncfusion-dotnet-calculate/references/getting-started.md: sha256:90b4ff417bf960702c700f7afc05aa3bbaeccf9269602b59db04babb46f86b06
+    .claude/skills/syncfusion-dotnet-calculate/references/icalcdata.md: sha256:58ad32ee3d3116f0f369da532f3a76e6d833716720d22c1b21fe92de08d05548
+    .claude/skills/syncfusion-dotnet-calculate/references/namedranges.md: sha256:87846a409ab0d2258bcdb738ccd507c8e7208c2a29ea4e915f435e496360e7ff
+    .claude/skills/syncfusion-dotnet-calculate/references/operators.md: sha256:8a8c125c8194962564281d83b7981c164edddceab9228fe2bb373002e1249d0a
+    .claude/skills/syncfusion-dotnet-calculate/references/overview.md: sha256:634940ddde40ea97ebd4a94e18940d90833b2427c4a23c8e14f297f5e1545b16
+    .claude/skills/syncfusion-dotnet-calculate/references/parse-compute.md: sha256:e38a90cbe72102faa5046c04724e114ad60410c11ad09f1a8a3bfc2a267b915f
+    .claude/skills/syncfusion-dotnet-calculate/references/performance.md: sha256:fc18934bebf149831b7ec287e028fa30714390986c025a19f38badb2ecf64633
+    .claude/skills/syncfusion-dotnet-calculate/references/xlsio.md: sha256:cbe4a5eaecb1dbd6887d2d92bcf857b43ee42204ecf2da0e8e50c2edddd34746
+  content_hash: sha256:9b83f9ee61fa3a4a5ad05c5c02e90bf7bd7034781256f2332c9f7fa27ef11c67
+- repo_url: syncfusion/document-sdk-skills
+  name: syncfusion-dotnet-excel
+  host: github.com
+  resolved_commit: 5128a3ecaaeb712ff3239538bbd525c0ddf37dac
+  version: unknown
+  virtual_path: skills/syncfusion-dotnet-excel
+  is_virtual: true
+  depth: 2
+  resolved_by: syncfusion/maui-ui-builder
+  package_type: claude_skill
+  deployed_files:
+  - .claude/skills/syncfusion-dotnet-excel
+  - .claude/skills/syncfusion-dotnet-excel/README.md
+  - .claude/skills/syncfusion-dotnet-excel/SKILL.md
+  - .claude/skills/syncfusion-dotnet-excel/references/auto-fill.md
+  - .claude/skills/syncfusion-dotnet-excel/references/cell-access-manipulation.md
+  - .claude/skills/syncfusion-dotnet-excel/references/cell-formatting.md
+  - .claude/skills/syncfusion-dotnet-excel/references/cell-values.md
+  - .claude/skills/syncfusion-dotnet-excel/references/chart-to-image.md
+  - .claude/skills/syncfusion-dotnet-excel/references/charts.md
+  - .claude/skills/syncfusion-dotnet-excel/references/comments.md
+  - .claude/skills/syncfusion-dotnet-excel/references/conditional-formatting.md
+  - .claude/skills/syncfusion-dotnet-excel/references/custom-xml.md
+  - .claude/skills/syncfusion-dotnet-excel/references/data-validation.md
+  - .claude/skills/syncfusion-dotnet-excel/references/document-structure.md
+  - .claude/skills/syncfusion-dotnet-excel/references/drawing-objects.md
+  - .claude/skills/syncfusion-dotnet-excel/references/excel-csv.md
+  - .claude/skills/syncfusion-dotnet-excel/references/excel-to-json.md
+  - .claude/skills/syncfusion-dotnet-excel/references/excel-to-pdf.md
+  - .claude/skills/syncfusion-dotnet-excel/references/export-data.md
+  - .claude/skills/syncfusion-dotnet-excel/references/fill-series.md
+  - .claude/skills/syncfusion-dotnet-excel/references/filtering-advanced.md
+  - .claude/skills/syncfusion-dotnet-excel/references/filtering.md
+  - .claude/skills/syncfusion-dotnet-excel/references/find-all-replace.md
+  - .claude/skills/syncfusion-dotnet-excel/references/find-replace.md
+  - .claude/skills/syncfusion-dotnet-excel/references/formulas-advanced.md
+  - .claude/skills/syncfusion-dotnet-excel/references/freeze-panes.md
+  - .claude/skills/syncfusion-dotnet-excel/references/hyperlink.md
+  - .claude/skills/syncfusion-dotnet-excel/references/import-data-advanced.md
+  - .claude/skills/syncfusion-dotnet-excel/references/import-data.md
+  - .claude/skills/syncfusion-dotnet-excel/references/macros.md
+  - .claude/skills/syncfusion-dotnet-excel/references/markdown-conversion.md
+  - .claude/skills/syncfusion-dotnet-excel/references/nuget-packages.md
+  - .claude/skills/syncfusion-dotnet-excel/references/page-setup.md
+  - .claude/skills/syncfusion-dotnet-excel/references/pictures.md
+  - .claude/skills/syncfusion-dotnet-excel/references/pivot-chart.md
+  - .claude/skills/syncfusion-dotnet-excel/references/pivot-table-advanced.md
+  - .claude/skills/syncfusion-dotnet-excel/references/pivot-table.md
+  - .claude/skills/syncfusion-dotnet-excel/references/row-column-insert-delete.md
+  - .claude/skills/syncfusion-dotnet-excel/references/row-column-sizing.md
+  - .claude/skills/syncfusion-dotnet-excel/references/security.md
+  - .claude/skills/syncfusion-dotnet-excel/references/show-hide.md
+  - .claude/skills/syncfusion-dotnet-excel/references/slicer.md
+  - .claude/skills/syncfusion-dotnet-excel/references/sorting.md
+  - .claude/skills/syncfusion-dotnet-excel/references/table-listobject.md
+  - .claude/skills/syncfusion-dotnet-excel/references/template-markers.md
+  - .claude/skills/syncfusion-dotnet-excel/references/template.csx
+  - .claude/skills/syncfusion-dotnet-excel/references/what-if-analysis.md
+  - .claude/skills/syncfusion-dotnet-excel/references/worksheet-move-copy.md
+  - .claude/skills/syncfusion-dotnet-excel/scripts/.gitkeep
+  deployed_file_hashes:
+    .claude/skills/syncfusion-dotnet-excel/README.md: sha256:149860e0cdb30e7792f49098c1670af1c54f9d9eacf904e9169af3cefec0570c
+    .claude/skills/syncfusion-dotnet-excel/SKILL.md: sha256:a6b9f7cef9f252483238cc15535a4a7f099a52dcca5a7b169e4b778237f70174
+    .claude/skills/syncfusion-dotnet-excel/references/auto-fill.md: sha256:c6cb866612fd896054daf0713efa77751841eaf4c0bde01244a015fbbaca038c
+    .claude/skills/syncfusion-dotnet-excel/references/cell-access-manipulation.md: sha256:745fe5c5879b207a3dadcf29b275ed7522c052f050cd139a152b92757276e1ff
+    .claude/skills/syncfusion-dotnet-excel/references/cell-formatting.md: sha256:fd238db696f823f8265ef080b872df1be2ad0cc9d3ac6c853dcbc31bfab52dd5
+    .claude/skills/syncfusion-dotnet-excel/references/cell-values.md: sha256:245d5bc1a2c0b6254c6f28ba2f5b5dfc39cefb53fa63c65ea951dce96c7aa4e9
+    .claude/skills/syncfusion-dotnet-excel/references/chart-to-image.md: sha256:2ae17221e8252d437a5caf120dbfdc5d1e84fb196059f18ed9643e8d67e044d1
+    .claude/skills/syncfusion-dotnet-excel/references/charts.md: sha256:05e4e6ea6788a7f4213e0aa122f5b1027bcd65ba5a8a0afb2c817e6146ead3c2
+    .claude/skills/syncfusion-dotnet-excel/references/comments.md: sha256:cd349db0ffaba921455b93eb69afadde8197f84cb35bb0c091fb32bc30be512d
+    .claude/skills/syncfusion-dotnet-excel/references/conditional-formatting.md: sha256:7ec9833ce07d95680b5870853b84f9190f7c105d9c5b1bac0726fd5ce07c253e
+    .claude/skills/syncfusion-dotnet-excel/references/custom-xml.md: sha256:afe0f484a35c80545a6f0a77bfa0e6f22ffa7def1df2f43eb8b8245133098312
+    .claude/skills/syncfusion-dotnet-excel/references/data-validation.md: sha256:8c23e64616db18a88b2e568d3c5b39779041c4ce7529ee2112b9d7c5017ade65
+    .claude/skills/syncfusion-dotnet-excel/references/document-structure.md: sha256:3d1b908f7f4aaad13025bacc01d379bb384b59d46c35bd0cdd93b756b3bacf4e
+    .claude/skills/syncfusion-dotnet-excel/references/drawing-objects.md: sha256:abb9e052c4e8085881488b62dba89784f60701358fb0db9a8305b5366e4b9935
+    .claude/skills/syncfusion-dotnet-excel/references/excel-csv.md: sha256:41a3dfb03f724399f757c2c337b422be8a2660f5ceeaf18bf9bbdb695331ac1e
+    .claude/skills/syncfusion-dotnet-excel/references/excel-to-json.md: sha256:014b83761d1de8bf029fab5a57cf10b7bf5de50214be80acc7c56f4a5da399e5
+    .claude/skills/syncfusion-dotnet-excel/references/excel-to-pdf.md: sha256:88d2589cecee770227e6fc94627fdc44de2a079a792f1f11431edb7e787ee531
+    .claude/skills/syncfusion-dotnet-excel/references/export-data.md: sha256:56f7bf32f9529c1228b71e4f549ab54aa91cbedb943117903957f90ece80cf92
+    .claude/skills/syncfusion-dotnet-excel/references/fill-series.md: sha256:9404ad18577555a72b78ff11d3a369f963c0f0ea2855aca1255a178528f75846
+    .claude/skills/syncfusion-dotnet-excel/references/filtering-advanced.md: sha256:8ef9aa1a4089aa0c841a6aedf797c766a5b240559f35629d0ed0ecf76681b4f2
+    .claude/skills/syncfusion-dotnet-excel/references/filtering.md: sha256:379ecef28ed7f2f491a23a600f4edd4717614d8b0c1c79e1a4e1ff9a1ae719f3
+    .claude/skills/syncfusion-dotnet-excel/references/find-all-replace.md: sha256:57f1643687942496c1940cc72ed64d74b32d0dabb0a9fbfc38b0c0f0bc3015d4
+    .claude/skills/syncfusion-dotnet-excel/references/find-replace.md: sha256:27b0c3c6355c1605b67b7e336cd197c97c1809679a205feee518b78ccdbf5ec5
+    .claude/skills/syncfusion-dotnet-excel/references/formulas-advanced.md: sha256:5cd8447a83ba00281f08c4a0e30490917fc78008ca559b6b5d4f22485b1a757b
+    .claude/skills/syncfusion-dotnet-excel/references/freeze-panes.md: sha256:d32e899e6ea484c77c9c5b24c4ca9ee70e3703f4581a4df5d3b2f912c2b92e59
+    .claude/skills/syncfusion-dotnet-excel/references/hyperlink.md: sha256:6cc2693418c95cee9720f3966afe0fdb3c34a7bb684675aef4457d88a9ef4aa6
+    .claude/skills/syncfusion-dotnet-excel/references/import-data-advanced.md: sha256:997225e469b03b03bf704c57e5d87cf6d8922fc009979cf76f25f6c1ee897850
+    .claude/skills/syncfusion-dotnet-excel/references/import-data.md: sha256:31af48f3381ed59d0d98647294a2cce8c9ea243b399075ab4859e57685ebcf74
+    .claude/skills/syncfusion-dotnet-excel/references/macros.md: sha256:82eca80e3ea3c0c0f654da1f3751cb23a19c7e3c7e04ca8081e866e3ebcf977b
+    .claude/skills/syncfusion-dotnet-excel/references/markdown-conversion.md: sha256:f159f42bfa70f763e525c5916933a5ca35c624d0ea241f77e59d516cd3d3b013
+    .claude/skills/syncfusion-dotnet-excel/references/nuget-packages.md: sha256:39e35adfdfe7ef2444eafe46c635bdc6a1005e74405e447f30b3a6717106a1df
+    .claude/skills/syncfusion-dotnet-excel/references/page-setup.md: sha256:ab758033b61d24aa06cebe24ef00eb540f2fc995d1c008fed3a54da253464de1
+    .claude/skills/syncfusion-dotnet-excel/references/pictures.md: sha256:fb79f09acf02330ee595656d6602991294f353ef0516194c1b7f4035a3d18fea
+    .claude/skills/syncfusion-dotnet-excel/references/pivot-chart.md: sha256:7c488080187a5e9b7d5fc6e3447cf6b1d231b07f3076cab7923fa9ba43469a1a
+    .claude/skills/syncfusion-dotnet-excel/references/pivot-table-advanced.md: sha256:94ee7405148740c935f053fa945f8dc7d392d23b5d372b6823a4995a56e49fce
+    .claude/skills/syncfusion-dotnet-excel/references/pivot-table.md: sha256:62a08bc02a4ec3009f4b1ed27f98d7c0864ca16a5044fc1cedd3c1ec007350d5
+    .claude/skills/syncfusion-dotnet-excel/references/row-column-insert-delete.md: sha256:c0320120dfd3b92f392c2a37f19cbc6a9b736a7ec7ed1a84a06f7030c79033d5
+    .claude/skills/syncfusion-dotnet-excel/references/row-column-sizing.md: sha256:58fc0f69e4ca17a55d4d017129fe2516319388cd5fce1429f544c9c30a8fe6e2
+    .claude/skills/syncfusion-dotnet-excel/references/security.md: sha256:7d98ea02658de8c6ce90e0adc131a445cfdc83db689e178c77836309aed72a64
+    .claude/skills/syncfusion-dotnet-excel/references/show-hide.md: sha256:0010200929964155c584132895adfbca2448a7e907fc072236323e601c38c0b2
+    .claude/skills/syncfusion-dotnet-excel/references/slicer.md: sha256:bd9c127e51c2008756b304f62e39ccf632d318dcf4b9f17ff2027937bd10bdd1
+    .claude/skills/syncfusion-dotnet-excel/references/sorting.md: sha256:9ece23aa8d0ed2ae2bb393a0a9c45932f4fa476e9d74dc9e010cdc2caa843a92
+    .claude/skills/syncfusion-dotnet-excel/references/table-listobject.md: sha256:bf5102a46f77b06828da5e1869d83d6734ba968ff1488a792615f1a884789b14
+    .claude/skills/syncfusion-dotnet-excel/references/template-markers.md: sha256:c2931f2db7693a7a25cbbc7b855546217748725383b0c6c597a9c40ce50e7b51
+    .claude/skills/syncfusion-dotnet-excel/references/template.csx: sha256:83a5416fff80ca0a8d09a2d6004ccd273a6e404c68f652e6b9ed779fae2bd7db
+    .claude/skills/syncfusion-dotnet-excel/references/what-if-analysis.md: sha256:94cb8f965a9d756dec2369879583332abe897f8bfa6550f2c573ebb76931578e
+    .claude/skills/syncfusion-dotnet-excel/references/worksheet-move-copy.md: sha256:c2e85e9af8d2fadb4d7ce73189cd3be38c0fd633fa55b0577112758095f8ee94
+    .claude/skills/syncfusion-dotnet-excel/scripts/.gitkeep: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  content_hash: sha256:e5f795863031084b421c7b08bdac568cc73c87b8de17685bf9a524e0f36f7f1a
+- repo_url: syncfusion/document-sdk-skills
+  name: syncfusion-dotnet-markdown
+  host: github.com
+  resolved_commit: 5128a3ecaaeb712ff3239538bbd525c0ddf37dac
+  version: unknown
+  virtual_path: skills/syncfusion-dotnet-markdown
+  is_virtual: true
+  depth: 2
+  resolved_by: syncfusion/maui-ui-builder
+  package_type: claude_skill
+  deployed_files:
+  - .claude/skills/syncfusion-dotnet-markdown
+  - .claude/skills/syncfusion-dotnet-markdown/README.md
+  - .claude/skills/syncfusion-dotnet-markdown/SKILL.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/advanced-features.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/blockquotes.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/code-blocks.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/create-markdown.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/document-structure.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/headings-styles.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/hyperlinks.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/images.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/lists.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/nuget-packages.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/parse-markdown.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/tables.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/task-lists.md
+  - .claude/skills/syncfusion-dotnet-markdown/references/template.csx
+  - .claude/skills/syncfusion-dotnet-markdown/references/text-formatting.md
+  - .claude/skills/syncfusion-dotnet-markdown/scripts/.gitkeep
+  deployed_file_hashes:
+    .claude/skills/syncfusion-dotnet-markdown/README.md: sha256:526859faba5f9f1c440104a84f5ee151c95466629c78ed66c326b689256029f0
+    .claude/skills/syncfusion-dotnet-markdown/SKILL.md: sha256:d3af967af55700211c81ce1453b343ea9446863fd1d216f3e25b3423bbf14078
+    .claude/skills/syncfusion-dotnet-markdown/references/advanced-features.md: sha256:e4170e71e880c92da9d94bf3941c71bc9549a1c185c1c9a1d27a8d86b4df88e7
+    .claude/skills/syncfusion-dotnet-markdown/references/blockquotes.md: sha256:ba87824bb32b232a681c852b1151b6b1cdcb655698df751910d086641b51007f
+    .claude/skills/syncfusion-dotnet-markdown/references/code-blocks.md: sha256:06a367c8083a272f957e67f3e5cc61508eb4a86c35ab112125229194bbab3bbf
+    .claude/skills/syncfusion-dotnet-markdown/references/create-markdown.md: sha256:d572c7bda24c07cf6da956bfe6c06f72b4de199f97cd33445695fff00eaae514
+    .claude/skills/syncfusion-dotnet-markdown/references/document-structure.md: sha256:6778ee09e38b0b102e2dad23f55a9ec8ff5c76f9b41abde44089b5a5bb7783ff
+    .claude/skills/syncfusion-dotnet-markdown/references/headings-styles.md: sha256:c90747d5221fe1bc3965b21ee4a47a1bd2ba85158b1c8154c2994c3713840ada
+    .claude/skills/syncfusion-dotnet-markdown/references/hyperlinks.md: sha256:20871330e1743ced2bcd856074a5e4b98221f86c9d20e1cb763a34dbaf198dcf
+    .claude/skills/syncfusion-dotnet-markdown/references/images.md: sha256:043e7ae46f3ec79126e5e81f168f4a450e795924293c18c98290343f6973429b
+    .claude/skills/syncfusion-dotnet-markdown/references/lists.md: sha256:9e7a52e50122419c7be38abe1db464d1ca2fe811c38f9e31fdf666b2cad9d5dd
+    .claude/skills/syncfusion-dotnet-markdown/references/nuget-packages.md: sha256:3d27e9f734961352f20d3bd625d914fa0d4a11750f989b1be6336c996779bdf0
+    .claude/skills/syncfusion-dotnet-markdown/references/parse-markdown.md: sha256:eb78f240c3f4c46a6c449e493633c959c058c1f8abdc6e7486426b6c15c78134
+    .claude/skills/syncfusion-dotnet-markdown/references/tables.md: sha256:aa847a52b933208c53e1a1599c3d8ec0152da7bff2fc91ec64291cf9ba11542b
+    .claude/skills/syncfusion-dotnet-markdown/references/task-lists.md: sha256:ff481743403b26141dd488088e3a893f02dfadbd458e6a666e2b5103cd9ae797
+    .claude/skills/syncfusion-dotnet-markdown/references/template.csx: sha256:a16a611c32905681aba38d544686c4a5a15428fa41ea1ce8ac26ee777b0b397d
+    .claude/skills/syncfusion-dotnet-markdown/references/text-formatting.md: sha256:fefa01e0f8a9d56dda57fd503c83dfe3c18c97914c630519ecbe58e111fdbf60
+    .claude/skills/syncfusion-dotnet-markdown/scripts/.gitkeep: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  content_hash: sha256:1a970d1aa8d603f429594c5e0b4d509f076f163cbc06f1c085fd7e0c59d1f497
+- repo_url: syncfusion/document-sdk-skills
+  name: syncfusion-dotnet-pdf
+  host: github.com
+  resolved_commit: 5128a3ecaaeb712ff3239538bbd525c0ddf37dac
+  version: unknown
+  virtual_path: skills/syncfusion-dotnet-pdf
+  is_virtual: true
+  depth: 2
+  resolved_by: syncfusion/maui-ui-builder
+  package_type: claude_skill
+  deployed_files:
+  - .claude/skills/syncfusion-dotnet-pdf
+  - .claude/skills/syncfusion-dotnet-pdf/README.md
+  - .claude/skills/syncfusion-dotnet-pdf/SKILL.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/accessible-pdf.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/actions.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/annotations.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/attachments.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/barcode.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/bookmarks.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/brushes.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/colorspace.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/compress-pdf.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/conformance.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/conversions.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/digital-sign.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/document-structure.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/extract-image.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/extract-text.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/headers-and-footers.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/hyperlinks.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/images.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/import-export-annotation.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/import-export-form.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/layers.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/merge-pdf.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/metadata.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/named-destinations.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/ocr.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/open-pdf.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/pages.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/pdf-forms.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/pdf-graphics.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/pdf-templates.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/portfolio.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/redact.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/save-pdf.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/security.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/shapes.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/split-pdf.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/svg-to-pdf.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/tables.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/template-ocr.csx
+  - .claude/skills/syncfusion-dotnet-pdf/references/template.csx
+  - .claude/skills/syncfusion-dotnet-pdf/references/text.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/watermarks.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/xps-to-pdf.md
+  - .claude/skills/syncfusion-dotnet-pdf/references/zugferd-invoice.md
+  - .claude/skills/syncfusion-dotnet-pdf/scripts/.gitkeep
+  deployed_file_hashes:
+    .claude/skills/syncfusion-dotnet-pdf/README.md: sha256:32bbc2159808d3781ac88dbb6eb80d77cf63fe5a04283dca528a7696f19fc7e2
+    .claude/skills/syncfusion-dotnet-pdf/SKILL.md: sha256:a11a426e28f956021392f7d02b391d66c38e16af4c47b49477a03c4d950094f0
+    .claude/skills/syncfusion-dotnet-pdf/references/accessible-pdf.md: sha256:30890bf3317ed00457f49c6c255d912c0b1ff1f68ffaf6fc9a1ebf53e808d42e
+    .claude/skills/syncfusion-dotnet-pdf/references/actions.md: sha256:1ea4dd57551f65fec3e00ebb7cee7ed9687c5b01fbe2787ee49f1f0caff5345e
+    .claude/skills/syncfusion-dotnet-pdf/references/annotations.md: sha256:1fd58a7bf07d25502a0d8df1c927712f59bf364998ee9e37c7b567baf62ace72
+    .claude/skills/syncfusion-dotnet-pdf/references/attachments.md: sha256:272292e3d1eca6184df02dc29f9a7fbcafeb2403b69c1367a6873977095c0fe8
+    .claude/skills/syncfusion-dotnet-pdf/references/barcode.md: sha256:b5782aee1ebccf4a542818cec4fd06a7e06cf62149365dbb744b9fdaf98d7856
+    .claude/skills/syncfusion-dotnet-pdf/references/bookmarks.md: sha256:e3efe88514b7afb016e6229a3e6c2e104c8a220870ed168b42eba4f5ed2a3906
+    .claude/skills/syncfusion-dotnet-pdf/references/brushes.md: sha256:c23a2b4fc07d3df51afabe19e396ad8fc71bc463952b447c38650fa61e9b464b
+    .claude/skills/syncfusion-dotnet-pdf/references/colorspace.md: sha256:bf0fbbc397aa8d8b58165a1606a1c6f08f2a32792b582e472f433de985e7febe
+    .claude/skills/syncfusion-dotnet-pdf/references/compress-pdf.md: sha256:8ef63d29ec45ef7151ef1ffe9eb06bef7c87d463cf929fd4d33b280a131035e4
+    .claude/skills/syncfusion-dotnet-pdf/references/conformance.md: sha256:65fe8be3eb52cb8981f710f4f0f408ed83af7e381ba35cf6efd8f1392eeec584
+    .claude/skills/syncfusion-dotnet-pdf/references/conversions.md: sha256:65a8e99acaa43a81f34933106eda0503f9387a70fb8e254a7b0381459051ed4a
+    .claude/skills/syncfusion-dotnet-pdf/references/digital-sign.md: sha256:9407daa5d9c94643cb79d8d8c867afbdd42ed95907773db7b222fb886e9c2fbd
+    .claude/skills/syncfusion-dotnet-pdf/references/document-structure.md: sha256:6c90629c8939c0b8605cb97f7da1e466dfdaec6408cefe51564250e2a74f6571
+    .claude/skills/syncfusion-dotnet-pdf/references/extract-image.md: sha256:835c98f56fa0ca53352bfba23dc2d68408a800057d2106876770c31eebfacb22
+    .claude/skills/syncfusion-dotnet-pdf/references/extract-text.md: sha256:7d9b8780a852e1b3350144e0de3f4968e829477dee3785311f20a4e93879b089
+    .claude/skills/syncfusion-dotnet-pdf/references/headers-and-footers.md: sha256:33b27815f8c23f70539d2e57a35d658f1fe11907c7cd6d511f4269e6e1d1d7e9
+    .claude/skills/syncfusion-dotnet-pdf/references/hyperlinks.md: sha256:165f5588fc94c2b3130d0dfcbe15b924179d3908d4c17fb8e1de1612dd65286c
+    .claude/skills/syncfusion-dotnet-pdf/references/images.md: sha256:2c784010efcacfb4d8f6b591110297560c3295b70c36d14e53daf42f21979757
+    .claude/skills/syncfusion-dotnet-pdf/references/import-export-annotation.md: sha256:79d4c39179391a46f53958acf926cb853617a9c1e09375bbf123f30926c143a5
+    .claude/skills/syncfusion-dotnet-pdf/references/import-export-form.md: sha256:e49f0f701d8646b078903dcf6edfa3584a56720ed2eb5d27a6b369be93b4d353
+    .claude/skills/syncfusion-dotnet-pdf/references/layers.md: sha256:6a266a317b2031e18531808384ec94b3d23ea1ded387e01657490a6edbed2ed5
+    .claude/skills/syncfusion-dotnet-pdf/references/merge-pdf.md: sha256:6a3f5d9cb0e845ede457f40bf90d4a6ed07632648debf0933ef16ed4784db36a
+    .claude/skills/syncfusion-dotnet-pdf/references/metadata.md: sha256:3fb65c029c252f69158990601736aa4af5130469b8704b18fac2339c3015864b
+    .claude/skills/syncfusion-dotnet-pdf/references/named-destinations.md: sha256:3a075da36f63249b61bf0b44f57e7867c6d57f9ce1ff7716b1f555a9672c7ff1
+    .claude/skills/syncfusion-dotnet-pdf/references/ocr.md: sha256:62f47b6fc319d243cbfbad141adddc939f598c007d463fda26d99d2627de008d
+    .claude/skills/syncfusion-dotnet-pdf/references/open-pdf.md: sha256:4bc20c2e572d83af82c4026b9890e12ec185569924c9174fb766084f1b7fc7ee
+    .claude/skills/syncfusion-dotnet-pdf/references/pages.md: sha256:ac192489c729ee54fe0f0739776e93038d044a8fe345b28c6567b11cbfe81d79
+    .claude/skills/syncfusion-dotnet-pdf/references/pdf-forms.md: sha256:330ee1fcf30e47e153a7783adcb0211c7ed0885f6a79f691495a5f28dbb9c4c2
+    .claude/skills/syncfusion-dotnet-pdf/references/pdf-graphics.md: sha256:0978427faccc826852f133256abad69fa101f9eab77fe077c65685b19e947b28
+    .claude/skills/syncfusion-dotnet-pdf/references/pdf-templates.md: sha256:5e9beb264281a871d7ccaa7cbf352fe574bcdf723478c4ddaae75504f2856c02
+    .claude/skills/syncfusion-dotnet-pdf/references/portfolio.md: sha256:3d8330a88dedcfcaae047a937f58b13f825df2dc5e9afb525644448a8e316ed7
+    .claude/skills/syncfusion-dotnet-pdf/references/redact.md: sha256:0ead2c5cd4a907f857d684a256f6667177b357bc53f250fb1c689417eb9d1356
+    .claude/skills/syncfusion-dotnet-pdf/references/save-pdf.md: sha256:ba88f835c3a9cbcb2c1058ba9d000eab10c6b28a9a25eaa8277dbf842052fda7
+    .claude/skills/syncfusion-dotnet-pdf/references/security.md: sha256:c7c164d37a087241dba6b7340e3a91f7bd949082b4732dc7b48e553c125f272f
+    .claude/skills/syncfusion-dotnet-pdf/references/shapes.md: sha256:ac8940adf1ea13cb885f2ef6c75cc9a820327c14c104d19916c21bbac6fa0fed
+    .claude/skills/syncfusion-dotnet-pdf/references/split-pdf.md: sha256:144dbe99c8db2bd2d5e88a29123525bbacde54a05eeca40aac117eac1bd62215
+    .claude/skills/syncfusion-dotnet-pdf/references/svg-to-pdf.md: sha256:b8f53cd32c7632424c6168b80ab5941d1fafff14468c509d7ed87c69cd5d3782
+    .claude/skills/syncfusion-dotnet-pdf/references/tables.md: sha256:0fd6f070997132160b71ca3bafc5b527b024d5846534f6a336b4c9f3c230a2a6
+    .claude/skills/syncfusion-dotnet-pdf/references/template-ocr.csx: sha256:f1bfeaa40bc9a1add0663fce9335eba4e75b1d8a149cfd93f3a3d8a6c7a05810
+    .claude/skills/syncfusion-dotnet-pdf/references/template.csx: sha256:de7605a1325f73991f57f216c4c3d1c268a1483b1858169169274b263a74247d
+    .claude/skills/syncfusion-dotnet-pdf/references/text.md: sha256:d58c4304f1a51d205a9f84ce35c5548a6f3bab4a9d0b64a61d8a3c49de7fbcda
+    .claude/skills/syncfusion-dotnet-pdf/references/watermarks.md: sha256:ab5c628d4ad5c464c819df291efd5d6d6e10a727acbb9f88170f08cb051f72c0
+    .claude/skills/syncfusion-dotnet-pdf/references/xps-to-pdf.md: sha256:f58bc42496fb6c8238c4317e077e3e8fc828de8b1ca26aef77526c02fc7eec42
+    .claude/skills/syncfusion-dotnet-pdf/references/zugferd-invoice.md: sha256:25923ba7a3f11a5c0bd30e357d2b8875e5ea58282dc0b7dfc8976be93d3ba896
+    .claude/skills/syncfusion-dotnet-pdf/scripts/.gitkeep: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  content_hash: sha256:4b39c8f0bcece9f4726c4a2b5de9d8a3e3a2f693227044950f9c59dc975cec24
+- repo_url: syncfusion/document-sdk-skills
+  name: syncfusion-dotnet-pdf-to-image
+  host: github.com
+  resolved_commit: 5128a3ecaaeb712ff3239538bbd525c0ddf37dac
+  version: unknown
+  virtual_path: skills/syncfusion-dotnet-pdf-to-image
+  is_virtual: true
+  depth: 2
+  resolved_by: syncfusion/maui-ui-builder
+  package_type: claude_skill
+  deployed_files:
+  - .claude/skills/syncfusion-dotnet-pdf-to-image
+  - .claude/skills/syncfusion-dotnet-pdf-to-image/README.md
+  - .claude/skills/syncfusion-dotnet-pdf-to-image/SKILL.md
+  - .claude/skills/syncfusion-dotnet-pdf-to-image/references/customizing-conversion.md
+  - .claude/skills/syncfusion-dotnet-pdf-to-image/references/load.md
+  - .claude/skills/syncfusion-dotnet-pdf-to-image/references/multithreading-pdf-to-image.md
+  - .claude/skills/syncfusion-dotnet-pdf-to-image/references/nuget-packages.md
+  deployed_file_hashes:
+    .claude/skills/syncfusion-dotnet-pdf-to-image/README.md: sha256:c084ff76136884c2b64da4b1b2e1396cea15783f008666235d2f1d441f241980
+    .claude/skills/syncfusion-dotnet-pdf-to-image/SKILL.md: sha256:48f15d8325ab862ed9c297ff79bb459e5af9d8897aa2196a5449efa289e2a2a2
+    .claude/skills/syncfusion-dotnet-pdf-to-image/references/customizing-conversion.md: sha256:94c921561e3d8c5c267e5899682213433822daa28e8a21cba997016ecb6c7280
+    .claude/skills/syncfusion-dotnet-pdf-to-image/references/load.md: sha256:e5bbcce288ce51b483b65d088790354dade8c0a6a1acf0aaf1725058af047510
+    .claude/skills/syncfusion-dotnet-pdf-to-image/references/multithreading-pdf-to-image.md: sha256:c6415bf819c978b76bec457150cdd6151e2247fc0b874d031ae40de40bf0ff26
+    .claude/skills/syncfusion-dotnet-pdf-to-image/references/nuget-packages.md: sha256:e6542c3dcafb9a8a389600dbd29a21a36de5cdc05d4551b43e3b42ad531d81b1
+  content_hash: sha256:461271929e0a3e38d82b3bb8f1042e97586b220b0f9c43c44badcb7bc7bea625
+- repo_url: syncfusion/document-sdk-skills
+  name: syncfusion-dotnet-powerpoint
+  host: github.com
+  resolved_commit: 5128a3ecaaeb712ff3239538bbd525c0ddf37dac
+  version: unknown
+  virtual_path: skills/syncfusion-dotnet-powerpoint
+  is_virtual: true
+  depth: 2
+  resolved_by: syncfusion/maui-ui-builder
+  package_type: claude_skill
+  deployed_files:
+  - .claude/skills/syncfusion-dotnet-powerpoint
+  - .claude/skills/syncfusion-dotnet-powerpoint/README.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/SKILL.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/animation-transition.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/chart.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/comments.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/connectors.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/conversions.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/encrypt-decrypt.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/find-and-replace.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/header-footer.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/hyperlinks.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/image.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/layout.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/list.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/macros.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/markdown-conversion.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/notes.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/nuget-packages.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/ole-objects.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/paragraph.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/presentation-structure.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/sections.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/shapes.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/slides.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/smartart.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/tables.md
+  - .claude/skills/syncfusion-dotnet-powerpoint/references/template.csx
+  - .claude/skills/syncfusion-dotnet-powerpoint/scripts/.gitkeep
+  deployed_file_hashes:
+    .claude/skills/syncfusion-dotnet-powerpoint/README.md: sha256:6dd0f3f746bfe8ad6a69afdbe423bc9acacce07b8a3b94f5759dc9accb14cce8
+    .claude/skills/syncfusion-dotnet-powerpoint/SKILL.md: sha256:c5327d11af1a854fd6c974d22b09f809a03a900589cbbb138aceaa4d76f1e530
+    .claude/skills/syncfusion-dotnet-powerpoint/references/animation-transition.md: sha256:096cbd837574a903efb5776a18dd991156cd3df420da59d778e77de170770997
+    .claude/skills/syncfusion-dotnet-powerpoint/references/chart.md: sha256:a0da9ef7723aef20a1885246f0052e839c28f880b5be846fb5dde9f677a69b86
+    .claude/skills/syncfusion-dotnet-powerpoint/references/comments.md: sha256:d0c8190fc2b05f2d543b6547934f6c2cf7c102d9e0687c545db2d19aad16c898
+    .claude/skills/syncfusion-dotnet-powerpoint/references/connectors.md: sha256:be2318f530dd7040dfec7e7b0322d6dc22cd497ae5508b01e1aec9f47954b5e5
+    .claude/skills/syncfusion-dotnet-powerpoint/references/conversions.md: sha256:9b55f06448fc46b8bc1f9296684e52912a926ffb46b9413130157fce7be25c77
+    .claude/skills/syncfusion-dotnet-powerpoint/references/encrypt-decrypt.md: sha256:0bb99401897f47b48194edca7894563e452ba5ebdd2c614b5c1fb888362139f9
+    .claude/skills/syncfusion-dotnet-powerpoint/references/find-and-replace.md: sha256:1134597fdf1350d65badd79da9d60d68f091584fad9294bfacff9c166af783ca
+    .claude/skills/syncfusion-dotnet-powerpoint/references/header-footer.md: sha256:6d8dcea7d7df237d4c5e91daabc61ebe32cea53935cc30d1c03cafecebcaa4ee
+    .claude/skills/syncfusion-dotnet-powerpoint/references/hyperlinks.md: sha256:4fcef15f1b9d34fd2c382dca8b503e617204fae20594ff7997dec1b948171948
+    .claude/skills/syncfusion-dotnet-powerpoint/references/image.md: sha256:942d7e1e188d4a7c0756fd6bdb665e9a79cfff8c860bf047b550987df7342a66
+    .claude/skills/syncfusion-dotnet-powerpoint/references/layout.md: sha256:30113811e90955652092b385f481c5a8fe983829e281702772248fd1ffd46bf4
+    .claude/skills/syncfusion-dotnet-powerpoint/references/list.md: sha256:3b5110b202617c665e90b08455b6f4243db8a7e367c6e0eb95e0cf7033b1bb83
+    .claude/skills/syncfusion-dotnet-powerpoint/references/macros.md: sha256:b323b164b6e04448567a5447f9aa37a88975d754defeff94f6e332fb169dde8c
+    .claude/skills/syncfusion-dotnet-powerpoint/references/markdown-conversion.md: sha256:39e4bd52cbda81e69da526873f1b85c74e9f4b6c532daa2262a58198436a45d4
+    .claude/skills/syncfusion-dotnet-powerpoint/references/notes.md: sha256:9bc47f03396f0f0baaba34072a464471a896f6388631bde0dbf15572ef969934
+    .claude/skills/syncfusion-dotnet-powerpoint/references/nuget-packages.md: sha256:394606a6b886b7b3d10f2ed2fa65b73a93689c0019d9e8655b0a9e812b5cee18
+    .claude/skills/syncfusion-dotnet-powerpoint/references/ole-objects.md: sha256:98b58e9854cb632ad5b8e05992f1ea154be579db6f7d553c8da8739322ac3bf9
+    .claude/skills/syncfusion-dotnet-powerpoint/references/paragraph.md: sha256:06f0091d10cf42222b02bc396af2f9878bdfe9c9e4df427dc83214749d25dccc
+    .claude/skills/syncfusion-dotnet-powerpoint/references/presentation-structure.md: sha256:0fa477405e9f29c5dcff2b344c1aacfcb0e57eea559a19ea6301c7b28f9aac5c
+    .claude/skills/syncfusion-dotnet-powerpoint/references/sections.md: sha256:09861c92d6b9da8309a35a9d5c049df4f0a0576b798fca62803b7d1d1cc7c598
+    .claude/skills/syncfusion-dotnet-powerpoint/references/shapes.md: sha256:14f0714598189728700f46cbf32ca0b700b38dbdf5bb8e07e56a638c954f8ad9
+    .claude/skills/syncfusion-dotnet-powerpoint/references/slides.md: sha256:057bd541b8053c47eba817f8d636bbe298f8d251dea7020d35d96b014d3e37a4
+    .claude/skills/syncfusion-dotnet-powerpoint/references/smartart.md: sha256:401ca554f8630a6f926281da64ff94d96575d22094f5c273c471806849e3e3aa
+    .claude/skills/syncfusion-dotnet-powerpoint/references/tables.md: sha256:21568371e5aa5631f11837aa856713af7da075e4d24a92be9368a4301bf645ec
+    .claude/skills/syncfusion-dotnet-powerpoint/references/template.csx: sha256:9ebdae89bb101e7eb5f24d11a62dece9b367be68988a9efceaa5d6b194648a7d
+    .claude/skills/syncfusion-dotnet-powerpoint/scripts/.gitkeep: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  content_hash: sha256:cc6afc3cadc6b3aa31a6774293fb09f31eb84f5d32c66d7c738689325eeb4976
+- repo_url: syncfusion/document-sdk-skills
+  name: syncfusion-dotnet-smart-data-extraction
+  host: github.com
+  resolved_commit: 5128a3ecaaeb712ff3239538bbd525c0ddf37dac
+  version: unknown
+  virtual_path: skills/syncfusion-dotnet-smart-data-extraction
+  is_virtual: true
+  depth: 2
+  resolved_by: syncfusion/maui-ui-builder
+  package_type: claude_skill
+  deployed_files:
+  - .claude/skills/syncfusion-dotnet-smart-data-extraction
+  - .claude/skills/syncfusion-dotnet-smart-data-extraction/README.md
+  - .claude/skills/syncfusion-dotnet-smart-data-extraction/SKILL.md
+  - .claude/skills/syncfusion-dotnet-smart-data-extraction/references/data-options.md
+  - .claude/skills/syncfusion-dotnet-smart-data-extraction/references/document-structure.md
+  - .claude/skills/syncfusion-dotnet-smart-data-extraction/references/extract-data.md
+  - .claude/skills/syncfusion-dotnet-smart-data-extraction/references/extract-table.md
+  - .claude/skills/syncfusion-dotnet-smart-data-extraction/references/nuget-packages.md
+  - .claude/skills/syncfusion-dotnet-smart-data-extraction/references/recognize-forms.md
+  deployed_file_hashes:
+    .claude/skills/syncfusion-dotnet-smart-data-extraction/README.md: sha256:e4650b6bd8b0b3939bc895e00a6987eb6694af72d2838ed881b7958420489ace
+    .claude/skills/syncfusion-dotnet-smart-data-extraction/SKILL.md: sha256:afee3413a0fde88ba86d031c8cb2aa0ff7dcd4067b9c7900b96afdee0facb354
+    .claude/skills/syncfusion-dotnet-smart-data-extraction/references/data-options.md: sha256:e57810f79bad2fb9444746ac8a58f0bddb178ae335cb0cf28b0c0a13c14017f8
+    .claude/skills/syncfusion-dotnet-smart-data-extraction/references/document-structure.md: sha256:ff1395558f5ee3e180185bebac1fe88db2bd67025d53019390050b0f788f7d71
+    .claude/skills/syncfusion-dotnet-smart-data-extraction/references/extract-data.md: sha256:8dcbbb9efc054ebb055f754e56478c1188276858a4f8533eb8fa1a0f71367aae
+    .claude/skills/syncfusion-dotnet-smart-data-extraction/references/extract-table.md: sha256:c38782842587238421ee7cf0b55fa31fd36a253e93c8937cc9d33f4596b8e76c
+    .claude/skills/syncfusion-dotnet-smart-data-extraction/references/nuget-packages.md: sha256:05048759ca1daca38f949f5d421a04f951f34434df061c8bfc81535e58c6acc1
+    .claude/skills/syncfusion-dotnet-smart-data-extraction/references/recognize-forms.md: sha256:5b8d4410b17bfc58c5f7fb8858410091a285bb447585fca7f7794a86d2218b63
+  content_hash: sha256:8c2b55dcfb1269f211717f9b4510ac8f242b00ab5e249d9333771d87c04e7128
+- repo_url: syncfusion/document-sdk-skills
+  name: syncfusion-dotnet-word
+  host: github.com
+  resolved_commit: 5128a3ecaaeb712ff3239538bbd525c0ddf37dac
+  version: unknown
+  virtual_path: skills/syncfusion-dotnet-word
+  is_virtual: true
+  depth: 2
+  resolved_by: syncfusion/maui-ui-builder
+  package_type: claude_skill
+  deployed_files:
+  - .claude/skills/syncfusion-dotnet-word
+  - .claude/skills/syncfusion-dotnet-word/README.md
+  - .claude/skills/syncfusion-dotnet-word/SKILL.md
+  - .claude/skills/syncfusion-dotnet-word/references/bookmarks.md
+  - .claude/skills/syncfusion-dotnet-word/references/charts.md
+  - .claude/skills/syncfusion-dotnet-word/references/comments.md
+  - .claude/skills/syncfusion-dotnet-word/references/compare-word-documents.md
+  - .claude/skills/syncfusion-dotnet-word/references/content-controls.md
+  - .claude/skills/syncfusion-dotnet-word/references/digital-signature.md
+  - .claude/skills/syncfusion-dotnet-word/references/document-structure.md
+  - .claude/skills/syncfusion-dotnet-word/references/encryption.md
+  - .claude/skills/syncfusion-dotnet-word/references/fields.md
+  - .claude/skills/syncfusion-dotnet-word/references/find-and-replace.md
+  - .claude/skills/syncfusion-dotnet-word/references/footnotes-and-endnotes.md
+  - .claude/skills/syncfusion-dotnet-word/references/form-fields.md
+  - .claude/skills/syncfusion-dotnet-word/references/header-footer.md
+  - .claude/skills/syncfusion-dotnet-word/references/html-conversions.md
+  - .claude/skills/syncfusion-dotnet-word/references/hyperlinks.md
+  - .claude/skills/syncfusion-dotnet-word/references/macros.md
+  - .claude/skills/syncfusion-dotnet-word/references/mail-merge.md
+  - .claude/skills/syncfusion-dotnet-word/references/markdown-conversion.md
+  - .claude/skills/syncfusion-dotnet-word/references/mathematical-equation.md
+  - .claude/skills/syncfusion-dotnet-word/references/merge-word-documents.md
+  - .claude/skills/syncfusion-dotnet-word/references/nuget-packages.md
+  - .claude/skills/syncfusion-dotnet-word/references/ole-object.md
+  - .claude/skills/syncfusion-dotnet-word/references/paragraph-and-styles.md
+  - .claude/skills/syncfusion-dotnet-word/references/rtf-conversions.md
+  - .claude/skills/syncfusion-dotnet-word/references/shapes.md
+  - .claude/skills/syncfusion-dotnet-word/references/smartarts.md
+  - .claude/skills/syncfusion-dotnet-word/references/split-word-documents.md
+  - .claude/skills/syncfusion-dotnet-word/references/styles-and-formats.md
+  - .claude/skills/syncfusion-dotnet-word/references/table-of-contents.md
+  - .claude/skills/syncfusion-dotnet-word/references/tables.md
+  - .claude/skills/syncfusion-dotnet-word/references/template.csx
+  - .claude/skills/syncfusion-dotnet-word/references/text-conversions.md
+  - .claude/skills/syncfusion-dotnet-word/references/track-changes.md
+  - .claude/skills/syncfusion-dotnet-word/references/watermark.md
+  - .claude/skills/syncfusion-dotnet-word/references/word-to-image.md
+  - .claude/skills/syncfusion-dotnet-word/references/word-to-odt.md
+  - .claude/skills/syncfusion-dotnet-word/references/word-to-pdf.md
+  - .claude/skills/syncfusion-dotnet-word/references/xml-conversions.md
+  - .claude/skills/syncfusion-dotnet-word/scripts/.gitkeep
+  deployed_file_hashes:
+    .claude/skills/syncfusion-dotnet-word/README.md: sha256:618b02d3b94c06f30f94365551383b168c368546aa18006151f0db20497c2699
+    .claude/skills/syncfusion-dotnet-word/SKILL.md: sha256:dd3ed3cbf301f97d51fd8d54dc0e2634144ea2b20f8f67efc42a4c58e9aa84a5
+    .claude/skills/syncfusion-dotnet-word/references/bookmarks.md: sha256:682e3039a2dc666701aac2eb60d58d617459787e1bfb5308396ea0f6f9b90828
+    .claude/skills/syncfusion-dotnet-word/references/charts.md: sha256:cde2c3cff63054573d3ca9688f07cb8fed961f600b9d59e8f46852bc8ea764b3
+    .claude/skills/syncfusion-dotnet-word/references/comments.md: sha256:58d443505e205ed074b702e1fa30a92e33e383da646705d162902d27a2261e6c
+    .claude/skills/syncfusion-dotnet-word/references/compare-word-documents.md: sha256:3a0aa963e2a77fd352b8d141967d25e8077c9e044743c14518fb6e5810037e84
+    .claude/skills/syncfusion-dotnet-word/references/content-controls.md: sha256:9f1df992bff3548a6c4bffdac462e8197bd2e06de99108a302a813cbad1f521d
+    .claude/skills/syncfusion-dotnet-word/references/digital-signature.md: sha256:296e849486c271b989bece369c4f527d73ccd386db6dce32ac68cf49d752fec7
+    .claude/skills/syncfusion-dotnet-word/references/document-structure.md: sha256:7893b2e794bf4286f7d32193c56ba218339e0abdffa58094f2c4fcd229cf5f1a
+    .claude/skills/syncfusion-dotnet-word/references/encryption.md: sha256:87c7d73ca6cfc78eec87e037b939e7186e2265fd756048d970d49284b4f9eeaa
+    .claude/skills/syncfusion-dotnet-word/references/fields.md: sha256:2edf7f16b9493ce6959e94a726a11095315d884ed485f44fe1f5550fb7a07066
+    .claude/skills/syncfusion-dotnet-word/references/find-and-replace.md: sha256:823eefdd53a0df7210044ca4f4c8805c2d1ad9b1dd827f84588185915da34834
+    .claude/skills/syncfusion-dotnet-word/references/footnotes-and-endnotes.md: sha256:0a6311b936eb2a8e75af5392fe96445f3ac6f58beca994417026869d21cb7a84
+    .claude/skills/syncfusion-dotnet-word/references/form-fields.md: sha256:ce16eab7f33c816dd4d0447551c5a218a0188c05b1579ffebb73c3b911d9d172
+    .claude/skills/syncfusion-dotnet-word/references/header-footer.md: sha256:c80ea383bc5a0e02d6655e275d26057e12717fa8945e09a06a17dbeb6a87be7b
+    .claude/skills/syncfusion-dotnet-word/references/html-conversions.md: sha256:6a68b8664871b704ea81afbcc1fe141eb00ab62a2fed6b996bbecac80bb8d891
+    .claude/skills/syncfusion-dotnet-word/references/hyperlinks.md: sha256:527bb5ee4243734ae44f25a55d2e6b428e0c3279312a37b1ab96bbbe6c20d61f
+    .claude/skills/syncfusion-dotnet-word/references/macros.md: sha256:5b92cd05da9f6c5b088c34b9b4eb8c73219ad8bb02bfddb56e8206a53eb01d28
+    .claude/skills/syncfusion-dotnet-word/references/mail-merge.md: sha256:e0ca0a2b0673b4adf7a728b303ba9f817e68b0614e7a3edf6c78a083db5ecf88
+    .claude/skills/syncfusion-dotnet-word/references/markdown-conversion.md: sha256:179c5998df4d3aa8f21c002fc8543c2c19725e1a05080429a3144d66a163fbf1
+    .claude/skills/syncfusion-dotnet-word/references/mathematical-equation.md: sha256:2d42db2805b352b83cf3ff4c8069382c231ef1d5ac44eb5a1662483ac28e19db
+    .claude/skills/syncfusion-dotnet-word/references/merge-word-documents.md: sha256:5dfe3bdb5b7a0cc99074b64f82410f3869eb73c2acff1a47a8c44abcd77c4d12
+    .claude/skills/syncfusion-dotnet-word/references/nuget-packages.md: sha256:19cf3a3d0af1bb707d7b1c830cea5c702f0bfc86e366fb898012f824b93cc657
+    .claude/skills/syncfusion-dotnet-word/references/ole-object.md: sha256:a9c18a7fe16321f1dbff9fd1dccb92a4ba399ad3cd029b2ae1ec80f3e7e802b5
+    .claude/skills/syncfusion-dotnet-word/references/paragraph-and-styles.md: sha256:c6509c9c1e82deea1edcd0f74db414e0fd595dc9ca2e635f7661b5fd40eb3fc3
+    .claude/skills/syncfusion-dotnet-word/references/rtf-conversions.md: sha256:748b4811115ae8c8c58ce0b0b0207c15c184ef482edc7b4189aacc44466f8101
+    .claude/skills/syncfusion-dotnet-word/references/shapes.md: sha256:fdf208637df241e084de35e08ff5eeb8bc6a5b5bd885bea05a0377398e325b7f
+    .claude/skills/syncfusion-dotnet-word/references/smartarts.md: sha256:92207148883d79b073af8fac7aee9251b5c951cc268bb5abfb5799c04403d158
+    .claude/skills/syncfusion-dotnet-word/references/split-word-documents.md: sha256:b5ea2d0a7ebbcf9acdb171214a7e6c23a0fc78a0537a09d8e9fa73d7143c2193
+    .claude/skills/syncfusion-dotnet-word/references/styles-and-formats.md: sha256:65151553b7d8ff26e1545d9f17214addc3bd40ae0334496d5d1993db56ead49f
+    .claude/skills/syncfusion-dotnet-word/references/table-of-contents.md: sha256:6400510ad2eb1bb4ed683cff25065de2201f62d1cf10901619ea2ab6387ad5da
+    .claude/skills/syncfusion-dotnet-word/references/tables.md: sha256:afc23f78ce9c311120abed592f3d1fce90be4c463c75ebb1e514ef37bd1cfacd
+    .claude/skills/syncfusion-dotnet-word/references/template.csx: sha256:ae1fe01262c1f755800603c222fc556af4a1b4de0d554a6b64b57c476b205576
+    .claude/skills/syncfusion-dotnet-word/references/text-conversions.md: sha256:fbea91e1deac86409079ead717cba4e741babe6ed9a547f4ff80fbe4097a05f5
+    .claude/skills/syncfusion-dotnet-word/references/track-changes.md: sha256:7d1748fa70ecdac325802dbc1e9f2b7fc5388aeb109840af4c086bc60e52c362
+    .claude/skills/syncfusion-dotnet-word/references/watermark.md: sha256:09ef96ccdcc5f83fcb4b9019231599b9da7a666f86f59c9f3bb0039bbbf5c6e9
+    .claude/skills/syncfusion-dotnet-word/references/word-to-image.md: sha256:4968258f0a76b9abedc383b211b3068163b2277a5c6604e860df401a6dbfae16
+    .claude/skills/syncfusion-dotnet-word/references/word-to-odt.md: sha256:d49495a93b915d9d7ecb958de448337ea73b7ed6fa428fbbf8a9ce38ab758d67
+    .claude/skills/syncfusion-dotnet-word/references/word-to-pdf.md: sha256:20a162cba221e67a1f78242de722d38f83a86c58f47ec63c4b75c62108a058f4
+    .claude/skills/syncfusion-dotnet-word/references/xml-conversions.md: sha256:bbacb8b6d57869927107c23edb163c02a8d2e5f18a481a4721196148b723294d
+    .claude/skills/syncfusion-dotnet-word/scripts/.gitkeep: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  content_hash: sha256:ee2cb2e7b06281ac7cd9b52ddb744b4df351664f14adbd5a1c62bd3892b29f52
+- repo_url: syncfusion/maui-ui-components-skills
+  name: maui-ui-components-skills
+  host: github.com
+  resolved_commit: 7899036e683e6ace2fa3682db3baa7e1f99e07f0
+  version: 1.0.0
+  depth: 2
+  resolved_by: syncfusion/maui-ui-builder
+  package_type: skill_bundle
+  deployed_files:
+  - .claude/skills/syncfusion-maui-interactive-viewer
+  - .claude/skills/syncfusion-maui-interactive-viewer/SKILL.md
+  - .claude/skills/syncfusion-maui-interactive-viewer/references/events-and-interactions.md
+  - .claude/skills/syncfusion-maui-interactive-viewer/references/getting-started.md
+  - .claude/skills/syncfusion-maui-interactive-viewer/references/reset-functionality.md
+  - .claude/skills/syncfusion-maui-interactive-viewer/references/rotation.md
+  - .claude/skills/syncfusion-maui-interactive-viewer/references/zooming-and-panning.md
+  deployed_file_hashes:
+    .claude/skills/syncfusion-maui-interactive-viewer/SKILL.md: sha256:7e1cb5f8e2a57e0c5091d9055918f83b241a6637d82c0d69c83511c0816f264e
+    .claude/skills/syncfusion-maui-interactive-viewer/references/events-and-interactions.md: sha256:2cd6e2dd9ed348a31e494adc4bc68bcda15d011eeb24bf35613c77d6d3bd9c25
+    .claude/skills/syncfusion-maui-interactive-viewer/references/getting-started.md: sha256:eb7e37a06ef86c513176333c5b715f879bdb619de22a717cbbf2711492c275df
+    .claude/skills/syncfusion-maui-interactive-viewer/references/reset-functionality.md: sha256:67548833e3292c4d384f396bebbf765c0658cce2ff233947e59f462450fb1a9e
+    .claude/skills/syncfusion-maui-interactive-viewer/references/rotation.md: sha256:fdd61dc9eca1f38b995615f298117e39fda307a5a3d8a9e485dfa90ed9c77407
+    .claude/skills/syncfusion-maui-interactive-viewer/references/zooming-and-panning.md: sha256:5599d1cae6f81f83edfaa903994b8de6cd50affe6e97fe765c82c1fb1bb2a4f4
+  content_hash: sha256:ed897e4376b5421ee9f270ca0613ed4332873b8f4a23a362d8fdf63f5247134f
+  declared_license: Syncfusion Inc
+- repo_url: syncfusion/pdf-viewer-sdk-skills
+  name: syncfusion-maui-pdf-viewer
+  host: github.com
+  resolved_commit: 99fa2b43419904bfe0c6c9d31acb23e30fe8be19
+  version: unknown
+  virtual_path: skills/syncfusion-maui-pdf-viewer
+  is_virtual: true
+  depth: 2
+  resolved_by: syncfusion/maui-ui-builder
+  package_type: claude_skill
+  deployed_files:
+  - .claude/skills/syncfusion-maui-pdf-viewer
+  - .claude/skills/syncfusion-maui-pdf-viewer/README.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/SKILL.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/annotations.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/basic-sample.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/document-operations.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/electronic-signature.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/form-fields.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/gesture-events.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/migration-xamarin-to-maui.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/redaction.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/text-search.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/text-selection.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/toolbar-customization.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/ui-settings.md
+  - .claude/skills/syncfusion-maui-pdf-viewer/references/viewing.md
+  deployed_file_hashes:
+    .claude/skills/syncfusion-maui-pdf-viewer/README.md: sha256:382def70ec69ddf0b7d027217471c2f7f91793f4bcb6157627b6ca61402b5933
+    .claude/skills/syncfusion-maui-pdf-viewer/SKILL.md: sha256:c1cb1b274741202d7a3edca1dc156b6fbf7c1d7e17265a3798d567b4aecd411b
+    .claude/skills/syncfusion-maui-pdf-viewer/references/annotations.md: sha256:5effc401c392a42bca80378bb922d78388e54a9a1c8d67e4de6f061e2459c2b3
+    .claude/skills/syncfusion-maui-pdf-viewer/references/basic-sample.md: sha256:a6929590562c7ae486bf2d857a1cab2560719389ed3dd74adeff57138beeb486
+    .claude/skills/syncfusion-maui-pdf-viewer/references/document-operations.md: sha256:b524c64acf7e8f1a959d94ecce9ddc302166123b00728f78965de752da952e85
+    .claude/skills/syncfusion-maui-pdf-viewer/references/electronic-signature.md: sha256:508b61e36672f795b7ae9808273a1b7e29863b4643d380ca78a2c12246682d9e
+    .claude/skills/syncfusion-maui-pdf-viewer/references/form-fields.md: sha256:f93a85e4ee2891e1c584dc7f5521168e6402ca1e92b660e6d24e6b3b5446e2f5
+    .claude/skills/syncfusion-maui-pdf-viewer/references/gesture-events.md: sha256:09f3942234f890bf2c2d747518d3c78dfa0ff89e86612b20f0d104f464c411eb
+    .claude/skills/syncfusion-maui-pdf-viewer/references/migration-xamarin-to-maui.md: sha256:05991f01515773de8d9b11208e2085ccb8015500b4a882ad1c720d34dbcfebce
+    .claude/skills/syncfusion-maui-pdf-viewer/references/redaction.md: sha256:fd273a6ea81737e38a46ba3bfc25947ba3cfaffcfffca6d398ca6d4bf00baa29
+    .claude/skills/syncfusion-maui-pdf-viewer/references/text-search.md: sha256:66d6fb487d3707ef8d93edf70259f77d1da6bdfa07c8b56b4c3d4fe45dd75995
+    .claude/skills/syncfusion-maui-pdf-viewer/references/text-selection.md: sha256:66fa59e1348b90b1a6130ea6384f47fd289097f2e2741b2ff8a40132127b404e
+    .claude/skills/syncfusion-maui-pdf-viewer/references/toolbar-customization.md: sha256:42b57b3a1ad9ba7d96f3c3706430d920649f8d9bb9acf17f52054436de5b4fc1
+    .claude/skills/syncfusion-maui-pdf-viewer/references/ui-settings.md: sha256:867e91f131d07c76442ae631078cf2a65fa8ed7247336b7396506cadf94cdca5
+    .claude/skills/syncfusion-maui-pdf-viewer/references/viewing.md: sha256:b7dbfc7f48673d08410f8fc99287b7060dd85ff2eaedbf0a2abd9244fa45859d
+  content_hash: sha256:9fad4b07640cd0ad319801efa6fd487e52ca2831377429fc8fc07dcff60efb7e
 deployments:
+- kind: project-relative
+  target: claude
+  value: .claude/agents/syncfusion-maui-ui-builder.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:1a046a9d7eaead3fdbb0704a2394de83eb346217a5b71ce67c65cd610246b0b1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/README.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:e1eed54302d95edaf26bb74f2510e8726479f7841c7ba287ae6791b04e8fceaa
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:313804b2069dd8bb51bbce723547bff9e588990541404866c5088dcdc9641b30
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/references/calcengine.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:d901222b5089be648bda4d4ae86d1236390a9432c906d9bdec4c95d5174a5ed1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/references/calcquickbase.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:4393cfc4db22b6da5ab1cf6c451d9aac7bb433611d0cc1cf381b5112fdb60866
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/references/customfunction.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:20638a8c4d843d3870d539853ba5376bc7a400bc60fc2d81e7e8e198e8b5909d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/references/getting-started.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:90b4ff417bf960702c700f7afc05aa3bbaeccf9269602b59db04babb46f86b06
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/references/icalcdata.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:58ad32ee3d3116f0f369da532f3a76e6d833716720d22c1b21fe92de08d05548
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/references/namedranges.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:87846a409ab0d2258bcdb738ccd507c8e7208c2a29ea4e915f435e496360e7ff
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/references/operators.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:8a8c125c8194962564281d83b7981c164edddceab9228fe2bb373002e1249d0a
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/references/overview.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:634940ddde40ea97ebd4a94e18940d90833b2427c4a23c8e14f297f5e1545b16
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/references/parse-compute.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:e38a90cbe72102faa5046c04724e114ad60410c11ad09f1a8a3bfc2a267b915f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/references/performance.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:fc18934bebf149831b7ec287e028fa30714390986c025a19f38badb2ecf64633
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-calculate/references/xlsio.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-calculate
+  content_hash: sha256:cbe4a5eaecb1dbd6887d2d92bcf857b43ee42204ecf2da0e8e50c2edddd34746
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/README.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:149860e0cdb30e7792f49098c1670af1c54f9d9eacf904e9169af3cefec0570c
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:a6b9f7cef9f252483238cc15535a4a7f099a52dcca5a7b169e4b778237f70174
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/auto-fill.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:c6cb866612fd896054daf0713efa77751841eaf4c0bde01244a015fbbaca038c
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/cell-access-manipulation.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:745fe5c5879b207a3dadcf29b275ed7522c052f050cd139a152b92757276e1ff
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/cell-formatting.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:fd238db696f823f8265ef080b872df1be2ad0cc9d3ac6c853dcbc31bfab52dd5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/cell-values.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:245d5bc1a2c0b6254c6f28ba2f5b5dfc39cefb53fa63c65ea951dce96c7aa4e9
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/chart-to-image.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:2ae17221e8252d437a5caf120dbfdc5d1e84fb196059f18ed9643e8d67e044d1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/charts.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:05e4e6ea6788a7f4213e0aa122f5b1027bcd65ba5a8a0afb2c817e6146ead3c2
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/comments.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:cd349db0ffaba921455b93eb69afadde8197f84cb35bb0c091fb32bc30be512d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/conditional-formatting.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:7ec9833ce07d95680b5870853b84f9190f7c105d9c5b1bac0726fd5ce07c253e
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/custom-xml.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:afe0f484a35c80545a6f0a77bfa0e6f22ffa7def1df2f43eb8b8245133098312
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/data-validation.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:8c23e64616db18a88b2e568d3c5b39779041c4ce7529ee2112b9d7c5017ade65
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/document-structure.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:3d1b908f7f4aaad13025bacc01d379bb384b59d46c35bd0cdd93b756b3bacf4e
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/drawing-objects.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:abb9e052c4e8085881488b62dba89784f60701358fb0db9a8305b5366e4b9935
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/excel-csv.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:41a3dfb03f724399f757c2c337b422be8a2660f5ceeaf18bf9bbdb695331ac1e
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/excel-to-json.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:014b83761d1de8bf029fab5a57cf10b7bf5de50214be80acc7c56f4a5da399e5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/excel-to-pdf.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:88d2589cecee770227e6fc94627fdc44de2a079a792f1f11431edb7e787ee531
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/export-data.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:56f7bf32f9529c1228b71e4f549ab54aa91cbedb943117903957f90ece80cf92
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/fill-series.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:9404ad18577555a72b78ff11d3a369f963c0f0ea2855aca1255a178528f75846
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/filtering-advanced.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:8ef9aa1a4089aa0c841a6aedf797c766a5b240559f35629d0ed0ecf76681b4f2
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/filtering.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:379ecef28ed7f2f491a23a600f4edd4717614d8b0c1c79e1a4e1ff9a1ae719f3
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/find-all-replace.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:57f1643687942496c1940cc72ed64d74b32d0dabb0a9fbfc38b0c0f0bc3015d4
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/find-replace.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:27b0c3c6355c1605b67b7e336cd197c97c1809679a205feee518b78ccdbf5ec5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/formulas-advanced.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:5cd8447a83ba00281f08c4a0e30490917fc78008ca559b6b5d4f22485b1a757b
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/freeze-panes.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:d32e899e6ea484c77c9c5b24c4ca9ee70e3703f4581a4df5d3b2f912c2b92e59
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/hyperlink.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:6cc2693418c95cee9720f3966afe0fdb3c34a7bb684675aef4457d88a9ef4aa6
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/import-data-advanced.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:997225e469b03b03bf704c57e5d87cf6d8922fc009979cf76f25f6c1ee897850
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/import-data.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:31af48f3381ed59d0d98647294a2cce8c9ea243b399075ab4859e57685ebcf74
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/macros.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:82eca80e3ea3c0c0f654da1f3751cb23a19c7e3c7e04ca8081e866e3ebcf977b
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/markdown-conversion.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:f159f42bfa70f763e525c5916933a5ca35c624d0ea241f77e59d516cd3d3b013
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/nuget-packages.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:39e35adfdfe7ef2444eafe46c635bdc6a1005e74405e447f30b3a6717106a1df
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/page-setup.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:ab758033b61d24aa06cebe24ef00eb540f2fc995d1c008fed3a54da253464de1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/pictures.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:fb79f09acf02330ee595656d6602991294f353ef0516194c1b7f4035a3d18fea
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/pivot-chart.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:7c488080187a5e9b7d5fc6e3447cf6b1d231b07f3076cab7923fa9ba43469a1a
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/pivot-table-advanced.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:94ee7405148740c935f053fa945f8dc7d392d23b5d372b6823a4995a56e49fce
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/pivot-table.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:62a08bc02a4ec3009f4b1ed27f98d7c0864ca16a5044fc1cedd3c1ec007350d5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/row-column-insert-delete.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:c0320120dfd3b92f392c2a37f19cbc6a9b736a7ec7ed1a84a06f7030c79033d5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/row-column-sizing.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:58fc0f69e4ca17a55d4d017129fe2516319388cd5fce1429f544c9c30a8fe6e2
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/security.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:7d98ea02658de8c6ce90e0adc131a445cfdc83db689e178c77836309aed72a64
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/show-hide.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:0010200929964155c584132895adfbca2448a7e907fc072236323e601c38c0b2
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/slicer.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:bd9c127e51c2008756b304f62e39ccf632d318dcf4b9f17ff2027937bd10bdd1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/sorting.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:9ece23aa8d0ed2ae2bb393a0a9c45932f4fa476e9d74dc9e010cdc2caa843a92
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/table-listobject.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:bf5102a46f77b06828da5e1869d83d6734ba968ff1488a792615f1a884789b14
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/template-markers.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:c2931f2db7693a7a25cbbc7b855546217748725383b0c6c597a9c40ce50e7b51
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/template.csx
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:83a5416fff80ca0a8d09a2d6004ccd273a6e404c68f652e6b9ed779fae2bd7db
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/what-if-analysis.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:94cb8f965a9d756dec2369879583332abe897f8bfa6550f2c573ebb76931578e
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/references/worksheet-move-copy.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:c2e85e9af8d2fadb4d7ce73189cd3be38c0fd633fa55b0577112758095f8ee94
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-excel/scripts/.gitkeep
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-excel
+  content_hash: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/README.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:526859faba5f9f1c440104a84f5ee151c95466629c78ed66c326b689256029f0
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:d3af967af55700211c81ce1453b343ea9446863fd1d216f3e25b3423bbf14078
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/advanced-features.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:e4170e71e880c92da9d94bf3941c71bc9549a1c185c1c9a1d27a8d86b4df88e7
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/blockquotes.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:ba87824bb32b232a681c852b1151b6b1cdcb655698df751910d086641b51007f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/code-blocks.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:06a367c8083a272f957e67f3e5cc61508eb4a86c35ab112125229194bbab3bbf
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/create-markdown.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:d572c7bda24c07cf6da956bfe6c06f72b4de199f97cd33445695fff00eaae514
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/document-structure.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:6778ee09e38b0b102e2dad23f55a9ec8ff5c76f9b41abde44089b5a5bb7783ff
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/headings-styles.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:c90747d5221fe1bc3965b21ee4a47a1bd2ba85158b1c8154c2994c3713840ada
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/hyperlinks.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:20871330e1743ced2bcd856074a5e4b98221f86c9d20e1cb763a34dbaf198dcf
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/images.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:043e7ae46f3ec79126e5e81f168f4a450e795924293c18c98290343f6973429b
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/lists.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:9e7a52e50122419c7be38abe1db464d1ca2fe811c38f9e31fdf666b2cad9d5dd
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/nuget-packages.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:3d27e9f734961352f20d3bd625d914fa0d4a11750f989b1be6336c996779bdf0
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/parse-markdown.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:eb78f240c3f4c46a6c449e493633c959c058c1f8abdc6e7486426b6c15c78134
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/tables.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:aa847a52b933208c53e1a1599c3d8ec0152da7bff2fc91ec64291cf9ba11542b
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/task-lists.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:ff481743403b26141dd488088e3a893f02dfadbd458e6a666e2b5103cd9ae797
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/template.csx
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:a16a611c32905681aba38d544686c4a5a15428fa41ea1ce8ac26ee777b0b397d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/references/text-formatting.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:fefa01e0f8a9d56dda57fd503c83dfe3c18c97914c630519ecbe58e111fdbf60
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-markdown/scripts/.gitkeep
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-markdown
+  content_hash: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf-to-image
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf-to-image/README.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  content_hash: sha256:c084ff76136884c2b64da4b1b2e1396cea15783f008666235d2f1d441f241980
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf-to-image/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  content_hash: sha256:48f15d8325ab862ed9c297ff79bb459e5af9d8897aa2196a5449efa289e2a2a2
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf-to-image/references/customizing-conversion.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  content_hash: sha256:94c921561e3d8c5c267e5899682213433822daa28e8a21cba997016ecb6c7280
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf-to-image/references/load.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  content_hash: sha256:e5bbcce288ce51b483b65d088790354dade8c0a6a1acf0aaf1725058af047510
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf-to-image/references/multithreading-pdf-to-image.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  content_hash: sha256:c6415bf819c978b76bec457150cdd6151e2247fc0b874d031ae40de40bf0ff26
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf-to-image/references/nuget-packages.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf-to-image
+  content_hash: sha256:e6542c3dcafb9a8a389600dbd29a21a36de5cdc05d4551b43e3b42ad531d81b1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/README.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:32bbc2159808d3781ac88dbb6eb80d77cf63fe5a04283dca528a7696f19fc7e2
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:a11a426e28f956021392f7d02b391d66c38e16af4c47b49477a03c4d950094f0
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/accessible-pdf.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:30890bf3317ed00457f49c6c255d912c0b1ff1f68ffaf6fc9a1ebf53e808d42e
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/actions.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:1ea4dd57551f65fec3e00ebb7cee7ed9687c5b01fbe2787ee49f1f0caff5345e
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/annotations.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:1fd58a7bf07d25502a0d8df1c927712f59bf364998ee9e37c7b567baf62ace72
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/attachments.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:272292e3d1eca6184df02dc29f9a7fbcafeb2403b69c1367a6873977095c0fe8
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/barcode.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:b5782aee1ebccf4a542818cec4fd06a7e06cf62149365dbb744b9fdaf98d7856
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/bookmarks.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:e3efe88514b7afb016e6229a3e6c2e104c8a220870ed168b42eba4f5ed2a3906
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/brushes.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:c23a2b4fc07d3df51afabe19e396ad8fc71bc463952b447c38650fa61e9b464b
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/colorspace.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:bf0fbbc397aa8d8b58165a1606a1c6f08f2a32792b582e472f433de985e7febe
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/compress-pdf.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:8ef63d29ec45ef7151ef1ffe9eb06bef7c87d463cf929fd4d33b280a131035e4
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/conformance.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:65fe8be3eb52cb8981f710f4f0f408ed83af7e381ba35cf6efd8f1392eeec584
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/conversions.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:65a8e99acaa43a81f34933106eda0503f9387a70fb8e254a7b0381459051ed4a
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/digital-sign.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:9407daa5d9c94643cb79d8d8c867afbdd42ed95907773db7b222fb886e9c2fbd
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/document-structure.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:6c90629c8939c0b8605cb97f7da1e466dfdaec6408cefe51564250e2a74f6571
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/extract-image.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:835c98f56fa0ca53352bfba23dc2d68408a800057d2106876770c31eebfacb22
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/extract-text.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:7d9b8780a852e1b3350144e0de3f4968e829477dee3785311f20a4e93879b089
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/headers-and-footers.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:33b27815f8c23f70539d2e57a35d658f1fe11907c7cd6d511f4269e6e1d1d7e9
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/hyperlinks.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:165f5588fc94c2b3130d0dfcbe15b924179d3908d4c17fb8e1de1612dd65286c
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/images.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:2c784010efcacfb4d8f6b591110297560c3295b70c36d14e53daf42f21979757
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/import-export-annotation.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:79d4c39179391a46f53958acf926cb853617a9c1e09375bbf123f30926c143a5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/import-export-form.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:e49f0f701d8646b078903dcf6edfa3584a56720ed2eb5d27a6b369be93b4d353
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/layers.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:6a266a317b2031e18531808384ec94b3d23ea1ded387e01657490a6edbed2ed5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/merge-pdf.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:6a3f5d9cb0e845ede457f40bf90d4a6ed07632648debf0933ef16ed4784db36a
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/metadata.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:3fb65c029c252f69158990601736aa4af5130469b8704b18fac2339c3015864b
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/named-destinations.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:3a075da36f63249b61bf0b44f57e7867c6d57f9ce1ff7716b1f555a9672c7ff1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/ocr.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:62f47b6fc319d243cbfbad141adddc939f598c007d463fda26d99d2627de008d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/open-pdf.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:4bc20c2e572d83af82c4026b9890e12ec185569924c9174fb766084f1b7fc7ee
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/pages.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:ac192489c729ee54fe0f0739776e93038d044a8fe345b28c6567b11cbfe81d79
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/pdf-forms.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:330ee1fcf30e47e153a7783adcb0211c7ed0885f6a79f691495a5f28dbb9c4c2
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/pdf-graphics.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:0978427faccc826852f133256abad69fa101f9eab77fe077c65685b19e947b28
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/pdf-templates.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:5e9beb264281a871d7ccaa7cbf352fe574bcdf723478c4ddaae75504f2856c02
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/portfolio.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:3d8330a88dedcfcaae047a937f58b13f825df2dc5e9afb525644448a8e316ed7
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/redact.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:0ead2c5cd4a907f857d684a256f6667177b357bc53f250fb1c689417eb9d1356
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/save-pdf.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:ba88f835c3a9cbcb2c1058ba9d000eab10c6b28a9a25eaa8277dbf842052fda7
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/security.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:c7c164d37a087241dba6b7340e3a91f7bd949082b4732dc7b48e553c125f272f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/shapes.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:ac8940adf1ea13cb885f2ef6c75cc9a820327c14c104d19916c21bbac6fa0fed
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/split-pdf.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:144dbe99c8db2bd2d5e88a29123525bbacde54a05eeca40aac117eac1bd62215
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/svg-to-pdf.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:b8f53cd32c7632424c6168b80ab5941d1fafff14468c509d7ed87c69cd5d3782
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/tables.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:0fd6f070997132160b71ca3bafc5b527b024d5846534f6a336b4c9f3c230a2a6
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/template-ocr.csx
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:f1bfeaa40bc9a1add0663fce9335eba4e75b1d8a149cfd93f3a3d8a6c7a05810
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/template.csx
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:de7605a1325f73991f57f216c4c3d1c268a1483b1858169169274b263a74247d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/text.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:d58c4304f1a51d205a9f84ce35c5548a6f3bab4a9d0b64a61d8a3c49de7fbcda
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/watermarks.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:ab5c628d4ad5c464c819df291efd5d6d6e10a727acbb9f88170f08cb051f72c0
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/xps-to-pdf.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:f58bc42496fb6c8238c4317e077e3e8fc828de8b1ca26aef77526c02fc7eec42
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/references/zugferd-invoice.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:25923ba7a3f11a5c0bd30e357d2b8875e5ea58282dc0b7dfc8976be93d3ba896
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-pdf/scripts/.gitkeep
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-pdf
+  content_hash: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/README.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:6dd0f3f746bfe8ad6a69afdbe423bc9acacce07b8a3b94f5759dc9accb14cce8
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:c5327d11af1a854fd6c974d22b09f809a03a900589cbbb138aceaa4d76f1e530
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/animation-transition.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:096cbd837574a903efb5776a18dd991156cd3df420da59d778e77de170770997
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/chart.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:a0da9ef7723aef20a1885246f0052e839c28f880b5be846fb5dde9f677a69b86
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/comments.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:d0c8190fc2b05f2d543b6547934f6c2cf7c102d9e0687c545db2d19aad16c898
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/connectors.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:be2318f530dd7040dfec7e7b0322d6dc22cd497ae5508b01e1aec9f47954b5e5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/conversions.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:9b55f06448fc46b8bc1f9296684e52912a926ffb46b9413130157fce7be25c77
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/encrypt-decrypt.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:0bb99401897f47b48194edca7894563e452ba5ebdd2c614b5c1fb888362139f9
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/find-and-replace.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:1134597fdf1350d65badd79da9d60d68f091584fad9294bfacff9c166af783ca
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/header-footer.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:6d8dcea7d7df237d4c5e91daabc61ebe32cea53935cc30d1c03cafecebcaa4ee
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/hyperlinks.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:4fcef15f1b9d34fd2c382dca8b503e617204fae20594ff7997dec1b948171948
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/image.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:942d7e1e188d4a7c0756fd6bdb665e9a79cfff8c860bf047b550987df7342a66
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/layout.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:30113811e90955652092b385f481c5a8fe983829e281702772248fd1ffd46bf4
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/list.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:3b5110b202617c665e90b08455b6f4243db8a7e367c6e0eb95e0cf7033b1bb83
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/macros.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:b323b164b6e04448567a5447f9aa37a88975d754defeff94f6e332fb169dde8c
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/markdown-conversion.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:39e4bd52cbda81e69da526873f1b85c74e9f4b6c532daa2262a58198436a45d4
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/notes.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:9bc47f03396f0f0baaba34072a464471a896f6388631bde0dbf15572ef969934
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/nuget-packages.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:394606a6b886b7b3d10f2ed2fa65b73a93689c0019d9e8655b0a9e812b5cee18
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/ole-objects.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:98b58e9854cb632ad5b8e05992f1ea154be579db6f7d553c8da8739322ac3bf9
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/paragraph.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:06f0091d10cf42222b02bc396af2f9878bdfe9c9e4df427dc83214749d25dccc
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/presentation-structure.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:0fa477405e9f29c5dcff2b344c1aacfcb0e57eea559a19ea6301c7b28f9aac5c
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/sections.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:09861c92d6b9da8309a35a9d5c049df4f0a0576b798fca62803b7d1d1cc7c598
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/shapes.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:14f0714598189728700f46cbf32ca0b700b38dbdf5bb8e07e56a638c954f8ad9
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/slides.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:057bd541b8053c47eba817f8d636bbe298f8d251dea7020d35d96b014d3e37a4
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/smartart.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:401ca554f8630a6f926281da64ff94d96575d22094f5c273c471806849e3e3aa
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/tables.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:21568371e5aa5631f11837aa856713af7da075e4d24a92be9368a4301bf645ec
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/references/template.csx
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:9ebdae89bb101e7eb5f24d11a62dece9b367be68988a9efceaa5d6b194648a7d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-powerpoint/scripts/.gitkeep
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-powerpoint
+  content_hash: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-smart-data-extraction
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-smart-data-extraction/README.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  content_hash: sha256:e4650b6bd8b0b3939bc895e00a6987eb6694af72d2838ed881b7958420489ace
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-smart-data-extraction/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  content_hash: sha256:afee3413a0fde88ba86d031c8cb2aa0ff7dcd4067b9c7900b96afdee0facb354
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-smart-data-extraction/references/data-options.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  content_hash: sha256:e57810f79bad2fb9444746ac8a58f0bddb178ae335cb0cf28b0c0a13c14017f8
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-smart-data-extraction/references/document-structure.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  content_hash: sha256:ff1395558f5ee3e180185bebac1fe88db2bd67025d53019390050b0f788f7d71
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-smart-data-extraction/references/extract-data.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  content_hash: sha256:8dcbbb9efc054ebb055f754e56478c1188276858a4f8533eb8fa1a0f71367aae
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-smart-data-extraction/references/extract-table.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  content_hash: sha256:c38782842587238421ee7cf0b55fa31fd36a253e93c8937cc9d33f4596b8e76c
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-smart-data-extraction/references/nuget-packages.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  content_hash: sha256:05048759ca1daca38f949f5d421a04f951f34434df061c8bfc81535e58c6acc1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-smart-data-extraction/references/recognize-forms.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-smart-data-extraction
+  content_hash: sha256:5b8d4410b17bfc58c5f7fb8858410091a285bb447585fca7f7794a86d2218b63
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/README.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:618b02d3b94c06f30f94365551383b168c368546aa18006151f0db20497c2699
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:dd3ed3cbf301f97d51fd8d54dc0e2634144ea2b20f8f67efc42a4c58e9aa84a5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/bookmarks.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:682e3039a2dc666701aac2eb60d58d617459787e1bfb5308396ea0f6f9b90828
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/charts.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:cde2c3cff63054573d3ca9688f07cb8fed961f600b9d59e8f46852bc8ea764b3
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/comments.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:58d443505e205ed074b702e1fa30a92e33e383da646705d162902d27a2261e6c
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/compare-word-documents.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:3a0aa963e2a77fd352b8d141967d25e8077c9e044743c14518fb6e5810037e84
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/content-controls.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:9f1df992bff3548a6c4bffdac462e8197bd2e06de99108a302a813cbad1f521d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/digital-signature.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:296e849486c271b989bece369c4f527d73ccd386db6dce32ac68cf49d752fec7
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/document-structure.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:7893b2e794bf4286f7d32193c56ba218339e0abdffa58094f2c4fcd229cf5f1a
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/encryption.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:87c7d73ca6cfc78eec87e037b939e7186e2265fd756048d970d49284b4f9eeaa
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/fields.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:2edf7f16b9493ce6959e94a726a11095315d884ed485f44fe1f5550fb7a07066
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/find-and-replace.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:823eefdd53a0df7210044ca4f4c8805c2d1ad9b1dd827f84588185915da34834
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/footnotes-and-endnotes.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:0a6311b936eb2a8e75af5392fe96445f3ac6f58beca994417026869d21cb7a84
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/form-fields.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:ce16eab7f33c816dd4d0447551c5a218a0188c05b1579ffebb73c3b911d9d172
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/header-footer.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:c80ea383bc5a0e02d6655e275d26057e12717fa8945e09a06a17dbeb6a87be7b
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/html-conversions.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:6a68b8664871b704ea81afbcc1fe141eb00ab62a2fed6b996bbecac80bb8d891
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/hyperlinks.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:527bb5ee4243734ae44f25a55d2e6b428e0c3279312a37b1ab96bbbe6c20d61f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/macros.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:5b92cd05da9f6c5b088c34b9b4eb8c73219ad8bb02bfddb56e8206a53eb01d28
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/mail-merge.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:e0ca0a2b0673b4adf7a728b303ba9f817e68b0614e7a3edf6c78a083db5ecf88
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/markdown-conversion.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:179c5998df4d3aa8f21c002fc8543c2c19725e1a05080429a3144d66a163fbf1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/mathematical-equation.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:2d42db2805b352b83cf3ff4c8069382c231ef1d5ac44eb5a1662483ac28e19db
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/merge-word-documents.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:5dfe3bdb5b7a0cc99074b64f82410f3869eb73c2acff1a47a8c44abcd77c4d12
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/nuget-packages.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:19cf3a3d0af1bb707d7b1c830cea5c702f0bfc86e366fb898012f824b93cc657
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/ole-object.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:a9c18a7fe16321f1dbff9fd1dccb92a4ba399ad3cd029b2ae1ec80f3e7e802b5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/paragraph-and-styles.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:c6509c9c1e82deea1edcd0f74db414e0fd595dc9ca2e635f7661b5fd40eb3fc3
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/rtf-conversions.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:748b4811115ae8c8c58ce0b0b0207c15c184ef482edc7b4189aacc44466f8101
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/shapes.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:fdf208637df241e084de35e08ff5eeb8bc6a5b5bd885bea05a0377398e325b7f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/smartarts.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:92207148883d79b073af8fac7aee9251b5c951cc268bb5abfb5799c04403d158
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/split-word-documents.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:b5ea2d0a7ebbcf9acdb171214a7e6c23a0fc78a0537a09d8e9fa73d7143c2193
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/styles-and-formats.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:65151553b7d8ff26e1545d9f17214addc3bd40ae0334496d5d1993db56ead49f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/table-of-contents.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:6400510ad2eb1bb4ed683cff25065de2201f62d1cf10901619ea2ab6387ad5da
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/tables.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:afc23f78ce9c311120abed592f3d1fce90be4c463c75ebb1e514ef37bd1cfacd
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/template.csx
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:ae1fe01262c1f755800603c222fc556af4a1b4de0d554a6b64b57c476b205576
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/text-conversions.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:fbea91e1deac86409079ead717cba4e741babe6ed9a547f4ff80fbe4097a05f5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/track-changes.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:7d1748fa70ecdac325802dbc1e9f2b7fc5388aeb109840af4c086bc60e52c362
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/watermark.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:09ef96ccdcc5f83fcb4b9019231599b9da7a666f86f59c9f3bb0039bbbf5c6e9
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/word-to-image.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:4968258f0a76b9abedc383b211b3068163b2277a5c6604e860df401a6dbfae16
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/word-to-odt.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:d49495a93b915d9d7ecb958de448337ea73b7ed6fa428fbbf8a9ce38ab758d67
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/word-to-pdf.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:20a162cba221e67a1f78242de722d38f83a86c58f47ec63c4b75c62108a058f4
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/references/xml-conversions.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:bbacb8b6d57869927107c23edb163c02a8d2e5f18a481a4721196148b723294d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-dotnet-word/scripts/.gitkeep
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  active_owner: syncfusion/document-sdk-skills/skills/syncfusion-dotnet-word
+  content_hash: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-interactive-viewer
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-components-skills
+  active_owner: syncfusion/maui-ui-components-skills
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-interactive-viewer/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-components-skills
+  active_owner: syncfusion/maui-ui-components-skills
+  content_hash: sha256:7e1cb5f8e2a57e0c5091d9055918f83b241a6637d82c0d69c83511c0816f264e
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-interactive-viewer/references/events-and-interactions.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-components-skills
+  active_owner: syncfusion/maui-ui-components-skills
+  content_hash: sha256:2cd6e2dd9ed348a31e494adc4bc68bcda15d011eeb24bf35613c77d6d3bd9c25
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-interactive-viewer/references/getting-started.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-components-skills
+  active_owner: syncfusion/maui-ui-components-skills
+  content_hash: sha256:eb7e37a06ef86c513176333c5b715f879bdb619de22a717cbbf2711492c275df
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-interactive-viewer/references/reset-functionality.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-components-skills
+  active_owner: syncfusion/maui-ui-components-skills
+  content_hash: sha256:67548833e3292c4d384f396bebbf765c0658cce2ff233947e59f462450fb1a9e
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-interactive-viewer/references/rotation.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-components-skills
+  active_owner: syncfusion/maui-ui-components-skills
+  content_hash: sha256:fdd61dc9eca1f38b995615f298117e39fda307a5a3d8a9e485dfa90ed9c77407
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-interactive-viewer/references/zooming-and-panning.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-components-skills
+  active_owner: syncfusion/maui-ui-components-skills
+  content_hash: sha256:5599d1cae6f81f83edfaa903994b8de6cd50affe6e97fe765c82c1fb1bb2a4f4
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/README.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:382def70ec69ddf0b7d027217471c2f7f91793f4bcb6157627b6ca61402b5933
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:c1cb1b274741202d7a3edca1dc156b6fbf7c1d7e17265a3798d567b4aecd411b
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/annotations.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:5effc401c392a42bca80378bb922d78388e54a9a1c8d67e4de6f061e2459c2b3
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/basic-sample.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:a6929590562c7ae486bf2d857a1cab2560719389ed3dd74adeff57138beeb486
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/document-operations.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:b524c64acf7e8f1a959d94ecce9ddc302166123b00728f78965de752da952e85
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/electronic-signature.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:508b61e36672f795b7ae9808273a1b7e29863b4643d380ca78a2c12246682d9e
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/form-fields.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:f93a85e4ee2891e1c584dc7f5521168e6402ca1e92b660e6d24e6b3b5446e2f5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/gesture-events.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:09f3942234f890bf2c2d747518d3c78dfa0ff89e86612b20f0d104f464c411eb
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/migration-xamarin-to-maui.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:05991f01515773de8d9b11208e2085ccb8015500b4a882ad1c720d34dbcfebce
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/redaction.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:fd273a6ea81737e38a46ba3bfc25947ba3cfaffcfffca6d398ca6d4bf00baa29
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/text-search.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:66d6fb487d3707ef8d93edf70259f77d1da6bdfa07c8b56b4c3d4fe45dd75995
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/text-selection.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:66fa59e1348b90b1a6130ea6384f47fd289097f2e2741b2ff8a40132127b404e
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/toolbar-customization.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:42b57b3a1ad9ba7d96f3c3706430d920649f8d9bb9acf17f52054436de5b4fc1
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/ui-settings.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:867e91f131d07c76442ae631078cf2a65fa8ed7247336b7396506cadf94cdca5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-pdf-viewer/references/viewing.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  active_owner: syncfusion/pdf-viewer-sdk-skills/skills/syncfusion-maui-pdf-viewer
+  content_hash: sha256:b7dbfc7f48673d08410f8fc99287b7060dd85ff2eaedbf0a2abd9244fa45859d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:3b27eff6c1daf99b9cffc815fbc11b235d2499085ec69d08fd32d1a143538626
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/assets/validation-rules.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:4062d1015ba990aeebc564f0dbbc257db25c07d45b7f27167479ae0ad9c2be7d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/references/build.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:0dccee1db0c4bd7973f2ea42396528092452104a374fcd01ac67449492d0ded5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/references/maui-dotnet-standards.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:350ebb8f1b70eddd6f0e08988c33a27063b8260c3b8a38be9b85c75d7a3b7ed8
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/references/stage-1-intent-analysis.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:a6e3dbe3f9e738fc5ee4ccecb95c2bbe58df758b9ccb78ff21dfdd8968d354a6
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/references/stage-2-project-detection.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:f59531474dc99e0e1b019c489389f963a5c8133a5894929f51e8346a71dc2059
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/references/stage-3-layout-analysis.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:22fc1346395b8feffc361be30440b6ecbd73cf81c70e18eea67249a777990986
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/references/stage-4-theming-and-design-system.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:e7d3ad16d7e63345ec38b98d435f3b4310ee759db3d66ff712e6656f5db21c07
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/references/stage-5-code-generation.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:0af57586189cb275d36c7c57f0f68e9dbe4922968fad4f822d8055aba31815a6
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/references/stage-6-validation.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:31619e6a031ad650def980393e20be8f5058243a914c17c536597be96836e0a9
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/references/stage-7-dependencies.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:4677b3d0ab577d0d40b3a1a3ed80a7d8e467345228b7934ce5000be8852f2d36
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/references/syncfusion-themes.md
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:ca9eebdfd13e951ca39e573f20241ed7149416c4918721514f54817c8f134c80
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/scripts/controls.csv
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:ce2ea5bafc72ce310b1ef461621504a4fab67dce30d09688ab6125b614f2888d
+- kind: project-relative
+  target: claude
+  value: .claude/skills/syncfusion-maui-ui-builder/scripts/controls_search.cjs
+  runtime: null
+  scope: project
+  owners:
+  - syncfusion/maui-ui-builder
+  active_owner: syncfusion/maui-ui-builder
+  content_hash: sha256:7a6c224d38d5ab4aba72d7c08c261e04ca59019e3f473e01e4b8b73f67ea6f67
 - kind: project-relative
   target: copilot
   value: .agents/skills/review-and-refactor
@@ -114,7 +3057,7 @@ deployments:
 - kind: uri
   target: mcp
   value: io.github.github/github-mcp-server
-  runtime: copilot
+  runtime: claude
   scope: project
   owners:
   - .
@@ -126,5 +3069,5 @@ mcp_configs:
   io.github.github/github-mcp-server:
     name: io.github.github/github-mcp-server
 mcp_target_servers:
-  copilot:
+  claude:
   - io.github.github/github-mcp-server

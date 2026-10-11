@@ -42,7 +42,7 @@ public sealed class OfflineRoutingBundleService(HttpClient httpClient, MobileSer
     public async Task<bool> HasAnyBundleAsync(CancellationToken cancellationToken)
     {
         var manifest = await GetInstalledManifestAsync(cancellationToken).ConfigureAwait(false);
-        return manifest.Bundles.Any(bundle => File.Exists(bundle.GraphLocalPath) && File.Exists(bundle.PmtilesLocalPath));
+        return manifest.Bundles.Any(bundle => File.Exists(bundle.GraphLocalPath) && File.Exists(bundle.PlacesLocalPath));
     }
 
     public async Task<InstalledOfflineRoutingBundle> DownloadAndInstallAsync(
@@ -67,25 +67,25 @@ public sealed class OfflineRoutingBundleService(HttpClient httpClient, MobileSer
         Directory.CreateDirectory(tempDir);
 
         var graphTempPath = Path.Combine(tempDir, catalogItem.GraphFileName);
-        var pmtilesTempPath = Path.Combine(tempDir, catalogItem.PmtilesFileName);
+        var placesTempPath = Path.Combine(tempDir, catalogItem.PlacesFileName);
 
         var graphWeight = Math.Max(catalogItem.GraphSizeBytes, 1);
-        var pmtilesWeight = Math.Max(catalogItem.PmtilesSizeBytes, 1);
-        var totalWeight = graphWeight + pmtilesWeight;
+        var placesWeight = Math.Max(catalogItem.PlacesSizeBytes, 1);
+        var totalWeight = graphWeight + placesWeight;
 
         var graphProgress = new Progress<double>(value => progress?.Report((value * graphWeight) / totalWeight));
-        var pmtilesProgress = new Progress<double>(value => progress?.Report((graphWeight + (value * pmtilesWeight)) / totalWeight));
+        var placesProgress = new Progress<double>(value => progress?.Report((graphWeight + (value * placesWeight)) / totalWeight));
 
         try
         {
             await DownloadToFileAsync(catalogItem.GraphDownloadUrl, graphTempPath, graphProgress, cancellationToken).ConfigureAwait(false);
-            await DownloadToFileAsync(catalogItem.PmtilesDownloadUrl, pmtilesTempPath, pmtilesProgress, cancellationToken).ConfigureAwait(false);
+            await DownloadToFileAsync(catalogItem.PlacesDownloadUrl, placesTempPath, placesProgress, cancellationToken).ConfigureAwait(false);
 
             var graphFinalPath = Path.Combine(bundleDir, catalogItem.GraphFileName);
-            var pmtilesFinalPath = Path.Combine(bundleDir, catalogItem.PmtilesFileName);
+            var placesFinalPath = Path.Combine(bundleDir, catalogItem.PlacesFileName);
 
             MoveFileAtomic(graphTempPath, graphFinalPath);
-            MoveFileAtomic(pmtilesTempPath, pmtilesFinalPath);
+            MoveFileAtomic(placesTempPath, placesFinalPath);
 
             var installed = new InstalledOfflineRoutingBundle(
                 catalogItem.Id,
@@ -93,7 +93,7 @@ public sealed class OfflineRoutingBundleService(HttpClient httpClient, MobileSer
                 catalogItem.DisplayName,
                 catalogItem.Version,
                 graphFinalPath,
-                pmtilesFinalPath,
+                placesFinalPath,
                 catalogItem.ChecksumSha256,
                 DateTime.UtcNow);
 
@@ -104,7 +104,7 @@ public sealed class OfflineRoutingBundleService(HttpClient httpClient, MobileSer
         catch
         {
             SafeDeleteFile(graphTempPath);
-            SafeDeleteFile(pmtilesTempPath);
+            SafeDeleteFile(placesTempPath);
             throw;
         }
         finally

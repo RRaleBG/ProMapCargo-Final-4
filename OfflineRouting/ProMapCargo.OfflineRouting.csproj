@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    On-device routing shared by the bundle builder (PC) and the mobile app:
+    bundle format, Contraction Hierarchies query, route geometry/maneuvers and the
+    offline place search. No dependencies so it runs on Android unchanged.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ProMapCargo.OfflineRouting</RootNamespace>
+  </PropertyGroup>
+
+</Project>

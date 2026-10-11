@@ -9,6 +9,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProMapCargo.OsmImporter", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProMapCargo.Mobile", "ProMapCargo.Mobile\ProMapCargo.Mobile.csproj", "{AD975429-C130-426F-AB37-4C44076B4C6B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OfflineRouting", "OfflineRouting", "{893F1EC8-46D5-8B47-E5B7-BDF8508377DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProMapCargo.OfflineRouting", "OfflineRouting\ProMapCargo.OfflineRouting.csproj", "{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{07C2787E-EAC7-C090-1BA3-A61EC2A24D84}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OfflineBundleBuilder", "OfflineBundleBuilder", "{A91002AE-F3FE-F04D-AC25-1A61F6FCDEDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProMapCargo.OfflineBundleBuilder", "Tools\OfflineBundleBuilder\ProMapCargo.OfflineBundleBuilder.csproj", "{F628C497-54DD-4F30-832C-4984B0C1F7FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,9 +66,38 @@ Global
 		{AD975429-C130-426F-AB37-4C44076B4C6B}.Release|x64.Build.0 = Release|Any CPU
 		{AD975429-C130-426F-AB37-4C44076B4C6B}.Release|x86.ActiveCfg = Release|Any CPU
 		{AD975429-C130-426F-AB37-4C44076B4C6B}.Release|x86.Build.0 = Release|Any CPU
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}.Debug|x64.Build.0 = Debug|Any CPU
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}.Debug|x86.Build.0 = Debug|Any CPU
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}.Release|x64.ActiveCfg = Release|Any CPU
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}.Release|x64.Build.0 = Release|Any CPU
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}.Release|x86.ActiveCfg = Release|Any CPU
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83}.Release|x86.Build.0 = Release|Any CPU
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF}.Debug|x64.Build.0 = Debug|Any CPU
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF}.Debug|x86.Build.0 = Debug|Any CPU
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF}.Release|x64.ActiveCfg = Release|Any CPU
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF}.Release|x64.Build.0 = Release|Any CPU
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF}.Release|x86.ActiveCfg = Release|Any CPU
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9AF2D8FD-0F57-4045-A8F4-27152EC98B83} = {893F1EC8-46D5-8B47-E5B7-BDF8508377DC}
+		{A91002AE-F3FE-F04D-AC25-1A61F6FCDEDB} = {07C2787E-EAC7-C090-1BA3-A61EC2A24D84}
+		{F628C497-54DD-4F30-832C-4984B0C1F7FF} = {A91002AE-F3FE-F04D-AC25-1A61F6FCDEDB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6359DFEF-5904-48EA-8F36-7C2479068545}

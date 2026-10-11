@@ -16,12 +16,15 @@ TestResults/
 # Nested projects not needed for the API image build
 ProMapCargo.Mobile/
 Importer/
+OfflineRouting/
+Tools/
 
 # Large local datasets and generated routing/map assets
 osm/
 wwwroot/maps/
 wwwroot/fonts/
 wwwroot/lib/
+wwwroot/offline-bundles/
 **/*.pbf
 **/*.pmtiles
 **/*.osrm*

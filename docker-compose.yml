@@ -78,6 +78,7 @@ services:
     volumes:
       - ./wwwroot/styles:/app/wwwroot/styles:ro
       - ./wwwroot/maps:/app/wwwroot/maps:ro
+      - ./wwwroot/offline-bundles:/app/wwwroot/offline-bundles:ro
       - ./wwwroot/fonts:/app/wwwroot/fonts:ro
       - ./wwwroot/lib:/app/wwwroot/lib:ro
       - dataprotection_keys:/root/.aspnet/DataProtection-Keys

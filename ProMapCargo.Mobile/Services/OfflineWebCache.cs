@@ -73,6 +73,9 @@ public sealed class OfflineWebCache
         }
     }
 
+    /// <summary>Another check found no server: serve the stored copy right away.</summary>
+    public void MarkOffline() => offlineUntil = DateTimeOffset.UtcNow + OfflineBackoff;
+
     /// <summary>Forget the cached map lookup (after a map was downloaded or removed).</summary>
     public void InvalidateLocalMap() => localMapCheckedAt = DateTimeOffset.MinValue;
 
