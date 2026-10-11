@@ -37,12 +37,12 @@ services:
     image: osrm/osrm-backend:latest
     container_name: promap-osrm
     restart: unless-stopped
-    command: ["osrm-routed", "--algorithm", "mld", "/data/serbia-latest.osrm"]
+    command: ["osrm-routed", "--algorithm", "mld", "/data/srbija-zapadni-balkan.osrm"]
     ports:
       - "5001:5000"
     volumes:
       - ./osm:/data:ro
-    mem_limit: "2g"
+    mem_limit: "4g"
     depends_on:
       - postgres
     networks:
@@ -60,7 +60,6 @@ services:
       ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
       PROMAP_POSTGRES: Host=postgres;Port=5432;Database=promapcargo;Username=promap;Password=promap_dev_change_me
       Routing__OsrmBaseUrl: http://osrm:5000
-      Routing__OsrmFallbackBaseUrl: https://router.project-osrm.org
       Cors__Origins__0: http://localhost:8080
       Cors__Origins__1: http://localhost:3000
       Cors__Origins__2: http://localhost:5173

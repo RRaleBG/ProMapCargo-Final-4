@@ -306,8 +306,8 @@ public sealed class RoutingController(
         }
 
         /*
-         * OSRM only has the server's region (Serbia): a point outside it is silently
-         * moved to the nearest road inside (Zagreb -> the Croatian border) and the route
+         * OSRM only has the server's region (Serbia and the Western Balkans): a point outside it is silently
+         * moved to the nearest road inside (Budapest -> the Hungarian border) and the route
          * looks valid. A route that does not start or end near the requested points is
          * reported as out of coverage instead, so the app can use its offline region.
          */
@@ -327,8 +327,8 @@ public sealed class RoutingController(
                 {
                     code = "OutOfCoverage",
                     message = endGap > CoverageToleranceMeters
-                        ? "Odredište je van oblasti koju server pokriva (mreža: Srbija)."
-                        : "Polazak je van oblasti koju server pokriva (mreža: Srbija).",
+                        ? "Odredište je van oblasti koju server pokriva."
+                        : "Polazak je van oblasti koju server pokriva.",
                     startGapMeters = Math.Round(startGap),
                     endGapMeters = Math.Round(endGap)
                 });

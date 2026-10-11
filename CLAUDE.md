@@ -52,8 +52,15 @@ Output goes to `wwwroot/offline-bundles` and `wwwroot/maps`, served by the API; 
 
 ## Coverage
 
-The server graph (PostGIS + OSRM) covers Serbia only. Routes outside it return 422 `OutOfCoverage`,
-and the app then routes with an installed offline region.
+The server graph (PostGIS + OSRM) covers Serbia and the Western Balkans (Croatia, Bosnia and Herzegovina,
+Montenegro, North Macedonia, Albania, Kosovo). Routes outside it return 422 `OutOfCoverage`,
+and the app then routes with an installed offline region. On the phones routing is fully offline
+(`OfflineRouting/`, installed PMTiles + routing packages), independent of the server graph.
+
+Rebuild the server graph with `pwsh scripts/build-server-graph.ps1 [-Countries ...] [-Import]`:
+it merges the Geofabrik extracts with osmium (local Docker image `promap-osmium`), builds OSRM
+(standard `car.lua` profile) and imports the roads into PostGIS. The newest `ready` graph version
+becomes active; delete the old one with `Sql/06-graph-maintenance.sql`.
 
 ## Data not in git
 

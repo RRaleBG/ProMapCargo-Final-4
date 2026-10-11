@@ -1180,8 +1180,8 @@ public class NavigationViewModel : ViewModelBase
             {
                 var online = await apiClient.GetRouteAsync(request, CancellationToken.None).ConfigureAwait(false);
 
-                // The server only covers its own region (Serbia): a route that does not
-                // reach the requested points (Belgrade-Zagreb ending at the border) is not
+                // The server only covers its own region (Serbia and the Western Balkans): a route that does not
+                // reach the requested points (Belgrade-Budapest ending at the border) is not
                 // a route. Use an installed offline region that covers both ends instead.
                 if (!ReachesEnds(online, request))
                 {
@@ -1192,7 +1192,7 @@ public class NavigationViewModel : ViewModelBase
                     }
 
                     throw new InvalidOperationException(
-                        "Server pokriva samo Srbiju, a ruta izlazi iz nje. Preuzmite region koji obuhvata celu rutu " +
+                        "Ruta izlazi iz oblasti koju server pokriva. Preuzmite region koji obuhvata celu rutu " +
                         "(Offline mape → Paketi za rutiranje, npr. Zapadni Balkan).");
                 }
 
