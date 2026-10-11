@@ -68,6 +68,8 @@ They exist locally even though they are missing on GitHub: check `.gitignore` be
 
 ## MCP servers (`.mcp.json`)
 
+Tools for all of them: `pwsh scripts/install-dev-tools.ps1` (winget; also sets `PROMAP_DATABASE_URI`).
+
 - `postgres`: read-only DB access. Needs `PROMAP_DATABASE_URI`, e.g.
   `setx PROMAP_DATABASE_URI "postgresql://promap:<password>@localhost:5432/promapcargo"`, plus `uv`.
 - `mobile`: drives the phone or emulator through adb (needs Node.js and `adb` on PATH).
