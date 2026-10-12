@@ -229,6 +229,8 @@ builder.Services.AddSingleton<IGeocodingService, OfflinePlaceGeocodingService>()
 
 // Truck driving bans: daily read of the truckban.eu calendar, used only after review (/truck-bans).
 builder.Services.AddSingleton<TruckBanRepository>();
+builder.Services.AddSingleton<TruckBanSchedule>();
+builder.Services.AddSingleton<CountryLocator>();
 builder.Services.AddSingleton<TruckBanSyncService>();
 builder.Services.AddHostedService(services => services.GetRequiredService<TruckBanSyncService>());
 builder.Services.AddHttpClient(TruckBanSyncService.HttpClientName, client =>

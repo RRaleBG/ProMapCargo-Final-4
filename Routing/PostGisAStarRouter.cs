@@ -1,5 +1,6 @@
 using NetTopologySuite.Geometries;
 using ProMapCargo.Api.Models;
+using ProMapCargo.Api.Services;
 using System.Diagnostics;
 
 namespace ProMapCargo.Api.Routing;
@@ -8,7 +9,9 @@ public sealed class PostGisAStarRouter(
     PostGisRoutingRepository repo,
     TruckEdgeEvaluator evaluator,
     TurnRestrictionMatcher restrictions,
-    RoutingGraphCache graphCache)
+    RoutingGraphCache graphCache,
+    TruckBanSchedule truckBans,
+    CountryLocator countries)
 {
     private const int MaxExpandedStates = 1_000_000;
 
@@ -26,6 +29,7 @@ public sealed class PostGisAStarRouter(
                                                     SnapResult end,
                                                     TruckProfile truck,
                                                     long version,
+                                                    DateTimeOffset departure,
                                                     CancellationToken ct)
     {
         var searchTimeBudget = TimeSpan.FromSeconds(240);
@@ -385,6 +389,16 @@ public sealed class PostGisAStarRouter(
 
         var frontierPrefetchNodes = new HashSet<long>();
 
+        /*
+         * Truck bans: a node in a country with a nationwide ban in force when the truck
+         * would get there (departure + cost so far) cannot be entered. Only looked at when
+         * the schedule has a ban for this truck within two days of departure.
+         */
+        var banSchedule = await truckBans.GetAsync(ct);
+        var checkBans = banSchedule.Any(departure, departure.AddDays(2), truck.GrossWeightTons);
+        var nodeCountry = new Dictionary<long, string?>();
+        var blockedBy = new Dictionary<string, TruckBanSchedule.Interval>();
+
         var stopwatch = Stopwatch.StartNew();
 
         SearchState? bestGoalState = null;
@@ -655,6 +669,22 @@ public sealed class PostGisAStarRouter(
                 var newDistance =
                     baseCost + seconds;
 
+                if (checkBans)
+                {
+                    if (!nodeCountry.TryGetValue(nextNode, out var country))
+                    {
+                        country = nodeCoordinates.TryGetValue(nextNode, out var at) ? countries.CountryAt(at) : null;
+                        nodeCountry[nextNode] = country;
+                    }
+
+                    if (country is not null &&
+                        banSchedule.At(country, departure.AddSeconds(newDistance), truck.GrossWeightTons) is { } ban)
+                    {
+                        blockedBy[country] = ban;
+                        continue;
+                    }
+                }
+
                 var nextState =
                     new SearchState(
                         nextNode,
@@ -717,6 +747,13 @@ public sealed class PostGisAStarRouter(
                     ? $"A* expansion limit reached ({MaxExpandedStates:N0})."
                     : "Ruta nije pronađena.";
 
+            // The way is closed by a ban, not missing: say where and until when (local time).
+            var banReason = blockedBy.Count == 0
+                ? null
+                : "Zabrana vožnje kamiona: " +
+                  string.Join(", ", blockedBy.Values.Select(b => $"{TruckBanCountries.SerbianName(b.CountryCode)} do {b.LocalEnd} (lokalno vreme)")) +
+                  ". Ruta nije moguća bez ulaska u zabranu; pokušajte sa kasnijim polaskom.";
+
             return new PostGisRouteResult(
                 false,
                 [],
@@ -724,10 +761,11 @@ public sealed class PostGisAStarRouter(
                 0,
                 expanded,
                 "PostGIS-AStar",
-                reason,
+                banReason ?? reason,
                 [],
                 BuildSnapDebug(start, startEdge),
-                BuildSnapDebug(end, endEdge));
+                BuildSnapDebug(end, endEdge),
+                banReason);
         }
 
         /*

@@ -231,14 +231,15 @@ public sealed class PostGisRoutingService(
             };
         }
 
-        var r = await router.RouteAsync(s, e, truck, version.Value, ct).ConfigureAwait(false);
+        var r = await router.RouteAsync(s, e, truck, version.Value, request.DepartureAt ?? DateTimeOffset.UtcNow, ct).ConfigureAwait(false);
 
         if (!r.Success)
         {
             logger.LogWarning("Routing failed. Reason={FailureReason}", r.FailureReason);
             return new RouteResponse
             {
-                Code = "NoPath",
+                // TruckBan is not eligible for the OSRM fallback (OSRM does not know the bans).
+                Code = r.BanReason is null ? "NoPath" : "TruckBan",
                 Message = r.FailureReason,
                 IsTruckSafe = false,
                 Diagnostics = new RouteDiagnostics

@@ -29,6 +29,19 @@ public sealed record TruckBanCountry(
 /// <summary>Countries of the truckban.eu calendar: ISO code and time zone of the ban times.</summary>
 public static class TruckBanCountries
 {
+    /// <summary>Serbian names for messages to the driver.</summary>
+    public static string SerbianName(string code) => code switch
+    {
+        "AL" => "Albanija", "AT" => "Austrija", "BY" => "Belorusija", "BE" => "Belgija", "BA" => "Bosna i Hercegovina",
+        "BG" => "Bugarska", "HR" => "Hrvatska", "CZ" => "Češka", "DK" => "Danska", "EE" => "Estonija", "FI" => "Finska",
+        "FR" => "Francuska", "DE" => "Nemačka", "GR" => "Grčka", "HU" => "Mađarska", "IE" => "Irska", "IT" => "Italija",
+        "XK" => "Kosovo", "LV" => "Letonija", "LI" => "Lihtenštajn", "LT" => "Litvanija", "LU" => "Luksemburg",
+        "MK" => "Severna Makedonija", "MD" => "Moldavija", "ME" => "Crna Gora", "NL" => "Holandija", "NO" => "Norveška",
+        "PL" => "Poljska", "PT" => "Portugalija", "RO" => "Rumunija", "RS" => "Srbija", "SK" => "Slovačka", "SI" => "Slovenija",
+        "ES" => "Španija", "SE" => "Švedska", "CH" => "Švajcarska", "TR" => "Turska", "UA" => "Ukrajina", "GB" => "Velika Britanija",
+        _ => code,
+    };
+
     public static readonly IReadOnlyDictionary<string, (string Code, string TimeZone)> ByName =
         new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase)
         {

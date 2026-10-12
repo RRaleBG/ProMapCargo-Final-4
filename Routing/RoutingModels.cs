@@ -70,4 +70,6 @@ string Engine,
 string? FailureReason,
 IReadOnlyList<string> DebugHighlights,
 string? StartSnap,
-string? EndSnap);
+string? EndSnap,
+// Set when no route exists because a nationwide truck ban closes the way (no OSRM fallback then).
+string? BanReason = null);
