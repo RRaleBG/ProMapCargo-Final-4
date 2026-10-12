@@ -224,6 +224,19 @@ public partial class MobileNavigationPage : ContentPage
         }
     }
 
+    // Confirmed first: a tap by mistake while driving must not drop the guidance.
+    private async void OnResetRouteClicked(object? sender, EventArgs e)
+    {
+        if (!viewModel.HasRoute ||
+            !await DisplayAlert("Poništiti rutu?", "Navođenje se zaustavlja, a odredište se briše sa mape.", "Poništi", "Otkaži"))
+        {
+            return;
+        }
+
+        viewModel.ResetRoute();
+        await PushStateToWebAsync(force: true);
+    }
+
     private void OnRouteVisualizationChanged(object? sender, EventArgs e)
     {
         _ = PushStateToWebAsync(force: true);

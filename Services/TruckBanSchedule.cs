@@ -5,8 +5,14 @@ namespace ProMapCargo.Api.Services;
 /// reloaded every 10 minutes). Local ban times are converted in each country's time zone;
 /// a ban applies to a truck heavier than the country's limit (no limit set: every truck).
 /// </summary>
-public sealed class TruckBanSchedule(IServiceScopeFactory scopes, ILogger<TruckBanSchedule> logger)
+public sealed class TruckBanSchedule(IServiceScopeFactory scopes, IConfiguration configuration, ILogger<TruckBanSchedule> logger)
 {
+    /// <summary>
+    /// Whether the router avoids banned countries. Off by default: bans are shown (map,
+    /// app home screen) but do not change routes until this is switched on.
+    /// </summary>
+    public bool ApplyToRouting => configuration.GetValue("TruckBans:ApplyToRouting", false);
+
     private static readonly TimeSpan RefreshEvery = TimeSpan.FromMinutes(10);
     private readonly SemaphoreSlim gate = new(1, 1);
     private Snapshot current = Snapshot.Empty;

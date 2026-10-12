@@ -30,6 +30,18 @@ public sealed class SavedRouteStore
         }
     }
 
+    /// <summary>Forgets the planned trip (route reset by the driver).</summary>
+    public void Clear()
+    {
+        try
+        {
+            File.Delete(filePath);
+        }
+        catch (IOException)
+        {
+        }
+    }
+
     public SavedRoute? Load()
     {
         try

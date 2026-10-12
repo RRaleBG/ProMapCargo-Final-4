@@ -259,6 +259,72 @@
                     </Grid>
                 </Border>
 
+                <!--  Truck driving bans (informational: routing does not use them yet)  -->
+                <Border Padding="14,12" Style="{StaticResource PmCardBorder}">
+                    <Grid ColumnDefinitions="40,*,Auto" ColumnSpacing="12">
+                        <Border
+                            BackgroundColor="{StaticResource SurfaceInset}"
+                            HeightRequest="40"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0"
+                            WidthRequest="40">
+                            <!--  Stop sign  -->
+                            <Path
+                                Aspect="Uniform"
+                                Data="M8 2 L16 2 L22 8 L22 16 L16 22 L8 22 L2 16 L2 8 Z M6 11 L18 11 L18 13 L6 13 Z"
+                                Fill="{StaticResource TextSecondary}"
+                                HeightRequest="22"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                WidthRequest="22">
+                                <Path.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding TruckBanActiveNow}"
+                                        TargetType="Path"
+                                        Value="True">
+                                        <Setter Property="Fill" Value="{StaticResource StatusDanger}" />
+                                    </DataTrigger>
+                                </Path.Triggers>
+                            </Path>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
+                            <Label
+                                FontFamily="OpenSansSemibold"
+                                FontSize="15"
+                                Text="Zabrane"
+                                TextColor="{StaticResource TextPrimary}" />
+                            <Label
+                                FontSize="12"
+                                LineBreakMode="TailTruncation"
+                                MaxLines="2"
+                                Text="{Binding TruckBansSummary}"
+                                TextColor="{StaticResource TextSecondary}" />
+                        </VerticalStackLayout>
+                        <Border
+                            Grid.Column="2"
+                            Padding="8,3"
+                            Style="{StaticResource PmChipInfo}"
+                            VerticalOptions="Center">
+                            <Label Style="{StaticResource PmChipInfoLabel}" Text="{Binding TruckBansBadge}">
+                                <Label.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding TruckBanActiveNow}"
+                                        TargetType="Label"
+                                        Value="True">
+                                        <Setter Property="TextColor" Value="{StaticResource StatusDanger}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Border>
+                        <Button
+                            Grid.ColumnSpan="3"
+                            Margin="-14,-12"
+                            Clicked="OnTruckBansClicked"
+                            SemanticProperties.Description="Zabrane vožnje kamiona"
+                            Style="{StaticResource HomeTapTarget}" />
+                    </Grid>
+                </Border>
+
                 <!--  Icon menu  -->
                 <Grid
                     ColumnDefinitions="*,*"

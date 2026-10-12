@@ -255,6 +255,15 @@ window.ProMap = window.ProMap || {};
             setDestination(destination);
         }
 
+        // The app reset the route ("Reset" button): no destination and no route any more.
+        if (state.mobileMode && !destination && !buildMobileRouteResponse(payload) && (state.destination || state.routeResponse)) {
+            state.destinationMarker?.remove();
+            state.destinationMarker = null;
+            state.destination = null;
+            state.mobileRouteSignature = null;
+            clearRouteResult();
+        }
+
         if (state.mobileMode) {
             state.live = true;
             // Follow is switched on once; afterwards the driver's pan pauses it

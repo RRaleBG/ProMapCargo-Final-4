@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+	<linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+	  <stop offset="0%" stop-color="#34D399"/>
+	  <stop offset="100%" stop-color="#2DD4BF"/>
+	</linearGradient>
+  </defs>
+  <!-- Reset: counter-clockwise arrow (clears the route), same palette as nav_recenter -->
+  <path d="M17 24A17 17 0 1 1 15 35" fill="none" stroke="url(#ring)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M11 14L17 25L27 18Z" fill="#10B981"/>
+  <path d="M26 26L38 38M38 26L26 38" stroke="#F8FAFC" stroke-width="3.5" stroke-linecap="round"/>
+</svg>

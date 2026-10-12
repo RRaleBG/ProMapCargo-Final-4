@@ -80,7 +80,7 @@
             RowDefinitions="Auto,*,Auto"
             ZIndex="20">
 
-            <!--  Guidance banner (TomTom-style): maneuver icon + distance, road below, "then" on the right  -->
+            <!--  Guidance banner : maneuver icon + distance, road below, "then" on the right  -->
             <Border
                 Grid.Row="0"
                 Padding="0"
@@ -203,12 +203,25 @@
                         Grid.Column="1"
                         HorizontalOptions="End"
                         Spacing="12">
-                        <ImageButton
-                            x:Name="RecenterButton"
-                            Clicked="OnRecenterClicked"
-                            SemanticProperties.Description="Centriraj na vozilo"
-                            Source="nav_recenter.svg"
-                            Style="{StaticResource PmMapFloatingButton}" />
+                        <!--  Reset and recenter sit at the screen edge (the overlay has 16 px padding)  -->
+                        <VerticalStackLayout
+                            Margin="0,0,-12,0"
+                            HorizontalOptions="End"
+                            Spacing="12">
+                            <ImageButton
+                                x:Name="ResetRouteButton"
+                                Clicked="OnResetRouteClicked"
+                                IsVisible="{Binding HasRoute}"
+                                SemanticProperties.Description="Poništi rutu"
+                                Source="nav_reset.svg"
+                                Style="{StaticResource PmMapFloatingButton}" />
+                            <ImageButton
+                                x:Name="RecenterButton"
+                                Clicked="OnRecenterClicked"
+                                SemanticProperties.Description="Centriraj na vozilo"
+                                Source="nav_recenter.svg"
+                                Style="{StaticResource PmMapFloatingButton}" />
+                        </VerticalStackLayout>
                         <ImageButton
                             x:Name="VoicePromptButton"
                             Command="{Binding SpeakNextPromptCommand}"
@@ -275,8 +288,8 @@
             <Border
                 x:Name="RoutePopupPanel"
                 Grid.Row="1"
-                BackgroundColor="{StaticResource SurfaceElevated}"
                 Grid.RowSpan="2"
+                BackgroundColor="{StaticResource SurfaceElevated}"
                 HorizontalOptions="Fill"
                 InputTransparent="True"
                 IsVisible="False"

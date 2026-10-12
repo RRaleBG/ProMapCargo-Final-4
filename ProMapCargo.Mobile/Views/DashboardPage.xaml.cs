@@ -57,6 +57,9 @@ public partial class DashboardPage : ContentPage
     private async void OnTileMapsClicked(object? sender, EventArgs e)
         => await AppNavigation.GoToAsync(AppNavigation.InstallMaps);
 
+    private async void OnTruckBansClicked(object? sender, EventArgs e)
+        => await DisplayAlert("Zabrane vožnje kamiona", viewModel.TruckBansDetails, "U redu");
+
     private async void OnTileSettingsClicked(object? sender, EventArgs e)
         => await AppNavigation.GoToAsync(AppNavigation.Settings);
 

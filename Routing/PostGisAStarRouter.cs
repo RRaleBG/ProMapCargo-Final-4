@@ -392,9 +392,10 @@ public sealed class PostGisAStarRouter(
         /*
          * Truck bans: a node in a country with a nationwide ban in force when the truck
          * would get there (departure + cost so far) cannot be entered. Only looked at when
-         * the schedule has a ban for this truck within two days of departure.
+         * the schedule has a ban for this truck within two days of departure, and only
+         * with TruckBans:ApplyToRouting on (off for now: bans are informational).
          */
-        var banSchedule = await truckBans.GetAsync(ct);
+        var banSchedule = truckBans.ApplyToRouting ? await truckBans.GetAsync(ct) : TruckBanSchedule.Snapshot.Empty;
         var checkBans = banSchedule.Any(departure, departure.AddDays(2), truck.GrossWeightTons);
         var nodeCountry = new Dictionary<long, string?>();
         var blockedBy = new Dictionary<string, TruckBanSchedule.Interval>();

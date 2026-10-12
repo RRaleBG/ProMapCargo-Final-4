@@ -23,10 +23,21 @@ public sealed class TruckBansController(TruckBanRepository repository) : Control
         }
 
         var bans = await repository.GetApprovedAsync(start, end, ct);
-        var countries = await repository.GetCountriesAsync(ct);
+        // Every calendar country (time zone from the static list), with the weight limit
+        // where an administrator has set one.
+        var limits = (await repository.GetCountriesAsync(ct)).ToDictionary(c => c.CountryCode);
+        var countries = TruckBanCountries.ByName
+            .Select(pair => new TruckBanCountryDto(
+                pair.Value.Code,
+                pair.Key,
+                pair.Value.TimeZone,
+                limits.TryGetValue(pair.Value.Code, out var limit) ? limit.MinWeightT : null,
+                TruckBanCountries.SerbianName(pair.Value.Code)))
+            .OrderBy(c => c.NameSr)
+            .ToList();
         return Ok(new TruckBanCalendarDto(
             DateTime.UtcNow,
-            countries.Select(c => new TruckBanCountryDto(c.CountryCode, c.CountryName, c.TimeZone, c.MinWeightT)).ToList(),
+            countries,
             bans.Select(b => new TruckBanDto(b.CountryCode, b.CountryName, b.BanDate.ToString("yyyy-MM-dd"), Clock(b.StartMinute), Clock(b.EndMinute), b.Regional, b.Info)).ToList()));
     }
 
@@ -62,7 +73,7 @@ public sealed class TruckBansController(TruckBanRepository repository) : Control
 
     public sealed record TruckBanCalendarDto(DateTime GeneratedAtUtc, IReadOnlyList<TruckBanCountryDto> Countries, IReadOnlyList<TruckBanDto> Bans);
 
-    public sealed record TruckBanCountryDto(string CountryCode, string CountryName, string TimeZone, decimal? MinWeightT);
+    public sealed record TruckBanCountryDto(string CountryCode, string CountryName, string TimeZone, decimal? MinWeightT, string NameSr);
 
     public sealed record TruckBanDto(string CountryCode, string CountryName, string Date, string Start, string End, bool Regional, string Info);
 

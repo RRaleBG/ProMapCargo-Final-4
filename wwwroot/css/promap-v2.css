@@ -270,3 +270,36 @@
 .pm-mobile-truck-marker .glass {
   fill: #031712;
 }
+
+/* ---- Final destination: red marker with a pulsing glow (web and app) ---- */
+.promap-nav-marker-destination {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 3px solid #fee2e2;
+  box-shadow: 0 0 14px 6px rgba(239, 68, 68, 0.65);
+  font-size: 0; /* the label is for the popup, not drawn on the map */
+  cursor: pointer;
+}
+
+.promap-nav-marker-destination::after {
+  content: "";
+  position: absolute;
+  inset: -16px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.45);
+  filter: blur(8px);
+  animation: pm-destination-pulse 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pm-destination-pulse {
+  0% { transform: scale(0.55); opacity: 0.95; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promap-nav-marker-destination::after { animation: none; opacity: 0.6; }
+}

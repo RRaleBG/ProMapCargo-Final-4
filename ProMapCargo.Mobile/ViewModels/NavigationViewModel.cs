@@ -322,6 +322,33 @@ public class NavigationViewModel : ViewModelBase
         _ = RunSimulationAsync(RoutePolylinePoints.ToList(), cts);
     }
 
+    /// <summary>
+    /// Drops the current route (the "Reset" button on the map): guidance, destination,
+    /// simulation and the saved trip, so the app does not bring it back on the next start.
+    /// </summary>
+    public void ResetRoute()
+    {
+        if (simulationCts is { } running)
+        {
+            running.Cancel();
+            simulationCts = null;
+            RaiseSimulationChanged();
+        }
+
+        ReplaceItems(RoutePolylinePoints, []);
+        ReplaceItems(RouteManeuvers, []);
+        ReplaceItems(RouteHighlights, []);
+        ReplaceItems(RouteViolations, []);
+        RouteDestinationPoint = null;
+        HasRoute = false;
+        IsOffRoute = false;
+        savedRouteStore.Clear();
+        UpdateTurnByTurnCard();
+        RaisePropertyChanged(nameof(NextManeuverStepText));
+        RouteVisualizationChanged?.Invoke(this, EventArgs.Empty);
+        StatusText = "Ruta je poništena.";
+    }
+
     private void RaiseSimulationChanged()
     {
         RaisePropertyChanged(nameof(IsSimulating));

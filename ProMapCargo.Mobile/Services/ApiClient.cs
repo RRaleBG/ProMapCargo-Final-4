@@ -83,6 +83,9 @@ public sealed class ApiClient(HttpClient httpClient, MobileServerEndpointService
         }
     }
 
+    public async Task<TruckBanCalendar?> GetTruckBansAsync(CancellationToken cancellationToken)
+        => await GetAsync<TruckBanCalendar>("api/truck-bans", cancellationToken).ConfigureAwait(false);
+
     public async Task<IReadOnlyList<MapPackageCatalogItem>> GetMapPackagesAsync(CancellationToken cancellationToken)
         => await GetAsync<List<MapPackageCatalogItem>>("api/map-packages", cancellationToken).ConfigureAwait(false)
            ?? [];

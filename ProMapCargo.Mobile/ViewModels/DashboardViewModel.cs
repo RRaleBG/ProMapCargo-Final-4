@@ -25,6 +25,7 @@ public sealed class DashboardViewModel : ViewModelBase
     private string routeStartSnap = "—";
     private string routeEndSnap = "—";
     private string routeFailureReason = "—";
+    private TruckBanSummary.Result truckBans = TruckBanSummary.Build(TruckBanSummary.LoadSaved(), DateTimeOffset.Now);
 
 
     public DashboardViewModel(ApiClient apiClient, MobileSessionService sessionService, IMobileNotifier notifier, OfflineWebCache offlineWebCache, OfflineRoutingBundleService offlineBundles)
@@ -86,6 +87,41 @@ public sealed class DashboardViewModel : ViewModelBase
     public string TruckProfileText => "40 t · 4,0 m · 2,55 m · 16,5 m";
 
     public string FleetSummary => $"{Vehicles.Count} vozila · {Orders.Count} naloga · {Trips.Count} tura";
+
+    // "Zabrane" card: informational, routing does not use the bans yet.
+    public string TruckBansSummary => truckBans.Summary;
+
+    public string TruckBansBadge => truckBans.Badge;
+
+    public bool TruckBanActiveNow => truckBans.ActiveNow;
+
+    public string TruckBansDetails => truckBans.Details;
+
+    private void ApplyTruckBans(TruckBanCalendar? calendar)
+    {
+        truckBans = TruckBanSummary.Build(calendar, DateTimeOffset.Now);
+        RaisePropertyChanged(nameof(TruckBansSummary));
+        RaisePropertyChanged(nameof(TruckBansBadge));
+        RaisePropertyChanged(nameof(TruckBanActiveNow));
+        RaisePropertyChanged(nameof(TruckBansDetails));
+    }
+
+    private async Task LoadTruckBansAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (await apiClient.GetTruckBansAsync(cancellationToken).ConfigureAwait(false) is { } calendar)
+            {
+                TruckBanSummary.Save(calendar);
+                await MainThread.InvokeOnMainThreadAsync(() => ApplyTruckBans(calendar));
+            }
+        }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or System.Text.Json.JsonException)
+        {
+            // Keep the saved calendar; it is re-evaluated against the clock below.
+            await MainThread.InvokeOnMainThreadAsync(() => ApplyTruckBans(TruckBanSummary.LoadSaved()));
+        }
+    }
 
     public void ReloadRecents()
     {
@@ -187,6 +223,9 @@ public sealed class DashboardViewModel : ViewModelBase
 
             var cancellationToken = loadCts.Token;
 
+            // The saved ban calendar first (no signal): what is in force depends on the clock.
+            await MainThread.InvokeOnMainThreadAsync(() => ApplyTruckBans(TruckBanSummary.LoadSaved()));
+
             // Without signal every request would hang until its timeout (and keep
             // threads busy); check once, quickly, and skip the sync when there is no server.
             if (!await apiClient.IsServerReachableAsync(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(false))
@@ -227,6 +266,8 @@ public sealed class DashboardViewModel : ViewModelBase
             });
 
             await notifier.ShowSuccessAsync("Podaci su sinhronizovani.").ConfigureAwait(false);
+
+            await LoadTruckBansAsync(cancellationToken).ConfigureAwait(false);
 
             // The offline routing package is rebuilt on the server after a map update;
             // remind once per version to download it while there is a connection.
