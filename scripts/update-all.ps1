@@ -147,6 +147,12 @@ try {
       try {
         Step "4. Server graph ($($server.name))"
         $previous = Invoke-Sql "SELECT graph_version FROM routing_graph_versions WHERE status='ready' AND activated_at IS NOT NULL ORDER BY activated_at DESC LIMIT 1;"
+        # An import cut off earlier (database restarted) leaves a 'building' version behind.
+        foreach ($stale in @(Invoke-Sql "SELECT graph_version FROM routing_graph_versions WHERE status='building';")) {
+            if (-not $stale) { continue }
+            Write-Host "  removing unfinished graph version $stale"
+            Invoke-Sql "BEGIN; DELETE FROM turn_restrictions WHERE graph_version=$stale; DELETE FROM road_edges WHERE graph_version=$stale; DELETE FROM osm_way_nodes WHERE graph_version=$stale; DELETE FROM osm_ways WHERE graph_version=$stale; DELETE FROM osm_nodes WHERE graph_version=$stale; DELETE FROM routing_graph_versions WHERE graph_version=$stale; COMMIT;" | Out-Null
+        }
         & "$repo/scripts/build-server-graph.ps1" -Name "$($server.name)-next" -Import
 
         # OSRM: swap the files in and restart (the old data stays until the swap).
@@ -238,6 +244,11 @@ COMMIT;
 
     # ---- 6. Checks against the running API ----
     Step "6. Checks"
+    # The API may be restarting (deployment, OSRM swap): wait up to 5 minutes for it.
+    foreach ($i in 1..60) {
+        try { Invoke-RestMethod "$ApiUrl/api/offline-routing-bundles" -TimeoutSec 5 | Out-Null; break }
+        catch { if ($i -eq 60) { throw "API at $ApiUrl does not answer." }; Start-Sleep 5 }
+    }
     foreach ($query in "Zagreb", "Niš", "pumpa, Novi Sad", "granični prelaz Batrovci") {
         if (-not (Test-Search $query)) { $failures.Add("search '$query' found nothing") }
     }

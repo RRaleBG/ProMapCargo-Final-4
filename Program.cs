@@ -336,6 +336,7 @@ provider.Mappings[".pmtiles"] = "application/octet-stream";
 provider.Mappings[".pbf"] = "application/octet-stream";
 provider.Mappings[".graphbundle"] = "application/octet-stream";
 provider.Mappings[".places"] = "application/octet-stream";
+provider.Mappings[".geojson"] = "application/geo+json"; // truck ban country borders
 
 app.UseStaticFiles(new StaticFileOptions
 {

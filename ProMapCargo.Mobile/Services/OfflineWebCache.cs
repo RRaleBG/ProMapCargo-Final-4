@@ -19,13 +19,15 @@ public sealed class OfflineWebCache
     private static readonly HashSet<string> CacheableExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".js", ".css", ".json", ".pbf", ".png", ".svg", ".jpg", ".jpeg", ".webp", ".ico",
-        ".woff", ".woff2", ".ttf", ".mvt",
+        ".woff", ".woff2", ".ttf", ".mvt", ".geojson",
     };
 
     // Pages the app embeds; cached by path (cache-busting query parameters ignored).
+    // The truck ban calendar too: offline the map keeps evaluating the last one by the clock.
     private static readonly HashSet<string> CacheablePages = new(StringComparer.OrdinalIgnoreCase)
     {
         "/navigation",
+        "/api/truck-bans",
     };
 
     // Map labels: Latin, Serbian Latin (Latin Extended-A), Cyrillic, punctuation.
