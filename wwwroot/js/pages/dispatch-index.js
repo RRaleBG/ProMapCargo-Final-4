@@ -211,7 +211,7 @@
         const button = $("dispatchRefresh");
         if (button) button.disabled = true;
         try {
-            const response = await fetch("/api/dispatch/overview", { headers: { "Accept": "application/json" }, credentials: "same-origin" });
+            const response = await ProMapCargo.initialData.fetch("/api/dispatch/overview", { headers: { "Accept": "application/json" }, credentials: "same-origin" });
             if (response.status === 401) throw new Error("Prijavite se da biste videli dispečerski centar.");
             if (!response.ok) throw new Error(`Podaci nisu učitani (${response.status}).`);
             state.data = await response.json();

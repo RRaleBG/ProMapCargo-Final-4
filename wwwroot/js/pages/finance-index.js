@@ -355,7 +355,7 @@
     async function load() {
         if (refreshButton) refreshButton.disabled = true;
         try {
-            const response = await fetch(`/api/finance/overview?mode=${state.mode}`, { headers: { "Accept": "application/json" }, credentials: "same-origin" });
+            const response = await ProMapCargo.initialData.fetch(`/api/finance/overview?mode=${state.mode}`, { headers: { "Accept": "application/json" }, credentials: "same-origin" });
             if (response.status === 401) throw new Error("Prijavite se da biste videli finansije.");
             if (!response.ok) throw new Error(`Finansije nisu učitane (${response.status}).`);
             state.data = await response.json();

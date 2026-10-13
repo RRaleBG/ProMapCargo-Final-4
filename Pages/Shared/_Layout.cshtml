@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="~/css/tailwind.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/promap.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/promap-v2.css" asp-append-version="true" />
+    <script src="~/js/core/initial-data.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Head", required: false)
 </head>
@@ -243,6 +244,10 @@
 
         <main class="pm-content flex-1">
             <div class="pm-content-inner mx-auto w-full max-w-[1800px] px-4 pb-6 pt-5 md:px-6 md:pt-6">
+                @if (ViewData.Model is ProMapCargo.Api.Pages.InitialDataPageModel seeded)
+                {
+                    @seeded.RenderInitialData()
+                }
                 @RenderBody()
             </div>
         </main>
@@ -263,7 +268,7 @@
 }
 
 
-<script src="~/lib/lucide.min.js" asp-append-version="true" defer></script>
+<script src="~/lib/lucide-icons.js" asp-append-version="true" defer></script>
 <script src="~/lib/signalr/signalr.min.js" asp-append-version="true" defer></script>
 <script src="~/js/promap-map-layers.js" asp-append-version="true"></script>
 <script src="~/js/core/dom.js" asp-append-version="true" defer></script>
@@ -284,7 +289,6 @@
 </script>
 <script src="~/js/core/modal.js" asp-append-version="true" defer></script>
 <script src="~/js/core/icons.js" asp-append-version="true" defer></script>
-<script src="~/js/core/compat.js" asp-append-version="true" defer></script>
 <script src="~/js/services/alerts.js" asp-append-version="true" defer></script>
 <script src="~/js/app.js" asp-append-version="true" defer></script>
 <script src="~/lib/leaflet/leaflet.js" asp-append-version="true" defer></script>

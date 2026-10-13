@@ -4,9 +4,9 @@
     ViewData["Title"] = "Account Admin · ProMap Cargo";
 }
 
-<div class="pm-page" data-module="account-admin">
+<div class="pm-page pm-page--account-admin" data-module="account-admin">
     <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--4" aria-label="Account admin pregled">
-        <article class="compliance-kpi compliance-kpi-total">
+        <article class="compliance-kpi compliance-kpi-total pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Ukupno korisnika</span>
                 <i data-lucide="users" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -15,7 +15,7 @@
             <span class="compliance-kpi-meta">registrovani nalozi</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-good">
+        <article class="compliance-kpi compliance-kpi-good pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Aktivni nalozi</span>
                 <i data-lucide="user-check" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -24,7 +24,7 @@
             <span class="compliance-kpi-meta">status IsActive = true</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-info">
+        <article class="compliance-kpi compliance-kpi-info pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Trenutno online</span>
                 <i data-lucide="wifi" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -33,7 +33,7 @@
             <span class="compliance-kpi-meta">SignalR prisustvo</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-neutral">
+        <article class="compliance-kpi compliance-kpi-neutral pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Sistemske role</span>
                 <i data-lucide="shield-check" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -45,9 +45,9 @@
 
     <section class="pm-card pm-panel pm-account-admin-tabs-shell">
         <div class="pm-account-admin-tabs pm-filter-group" role="tablist" aria-label="Admin sekcije">
-            <button type="button" class="pm-account-admin-tab pm-filter-btn is-active" role="tab" aria-selected="true" data-tab-target="users">Korisnici</button>
-            <button type="button" class="pm-account-admin-tab pm-filter-btn" role="tab" aria-selected="false" data-tab-target="roles">Role i dozvole</button>
-            <button type="button" class="pm-account-admin-tab pm-filter-btn" role="tab" aria-selected="false" data-tab-target="audit">Audit</button>
+            <button type="button" class="pm-account-admin-tab pm-filter-btn is-active pm-btn" role="tab" aria-selected="true" data-tab-target="users">Korisnici</button>
+            <button type="button" class="pm-account-admin-tab pm-filter-btn pm-btn" role="tab" aria-selected="false" data-tab-target="roles">Role i dozvole</button>
+            <button type="button" class="pm-account-admin-tab pm-filter-btn pm-btn" role="tab" aria-selected="false" data-tab-target="audit">Audit</button>
         </div>
 
         <section class="pm-account-admin-tab-panel is-active" data-tab-panel="users">

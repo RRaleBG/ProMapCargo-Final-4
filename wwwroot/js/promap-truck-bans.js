@@ -16,6 +16,7 @@
     const SOURCE = "promap-truck-bans";
     const FILL = "promap-truck-bans-fill";
     const LINE = "promap-truck-bans-line";
+    const LINE_REGIONAL = "promap-truck-bans-line-regional";
     const RED = "#7f1d1d";
     const RED_LINE = "#dc2626";
 
@@ -108,15 +109,21 @@
             source: SOURCE,
             paint: { "fill-color": RED, "fill-opacity": ["case", ["get", "nationwide"], 0.45, 0.18] },
         }, before);
+        // line-dasharray cannot depend on feature data, so the solid border (nationwide ban)
+        // and the dashed one (some roads only) are two layers split by a filter.
         map.addLayer({
             id: LINE,
             type: "line",
             source: SOURCE,
-            paint: {
-                "line-color": RED_LINE,
-                "line-width": 1.6,
-                "line-dasharray": ["case", ["get", "nationwide"], ["literal", [1, 0]], ["literal", [3, 2]]],
-            },
+            filter: ["==", ["get", "nationwide"], true],
+            paint: { "line-color": RED_LINE, "line-width": 1.6 },
+        }, before);
+        map.addLayer({
+            id: LINE_REGIONAL,
+            type: "line",
+            source: SOURCE,
+            filter: ["!=", ["get", "nationwide"], true],
+            paint: { "line-color": RED_LINE, "line-width": 1.6, "line-dasharray": [3, 2] },
         }, before);
 
         map.on("click", FILL, (event) => {

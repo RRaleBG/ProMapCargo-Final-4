@@ -1,5 +1,6 @@
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
+using ProMapCargo.Mobile.Services;
 using ProMapCargo.Mobile.ViewModels;
 
 namespace ProMapCargo.Mobile.Views;
@@ -28,16 +29,5 @@ public partial class LoginPage : ContentPage
     }
 
     private async void HandleLoginSucceeded(object? sender, EventArgs e)
-    {
-        await MainThread.InvokeOnMainThreadAsync(async () =>
-        {
-            var shell = Shell.Current;
-            if (shell is null)
-            {
-                return;
-            }
-
-            await shell.GoToAsync("//dashboard");
-        });
-    }
+        => await AppNavigation.GoToAsync(AppNavigation.Dashboard);
 }

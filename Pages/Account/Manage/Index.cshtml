@@ -4,9 +4,9 @@
     ViewData["Title"] = "Nalog · ProMap Cargo";
 }
 
-<div class="pm-page" data-module="profile">
+<div class="pm-page pm-page--profile" data-module="profile">
 
-    <header class="pm-profile-header pm-page-header">
+    <header class="pm-profile-header pm-page-header pm-header">
 
         <div class="pm-profile-heading pm-page-heading">
         
@@ -50,7 +50,7 @@
 
             <!-- PROFILE HERO -->
 
-            <article class="pm-profile-card pm-profile-hero-card">
+            <article class="pm-profile-card pm-profile-hero-card pm-card">
 
                 <div class="pm-profile-hero-glow"></div>
 
@@ -157,7 +157,7 @@
 
             <!-- PERSONAL INFORMATION -->
 
-            <article class="pm-profile-card">
+            <article class="pm-profile-card pm-card">
 
                 <div class="pm-profile-card-header">
 
@@ -321,7 +321,7 @@
 
             <!-- IDENTITY / TENANT -->
 
-            <article class="pm-profile-card">
+            <article class="pm-profile-card pm-card">
 
                 <div class="pm-profile-card-header">
 
@@ -445,7 +445,7 @@
 
             <!-- OPERATIONAL CONTEXT -->
 
-            <article class="pm-profile-card">
+            <article class="pm-profile-card pm-card">
 
                 <div class="pm-profile-card-header">
 
@@ -571,7 +571,7 @@
 
             <!-- PREFERENCES -->
 
-            <article class="pm-profile-card">
+            <article class="pm-profile-card pm-card">
 
                 <div class="pm-profile-card-header">
 
@@ -716,7 +716,7 @@
 
             <!-- SECURITY -->
 
-            <article class="pm-profile-card pm-profile-security-card">
+            <article class="pm-profile-card pm-profile-security-card pm-card">
 
                 <div class="pm-profile-card-header">
 
@@ -762,7 +762,7 @@
 
                         </div>
 
-                        <button type="button" class="pm-profile-link-btn" data-action="password">
+                        <button type="button" class="pm-profile-link-btn pm-btn" data-action="password">
                             Promeni
                         </button>
 
@@ -787,7 +787,7 @@
 
                         </div>
 
-                        <button type="button" class="pm-profile-link-btn" data-action="twofa">
+                        <button type="button" class="pm-profile-link-btn pm-btn" data-action="twofa">
                             Manage
                         </button>
 
@@ -812,7 +812,7 @@
 
                         </div>
 
-                        <button type="button" class="pm-profile-link-btn" data-action="recovery">
+                        <button type="button" class="pm-profile-link-btn pm-btn" data-action="recovery">
                             Prikaži
                         </button>
 
@@ -842,7 +842,7 @@
 
             <!-- SESSIONS -->
 
-            <article class="pm-profile-card">
+            <article class="pm-profile-card pm-card">
 
                 <div class="pm-profile-card-header compact">
 
@@ -953,7 +953,7 @@
                 </div>
 
 
-                <button type="button" class="pm-profile-wide-btn" data-action="logout-other-sessions">
+                <button type="button" class="pm-profile-wide-btn pm-btn" data-action="logout-other-sessions">
                     Odjavi ostale sesije
                 </button>
 
@@ -962,7 +962,7 @@
 
             <!-- ACCOUNT ACCESS -->
 
-            <article class="pm-profile-card">
+            <article class="pm-profile-card pm-card">
 
                 <div class="pm-profile-card-header compact">
 
@@ -1053,7 +1053,7 @@
 
             <!-- ACTIVITY -->
 
-            <article class="pm-profile-card">
+            <article class="pm-profile-card pm-card">
 
                 <div class="pm-profile-card-header compact">
 
@@ -1067,7 +1067,7 @@
 
                     </div>
 
-                    <button type="button" class="pm-profile-link-btn">
+                    <button type="button" class="pm-profile-link-btn pm-btn">
                         Audit
                     </button>
 
@@ -1159,7 +1159,7 @@
 
             <!-- DANGER ZONE -->
 
-            <article class="pm-profile-card pm-profile-danger-card">
+            <article class="pm-profile-card pm-profile-danger-card pm-card">
 
                 <div class="pm-profile-card-header compact">
 
@@ -1180,7 +1180,7 @@
                     Deaktivacija naloga mora biti potvrđena od strane administratora kompanije.
                 </p>
 
-                <button type="button" class="pm-profile-danger-btn" data-action="deactivate">
+                <button type="button" class="pm-profile-danger-btn pm-btn" data-action="deactivate">
                     Zatraži deaktivaciju naloga
                 </button>
 
@@ -1239,11 +1239,11 @@
 
             <div class="pm-profile-modal-actions">
 
-                <button type="button" class="pm-profile-btn pm-profile-btn-secondary" data-close-modal>
+                <button type="button" class="pm-profile-btn pm-profile-btn-secondary pm-btn" data-close-modal>
                     Otkaži
                 </button>
 
-                <a class="pm-profile-btn pm-profile-btn-primary" asp-page="/Account/ChangePassword">
+                <a class="pm-profile-btn pm-profile-btn-primary pm-btn" asp-page="/Account/ChangePassword">
                     Promeni lozinku
                 </a>
 

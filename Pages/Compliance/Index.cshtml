@@ -1,11 +1,12 @@
 @page "/compliance"
+@model ProMapCargo.Api.Pages.Compliance.IndexModel
 @{
     ViewData["Title"] = "Compliance · ProMap Cargo";
 }
 
-<div class="pm-page" data-module="compliance">
+<div class="pm-page pm-page--compliance" data-module="compliance">
 
-    <header class="pm-header">
+    <header class="pm-header pm-page-header">
 
         <div class="pm-heading">
             <div class="pm-page-kicker">
@@ -56,7 +57,7 @@
     <!-- FLEET STATUS -->
 
     <section class="moderation-kpi-grid pm-kpi-grid" aria-label="Usklađenost pregled">
-        <article class="compliance-kpi compliance-kpi-total">
+        <article class="compliance-kpi compliance-kpi-total pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Ukupno vozila</span>
                 <i data-lucide="truck" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -65,16 +66,16 @@
             <span class="compliance-kpi-meta">aktivna flota</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-good">
+        <article class="compliance-kpi compliance-kpi-good pm-kpi">
             <div class="compliance-kpi-top">
-                <span class="compliance-kpi-label">Compliant</span>
+                <span class="compliance-kpi-label">Ispravna</span>
                 <i data-lucide="circle-check" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
             <strong class="compliance-kpi-value" id="compliantVehicles">—</strong>
             <span class="compliance-kpi-meta">bez kritičnih problema</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-warning">
+        <article class="compliance-kpi compliance-kpi-warning pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Ističe uskoro</span>
                 <i data-lucide="triangle-alert" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -83,7 +84,7 @@
             <span class="compliance-kpi-meta">dokumenti u narednih 30 dana</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-danger">
+        <article class="compliance-kpi compliance-kpi-danger pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Blokirano</span>
                 <i data-lucide="shield-x" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -92,7 +93,7 @@
             <span class="compliance-kpi-meta">zahtevaju važeći dokument</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-info">
+        <article class="compliance-kpi compliance-kpi-info pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Prikolice</span>
                 <i data-lucide="trailer" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -101,7 +102,7 @@
             <span class="compliance-kpi-meta">registrovane prikolice</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-neutral">
+        <article class="compliance-kpi compliance-kpi-neutral pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Dokumenti</span>
                 <i data-lucide="file-text" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -131,7 +132,7 @@
 
             <button
                 type="button"
-                class="compliance-filter pm-filter-btn active"
+                class="compliance-filter pm-filter-btn active pm-btn"
                 data-status-filter="all">
                 Sva vozila
                 <span>42</span>
@@ -139,7 +140,7 @@
 
             <button
                 type="button"
-                class="compliance-filter pm-filter-btn"
+                class="compliance-filter pm-filter-btn pm-btn"
                 data-status-filter="compliant">
                 Compliant
                 <span>31</span>
@@ -147,7 +148,7 @@
 
             <button
                 type="button"
-                class="compliance-filter pm-filter-btn"
+                class="compliance-filter pm-filter-btn pm-btn"
                 data-status-filter="expiring">
                 Ističe
                 <span>7</span>
@@ -155,7 +156,7 @@
 
             <button
                 type="button"
-                class="compliance-filter pm-filter-btn"
+                class="compliance-filter pm-filter-btn pm-btn"
                 data-status-filter="blocked">
                 Blokirana
                 <span>4</span>
@@ -304,7 +305,7 @@
                         </p>
                     </div>
 
-                    <button type="button" class="compliance-btn compliance-btn-primary" id="addDocument">
+                    <button type="button" class="compliance-btn compliance-btn-primary pm-btn" id="addDocument">
                         ＋ Dodaj dokument
                     </button>
 
@@ -327,7 +328,7 @@
                         </p>
                     </div>
 
-                    <button type="button" class="compliance-btn compliance-btn-primary" id="changeTrailer">
+                    <button type="button" class="compliance-btn compliance-btn-primary pm-btn" id="changeTrailer">
                         Promeni prikolicu
                     </button>
 
@@ -350,7 +351,7 @@
                         </p>
                     </div>
 
-                    <button type="button" class="compliance-btn compliance-btn-primary" id="addService">
+                    <button type="button" class="compliance-btn compliance-btn-primary pm-btn" id="addService">
                         ＋ Novi servis
                     </button>
 
@@ -375,7 +376,7 @@
                         </p>
                     </div>
 
-                    <button type="button" class="compliance-btn compliance-btn-primary" id="addRepair">
+                    <button type="button" class="compliance-btn compliance-btn-primary pm-btn" id="addRepair">
                         ＋ Nova popravka
                     </button>
 
@@ -398,7 +399,7 @@
                         </p>
                     </div>
 
-                    <button type="button" class="compliance-btn compliance-btn-primary" id="addFault">
+                    <button type="button" class="compliance-btn compliance-btn-primary pm-btn" id="addFault">
                         ＋ Prijavi grešku
                     </button>
 
@@ -421,7 +422,7 @@
                         </p>
                     </div>
 
-                    <button type="button" class="compliance-btn compliance-btn-primary" id="addNote">
+                    <button type="button" class="compliance-btn compliance-btn-primary pm-btn" id="addNote">
                         ＋ Nova napomena
                     </button>
 
@@ -574,14 +575,14 @@
 
                 <button
                     type="button"
-                    class="compliance-btn compliance-btn-secondary"
+                    class="compliance-btn compliance-btn-secondary pm-btn"
                     data-close-modal>
                     Otkaži
                 </button>
 
                 <button
                     type="submit"
-                    class="compliance-btn compliance-btn-primary">
+                    class="compliance-btn compliance-btn-primary pm-btn">
                     Sačuvaj dokument
                 </button>
 
@@ -677,11 +678,11 @@
 
             <div class="compliance-modal-actions">
 
-                <button type="button" class="compliance-btn compliance-btn-secondary" data-close-modal>
+                <button type="button" class="compliance-btn compliance-btn-secondary pm-btn" data-close-modal>
                     Otkaži
                 </button>
 
-                <button type="submit" class="compliance-btn compliance-btn-primary">
+                <button type="submit" class="compliance-btn compliance-btn-primary pm-btn">
                     Sačuvaj
                 </button>
 
@@ -728,11 +729,11 @@
 
             <div class="compliance-modal-actions">
 
-                <button type="button" class="compliance-btn compliance-btn-secondary" data-close-modal>
+                <button type="button" class="compliance-btn compliance-btn-secondary pm-btn" data-close-modal>
                     Otkaži
                 </button>
 
-                <button type="submit" class="compliance-btn compliance-btn-primary">
+                <button type="submit" class="compliance-btn compliance-btn-primary pm-btn">
                     Sačuvaj
                 </button>
 

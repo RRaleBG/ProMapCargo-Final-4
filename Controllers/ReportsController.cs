@@ -12,30 +12,13 @@ namespace ProMapCargo.Api.Controllers;
 [ApiController]
 [Authorize(Policy = "AppOrMobile")]
 [Route("api/reports")]
-public sealed class ReportsController(ProMapCargoDbContext db, ICurrentUserContext current) : ControllerBase
+public sealed class ReportsController(ProMapCargoDbContext db, ICurrentUserContext current, ReportQueries queries) : ControllerBase
 {
     [HttpGet("kpi")]
     public async Task<ActionResult<object>> Kpi(CancellationToken ct)
     {
-        if (current.CompanyId is not Guid c) return Unauthorized();
-
-        var vehicles = await db.Vehicles.AsNoTracking().Where(x => x.CompanyId == c && x.Type != VehicleType.Trailer && x.Status == VehicleStatus.Active).CountAsync(ct);
-        var busy = await db.Trips.AsNoTracking().Where(x => x.CompanyId == c && (x.Status == TripStatus.Active || x.Status == TripStatus.Paused)).Select(x => x.VehicleId).Distinct().CountAsync(ct);
-        var unloads = await db.TransportStops.AsNoTracking()
-            .Where(x => x.CompanyId == c && x.Type == TransportStopType.Unloading && x.Status == TransportStopStatus.Completed && x.PlannedAt != null && x.ArrivedAt != null)
-            .Select(x => new { x.PlannedAt, x.ArrivedAt })
-            .ToListAsync(ct);
-        var completed = await db.Trips.AsNoTracking()
-            .Where(x => x.CompanyId == c && x.Status == TripStatus.Completed && x.PlannedDistanceMeters > 0)
-            .Select(x => new { x.PlannedDistanceMeters, x.RouteCoveredMeters })
-            .ToListAsync(ct);
-
-        return Ok(new
-        {
-            FleetUtilization = vehicles == 0 ? 0 : Math.Round(100.0 * busy / vehicles, 1),
-            OnTimeDeliveries = unloads.Count == 0 ? (double?)null : Math.Round(100.0 * unloads.Count(x => x.ArrivedAt <= x.PlannedAt!.Value.AddMinutes(30)) / unloads.Count, 1),
-            RouteDeviation = completed.Count == 0 ? (double?)null : Math.Round(completed.Average(x => Math.Abs(x.RouteCoveredMeters - x.PlannedDistanceMeters) / x.PlannedDistanceMeters) * 100, 1),
-        });
+        var data = await queries.KpiAsync(ct);
+        return data is null ? Unauthorized() : Ok(data);
     }
 
     [HttpGet("{type}")]

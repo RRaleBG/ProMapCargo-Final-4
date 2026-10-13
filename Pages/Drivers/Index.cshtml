@@ -1,13 +1,14 @@
 @page
+@model ProMapCargo.Api.Pages.Drivers.IndexModel
 @{
     ViewData["Title"] = "Vozači · ProMap Cargo";
 }
 
-<div class="pm-page" data-module="drivers">
+<div class="pm-page pm-page--drivers" data-module="drivers">
 
     <div class="pm-page-content">
 
-        <header class="pm-header">
+        <header class="pm-header pm-page-header">
             <div class="pm-heading">
                 <div class="pm-page-kicker">
                     <span class="pm-kicker-dot"></span>
@@ -42,7 +43,7 @@
         </header>
 
         <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--5" aria-label="Statistika vozača">
-            <article class="compliance-kpi compliance-kpi-total">
+            <article class="compliance-kpi compliance-kpi-total pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">Ukupno vozača</span>
                     <i data-lucide="users-round" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -51,7 +52,7 @@
                 <span class="compliance-kpi-meta">registrovanih vozača</span>
             </article>
 
-            <article class="compliance-kpi compliance-kpi-good">
+            <article class="compliance-kpi compliance-kpi-good pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">Aktivni</span>
                     <i data-lucide="user-check" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -60,7 +61,7 @@
                 <span class="compliance-kpi-meta">status Active</span>
             </article>
 
-            <article class="compliance-kpi compliance-kpi-info">
+            <article class="compliance-kpi compliance-kpi-info pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">Na turi</span>
                     <i data-lucide="truck" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -69,7 +70,7 @@
                 <span class="compliance-kpi-meta">imaju aktivnu turu</span>
             </article>
 
-            <article class="compliance-kpi compliance-kpi-neutral">
+            <article class="compliance-kpi compliance-kpi-neutral pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">GPS online</span>
                     <i data-lucide="locate-fixed" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -78,7 +79,7 @@
                 <span class="compliance-kpi-meta">GPS signal ≤ 2 min</span>
             </article>
 
-            <article class="compliance-kpi compliance-kpi-warning">
+            <article class="compliance-kpi compliance-kpi-warning pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">Van sistema</span>
                     <i data-lucide="user-x" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -123,7 +124,7 @@
 
         <section class="pm-drivers-workspace">
 
-            <div class="pm-drivers-card">
+            <div class="pm-drivers-card pm-card">
 
                 <div class="pm-drivers-card-head">
                     <div class="pm-drivers-card-title-wrap">
@@ -184,7 +185,7 @@
 
             </div>
 
-            <aside class="pm-drivers-card pm-driver-details" id="driverDetails">
+            <aside class="pm-drivers-card pm-driver-details pm-card" id="driverDetails">
 
                 <div class="pm-driver-profile">
                     <div class="pm-driver-profile-top">

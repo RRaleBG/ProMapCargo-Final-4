@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Shown right after the system splash: the web UI's brand mark, "ProMap Cargo" and a
+  0-100 % bar that follows the start-up steps (StartupPage.xaml.cs), then the home screen.
+-->
+<ContentPage
+    x:Class="ProMapCargo.Mobile.Views.StartupPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#031712">
+
+    <Grid RowDefinitions="*,Auto,Auto">
+        <Grid.Background>
+            <RadialGradientBrush Center="0.5,0.42" Radius="0.9">
+                <GradientStop Offset="0" Color="#0A2A23" />
+                <GradientStop Offset="0.55" Color="#031712" />
+                <GradientStop Offset="1" Color="#010D0B" />
+            </RadialGradientBrush>
+        </Grid.Background>
+
+        <!--  Brand: same mark as the web sidebar (tile, diamond, glowing point)  -->
+        <VerticalStackLayout
+            Grid.Row="0"
+            HorizontalOptions="Center"
+            Spacing="22"
+            VerticalOptions="Center">
+
+            <Grid HeightRequest="150" WidthRequest="150" HorizontalOptions="Center">
+                <Ellipse x:Name="Halo" Opacity="0.55">
+                    <Ellipse.Fill>
+                        <RadialGradientBrush>
+                            <GradientStop Offset="0" Color="#4D10B981" />
+                            <GradientStop Offset="1" Color="#0010B981" />
+                        </RadialGradientBrush>
+                    </Ellipse.Fill>
+                </Ellipse>
+
+                <Border
+                    HeightRequest="96"
+                    HorizontalOptions="Center"
+                    StrokeThickness="1.5"
+                    VerticalOptions="Center"
+                    WidthRequest="96">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="28" />
+                    </Border.StrokeShape>
+                    <Border.Stroke>
+                        <LinearGradientBrush EndPoint="1,1">
+                            <GradientStop Offset="0" Color="#8C6EE7B7" />
+                            <GradientStop Offset="1" Color="#2E2DD4BF" />
+                        </LinearGradientBrush>
+                    </Border.Stroke>
+                    <Border.Background>
+                        <LinearGradientBrush EndPoint="1,1">
+                            <GradientStop Offset="0" Color="#9E10B981" />
+                            <GradientStop Offset="1" Color="#33059669" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Shadow>
+                        <Shadow Brush="#10B981" Opacity="0.35" Radius="30" Offset="0,0" />
+                    </Border.Shadow>
+
+                    <Grid>
+                        <Rectangle
+                            x:Name="Diamond"
+                            HeightRequest="36"
+                            HorizontalOptions="Center"
+                            RadiusX="10"
+                            RadiusY="10"
+                            Rotation="45"
+                            Stroke="#6EE7B7"
+                            StrokeThickness="4"
+                            VerticalOptions="Center"
+                            WidthRequest="36" />
+                        <Ellipse
+                            Fill="#2DD4BF"
+                            HeightRequest="11"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            WidthRequest="11">
+                            <Ellipse.Shadow>
+                                <Shadow Brush="#2DD4BF" Opacity="0.9" Radius="14" Offset="0,0" />
+                            </Ellipse.Shadow>
+                        </Ellipse>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
+                <Label
+                    FontFamily="OpenSansSemibold"
+                    FontSize="30"
+                    HorizontalTextAlignment="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="ProMap " TextColor="#F0FDF8" />
+                            <Span Text="Cargo" TextColor="#34D399" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Label
+                    FontSize="13"
+                    HorizontalTextAlignment="Center"
+                    Text="Navigacija i flota za kamione"
+                    TextColor="#8EB8AA" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+
+        <!--  0-100 % progress  -->
+        <VerticalStackLayout Grid.Row="1" Padding="40,0,40,18" Spacing="10">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label
+                    x:Name="StatusLabel"
+                    FontSize="12"
+                    Text="Pokretanje aplikacije…"
+                    TextColor="#8EB8AA" />
+                <Label
+                    x:Name="PercentLabel"
+                    Grid.Column="1"
+                    FontFamily="OpenSansSemibold"
+                    FontSize="12"
+                    Text="0%"
+                    TextColor="#6EE7B7" />
+            </Grid>
+            <Border
+                BackgroundColor="#14332D"
+                HeightRequest="6"
+                StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="3" />
+                </Border.StrokeShape>
+                <Border
+                    x:Name="ProgressFill"
+                    AnchorX="0"
+                    ScaleX="0"
+                    StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="3" />
+                    </Border.StrokeShape>
+                    <Border.Background>
+                        <LinearGradientBrush EndPoint="1,0">
+                            <GradientStop Offset="0" Color="#10B981" />
+                            <GradientStop Offset="1" Color="#2DD4BF" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+            </Border>
+        </VerticalStackLayout>
+
+        <Label
+            x:Name="VersionLabel"
+            Grid.Row="2"
+            Margin="0,0,0,28"
+            FontSize="11"
+            HorizontalTextAlignment="Center"
+            TextColor="#4F7A6D" />
+    </Grid>
+</ContentPage>

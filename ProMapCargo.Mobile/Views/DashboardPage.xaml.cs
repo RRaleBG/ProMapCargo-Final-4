@@ -15,14 +15,14 @@ public partial class DashboardPage : ContentPage
         this.viewModel = viewModel;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
         viewModel.ReloadRecents();
 
         if (!viewModel.IsBusy)
         {
-            await viewModel.LoadAsync();
+            SafeUi.Run(() => viewModel.LoadAsync());
         }
     }
 
@@ -57,8 +57,8 @@ public partial class DashboardPage : ContentPage
     private async void OnTileMapsClicked(object? sender, EventArgs e)
         => await AppNavigation.GoToAsync(AppNavigation.InstallMaps);
 
-    private async void OnTruckBansClicked(object? sender, EventArgs e)
-        => await DisplayAlert("Zabrane vožnje kamiona", viewModel.TruckBansDetails, "U redu");
+    private void OnTruckBansClicked(object? sender, EventArgs e)
+        => SafeUi.Run(() => DisplayAlertAsync("Zabrane vožnje kamiona", viewModel.TruckBansDetails, "U redu"));
 
     private async void OnTileSettingsClicked(object? sender, EventArgs e)
         => await AppNavigation.GoToAsync(AppNavigation.Settings);

@@ -208,6 +208,16 @@ builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 builder.Services.AddSingleton<UserPresenceTracker>();
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, IdentityClaimsFactory>();
 builder.Services.AddScoped<BusinessService>();
+// Read side of the web pages: used by the API controllers and by the Razor pages,
+// which embed the first load in the page (see InitialDataPageModel).
+builder.Services.AddScoped<DispatchQueries>();
+builder.Services.AddScoped<FinanceQueries>();
+builder.Services.AddScoped<ModerationQueries>();
+builder.Services.AddScoped<ComplianceQueries>();
+builder.Services.AddScoped<ReportQueries>();
+builder.Services.AddScoped<AlertQueries>();
+builder.Services.AddScoped<AuditQueries>();
+builder.Services.AddScoped<DriverPortalQueries>();
 builder.Services.AddScoped<AuditWriter>();
 builder.Services.AddScoped<FileStorageService>();
 builder.Services.AddScoped<MobileTokenService>();

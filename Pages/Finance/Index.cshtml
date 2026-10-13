@@ -1,9 +1,10 @@
 @page "/finance"
+@model ProMapCargo.Api.Pages.Finance.IndexModel
 @{
     ViewData["Title"] = "Finansije · ProMap Cargo";
 }
 
-<div class="pm-page" data-module="finance">
+<div class="pm-page pm-page--finance" data-module="finance">
 
     <div class="finance-bg-orb finance-bg-orb-one"></div>
     <div class="finance-bg-orb finance-bg-orb-two"></div>
@@ -11,7 +12,7 @@
     <!-- =========================================================
          PAGE HEADER
     ========================================================== -->
-    <section class="finance-page-header finance-reveal pm-page-header pm-header">
+    <section class="finance-page-header finance-reveal pm-page-header pm-header pm-reveal">
   
             <div class="finance-kicker">
               
@@ -38,7 +39,7 @@
     <!-- =========================================================
          CONTEXT BAR
     ========================================================== -->
-    <section class="finance-context-bar finance-reveal finance-delay-1 pm-panel">
+    <section class="finance-context-bar finance-reveal finance-delay-1 pm-panel pm-reveal">
 
         <div class="finance-context-main">
             <div class="finance-context-icon" id="financeContextInitials">
@@ -80,8 +81,8 @@
     <!-- =========================================================
          KPI
     ========================================================== -->
-    <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--5 finance-reveal finance-delay-2" aria-label="Finansije pregled">
-        <article class="compliance-kpi compliance-kpi-total">
+    <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--5 finance-reveal finance-delay-2 pm-reveal" aria-label="Finansije pregled">
+        <article class="compliance-kpi compliance-kpi-total pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Apsolutni saldo</span>
                 <i data-lucide="wallet" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -90,7 +91,7 @@
             <span class="compliance-kpi-meta"><span id="kpiBalanceDelta">—</span> · Vozač</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-info">
+        <article class="compliance-kpi compliance-kpi-info pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Aktivna tura</span>
                 <i data-lucide="route" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -99,7 +100,7 @@
             <span class="compliance-kpi-meta"><span id="kpiActiveTrip">—</span> · Preostalo</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-good">
+        <article class="compliance-kpi compliance-kpi-good pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Prethodna tura</span>
                 <i data-lucide="circle-check" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -108,7 +109,7 @@
             <span class="compliance-kpi-meta">Obračunata · <span id="kpiPreviousTrip">—</span></span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-neutral">
+        <article class="compliance-kpi compliance-kpi-neutral pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Troškovi ture</span>
                 <i data-lucide="receipt" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -117,7 +118,7 @@
             <span class="compliance-kpi-meta"><span id="kpiTripCostCount">—</span> · Aktivna tura</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-warning">
+        <article class="compliance-kpi compliance-kpi-warning pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Na čekanju</span>
                 <i data-lucide="hourglass" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -138,7 +139,7 @@
         <div class="finance-main-column">
 
             <!-- CURRENT TRIP -->
-            <article class="finance-card finance-trip-card finance-reveal finance-delay-3 pm-panel">
+            <article class="finance-card finance-trip-card finance-reveal finance-delay-3 pm-panel pm-card pm-reveal">
 
                 <header class="finance-card-header pm-panel-heading">
                     <div>
@@ -226,7 +227,7 @@
             </article>
 
             <!-- FUEL CARD -->
-            <article class="finance-card finance-reveal finance-delay-4 pm-panel">
+            <article class="finance-card finance-reveal finance-delay-4 pm-panel pm-card pm-reveal">
 
                 <header class="finance-card-header pm-panel-heading">
                     <div>
@@ -244,7 +245,7 @@
 
                 <div class="finance-fuel-card-area">
 
-                    <div class="finance-physical-card">
+                    <div class="finance-physical-card pm-card">
                         <div class="finance-card-light"></div>
 
                         <div class="finance-physical-top">
@@ -319,7 +320,7 @@
             </article>
 
             <!-- TRANSACTIONS -->
-            <article class="finance-card finance-reveal">
+            <article class="finance-card finance-reveal pm-card pm-reveal">
 
                 <header class="finance-card-header finance-card-header-stack-mobile">
                     <div>
@@ -336,7 +337,7 @@
 
                     <div class="finance-card-actions">
                         <button type="button"
-                                class="finance-btn finance-btn-small"
+                                class="finance-btn finance-btn-small pm-btn"
                                 id="exportFinanceButton">
                             ⇩ Izvoz
                         </button>
@@ -410,7 +411,7 @@
         <aside class="finance-side-column">
 
             <!-- ABSOLUTE BALANCE -->
-            <article class="finance-card finance-balance-card finance-reveal finance-delay-3">
+            <article class="finance-card finance-balance-card finance-reveal finance-delay-3 pm-card pm-reveal">
 
                 <div class="finance-balance-ring">
                     <div class="finance-balance-ring-inner">
@@ -463,7 +464,7 @@
             </article>
 
             <!-- PREVIOUS TRIP -->
-            <article class="finance-card finance-reveal finance-delay-4 pm-panel">
+            <article class="finance-card finance-reveal finance-delay-4 pm-panel pm-card pm-reveal">
 
                 <header class="finance-card-header compact pm-panel-heading">
                     <div>
@@ -497,7 +498,7 @@
                 </div>
 
                 <button type="button"
-                        class="finance-btn finance-btn-full"
+                        class="finance-btn finance-btn-full pm-btn"
                         id="previousTripDetails">
                     Detalji prethodne ture
                     <span>→</span>
@@ -506,7 +507,7 @@
             </article>
 
             <!-- PENDING -->
-            <article class="finance-card finance-reveal">
+            <article class="finance-card finance-reveal pm-card pm-reveal">
 
                 <header class="finance-card-header compact">
                     <div>
@@ -525,7 +526,7 @@
             </article>
 
             <!-- DRIVER CARDS -->
-            <article class="finance-card finance-reveal">
+            <article class="finance-card finance-reveal pm-card pm-reveal">
 
                 <header class="finance-card-header compact">
                     <div>
@@ -723,7 +724,7 @@
                         </span>
                     </div>
 
-                    <button type="button" class="finance-btn finance-btn-small" id="expenseReceiptButton">
+                    <button type="button" class="finance-btn finance-btn-small pm-btn" id="expenseReceiptButton">
                         Izaberi fajl
                     </button>
                     <input type="file" id="expenseReceipt" accept=".pdf,.jpg,.jpeg,.png" hidden />
@@ -732,13 +733,13 @@
                 <div class="finance-modal-footer">
 
                     <button type="button"
-                            class="finance-btn"
+                            class="finance-btn pm-btn"
                             data-close-expense-modal>
                         Otkaži
                     </button>
 
                     <button type="submit"
-                            class="finance-btn finance-btn-primary">
+                            class="finance-btn finance-btn-primary pm-btn">
                         Sačuvaj trošak
                     </button>
 

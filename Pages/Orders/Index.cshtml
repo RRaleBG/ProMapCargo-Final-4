@@ -1,13 +1,14 @@
 @page "/orders"
+@model ProMapCargo.Api.Pages.Orders.IndexModel
 @{
     ViewData["Title"] = "Transportni nalozi · ProMap Cargo";
 }
 
-<div class="pm-page" data-module="orders">   
+<div class="pm-page pm-page--orders" data-module="orders">   
 
 
     <!-- Page Header -->
-    <header class="pm-header">
+    <header class="pm-header pm-page-header">
         <div class="pm-heading">
             <div class="pm-page-kicker">
                 <span class="pm-kicker-dot"></span>
@@ -34,7 +35,7 @@
 
        
     <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--5" aria-label="Statistika naloga">
-        <article class="compliance-kpi compliance-kpi-total">
+        <article class="compliance-kpi compliance-kpi-total pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Ukupno naloga</span>
                 <i data-lucide="clipboard-list" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -43,7 +44,7 @@
             <span class="compliance-kpi-meta">aktivni operativni period</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-info">
+        <article class="compliance-kpi compliance-kpi-info pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">U transportu</span>
                 <i data-lucide="truck" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -52,7 +53,7 @@
             <span class="compliance-kpi-meta">trenutno izvršenje</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-neutral">
+        <article class="compliance-kpi compliance-kpi-neutral pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Planirano</span>
                 <i data-lucide="calendar-clock" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -61,7 +62,7 @@
             <span class="compliance-kpi-meta">čeka dodelu ture</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-warning">
+        <article class="compliance-kpi compliance-kpi-warning pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Kašnjenja</span>
                 <i data-lucide="clock-alert" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -70,7 +71,7 @@
             <span class="compliance-kpi-meta">zahteva pažnju</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-good">
+        <article class="compliance-kpi compliance-kpi-good pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Isporuke danas</span>
                 <i data-lucide="package-check" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -80,7 +81,7 @@
         </article>
     </section>
 
-    <section class="pm-orders-filter-card pm-panel">
+    <section class="pm-orders-filter-card pm-panel pm-card">
 
             <div class="pm-orders-filter-head pm-toolbar">
 
@@ -185,7 +186,7 @@
 
             <div class="pm-orders-status-row pm-filter-group">
 
-                <button type="button" class="pm-orders-status-chip pm-filter-btn active" data-status="all">
+                <button type="button" class="pm-orders-status-chip pm-filter-btn active pm-btn" data-status="all">
 
                     Svi
 
@@ -195,7 +196,7 @@
 
                 </button>
 
-                <button type="button" class="pm-orders-status-chip pm-filter-btn" data-status="planned">
+                <button type="button" class="pm-orders-status-chip pm-filter-btn pm-btn" data-status="planned">
 
                     Planned
 
@@ -205,7 +206,7 @@
 
                 </button>
 
-                <button type="button" class="pm-orders-status-chip pm-filter-btn" data-status="loading">
+                <button type="button" class="pm-orders-status-chip pm-filter-btn pm-btn" data-status="loading">
 
                     Loading
 
@@ -215,7 +216,7 @@
 
                 </button>
 
-                <button type="button" class="pm-orders-status-chip pm-filter-btn" data-status="in-transit">
+                <button type="button" class="pm-orders-status-chip pm-filter-btn pm-btn" data-status="in-transit">
 
                     In Transit
 
@@ -225,7 +226,7 @@
 
                 </button>
 
-                <button type="button" class="pm-orders-status-chip pm-filter-btn" data-status="delivered">
+                <button type="button" class="pm-orders-status-chip pm-filter-btn pm-btn" data-status="delivered">
 
                     Delivered
 
@@ -235,7 +236,7 @@
 
                 </button>
 
-                <button type="button" class="pm-orders-status-chip pm-filter-btn" data-status="delayed">
+                <button type="button" class="pm-orders-status-chip pm-filter-btn pm-btn" data-status="delayed">
 
                     Delayed
 
@@ -350,7 +351,7 @@
 
             </article>
 
-            <aside class="pm-orders-detail-card pm-panel">
+            <aside class="pm-orders-detail-card pm-panel pm-card">
 
                 <div class="pm-orders-detail-head pm-panel-heading">
 
@@ -554,19 +555,19 @@
 
                         <div class="pm-orders-detail-actions pm-card-actions pm-filter-group">
 
-                            <a href="/trips" class="pm-orders-btn primary" id="detailTripLink">
+                            <a href="/trips" class="pm-orders-btn primary pm-btn" id="detailTripLink">
                                 Otvori turu
                             </a>
 
-                            <a href="/navigation" class="pm-orders-btn">
+                            <a href="/navigation" class="pm-orders-btn pm-btn">
                                 Navigacija
                             </a>
 
-                            <button type="button" class="pm-orders-btn" id="editOrderButton">
+                            <button type="button" class="pm-orders-btn pm-btn" id="editOrderButton">
                                 Izmeni
                             </button>
 
-                            <button type="button" class="pm-orders-btn" id="orderMoreButton">
+                            <button type="button" class="pm-orders-btn pm-btn" id="orderMoreButton">
                                 Više
                             </button>
 

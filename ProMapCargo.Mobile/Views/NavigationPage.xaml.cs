@@ -1,8 +1,6 @@
 using ProMapCargo.Mobile.Models;
 using ProMapCargo.Mobile.Services;
 using ProMapCargo.Mobile.ViewModels;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace ProMapCargo.Mobile.Views;
 
@@ -20,11 +18,7 @@ public partial class MobileNavigationPage : ContentPage
     private bool webViewReady;
     private bool routePopupOpen;
     private bool panelAnimating;
-    private DateTimeOffset lastWebPushAt = DateTimeOffset.MinValue;
-    // Route last delivered to the web map; empty forces a full resend (page load).
-    private string lastSentRouteKey = string.Empty;
-    private WebPoint? lastWebLocation;
-    private DateTimeOffset? lastWebLocationAt;
+    private readonly NavigationMapState mapState = new();
 
     private string NavigationUrl => serverEndpointService.NavigationUrl;
 
@@ -59,14 +53,13 @@ public partial class MobileNavigationPage : ContentPage
         RoutePopupPanel.TranslationY = 28;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
 
         pageActive = true;
         webViewReady = false;
-        lastWebLocation = null;
-        lastWebLocationAt = null;
+        mapState.ResetLocation();
         ShowMapLoading();
 
         // Several regional maps: serve the one covering the truck (or the planned route).
@@ -76,14 +69,17 @@ public partial class MobileNavigationPage : ContentPage
         NavigationWebView.Source = NavigationUrl;
         StartThenFillAnimation();
 
-        await viewModel.LoadInitialRouteAsync();
-        await PushStateToWebAsync(force: true);
-
-        // "Kuda idemo?" or a recent destination tapped on the home screen.
-        if (NavigationRequests.Take() is { } request)
+        SafeUi.Run(async () =>
         {
-            await viewModel.ApplyRequestAsync(request);
-        }
+            await viewModel.LoadInitialRouteAsync();
+            await PushStateToWebAsync(force: true);
+
+            // "Kuda idemo?" or a recent destination tapped on the home screen.
+            if (NavigationRequests.Take() is { } request)
+            {
+                await viewModel.ApplyRequestAsync(request);
+            }
+        });
     }
 
     private const string ThenFillAnimationName = "ThenFill";
@@ -115,19 +111,22 @@ public partial class MobileNavigationPage : ContentPage
         base.OnDisappearing();
     }
 
-    private async void OnWebViewNavigated(object? sender, WebNavigatedEventArgs e)
+    private void OnWebViewNavigated(object? sender, WebNavigatedEventArgs e)
     {
         webViewReady = e.Result == WebNavigationResult.Success;
-        lastSentRouteKey = string.Empty;
+        mapState.ForceRouteResend();
 
         if (webViewReady)
         {
             LoadingOverlay.IsVisible = false;
             // While online, store the label fonts so names show offline too.
             _ = offlineWebCache.PrefetchGlyphsAsync();
-            await ApplyEmbeddedMobileLayoutTweaksAsync();
-            await notifier.ShowSuccessAsync("Mapa za navigaciju je spremna.");
-            await PushStateToWebAsync(force: true);
+            SafeUi.Run(async () =>
+            {
+                await ApplyEmbeddedMobileLayoutTweaksAsync();
+                await notifier.ShowSuccessAsync("Mapa za navigaciju je spremna.");
+                await PushStateToWebAsync(force: true);
+            });
             return;
         }
 
@@ -194,7 +193,9 @@ public partial class MobileNavigationPage : ContentPage
 
     // TomTom-style recenter: snap the camera back to the truck and resume following
     // (a pan or pinch on the map pauses it). Rerouting stays automatic when off route.
-    private async void OnRecenterClicked(object? sender, EventArgs e)
+    private void OnRecenterClicked(object? sender, EventArgs e) => SafeUi.Run(RecenterAsync);
+
+    private async Task RecenterAsync()
     {
         if (!webViewReady)
         {
@@ -225,10 +226,12 @@ public partial class MobileNavigationPage : ContentPage
     }
 
     // Confirmed first: a tap by mistake while driving must not drop the guidance.
-    private async void OnResetRouteClicked(object? sender, EventArgs e)
+    private void OnResetRouteClicked(object? sender, EventArgs e) => SafeUi.Run(ResetRouteAsync);
+
+    private async Task ResetRouteAsync()
     {
         if (!viewModel.HasRoute ||
-            !await DisplayAlert("Poništiti rutu?", "Navođenje se zaustavlja, a odredište se briše sa mape.", "Poništi", "Otkaži"))
+            !await DisplayAlertAsync("Poništiti rutu?", "Navođenje se zaustavlja, a odredište se briše sa mape.", "Poništi", "Otkaži"))
         {
             return;
         }
@@ -280,80 +283,21 @@ public partial class MobileNavigationPage : ContentPage
             return;
         }
 
-        var now = DateTimeOffset.UtcNow;
-        if (!force && now - lastWebPushAt < TimeSpan.FromMilliseconds(250))
+        if (mapState.Next(viewModel, force) is not { } update)
         {
             return;
         }
-
-        lastWebPushAt = now;
-
-        var current = ToWebPoint(viewModel.CurrentLocation);
-        var motion = CalculateMotion(current);
-
-        var points = viewModel.RoutePolylinePoints;
-        var routeKey = points.Count == 0
-            ? ""
-            : $"{points.Count}:{points[0].Lat},{points[0].Lon}:{points[^1].Lat},{points[^1].Lon}:{viewModel.RouteManeuvers.Count}";
-        var includeRoute = routeKey != lastSentRouteKey;
-
-        var payload = new
-        {
-            mobile = true,
-            live = true,
-            follow = true,
-            start = ToWebPoint(viewModel.RouteStartPoint),
-            destination = ToWebPoint(viewModel.RouteDestinationPoint),
-            current,
-            heading = motion.Heading,
-            // Same filtered speed the bubble shows; drives the speed-dependent zoom.
-            speedKph = double.TryParse(viewModel.CurrentSpeedText, System.Globalization.NumberStyles.Float,
-                System.Globalization.CultureInfo.InvariantCulture, out var shownSpeed)
-                ? shownSpeed
-                : motion.SpeedKph,
-            // Route and maneuvers (thousands of points) only when they changed; the
-            // map keeps the last ones. Sending them on every GPS fix made it stutter.
-            route = includeRoute
-                ? viewModel.RoutePolylinePoints
-                    .Select(point => new
-                    {
-                        latitude = point.Lat,
-                        longitude = point.Lon
-                    })
-                    .ToArray()
-                : null,
-            maneuvers = includeRoute
-                ? viewModel.RouteManeuvers
-                    .Select(maneuver => new
-                    {
-                        type = maneuver.Type,
-                        instruction = maneuver.Instruction,
-                        distanceMeters = maneuver.DistanceFromRouteStartMeters,
-                        latitude = maneuver.Latitude,
-                        longitude = maneuver.Longitude
-                    })
-                    .ToArray()
-                : null,
-            restrictionCount = viewModel.RouteViolations.Count,
-            // NextManeuverIndex is 1-based; the web map marks the upcoming turn.
-            nextManeuverIndex = Math.Max(0, viewModel.NextManeuverIndex - 1)
-        };
-
-        var json = JsonSerializer.Serialize(payload);
 
         for (var attempt = 0; attempt < 4; attempt++)
         {
             try
             {
                 var result = await NavigationWebView.EvaluateJavaScriptAsync(
-                    $"window.proMapMobile?.applyState?.({json}) ?? false;");
+                    $"window.proMapMobile?.applyState?.({update.Json}) ?? false;");
 
                 if (string.Equals(result, "true", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (includeRoute)
-                    {
-                        lastSentRouteKey = routeKey;
-                    }
+                    mapState.Delivered(update);
                     return;
                 }
             }
@@ -444,105 +388,4 @@ public partial class MobileNavigationPage : ContentPage
             System.Diagnostics.Debug.WriteLine($"Mobile embedded layout tweak failed: {ex.Message}");
         }
     }
-
-    private MotionSnapshot CalculateMotion(WebPoint? current)
-    {
-        if (current is null)
-        {
-            return new MotionSnapshot(null, null);
-        }
-
-        if (lastWebLocation is null || lastWebLocationAt is null)
-        {
-            lastWebLocation = current;
-            lastWebLocationAt = DateTimeOffset.UtcNow;
-            return new MotionSnapshot(null, null);
-        }
-
-        var now = DateTimeOffset.UtcNow;
-        var elapsedSeconds = (now - lastWebLocationAt.Value).TotalSeconds;
-        var distanceMeters = HaversineMeters(
-            lastWebLocation.Latitude,
-            lastWebLocation.Longitude,
-            current.Latitude,
-            current.Longitude);
-
-        double? heading = null;
-        if (distanceMeters >= 2)
-        {
-            heading = InitialBearing(
-                lastWebLocation.Latitude,
-                lastWebLocation.Longitude,
-                current.Latitude,
-                current.Longitude);
-        }
-
-        double? speedKph = null;
-        if (elapsedSeconds > 0.5 && distanceMeters >= 1)
-        {
-            speedKph = distanceMeters / elapsedSeconds * 3.6;
-        }
-
-        lastWebLocation = current;
-        lastWebLocationAt = now;
-
-        return new MotionSnapshot(heading, speedKph);
-    }
-
-    private static double HaversineMeters(
-        double lat1,
-        double lon1,
-        double lat2,
-        double lon2)
-    {
-        const double earthRadius = 6371000;
-        var dLat = DegreesToRadians(lat2 - lat1);
-        var dLon = DegreesToRadians(lon2 - lon1);
-
-        var a =
-            Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-            Math.Cos(DegreesToRadians(lat1)) *
-            Math.Cos(DegreesToRadians(lat2)) *
-            Math.Sin(dLon / 2) *
-            Math.Sin(dLon / 2);
-
-        return earthRadius * 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-    }
-
-    private static double InitialBearing(
-        double lat1,
-        double lon1,
-        double lat2,
-        double lon2)
-    {
-        var firstLatitude = DegreesToRadians(lat1);
-        var secondLatitude = DegreesToRadians(lat2);
-        var deltaLongitude = DegreesToRadians(lon2 - lon1);
-
-        var y = Math.Sin(deltaLongitude) * Math.Cos(secondLatitude);
-        var x =
-            Math.Cos(firstLatitude) * Math.Sin(secondLatitude) -
-            Math.Sin(firstLatitude) *
-            Math.Cos(secondLatitude) *
-            Math.Cos(deltaLongitude);
-
-        return (RadiansToDegrees(Math.Atan2(y, x)) + 360) % 360;
-    }
-
-    private static double DegreesToRadians(double value) => value * Math.PI / 180;
-
-    private static double RadiansToDegrees(double value) => value * 180 / Math.PI;
-
-    private static WebPoint? ToWebPoint(GeoPoint? point)
-    {
-        return point is null
-            ? null
-            : new WebPoint(point.Lat, point.Lon);
-    }
-
-    private sealed record MotionSnapshot(double? Heading, double? SpeedKph);
-
-    private sealed record WebPoint(
-        [property: JsonPropertyName("latitude")] double Latitude,
-        [property: JsonPropertyName("longitude")] double Longitude);
 }

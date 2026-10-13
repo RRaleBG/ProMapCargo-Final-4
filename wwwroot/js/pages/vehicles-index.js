@@ -679,7 +679,7 @@
     }
 
     async function fetchJson(url) {
-        var response = await fetch(url, {
+        var response = await ProMapCargo.initialData.fetch(url, {
             method: "GET",
             headers: {
                 "Accept": "application/json"

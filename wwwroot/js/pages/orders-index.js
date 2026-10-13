@@ -309,7 +309,7 @@
         if (button) button.disabled = true;
 
         try {
-            const response = await fetch("/api/business/orders/overview", { headers: { "Accept": "application/json" }, credentials: "same-origin" });
+            const response = await ProMapCargo.initialData.fetch("/api/business/orders/overview", { headers: { "Accept": "application/json" }, credentials: "same-origin" });
             if (response.status === 401) throw new Error("Prijavite se da biste videli naloge.");
             if (!response.ok) throw new Error("Nalozi nisu učitani (" + response.status + ").");
             state.orders = await response.json();

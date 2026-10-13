@@ -182,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function load() {
         try {
-            const response = await fetch("/api/moderation", { headers: { "Accept": "application/json" }, credentials: "same-origin" });
+            const response = await ProMapCargo.initialData.fetch("/api/moderation", { headers: { "Accept": "application/json" }, credentials: "same-origin" });
             if (response.status === 401) throw new Error("Prijavite se ponovo.");
             if (!response.ok) throw new Error(`Zahtevi nisu učitani (${response.status}).`);
             state.data = await response.json();

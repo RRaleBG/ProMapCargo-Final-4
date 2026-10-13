@@ -78,7 +78,7 @@
     }
 
     async function load() {
-        const response = await fetch("/api/alerts/feed", { headers: { "Accept": "application/json" }, credentials: "same-origin" });
+        const response = await ProMapCargo.initialData.fetch("/api/alerts/feed", { headers: { "Accept": "application/json" }, credentials: "same-origin" });
         if (!response.ok) {
             throw new Error(response.status === 401 ? "Prijavite se da biste videli upozorenja." : `Upozorenja nisu učitana (${response.status}).`);
         }

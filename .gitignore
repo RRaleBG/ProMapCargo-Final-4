@@ -280,3 +280,6 @@ Tools/release/README.md
 
 # Uploaded receipts and documents (local dev storage)
 App_Data/
+
+# Playwright MCP browser checks (snapshots, screenshots, console logs)
+.playwright-mcp/

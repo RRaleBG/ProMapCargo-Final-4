@@ -4,9 +4,9 @@
     ViewData["Title"] = "Zabrane vožnje · ProMap Cargo";
 }
 
-<div class="pm-page" data-module="truck-bans">
+<div class="pm-page pm-page--truck-bans" data-module="truck-bans">
     <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--3" aria-label="Zabrane vožnje pregled">
-        <article class="compliance-kpi compliance-kpi-warning">
+        <article class="compliance-kpi compliance-kpi-warning pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Čeka potvrdu</span>
                 <i data-lucide="shield-alert" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -15,7 +15,7 @@
             <span class="compliance-kpi-meta">ne koristi se dok se ne potvrdi</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-danger">
+        <article class="compliance-kpi compliance-kpi-danger pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Aktivne narednih 14 dana</span>
                 <i data-lucide="calendar-x" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -24,7 +24,7 @@
             <span class="compliance-kpi-meta">potvrđene zabrane</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-info">
+        <article class="compliance-kpi compliance-kpi-info pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Poslednje preuzimanje</span>
                 <i data-lucide="refresh-cw" class="compliance-kpi-icon" aria-hidden="true"></i>

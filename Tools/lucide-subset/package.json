@@ -1,0 +1,13 @@
+{
+  "name": "promap-lucide-subset",
+  "private": true,
+  "type": "module",
+  "description": "Builds wwwroot/lib/lucide-icons.js with the icons the project uses.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "lucide": "1.48.0"
+  }
+}

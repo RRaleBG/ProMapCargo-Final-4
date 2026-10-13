@@ -1,10 +1,11 @@
 @page "/reports"
+@model ProMapCargo.Api.Pages.Reports.IndexModel
 @{
     ViewData["Title"] = "Izveštaji · ProMap Cargo";
 }
 
-<div class="pm-page" data-module="reports">
-    <header class="pm-page-header">
+<div class="pm-page pm-page--reports" data-module="reports">
+    <header class="pm-page-header pm-header">
         <div class="pm-page-heading">
             <div class="pm-page-kicker">Analitika</div>
             <h1 class="pm-page-title">Izveštaji</h1>
@@ -17,7 +18,7 @@
     </header>
 
     <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--3" aria-label="Ključni pokazatelji">
-        <article class="compliance-kpi compliance-kpi-info">
+        <article class="compliance-kpi compliance-kpi-info pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Iskorišćenost flote</span>
                 <i data-lucide="gauge" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -27,7 +28,7 @@
                  aria-valuemax="100" aria-valuenow="0" id="kpiUtilizationBar"><span style="--pm-progress:0%"></span></div>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-good">
+        <article class="compliance-kpi compliance-kpi-good pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Isporuke na vreme</span>
                 <i data-lucide="timer" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -37,7 +38,7 @@
                  aria-valuemax="100" aria-valuenow="0" id="kpiOnTimeBar"><span style="--pm-progress:0%"></span></div>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-neutral">
+        <article class="compliance-kpi compliance-kpi-neutral pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Prosečno odstupanje rute</span>
                 <i data-lucide="waypoints" class="compliance-kpi-icon" aria-hidden="true"></i>

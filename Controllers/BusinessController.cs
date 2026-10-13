@@ -5,7 +5,6 @@ using ProMapCargo.Api.Services;
 namespace ProMapCargo.Api.Controllers;
 
 [ApiController]
-//[Authorize(Policy = "AppOrMobile")]
 [Route("api/business")]
 public sealed class BusinessController(BusinessService service) : ControllerBase
 {
@@ -210,7 +209,6 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
     }
 
     [HttpPost("trips/{tripId}/route/dispatch")]
-    //[Authorize(Roles="Administrator,Dispatcher")]
     public async Task<ActionResult<RouteDispatch>> Dispatch(Guid tripId, [FromBody] DispatchRequest request, CancellationToken ct)
     {
         try

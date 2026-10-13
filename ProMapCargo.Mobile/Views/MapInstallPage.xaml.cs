@@ -1,4 +1,5 @@
 using ProMapCargo.Mobile.Models;
+using ProMapCargo.Mobile.Services;
 using ProMapCargo.Mobile.ViewModels;
 
 namespace ProMapCargo.Mobile.Views;
@@ -14,11 +15,11 @@ public partial class MapInstallPage : ContentPage
         this.viewModel = viewModel;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
         viewModel.ContinueRequested += HandleContinueRequested;
-        await viewModel.LoadAsync(CancellationToken.None);
+        SafeUi.Run(() => viewModel.LoadAsync(CancellationToken.None));
     }
 
     protected override void OnDisappearing()
@@ -28,18 +29,7 @@ public partial class MapInstallPage : ContentPage
     }
 
     private async void HandleContinueRequested(object? sender, EventArgs e)
-    {
-        await MainThread.InvokeOnMainThreadAsync(async () =>
-        {
-            var shell = Shell.Current;
-            if (shell is null)
-            {
-                return;
-            }
-
-            await shell.GoToAsync("//dashboard");
-        });
-    }
+        => await AppNavigation.GoToAsync(AppNavigation.Dashboard);
 
     private void OnInstallClicked(object? sender, EventArgs e)
     {

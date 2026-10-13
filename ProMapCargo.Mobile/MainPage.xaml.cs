@@ -1,31 +1,24 @@
-﻿namespace ProMapCargo.Mobile;
+using ProMapCargo.Mobile.Services;
+
+namespace ProMapCargo.Mobile;
 
 public partial class MainPage : ContentPage
 {
-	public MainPage()
-	{
-		InitializeComponent();
-	}
+    public MainPage()
+    {
+        InitializeComponent();
+    }
 
-	private async void OnOpenOperationsClicked(object? sender, EventArgs e)
-	{
-		var shell = Shell.Current;
-		if (shell is null)
-		{
-			return;
-		}
+    // AppNavigation never throws: an unknown route shows a message instead of closing the app.
+    private async void OnOpenOperationsClicked(object? sender, EventArgs e)
+        => await AppNavigation.GoToAsync(AppNavigation.Dashboard);
 
-		await shell.GoToAsync("//dashboard");
-	}
+    private async void OnOpenNavigationClicked(object? sender, EventArgs e)
+        => await AppNavigation.GoToAsync(AppNavigation.Navigation);
 
-	private async void OnOpenNavigationClicked(object? sender, EventArgs e)
-	{
-		var shell = Shell.Current;
-		if (shell is null)
-		{
-			return;
-		}
+    private async void OnOpenMapsClicked(object? sender, EventArgs e)
+        => await AppNavigation.GoToAsync(AppNavigation.InstallMaps);
 
-		await shell.GoToAsync("//dashboard/mobile-navigation");
-	}
+    private async void OnOpenSettingsClicked(object? sender, EventArgs e)
+        => await AppNavigation.GoToAsync(AppNavigation.Settings);
 }

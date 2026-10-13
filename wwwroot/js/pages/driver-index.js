@@ -82,7 +82,7 @@
 
     async function load() {
         try {
-            const response = await fetch("/api/driver/portal", { headers: { "Accept": "application/json" }, credentials: "same-origin" });
+            const response = await ProMapCargo.initialData.fetch("/api/driver/portal", { headers: { "Accept": "application/json" }, credentials: "same-origin" });
             const data = await response.json().catch(() => null);
             if (response.status === 401) throw new Error("Prijavite se nalogom vozača.");
             if (response.status === 403) throw new Error("Portal je dostupan vozačima i administratoru.");
@@ -93,6 +93,8 @@
         } catch (error) {
             message(error.message, true);
             $("driverStops").innerHTML = '<div class="pm-list-row"><div><strong>Nema podataka</strong></div></div>';
+            // Without a portal (e.g. an account not linked to a driver) there is nothing to act on.
+            ["driverStopAction", "driverPause", "driverIncident"].forEach(id => { if ($(id)) $(id).disabled = true; });
         }
     }
 

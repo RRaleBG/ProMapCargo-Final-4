@@ -1,10 +1,11 @@
 @page "/trips"
+@model ProMapCargo.Api.Pages.Trips.IndexModel
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Ture";
 }
 
-<div id="tripsPage" data-module="trips" class="pm-page">
+<div id="tripsPage" data-module="trips" class="pm-page pm-page--trips">
     <header class="pm-page-header pm-header pm-trip-header">
         <div class="pm-trip-heading">
             <div class="pm-page-kicker pm-trip-kicker">Operacije flote</div>
@@ -19,7 +20,7 @@
         </header>
 
         <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--4" aria-label="Sažetak tura">
-            <article class="compliance-kpi compliance-kpi-total">
+            <article class="compliance-kpi compliance-kpi-total pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">Ukupno tura</span>
                     <i data-lucide="route" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -28,7 +29,7 @@
                 <span class="compliance-kpi-meta">sve ture</span>
             </article>
 
-            <article class="compliance-kpi compliance-kpi-good">
+            <article class="compliance-kpi compliance-kpi-good pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">Aktivne</span>
                     <i data-lucide="navigation" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -37,7 +38,7 @@
                 <span class="compliance-kpi-meta">u toku</span>
             </article>
 
-            <article class="compliance-kpi compliance-kpi-info">
+            <article class="compliance-kpi compliance-kpi-info pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">Planirane</span>
                     <i data-lucide="calendar-clock" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -46,7 +47,7 @@
                 <span class="compliance-kpi-meta">čekaju polazak</span>
             </article>
 
-            <article class="compliance-kpi compliance-kpi-neutral">
+            <article class="compliance-kpi compliance-kpi-neutral pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">Završene</span>
                     <i data-lucide="circle-check" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -61,32 +62,32 @@
                 <div>
                      <h2 class="pm-trip-filter-title">Status ture  </h2>
                     <nav class="pm-trip-filter-nav pm-filter-group" aria-label="Filtriraj po statusu">
-                        <button type="button" data-trip-filter="all" aria-pressed="true" class="pm-trip-filter pm-trip-filter--active pm-filter-btn">
+                        <button type="button" data-trip-filter="all" aria-pressed="true" class="pm-trip-filter pm-trip-filter--active pm-filter-btn pm-btn">
                             Sve ture <span data-trip-filter-count="all"
                                            class="pm-trip-filter-count">—</span>
                         </button>
                         <button type="button" data-trip-filter="active" aria-pressed="false"
-                                class="pm-trip-filter pm-filter-btn">
+                                class="pm-trip-filter pm-filter-btn pm-btn">
                             Aktivne <span data-trip-filter-count="active"
                                           class="pm-trip-filter-count">—</span>
                         </button>
                         <button type="button" data-trip-filter="planned" aria-pressed="false"
-                                class="pm-trip-filter pm-filter-btn">
+                                class="pm-trip-filter pm-filter-btn pm-btn">
                             Planirane <span data-trip-filter-count="planned"
                                             class="pm-trip-filter-count">—</span>
                         </button>
                         <button type="button" data-trip-filter="paused" aria-pressed="false"
-                                class="pm-trip-filter pm-filter-btn">
+                                class="pm-trip-filter pm-filter-btn pm-btn">
                             Pauzirane <span data-trip-filter-count="paused"
                                             class="pm-trip-filter-count">—</span>
                         </button>
                         <button type="button" data-trip-filter="completed" aria-pressed="false"
-                                class="pm-trip-filter pm-filter-btn">
+                                class="pm-trip-filter pm-filter-btn pm-btn">
                             Završene <span data-trip-filter-count="completed"
                                            class="pm-trip-filter-count">—</span>
                         </button>
                         <button type="button" data-trip-filter="cancelled" aria-pressed="false"
-                                class="pm-trip-filter pm-filter-btn">
+                                class="pm-trip-filter pm-filter-btn pm-btn">
                             Otkazane <span data-trip-filter-count="cancelled"
                                            class="pm-trip-filter-count">—</span>
                         </button>

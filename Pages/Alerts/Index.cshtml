@@ -1,11 +1,12 @@
 @page "/alerts"
+@model ProMapCargo.Api.Pages.Alerts.IndexModel
 @{
     ViewData["Title"] = "Alerts";
 }
 
-<div class="pm-page" data-module="alerts">
+<div class="pm-page pm-page--alerts" data-module="alerts">
 
-    <header class="pm-header">
+    <header class="pm-header pm-page-header">
         <div class="pm-heading">
             <div class="pm-page-kicker">
                 <span class="pm-kicker-dot"></span>
@@ -37,7 +38,7 @@
 
 
     <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--5" aria-label="Alert statistika">
-        <article class="compliance-kpi compliance-kpi-total">
+        <article class="compliance-kpi compliance-kpi-total pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Otvoreni alerti</span>
                 <i data-lucide="bell-ring" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -46,25 +47,25 @@
             <span class="compliance-kpi-meta">zahtevaju pažnju</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-danger">
+        <article class="compliance-kpi compliance-kpi-danger pm-kpi">
             <div class="compliance-kpi-top">
-                <span class="compliance-kpi-label">Critical</span>
+                <span class="compliance-kpi-label">Kritični</span>
                 <i data-lucide="octagon-alert" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
             <strong class="compliance-kpi-value" id="alertsCriticalCount">—</strong>
             <span class="compliance-kpi-meta">bezbednosni / blokirajući</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-warning">
+        <article class="compliance-kpi compliance-kpi-warning pm-kpi">
             <div class="compliance-kpi-top">
-                <span class="compliance-kpi-label">High</span>
+                <span class="compliance-kpi-label">Visoki</span>
                 <i data-lucide="arrow-up" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
             <strong class="compliance-kpi-value" id="alertsHighCount">—</strong>
             <span class="compliance-kpi-meta">visoki prioritet</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-info">
+        <article class="compliance-kpi compliance-kpi-info pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Danas</span>
                 <i data-lucide="clock" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -73,9 +74,9 @@
             <span class="compliance-kpi-meta">generisano danas</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-good">
+        <article class="compliance-kpi compliance-kpi-good pm-kpi">
             <div class="compliance-kpi-top">
-                <span class="compliance-kpi-label">Resolved</span>
+                <span class="compliance-kpi-label">Rešeni</span>
                 <i data-lucide="circle-check" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
             <strong class="compliance-kpi-value" id="alertsResolvedCount">—</strong>
@@ -86,7 +87,7 @@
 
     <section class="pm-alerts-workspace">
         <div class="pm-alerts-main">
-            <section class="pm-alerts-card">
+            <section class="pm-alerts-card pm-card">
                 <div class="pm-alerts-card-header">
                     <div>
                         <div class="pm-alerts-eyebrow">
@@ -265,7 +266,7 @@
         <aside class="pm-alerts-side">
 
 
-            <section class="pm-alerts-card pm-alerts-detail-card">
+            <section class="pm-alerts-card pm-alerts-detail-card pm-card">
 
 
                 <div class="pm-alerts-card-header">
@@ -309,7 +310,7 @@
             </section>
 
 
-            <section class="pm-alerts-card">
+            <section class="pm-alerts-card pm-card">
 
 
                 <div class="pm-alerts-card-header">
@@ -378,7 +379,7 @@
             </section>
 
 
-            <section class="pm-alerts-card">
+            <section class="pm-alerts-card pm-card">
 
 
                 <div class="pm-alerts-card-header">
@@ -469,7 +470,7 @@
 
 @section Scripts
 {
-    <script src="~/js/alerts.js"></script>
+    <script src="~/js/alerts.js" asp-append-version="true"></script>
 
     <script>
         (function() {
@@ -1027,7 +1028,7 @@
                         ? `
                                         <button
                                             type="button"
-                                            class="pm-alert-detail-btn"
+                                            class="pm-alert-detail-btn pm-btn"
                                             data-alert-action="reopen">
                                             Ponovo otvori
                                         </button>
@@ -1035,7 +1036,7 @@
                         : `
                                         <button
                                             type="button"
-                                            class="pm-alert-detail-btn primary"
+                                            class="pm-alert-detail-btn primary pm-btn"
                                             data-alert-action="resolve">
                                             Reši alert
                                         </button>
@@ -1047,7 +1048,7 @@
                         ? `
                                         <button
                                             type="button"
-                                            class="pm-alert-detail-btn"
+                                            class="pm-alert-detail-btn pm-btn"
                                             data-alert-action="acknowledge">
                                             Preuzmi
                                         </button>
@@ -1055,7 +1056,7 @@
                         : `
                                         <button
                                             type="button"
-                                            class="pm-alert-detail-btn"
+                                            class="pm-alert-detail-btn pm-btn"
                                             data-alert-action="snooze">
                                             Odloži 30 min
                                         </button>
@@ -1067,7 +1068,7 @@
                         ? `
                                         <button
                                             type="button"
-                                            class="pm-alert-detail-btn"
+                                            class="pm-alert-detail-btn pm-btn"
                                             data-alert-action="open-source">
                                             Otvori modul
                                         </button>

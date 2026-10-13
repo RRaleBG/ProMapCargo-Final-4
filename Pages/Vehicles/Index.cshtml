@@ -1,13 +1,14 @@
 @page
+@model ProMapCargo.Api.Pages.Vehicles.IndexModel
 @{
     ViewData["Title"] = "ProMap Cargo · Vozila";
 }
 
 <!-- Page Content -->
-<div class="pm-page" data-module="vehicles">
+<div class="pm-page pm-page--vehicles" data-module="vehicles">
           
     <!-- Page Header -->
-    <header class="pm-header">
+    <header class="pm-header pm-page-header">
         <div class="pm-heading">
             <div class="pm-page-kicker">
                 <span class="pm-kicker-dot"></span>
@@ -32,60 +33,60 @@
     <!-- KPI Grid -->
     <section class="moderation-kpi-grid pm-kpi-grid" aria-label="Statistika vozila">
 
-        <article class="compliance-kpi compliance-kpi-total">
+        <article class="compliance-kpi compliance-kpi-total pm-kpi">
             <div class="compliance-kpi-top">
-                <span class="compliance-kpi-label">Total</span>               
+                <span class="compliance-kpi-label">Ukupno</span>               
                 <i data-lucide="truck" class="compliance-kpi-icon"></i>
             </div>
             <strong class="compliance-kpi-value" id="kpiTotal">-</strong>
-            <span class="compliance-kpi-meta"> registered  </span>
+            <span class="compliance-kpi-meta">registrovanih vozila</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-good">
+        <article class="compliance-kpi compliance-kpi-good pm-kpi">
             <div class="compliance-kpi-top">
-                <span class="compliance-kpi-label">Active</span>            
+                <span class="compliance-kpi-label">Aktivna</span>            
                 <i data-lucide="check-check" class="compliance-kpi-icon"></i>
             </div>
             <strong class="compliance-kpi-value" id="activeVehicles">-</strong>
-            <span class="compliance-kpi-meta"> no critical issues   </span>
+            <span class="compliance-kpi-meta">bez kritičnih problema</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-warning">
+        <article class="compliance-kpi compliance-kpi-warning pm-kpi">
             <div class="compliance-kpi-top">
-                <span class="compliance-kpi-label">Expiring Soon</span>
+                <span class="compliance-kpi-label">Ističe uskoro</span>
                 <i data-lucide="triangle-alert" class="compliance-kpi-icon"></i>
             </div>
             <strong class="compliance-kpi-value" id="expiringVehicles">-</strong>
-            <span class="compliance-kpi-meta">  documents in the next 30 days   </span>
+            <span class="compliance-kpi-meta">dokumenti u narednih 30 dana</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-danger">
+        <article class="compliance-kpi compliance-kpi-danger pm-kpi">
             <div class="compliance-kpi-top">
-                <span class="compliance-kpi-label">Inactive</span>
+                <span class="compliance-kpi-label">Neaktivna</span>
                 <i data-lucide="shield-x" class="compliance-kpi-icon"></i>
             </div>
             <strong class="compliance-kpi-value" id="inactiveVehicles">-</strong>
-            <span class="compliance-kpi-meta"> inactive vehicles   </span>
+            <span class="compliance-kpi-meta">van upotrebe</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-info">
+        <article class="compliance-kpi compliance-kpi-info pm-kpi">
             <div class="compliance-kpi-top">
-                <span class="compliance-kpi-label">Trailers</span>
+                <span class="compliance-kpi-label">Prikolice</span>
                 <i data-lucide="trailer" class="compliance-kpi-icon"></i>
             </div>
             <strong class="compliance-kpi-value" id="trailerVehicles">-</strong>
-            <span class="compliance-kpi-meta">  registered trailers    </span>
+            <span class="compliance-kpi-meta">registrovane prikolice</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-neutral">
+        <article class="compliance-kpi compliance-kpi-neutral pm-kpi">
             <div class="compliance-kpi-top">
-                <span class="compliance-kpi-label">Service</span>
+                <span class="compliance-kpi-label">Servis</span>
                 <i data-lucide="wrench" class="compliance-kpi-icon"></i>
             </div>
 
             <strong class="compliance-kpi-value" id="serviceVehicles">-</strong>
 
-            <span class="compliance-kpi-meta">  on service  </span>
+            <span class="compliance-kpi-meta">na servisu</span>
         </article>
 
     </section>
@@ -120,7 +121,7 @@
        
    
     <section class="pm-vehicles-workspace">
-            <div class="pm-vehicles-card pm-panel">
+            <div class="pm-vehicles-card pm-panel pm-card">
                 <div class="pm-vehicles-card-head pm-panel-heading">
                     <div class="pm-vehicles-card-title-wrap">
                         <h2 class="pm-vehicles-card-title">
@@ -191,7 +192,7 @@
 
             </div>
 
-            <aside class="pm-vehicles-card pm-vehicle-details pm-panel" id="vehicleDetails">
+            <aside class="pm-vehicles-card pm-vehicle-details pm-panel pm-card" id="vehicleDetails">
 
                 <div class="pm-vehicle-profile">
 

@@ -1,10 +1,11 @@
 @page "/driver"
+@model ProMapCargo.Api.Pages.Driver.IndexModel
 @{
     ViewData["Title"] = "Vozački portal · ProMap Cargo";
 }
 
-<div class="pm-page" data-module="driver">
-    <header class="pm-page-header">
+<div class="pm-page pm-page--driver" data-module="driver">
+    <header class="pm-page-header pm-header">
         <div class="pm-page-heading">
             <div class="pm-page-kicker">Flota</div>
             <h1 class="pm-page-title">Vozački portal</h1>
@@ -19,7 +20,7 @@
     <div class="pm-card pm-card-body" id="driverMessage" hidden></div>
 
     <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--3" aria-label="Trenutni status vozača">
-        <article class="compliance-kpi compliance-kpi-total">
+        <article class="compliance-kpi compliance-kpi-total pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Aktivna tura</span>
                 <i data-lucide="route" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -28,7 +29,7 @@
             <span class="compliance-kpi-meta"><span id="driverRoute">—</span></span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-info">
+        <article class="compliance-kpi compliance-kpi-info pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Sledeća stanica</span>
                 <i data-lucide="map-pin" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -37,7 +38,7 @@
             <span class="compliance-kpi-meta"><span id="driverNextStopInfo">—</span></span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-good">
+        <article class="compliance-kpi compliance-kpi-good pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Status vožnje</span>
                 <i data-lucide="activity" class="compliance-kpi-icon" aria-hidden="true"></i>

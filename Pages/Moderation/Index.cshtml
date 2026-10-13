@@ -1,13 +1,14 @@
 @page "/moderation"
+@model ProMapCargo.Api.Pages.Moderation.IndexModel
 
 @{
     ViewData["Title"] = "Moderacija · ProMap Cargo";
 }
 
-<div class="pm-page" data-module="moderation">
+<div class="pm-page pm-page--moderation" data-module="moderation">
 
     <!-- HEADER -->
-    <header class="moderation-header pm-page-header">
+    <header class="moderation-header pm-page-header pm-header">
         <div class="moderation-heading pm-page-heading">  </div>
 
         <div class="moderation-header-actions pm-page-actions">
@@ -50,7 +51,7 @@
 
     <!-- KPI -->
     <section class="moderation-kpi-grid pm-kpi-grid" aria-label="Moderation pregled">
-        <article class="compliance-kpi compliance-kpi-warning">
+        <article class="compliance-kpi compliance-kpi-warning pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Čeka odluku</span>
                 <i data-lucide="clock-3" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -59,7 +60,7 @@
             <span class="compliance-kpi-meta">aktivna moderation queue</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-danger">
+        <article class="compliance-kpi compliance-kpi-danger pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Visok rizik</span>
                 <i data-lucide="triangle-alert" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -68,7 +69,7 @@
             <span class="compliance-kpi-meta">zahteva zahtevaju pažnju</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-good">
+        <article class="compliance-kpi compliance-kpi-good pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Odobreno</span>
                 <i data-lucide="circle-check" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -77,7 +78,7 @@
             <span class="compliance-kpi-meta">ovog meseca</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-danger">
+        <article class="compliance-kpi compliance-kpi-danger pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Odbijeno</span>
                 <i data-lucide="circle-x" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -86,7 +87,7 @@
             <span class="compliance-kpi-meta">ovog meseca</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-info">
+        <article class="compliance-kpi compliance-kpi-info pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Danas</span>
                 <i data-lucide="calendar-days" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -95,7 +96,7 @@
             <span class="compliance-kpi-meta">novih zahteva</span>
         </article>
 
-        <article class="compliance-kpi compliance-kpi-neutral">
+        <article class="compliance-kpi compliance-kpi-neutral pm-kpi">
             <div class="compliance-kpi-top">
                 <span class="compliance-kpi-label">Prosečno vreme</span>
                 <i data-lucide="timer" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -118,19 +119,19 @@
 
         <div class="pm-filter-group moderation-filter-group">
 
-            <button class="pm-filter-btn moderation-filter active" data-status="all" type="button">
+            <button class="pm-filter-btn moderation-filter active pm-btn" data-status="all" type="button">
                 Svi <b data-count="all">0</b>
             </button>
 
-            <button class="pm-filter-btn moderation-filter" data-status="pending" type="button">
+            <button class="pm-filter-btn moderation-filter pm-btn" data-status="pending" type="button">
                 Na čekanju <b data-count="pending">0</b>
             </button>
 
-            <button class="pm-filter-btn moderation-filter" data-status="approved" type="button">
+            <button class="pm-filter-btn moderation-filter pm-btn" data-status="approved" type="button">
                 Odobreno <b data-count="approved">0</b>
             </button>
 
-            <button class="pm-filter-btn moderation-filter" data-status="rejected" type="button">
+            <button class="pm-filter-btn moderation-filter pm-btn" data-status="rejected" type="button">
                 Odbijeno <b data-count="rejected">0</b>
             </button>
 
@@ -328,15 +329,15 @@
                           placeholder="Obrazloženje odluke je obavezno za odbijanje ili vraćanje zahteva..."></textarea>
 
                 <div class="decision-actions" id="decisionActions">
-                    <button class="decision-btn decision-approve" data-decision="approved" type="button">
+                    <button class="decision-btn decision-approve pm-btn" data-decision="approved" type="button">
                         ✓ Odobri
                     </button>
 
-                    <button class="decision-btn decision-changes" data-decision="changes" type="button">
+                    <button class="decision-btn decision-changes pm-btn" data-decision="changes" type="button">
                         ↺ Traži izmene
                     </button>
 
-                    <button class="decision-btn decision-reject" data-decision="rejected" type="button">
+                    <button class="decision-btn decision-reject pm-btn" data-decision="rejected" type="button">
                         × Odbij
                     </button>
                 </div>
@@ -403,7 +404,7 @@
 
         </div>
 
-        <a href="/compliance" class="moderation-btn moderation-btn-secondary">
+        <a href="/compliance" class="moderation-btn moderation-btn-secondary pm-btn">
             Compliance centar →
         </a>
 

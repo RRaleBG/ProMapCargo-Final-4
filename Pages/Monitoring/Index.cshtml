@@ -1,9 +1,10 @@
 @page "/monitoring"
+@model ProMapCargo.Api.Pages.Monitoring.IndexModel
 @{
     ViewData["Title"] = "Monitoring · ProMap Cargo";
 }
 
-<div class="pm-page" data-module="monitoring">
+<div class="pm-page pm-page--monitoring" data-module="monitoring">
       
 
     <div class="monitoring-shell">
@@ -27,7 +28,7 @@
 
 
         <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--5" aria-label="Praćenje pregled">
-            <article class="compliance-kpi compliance-kpi-total">
+            <article class="compliance-kpi compliance-kpi-total pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">Ukupno vozila</span>
                     <i data-lucide="truck" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -36,7 +37,7 @@
                 <span class="compliance-kpi-meta">Registrovana flota</span>
             </article>
 
-            <article class="compliance-kpi compliance-kpi-good">
+            <article class="compliance-kpi compliance-kpi-good pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">Online</span>
                     <i data-lucide="wifi" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -45,7 +46,7 @@
                 <span class="compliance-kpi-meta">Aktivan GPS signal</span>
             </article>
 
-            <article class="compliance-kpi compliance-kpi-info">
+            <article class="compliance-kpi compliance-kpi-info pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">U vožnji</span>
                     <i data-lucide="navigation" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -54,7 +55,7 @@
                 <span class="compliance-kpi-meta">Brzina iznad 5 km/h</span>
             </article>
 
-            <article class="compliance-kpi compliance-kpi-neutral">
+            <article class="compliance-kpi compliance-kpi-neutral pm-kpi">
                 <div class="compliance-kpi-top">
                     <span class="compliance-kpi-label">Zaustavljena</span>
                     <i data-lucide="circle-pause" class="compliance-kpi-icon" aria-hidden="true"></i>
@@ -63,9 +64,9 @@
                 <span class="compliance-kpi-meta">Online bez kretanja</span>
             </article>
 
-            <article class="compliance-kpi compliance-kpi-warning">
+            <article class="compliance-kpi compliance-kpi-warning pm-kpi">
                 <div class="compliance-kpi-top">
-                    <span class="compliance-kpi-label">Alerts</span>
+                    <span class="compliance-kpi-label">Upozorenja</span>
                     <i data-lucide="triangle-alert" class="compliance-kpi-icon" aria-hidden="true"></i>
                 </div>
                 <strong class="compliance-kpi-value" id="kpiAlerts">0</strong>
@@ -139,7 +140,7 @@
 
             <aside class="monitoring-side">
 
-                <section class="monitoring-side-card pm-panel">
+                <section class="monitoring-side-card pm-panel pm-card">
 
                     <div class="monitoring-section-head pm-panel-heading">
                         <h2 class="monitoring-section-title">
@@ -153,19 +154,19 @@
 
                     <div class="monitoring-filters pm-filter-group">
 
-                        <button type="button" class="monitoring-filter pm-filter-btn active" data-filter="all">
+                        <button type="button" class="monitoring-filter pm-filter-btn active pm-btn" data-filter="all">
                             Sva
                         </button>
 
-                        <button type="button" class="monitoring-filter pm-filter-btn" data-filter="moving">
+                        <button type="button" class="monitoring-filter pm-filter-btn pm-btn" data-filter="moving">
                             Vožnja
                         </button>
 
-                        <button type="button" class="monitoring-filter pm-filter-btn" data-filter="idle">
+                        <button type="button" class="monitoring-filter pm-filter-btn pm-btn" data-filter="idle">
                             Idle
                         </button>
 
-                        <button type="button" class="monitoring-filter pm-filter-btn" data-filter="offline">
+                        <button type="button" class="monitoring-filter pm-filter-btn pm-btn" data-filter="offline">
                             Offline
                         </button>
 
@@ -175,7 +176,7 @@
 
                 </section>
 
-                <section class="monitoring-side-card monitoring-detail-card pm-panel">
+                <section class="monitoring-side-card monitoring-detail-card pm-panel pm-card">
 
                     <div class="monitoring-section-head pm-panel-heading">
                         <h2 class="monitoring-section-title">
@@ -203,7 +204,7 @@
 
                 </section>
 
-                <section class="monitoring-side-card pm-panel">
+                <section class="monitoring-side-card pm-panel pm-card">
 
                     <div class="monitoring-section-head pm-panel-heading">
                         <h2 class="monitoring-section-title">

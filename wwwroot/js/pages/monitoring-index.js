@@ -1466,7 +1466,7 @@
     ) {
 
         const response =
-            await fetch(
+            await ProMapCargo.initialData.fetch(
                 url,
                 {
                     headers: {

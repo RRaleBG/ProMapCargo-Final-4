@@ -6,9 +6,9 @@
 }
 
 
-<div id="navigationPage" class="pm-page" data-module="navigation" data-nav-mode="plan"
+<div id="navigationPage" class="pm-page pm-page--navigation" data-module="navigation" data-nav-mode="plan"
      data-is-admin="@(User.IsInRole("Administrator") ? "1" : "0")">
-    <div class="nav-page-header pm-page-header"></div>
+    <div class="nav-page-header pm-page-header pm-header"></div>
     <div class="navigation-workspace">
         <section class="navigation-map-section">
             <div class="navigation-map-shell">
@@ -53,7 +53,7 @@
                     </section>
                     <!-- ================================================= CONTROL PANEL ================================================= -->
                     <aside class="navigation-control-panel"> <!-- PLANER RUTE -->
-                        <section class="nav-control-card nav-route-control">
+                        <section class="nav-control-card nav-route-control pm-card">
                             <div class="nav-control-card-header">
                                 <div> <span class="nav-section-kicker">ROUTE PLANNER</span>
                                     <h2>Planiranje rute</h2>
@@ -91,7 +91,7 @@
                                                            class="nav-small-action hover:pm-hover-surface active:pm-press"> <i data-lucide="map-pin" aria-hidden="true"></i> Izaberi cilj na
                                         mapi </button> </div>
                                     </section> <!-- VEHICLE MODE -->
-                                    <section class="nav-control-card">
+                                    <section class="nav-control-card pm-card">
                                         <div class="nav-control-card-header compact">
                                             <div> <span class="nav-section-kicker">VOZILO</span>
                                                 <h2>Profil vozila</h2>
@@ -163,7 +163,7 @@
                                                                     class="hover:pm-hover-rotate"><i data-lucide="locate-fixed" aria-hidden="true"></i></span> <span>Koristi moju trenutnu lokaciju</span> </button>
                                                                     <div id="navError" class="nav-error" role="alert" aria-live="assertive" hidden></div>
                                                                 </section> <!-- ROUTE SUMMARY -->
-                                                                <section class="nav-control-card nav-summary-card">
+                                                                <section class="nav-control-card nav-summary-card pm-card">
                                                                     <div class="nav-control-card-header compact">
                                                                         <div> <span class="nav-section-kicker">REZULTAT RUTE</span>
                                                                             <h2>Pregled rute</h2>
@@ -181,7 +181,7 @@
                                                                             <div> <small>RESTRIKCIJE</small> <strong id="summaryDiagnostics">—</strong> </div>
                                                                         </div>
                                                                     </section> <!-- ALTERNATIVES -->
-                                                                    <section id="alternativesCard" class="nav-control-card nav-list-card" hidden>
+                                                                    <section id="alternativesCard" class="nav-control-card nav-list-card pm-card" hidden>
                                                                         <div class="nav-control-card-header compact">
                                                                             <div> <span class="nav-section-kicker">RUTE</span>
                                                                                 <h2>Alternativne rute</h2>
@@ -189,7 +189,7 @@
                                                                         </div>
                                                                         <div id="routeAlternatives" class="nav-alternatives"></div>
                                                                     </section> <!-- WARNINGS -->
-                                                                    <section id="warningsCard" class="nav-control-card nav-list-card" hidden>
+                                                                    <section id="warningsCard" class="nav-control-card nav-list-card pm-card" hidden>
                                                                         <div class="nav-control-card-header compact">
                                                                             <div> <span class="nav-section-kicker">BEZBEDNOST</span>
                                                                                 <h2>Upozorenja</h2>
@@ -197,7 +197,7 @@
                                                                         </div>
                                                                         <div id="routeWarnings" class="nav-warning-list"></div>
                                                                     </section> <!-- MANEUVERS -->
-                                                                    <section id="maneuversCard" class="nav-control-card nav-list-card" hidden>
+                                                                    <section id="maneuversCard" class="nav-control-card nav-list-card pm-card" hidden>
                                                                         <div class="nav-control-card-header compact">
                                                                             <div> <span class="nav-section-kicker">UPUTSTVA</span>
                                                                                 <h2>Koraci navigacije</h2>
@@ -205,7 +205,7 @@
                                                                         </div>
                                                                         <div id="maneuverList" class="nav-maneuver-list"></div>
                                                                     </section> <!-- DIAGNOSTICS -->
-                                                                    <section class="nav-control-card nav-diagnostics-card" id="navDiagnosticsCard" hidden>
+                                                                    <section class="nav-control-card nav-diagnostics-card pm-card" id="navDiagnosticsCard" hidden>
                                                                         <div class="nav-control-card-header compact">
                                                                             <div> <span class="nav-section-kicker">SISTEM</span>
                                                                                 <h2>Dijagnostika rutiranja</h2>

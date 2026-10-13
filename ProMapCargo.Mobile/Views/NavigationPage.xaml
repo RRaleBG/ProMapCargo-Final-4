@@ -3,6 +3,8 @@
     x:Class="ProMapCargo.Mobile.Views.MobileNavigationPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ProMapCargo.Mobile.ViewModels"
+    x:DataType="vm:NavigationViewModel"
     xmlns:converters="clr-namespace:ProMapCargo.Mobile.Converters"
     xmlns:models="clr-namespace:ProMapCargo.Mobile.Models"
     Title="Navigacija"

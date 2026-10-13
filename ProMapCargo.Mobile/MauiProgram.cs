@@ -1,11 +1,9 @@
-using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ProMapCargo.Mobile.Models;
 using ProMapCargo.Mobile.Services;
 using ProMapCargo.Mobile.ViewModels;
 using ProMapCargo.Mobile.Views;
-using UraniumUI;
 
 namespace ProMapCargo.Mobile;
 
@@ -22,9 +20,6 @@ public static class MauiProgram
 
         builder
             .UseMauiApp<App>()
-            .UseMauiCommunityToolkit()
-            .UseUraniumUI()
-            .UseUraniumUIMaterial()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -90,6 +85,7 @@ public static class MauiProgram
 #endif
 
         builder.Services.AddSingleton<AppShell>();
+        builder.Services.AddTransient<StartupPage>();
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<DashboardViewModel>();
         builder.Services.AddTransient<NavigationViewModel>();

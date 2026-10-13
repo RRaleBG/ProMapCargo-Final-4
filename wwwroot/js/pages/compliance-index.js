@@ -102,7 +102,7 @@
     }
 
     async function request(url, options = {}) {
-        const response = await fetch(url, { credentials: "same-origin", headers: { "Accept": "application/json", ...(options.headers || {}) }, ...options });
+        const response = await ProMapCargo.initialData.fetch(url, { credentials: "same-origin", headers: { "Accept": "application/json", ...(options.headers || {}) }, ...options });
         const data = await response.json().catch(() => null);
         if (!response.ok) {
             throw new Error(data?.message || data?.title || (response.status === 401 ? "Prijavite se ponovo." : `Greška ${response.status}.`));

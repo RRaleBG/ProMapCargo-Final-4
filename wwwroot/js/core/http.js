@@ -67,7 +67,10 @@
     root.http = {
         HttpError,
         request,
-        get(url, options) { return request(url, { ...options, method: "GET" }); },
+        get(url, options) {
+            const seeded = root.initialData?.take(url);
+            return seeded !== undefined ? Promise.resolve(seeded) : request(url, { ...options, method: "GET" });
+        },
         post(url, body, options) { return request(url, { ...options, method: "POST", body }); },
         put(url, body, options) { return request(url, { ...options, method: "PUT", body }); },
         patch(url, body, options) { return request(url, { ...options, method: "PATCH", body }); },

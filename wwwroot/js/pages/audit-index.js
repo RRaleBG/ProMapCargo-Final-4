@@ -42,7 +42,7 @@
     async function load() {
         rows.innerHTML = '<tr><td colspan="5">Učitavanje…</td></tr>';
         try {
-            const response = await fetch(`/api/audit?${query()}`, { headers: { "Accept": "application/json" }, credentials: "same-origin" });
+            const response = await ProMapCargo.initialData.fetch(`/api/audit?${query()}`, { headers: { "Accept": "application/json" }, credentials: "same-origin" });
             if (response.status === 401) throw new Error("Prijavite se da biste videli audit.");
             if (!response.ok) throw new Error(`Audit nije učitan (${response.status}).`);
             const items = await response.json();

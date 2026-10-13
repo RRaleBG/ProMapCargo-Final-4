@@ -1,4 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Welcome screen: the web UI's brand mark and colours, two large actions for the driver
+  (touch targets >= 52 px) and tiles to the other sections, as on the home screen.
+-->
 <ContentPage
     x:Class="ProMapCargo.Mobile.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -6,90 +10,202 @@
     BackgroundColor="{StaticResource SurfaceBase}"
     Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="*">
-        <BoxView>
-            <BoxView.Background>
-                <RadialGradientBrush Center="0.5,0.26" Radius="0.95">
-                    <GradientStop Offset="0.00" Color="#123E35" />
-                    <GradientStop Offset="0.42" Color="{StaticResource SurfaceElevated}" />
-                    <GradientStop Offset="1.00" Color="{StaticResource SurfaceBase}" />
-                </RadialGradientBrush>
-            </BoxView.Background>
-        </BoxView>
+    <ContentPage.Resources>
+        <Style x:Key="WelcomeTapTarget" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="BorderWidth" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Text" Value="" />
+        </Style>
+        <Style x:Key="WelcomeTile" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="{StaticResource SurfaceOverlay}" />
+            <Setter Property="Stroke" Value="{StaticResource StrokeSubtle}" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+            <Setter Property="Padding" Value="14,12" />
+            <Setter Property="HeightRequest" Value="84" />
+        </Style>
+        <Style x:Key="WelcomeTileIcon" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="{StaticResource SurfaceInset}" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+            <Setter Property="HeightRequest" Value="32" />
+            <Setter Property="WidthRequest" Value="32" />
+            <Setter Property="HorizontalOptions" Value="Start" />
+        </Style>
+        <Style x:Key="WelcomeTileLabel" TargetType="Label">
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+            <Setter Property="VerticalOptions" Value="End" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid>
+        <Grid.Background>
+            <RadialGradientBrush Center="0.5,0.18" Radius="1">
+                <GradientStop Offset="0" Color="#0A2A23" />
+                <GradientStop Offset="0.5" Color="#031712" />
+                <GradientStop Offset="1" Color="#010D0B" />
+            </RadialGradientBrush>
+        </Grid.Background>
 
         <ScrollView>
-            <VerticalStackLayout Padding="24,32,24,28" Spacing="20">
-                <Border
-                    BackgroundColor="#B1061F19"
-                    StrokeShape="RoundRectangle 24"
-                    Style="{StaticResource PmCardBorder}">
-                    <VerticalStackLayout Spacing="14">
-                        <Image
-                            Aspect="AspectFit"
-                            HeightRequest="108"
-                            HorizontalOptions="Center"
-                            SemanticProperties.Description="ProMap Cargo premium navigation"
-                            Source="splash.svg"
-                            WidthRequest="108" />
+            <VerticalStackLayout Padding="22,40,22,28" Spacing="22">
 
+                <!--  Brand: same mark as the web sidebar and the start-up screen  -->
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="16">
+                    <Border
+                        HeightRequest="84"
+                        HorizontalOptions="Center"
+                        SemanticProperties.Description="ProMap Cargo"
+                        StrokeThickness="1.5"
+                        WidthRequest="84">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="24" />
+                        </Border.StrokeShape>
+                        <Border.Stroke>
+                            <LinearGradientBrush EndPoint="1,1">
+                                <GradientStop Offset="0" Color="#8C6EE7B7" />
+                                <GradientStop Offset="1" Color="#2E2DD4BF" />
+                            </LinearGradientBrush>
+                        </Border.Stroke>
+                        <Border.Background>
+                            <LinearGradientBrush EndPoint="1,1">
+                                <GradientStop Offset="0" Color="#9E10B981" />
+                                <GradientStop Offset="1" Color="#33059669" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.Shadow>
+                            <Shadow Brush="#10B981" Opacity="0.3" Radius="26" Offset="0,0" />
+                        </Border.Shadow>
+                        <Grid>
+                            <Rectangle
+                                HeightRequest="32"
+                                HorizontalOptions="Center"
+                                RadiusX="9"
+                                RadiusY="9"
+                                Rotation="45"
+                                Stroke="#6EE7B7"
+                                StrokeThickness="3.5"
+                                VerticalOptions="Center"
+                                WidthRequest="32" />
+                            <Ellipse
+                                Fill="#2DD4BF"
+                                HeightRequest="10"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                WidthRequest="10" />
+                        </Grid>
+                    </Border>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            FontFamily="OpenSansSemibold"
+                            FontSize="28"
+                            HorizontalTextAlignment="Center"
+                            SemanticProperties.HeadingLevel="Level1">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="ProMap " TextColor="#F0FDF8" />
+                                    <Span Text="Cargo" TextColor="#34D399" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                         <Label
                             HorizontalTextAlignment="Center"
-                            SemanticProperties.HeadingLevel="Level1"
-                            Style="{StaticResource PmPageTitleLabel}"
-                            Text="ProMap Cargo" />
-
-                        <Label
-                            HorizontalTextAlignment="Center"
-                            SemanticProperties.HeadingLevel="Level2"
                             Style="{StaticResource PmMutedLabel}"
-                            Text="Truck-aware dispatch, routing, and live navigation in one native experience." />
+                            Text="Navigacija za kamione, ture i dispečing na jednom mestu." />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
 
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                            <Label
-                                FontSize="12"
-                                Text="●"
-                                TextColor="{StaticResource Brand}"
-                                VerticalTextAlignment="Center" />
-                            <Label
-                                Grid.Column="1"
-                                Style="{StaticResource PmMutedLabel}"
-                                Text="PostGIS primary routing + OSRM fallback" />
+                <!--  What the app does, at a glance  -->
+                <Border Style="{StaticResource PmCardBorder}">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border Style="{StaticResource WelcomeTileIcon}">
+                                <Image HeightRequest="18" Source="ic_tab_navigation.svg" WidthRequest="18" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Style="{StaticResource PmBodyLabel}" Text="Rute za kamione" />
+                                <Label Style="{StaticResource PmCaptionLabel}" Text="Visina, masa, osovine i zabrane vožnje" />
+                            </VerticalStackLayout>
                         </Grid>
-
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                            <Label
-                                FontSize="12"
-                                Text="●"
-                                TextColor="{StaticResource Secondary}"
-                                VerticalTextAlignment="Center" />
-                            <Label
-                                Grid.Column="1"
-                                Style="{StaticResource PmMutedLabel}"
-                                Text="Fleet telemetry, maneuvers, and off-route awareness" />
+                        <BoxView Style="{StaticResource PmDivider}" />
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border Style="{StaticResource WelcomeTileIcon}">
+                                <Image HeightRequest="18" Source="ic_map.svg" WidthRequest="18" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Style="{StaticResource PmBodyLabel}" Text="Radi i bez signala" />
+                                <Label Style="{StaticResource PmCaptionLabel}" Text="Offline mape i rute izračunate na telefonu" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <BoxView Style="{StaticResource PmDivider}" />
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border Style="{StaticResource WelcomeTileIcon}">
+                                <Image HeightRequest="18" Source="ic_tab_operations.svg" WidthRequest="18" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Style="{StaticResource PmBodyLabel}" Text="Veza sa dispečerom" />
+                                <Label Style="{StaticResource PmCaptionLabel}" Text="Ture, stanice i upozorenja u realnom vremenu" />
+                            </VerticalStackLayout>
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
 
-                <Border Style="{StaticResource PmMapGlassCard}">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Style="{StaticResource PmSectionTitleLabel}" Text="Quick start" />
-                        <Button
-                            Clicked="OnOpenOperationsClicked"
-                            Style="{StaticResource PmPrimaryButton}"
-                            Text="Open operations" />
-                        <Button
-                            Clicked="OnOpenNavigationClicked"
-                            Style="{StaticResource PmSecondaryButton}"
-                            Text="Open navigation" />
-                    </VerticalStackLayout>
-                </Border>
+                <!--  Main actions  -->
+                <VerticalStackLayout Spacing="10">
+                    <Button
+                        Clicked="OnOpenNavigationClicked"
+                        SemanticProperties.Hint="Otvara navigaciju"
+                        Style="{StaticResource PmPrimaryButton}"
+                        Text="Kreni u navigaciju" />
+                    <Button
+                        Clicked="OnOpenOperationsClicked"
+                        SemanticProperties.Hint="Otvara početni ekran sa turama i upozorenjima"
+                        Style="{StaticResource PmSecondaryButton}"
+                        Text="Operacije" />
+                </VerticalStackLayout>
+
+                <!--  Other sections  -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Border Style="{StaticResource WelcomeTile}">
+                        <Grid RowDefinitions="*,Auto">
+                            <Border Style="{StaticResource WelcomeTileIcon}">
+                                <Image HeightRequest="18" Source="ic_map.svg" WidthRequest="18" />
+                            </Border>
+                            <Label Grid.Row="1" Style="{StaticResource WelcomeTileLabel}" Text="Offline mape" />
+                            <Button
+                                Grid.RowSpan="2"
+                                Margin="-14,-12"
+                                Clicked="OnOpenMapsClicked"
+                                SemanticProperties.Description="Offline mape"
+                                Style="{StaticResource WelcomeTapTarget}" />
+                        </Grid>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource WelcomeTile}">
+                        <Grid RowDefinitions="*,Auto">
+                            <Border Style="{StaticResource WelcomeTileIcon}">
+                                <Image HeightRequest="18" Source="ic_settings.svg" WidthRequest="18" />
+                            </Border>
+                            <Label Grid.Row="1" Style="{StaticResource WelcomeTileLabel}" Text="Podešavanja" />
+                            <Button
+                                Grid.RowSpan="2"
+                                Margin="-14,-12"
+                                Clicked="OnOpenSettingsClicked"
+                                SemanticProperties.Description="Podešavanja"
+                                Style="{StaticResource WelcomeTapTarget}" />
+                        </Grid>
+                    </Border>
+                </Grid>
 
                 <Label
                     HorizontalTextAlignment="Center"
-                    Style="{StaticResource PmMutedLabel}"
-                    Text="Sovereign maps · PMTiles · Real-time fleet intelligence" />
+                    Style="{StaticResource PmCaptionLabel}"
+                    Text="Sopstvene mape · PMTiles · bez spoljnih servisa" />
             </VerticalStackLayout>
         </ScrollView>
     </Grid>
-
 </ContentPage>

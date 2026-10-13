@@ -31,7 +31,7 @@
 
     async function loadKpi() {
         try {
-            const response = await fetch("/api/reports/kpi", { headers: { "Accept": "application/json" }, credentials: "same-origin" });
+            const response = await ProMapCargo.initialData.fetch("/api/reports/kpi", { headers: { "Accept": "application/json" }, credentials: "same-origin" });
             if (!response.ok) return;
             const kpi = await response.json();
             setKpi("kpiUtilization", kpi.fleetUtilization);

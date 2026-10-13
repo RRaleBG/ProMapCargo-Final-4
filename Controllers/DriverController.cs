@@ -9,49 +9,18 @@ namespace ProMapCargo.Api.Controllers;
 [ApiController]
 [Authorize(Roles = "Administrator,Driver")]
 [Route("api/driver")]
-public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContext current, AuditWriter audit) : ControllerBase
+public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContext current, AuditWriter audit, DriverPortalQueries portalQueries) : ControllerBase
 {
     // ---- /driver portal: active trip, stops and the driver's actions ----
 
     [HttpGet("portal")]
     public async Task<ActionResult<object>> Portal(CancellationToken ct)
     {
-        if (current.CompanyId is not Guid c) return Unauthorized();
-        var driver = await db.Drivers.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == c && x.UserId == current.UserId, ct);
-        if (driver is null)
-            return NotFound(new { code = "NoDriver", message = "Nalog nije povezan sa vozačem." });
-
-        var trip = await ActiveTripAsync(c, driver.Id, ct);
-        var stops = trip is null ? [] : await db.TransportStops.AsNoTracking()
-            .Where(x => x.CompanyId == c && x.TransportOrderId == trip.TransportOrderId)
-            .OrderBy(x => x.Sequence)
-            .ToListAsync(ct);
-        var next = stops.FirstOrDefault(x => x.Status is TransportStopStatus.Planned or TransportStopStatus.Arrived or TransportStopStatus.InService);
-        var vehicle = trip?.VehicleId is { } vehicleId ? await db.Vehicles.AsNoTracking().SingleOrDefaultAsync(x => x.Id == vehicleId, ct) : null;
-        var phone = await db.Companies.AsNoTracking().Where(x => x.Id == c).Select(x => x.DispatchPhone).FirstOrDefaultAsync(ct);
-
-        return Ok(new
-        {
-            Driver = new { driver.Id, driver.FullName, driver.EmployeeNumber, Status = driver.Status.ToString() },
-            Trip = trip is null ? null : new
-            {
-                trip.Id,
-                trip.TripNumber,
-                Status = trip.Status.ToString(),
-                State = trip.ExecutionState.ToString(),
-                trip.RouteProgressPercent,
-                trip.PlannedArrivalAt,
-                Route = stops.Count == 0 ? "" : (stops[0].City ?? stops[0].Name) + " → " + (stops[^1].City ?? stops[^1].Name),
-                Vehicle = vehicle?.Registration,
-            },
-            Stops = stops.Select(x => new
-            {
-                x.Id, x.Sequence, Type = x.Type.ToString(), Status = x.Status.ToString(), x.Name, x.City, x.CountryCode,
-                x.PlannedAt, x.ArrivedAt, x.CompletedAt, x.Notes,
-            }),
-            NextStopId = next?.Id,
-            DispatchPhone = phone,
-        });
+        var portal = await portalQueries.PortalAsync(ct);
+        if (portal is null) return Unauthorized();
+        return portal.Data is null
+            ? NotFound(new { code = "NoDriver", message = "Nalog nije povezan sa vozačem." })
+            : Ok(portal.Data);
     }
 
     [HttpPost("stops/{stopId:guid}/arrive")]
@@ -163,13 +132,7 @@ public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContex
     }
 
     private Task<Trip?> ActiveTripAsync(Guid c, Guid driverId, CancellationToken ct, bool tracked = false)
-    {
-        var trips = tracked ? db.Trips : db.Trips.AsNoTracking();
-        return trips.Where(x => x.CompanyId == c && x.DriverId == driverId && (x.Status == TripStatus.Active || x.Status == TripStatus.Paused || x.Status == TripStatus.Planned))
-            .OrderByDescending(x => x.Status == TripStatus.Active || x.Status == TripStatus.Paused)
-            .ThenBy(x => x.PlannedStartAt)
-            .FirstOrDefaultAsync(ct);
-    }
+        => portalQueries.ActiveTripAsync(c, driverId, ct, tracked);
 
     [HttpGet("dashboard")]
     public async Task<ActionResult<object>> Dashboard(CancellationToken ct)
