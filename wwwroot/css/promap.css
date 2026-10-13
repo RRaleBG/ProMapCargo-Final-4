@@ -15209,6 +15209,13 @@ body.pm-page {
   margin: 0;
 }
 
+/* Pages with fewer KPI cards fill the row on wide screens */
+@media (min-width: 1401px) {
+  .moderation-kpi-grid.pm-kpi-grid--5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .moderation-kpi-grid.pm-kpi-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .moderation-kpi-grid.pm-kpi-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
 .moderation-kpi {
   position: relative;
   overflow: hidden;

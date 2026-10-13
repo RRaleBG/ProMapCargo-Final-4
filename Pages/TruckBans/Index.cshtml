@@ -5,24 +5,32 @@
 }
 
 <div class="pm-page" data-module="truck-bans">
-    <section class="pm-kpi-grid" aria-label="Zabrane vožnje pregled">
-        <article class="pm-kpi">
-            <div class="pm-kpi-label">Čeka potvrdu</div>
-            <div class="pm-kpi-value">@Model.ForReview.Count</div>
-            <div class="pm-kpi-footer">ne koristi se dok se ne potvrdi</div>
-            <i data-lucide="shield-alert" class="pm-kpi-icon" aria-hidden="true"></i>
+    <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--3" aria-label="Zabrane vožnje pregled">
+        <article class="compliance-kpi compliance-kpi-warning">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Čeka potvrdu</span>
+                <i data-lucide="shield-alert" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value">@Model.ForReview.Count</strong>
+            <span class="compliance-kpi-meta">ne koristi se dok se ne potvrdi</span>
         </article>
-        <article class="pm-kpi">
-            <div class="pm-kpi-label">Aktivne narednih 14 dana</div>
-            <div class="pm-kpi-value">@Model.Upcoming.Count</div>
-            <div class="pm-kpi-footer">potvrđene zabrane</div>
-            <i data-lucide="calendar-x" class="pm-kpi-icon" aria-hidden="true"></i>
+
+        <article class="compliance-kpi compliance-kpi-danger">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Aktivne narednih 14 dana</span>
+                <i data-lucide="calendar-x" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value">@Model.Upcoming.Count</strong>
+            <span class="compliance-kpi-meta">potvrđene zabrane</span>
         </article>
-        <article class="pm-kpi">
-            <div class="pm-kpi-label">Poslednje preuzimanje</div>
-            <div class="pm-kpi-value">@(Model.LastSyncUtc?.ToLocalTime().ToString("dd.MM. HH:mm") ?? "—")</div>
-            <div class="pm-kpi-footer">@(Model.LastSync is null ? "truckban.eu, jednom dnevno" : Model.LastSync.Error ?? $"{Model.LastSync.Bans} zabrana, {Model.LastSync.Days} dana")</div>
-            <i data-lucide="refresh-cw" class="pm-kpi-icon" aria-hidden="true"></i>
+
+        <article class="compliance-kpi compliance-kpi-info">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Poslednje preuzimanje</span>
+                <i data-lucide="refresh-cw" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value">@(Model.LastSyncUtc?.ToLocalTime().ToString("dd.MM. HH:mm") ?? "—")</strong>
+            <span class="compliance-kpi-meta">@(Model.LastSync is null ? "truckban.eu, jednom dnevno" : Model.LastSync.Error ?? $"{Model.LastSync.Bans} zabrana, {Model.LastSync.Days} dana")</span>
         </article>
     </section>
 

@@ -506,6 +506,31 @@
         elements.detailGps.textContent =
             formatDate(driver.lastGpsAt);
 
+        // Licence and certificates: an expired date is marked, one within 30 days is flagged.
+        var today = new Date(new Date().toDateString());
+        var day = function (value) {
+            if (!value) return "—";
+            var date = new Date(value + "T00:00:00");
+            var days = Math.round((date - today) / 86400000);
+            return date.toLocaleDateString("sr-Latn-RS") + (days < 0 ? " · ISTEKLO" : days <= 30 ? " · ističe za " + days + " d" : "");
+        };
+        var set = function (id, value) {
+            var element = document.getElementById(id);
+            if (element) element.textContent = value === null || value === undefined || value === "" ? "—" : value;
+        };
+
+        set("detailEmployee", driver.employeeNumber);
+        set("detailEmail", driver.email);
+        set("detailCategories", driver.licenseCategories);
+        set("detailLicenseExpiry", day(driver.licenseExpiry));
+        set("detailCode95", day(driver.code95Expiry));
+        set("detailAdr", day(driver.adrExpiry));
+        set("detailTachoCard", driver.tachographCardNumber ? driver.tachographCardNumber + " · " + day(driver.tachographCardExpiry) : null);
+        set("detailMedical", day(driver.medicalExpiry));
+        set("detailHired", driver.hireDate ? new Date(driver.hireDate + "T00:00:00").toLocaleDateString("sr-Latn-RS") : null);
+        set("detailAddress", driver.address);
+        set("detailNotes", driver.notes);
+
         elements.detailStatus.innerHTML =
             '<span class="pm-driver-status ' +
                 statusClass(status) +
@@ -609,7 +634,7 @@
                 selectDriver(state.selectedDriverId);
             }
 
-            elements.lastRefreshLabel.textContent =
+            if (elements.lastRefreshLabel) elements.lastRefreshLabel.textContent =
                 "Poslednje osvežavanje: " +
                 formatDate(new Date().toISOString());
 

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ProMap Cargo app icon (small-size optimized version of splash.svg).
+  Same palette and motif as the splash, but: no text, no blur filters,
+  no thin strokes, larger truck and route, content kept inside
+  the central safe zone so platform masks (circle/squircle) do not cut it.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="456" height="456" viewBox="0 0 456 456">
+  <defs>
+	<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+	  <stop offset="0%" stop-color="#0A2A23"/>
+	  <stop offset="50%" stop-color="#031712"/>
+	  <stop offset="100%" stop-color="#010C0A"/>
+	</linearGradient>
+	<radialGradient id="glow" cx="50%" cy="50%" r="50%">
+	  <stop offset="0%" stop-color="#34D399" stop-opacity="0.22"/>
+	  <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+	</radialGradient>
+	<linearGradient id="route" x1="80" y1="340" x2="380" y2="110" gradientUnits="userSpaceOnUse">
+	  <stop offset="0%" stop-color="#10B981"/>
+	  <stop offset="55%" stop-color="#2DD4BF"/>
+	  <stop offset="100%" stop-color="#34D399"/>
+	</linearGradient>
+	<linearGradient id="truckBody" x1="0" y1="0" x2="0" y2="1">
+	  <stop offset="0%" stop-color="#F8FAFC"/>
+	  <stop offset="100%" stop-color="#CBD5E1"/>
+	</linearGradient>
+  </defs>
+
+  <!-- full-bleed background: the OS applies its own corner mask -->
+  <rect width="456" height="456" fill="url(#bg)"/>
+  <circle cx="228" cy="228" r="200" fill="url(#glow)"/>
+
+  <!-- route -->
+  <path d="M92 330 C130 322 140 290 166 272 C196 252 222 262 246 236 C272 208 278 172 306 154 C330 139 350 140 368 116"
+		fill="none" stroke="#10B981" stroke-width="30" stroke-linecap="round" opacity="0.18"/>
+  <path d="M92 330 C130 322 140 290 166 272 C196 252 222 262 246 236 C272 208 278 172 306 154 C330 139 350 140 368 116"
+		fill="none" stroke="url(#route)" stroke-width="14" stroke-linecap="round"/>
+
+  <!-- destination -->
+  <circle cx="368" cy="116" r="24" fill="#031712" stroke="#2DD4BF" stroke-width="8"/>
+  <circle cx="368" cy="116" r="9" fill="#2DD4BF"/>
+
+  <!-- truck -->
+  <ellipse cx="226" cy="318" rx="122" ry="16" fill="#000000" opacity="0.35"/>
+
+  <!-- trailer -->
+  <rect x="100" y="176" width="168" height="120" rx="14" fill="url(#truckBody)"/>
+  <rect x="100" y="176" width="168" height="14" rx="7" fill="#10B981"/>
+
+  <!-- cabin -->
+  <path d="M268 208 L310 208 C320 208 328 213 334 221 L358 256 C362 262 364 269 364 276 L364 296 L268 296 Z"
+		fill="url(#truckBody)"/>
+  <!-- windshield -->
+  <path d="M306 218 L322 220 C327 221 331 224 334 229 L348 254 L306 254 Z" fill="#0F3D33"/>
+
+  <!-- wheels -->
+  <circle cx="142" cy="298" r="26" fill="#020807"/>
+  <circle cx="142" cy="298" r="11" fill="#10B981"/>
+  <circle cx="314" cy="298" r="26" fill="#020807"/>
+  <circle cx="314" cy="298" r="11" fill="#10B981"/>
+</svg>

@@ -1,0 +1,281 @@
+- generic [active] [ref=f33e1]:
+  - checkbox [aria-hidden]
+  - generic [ref=f33e2]:
+    - complementary [ref=f33e3]:
+      - generic [ref=f33e4]:
+        - link "ProMap Cargo" [ref=f33e6] [cursor=pointer]:
+          - /url: ""
+        - generic [ref=f33e9]:
+          - generic [ref=f33e11]: Sistem operativan
+          - strong [ref=f33e12]: LIVE
+        - navigation "Glavna navigacija" [ref=f33e13]:
+          - generic [ref=f33e14]:
+            - generic [ref=f33e15]: OPERACIJE
+            - link "Dispatch" [ref=f33e16] [cursor=pointer]:
+              - /url: /dispatch
+            - link "Transportni nalozi" [ref=f33e23] [cursor=pointer]:
+              - /url: /orders
+            - link "Ture" [ref=f33e28] [cursor=pointer]:
+              - /url: /trips
+          - generic [ref=f33e34]:
+            - generic [ref=f33e35]: FLEET
+            - link "Vozila" [ref=f33e36] [cursor=pointer]:
+              - /url: /Vehicles
+            - link "Vozači" [ref=f33e43] [cursor=pointer]:
+              - /url: /Drivers
+            - link "Navigacija GPS" [ref=f33e49] [cursor=pointer]:
+              - /url: /navigation
+              - generic [ref=f33e52]: Navigacija
+              - generic [ref=f33e53]: GPS
+          - generic [ref=f33e54]:
+            - generic [ref=f33e55]: KONTROLA
+            - link "Upozorenja" [ref=f33e56] [cursor=pointer]:
+              - /url: /alerts
+            - link "Moderacija" [ref=f33e60] [cursor=pointer]:
+              - /url: /moderation
+            - link "Revizija" [ref=f33e65] [cursor=pointer]:
+              - /url: /audit
+            - link "Usklađenost" [ref=f33e72] [cursor=pointer]:
+              - /url: /compliance
+            - link "Praćenje" [ref=f33e78] [cursor=pointer]:
+              - /url: /monitoring
+          - generic [ref=f33e82]:
+            - generic [ref=f33e83]: ANALITIKA
+            - link "Finansije" [ref=f33e84] [cursor=pointer]:
+              - /url: /finance
+            - link "Izveštaji" [ref=f33e89] [cursor=pointer]:
+              - /url: /reports
+        - generic [ref=f33e93]:
+          - text: SISTEM
+          - link "Profil" [ref=f33e94] [cursor=pointer]:
+            - /url: /Account/Manage
+          - link "Administracija" [ref=f33e99] [cursor=pointer]:
+            - /url: /Account/Admin/Index
+          - link "Podešavanja" [ref=f33e104] [cursor=pointer]:
+            - /url: /settings
+          - link "Odjava" [ref=f33e109] [cursor=pointer]:
+            - /url: /Account/Logout
+    - generic [ref=f33e114]:
+      - banner [ref=f33e115]:
+        - generic [ref=f33e117]:
+          - generic [ref=f33e118]: ProMap Cargo
+          - generic [ref=f33e119]: /
+          - strong [ref=f33e120]: Finansije · ProMap Cargo
+        - generic [ref=f33e122]:
+          - combobox "Brza pretraga stranica" [ref=f33e126]
+          - generic [ref=f33e127]: Ctrl K
+        - generic [ref=f33e128]:
+          - status [ref=f33e129]:
+            - generic [ref=f33e131]: Sistem online
+          - link "Obaveštenja" [ref=f33e132] [cursor=pointer]:
+            - /url: /alerts
+          - link "MP Administrator Fleet Operations" [ref=f33e136] [cursor=pointer]:
+            - /url: /Account/Manage
+            - generic [ref=f33e137]: MP
+            - generic [ref=f33e138]:
+              - strong [ref=f33e139]: Administrator
+              - generic [ref=f33e140]: Fleet Operations
+      - main [ref=f33e143]:
+        - generic [ref=f33e145]:
+          - generic [ref=f33e147]:
+            - button "Osveži" [disabled]
+            - button "Novi trošak" [ref=f33e148] [cursor=pointer]
+          - generic [ref=f33e150]:
+            - generic [ref=f33e151]:
+              - generic [ref=f33e152]: —
+              - generic [ref=f33e153]:
+                - generic [ref=f33e154]: Finansijski kontekst
+                - strong [ref=f33e155]: Učitavanje…
+                - generic [ref=f33e156]:
+                  - generic [ref=f33e157]: —
+                  - generic [ref=f33e159]: —
+                  - generic [ref=f33e161]: —
+            - group [ref=f33e162]:
+              - button "Moj pregled" [ref=f33e163] [cursor=pointer]
+              - button "Dispatch" [ref=f33e164] [cursor=pointer]
+          - region "Finansije pregled" [ref=f33e165]:
+            - article [ref=f33e166]:
+              - generic [ref=f33e167]: Apsolutni saldo
+              - strong [ref=f33e172]: 0,00 €
+              - generic [ref=f33e173]: — · Vozač
+            - article [ref=f33e174]:
+              - generic [ref=f33e175]: Aktivna tura
+              - strong [ref=f33e181]: —
+              - generic [ref=f33e182]: — · Preostalo
+            - article [ref=f33e183]:
+              - generic [ref=f33e184]: Prethodna tura
+              - strong [ref=f33e189]: —
+              - generic [ref=f33e190]: Obračunata · —
+            - article [ref=f33e191]:
+              - generic [ref=f33e192]: Troškovi ture
+              - strong [ref=f33e197]: —
+              - generic [ref=f33e198]: — · Aktivna tura
+            - article [ref=f33e199]:
+              - generic [ref=f33e200]: Na čekanju
+              - strong [ref=f33e205]: —
+              - generic [ref=f33e206]: — · Za proveru
+          - generic [ref=f33e207]:
+            - generic [ref=f33e208]:
+              - article [ref=f33e209]:
+                - generic [ref=f33e210]:
+                  - generic [ref=f33e211]:
+                    - generic [ref=f33e212]: AKTIVNA TURA
+                    - heading "—" [level=2] [ref=f33e213]
+                    - paragraph [ref=f33e214]: Nema aktivne ture
+                  - generic [ref=f33e215]: —
+                - generic [ref=f33e216]:
+                  - generic [ref=f33e217]:
+                    - generic [ref=f33e218]: Vozač
+                    - strong [ref=f33e219]: —
+                  - generic [ref=f33e220]:
+                    - generic [ref=f33e221]: Vozilo
+                    - strong [ref=f33e222]: —
+                  - generic [ref=f33e223]:
+                    - generic [ref=f33e224]: Polazak
+                    - strong [ref=f33e225]: —
+                  - generic [ref=f33e226]:
+                    - generic [ref=f33e227]: Planirani dolazak
+                    - strong [ref=f33e228]: —
+                - generic [ref=f33e229]:
+                  - generic [ref=f33e230]:
+                    - generic [ref=f33e231]:
+                      - generic [ref=f33e232]: Budžet ture
+                      - strong [ref=f33e233]: —
+                    - generic [ref=f33e234]:
+                      - generic [ref=f33e235]: Potrošeno
+                      - strong [ref=f33e236]: —
+                  - generic [ref=f33e238]:
+                    - generic [ref=f33e239]: —
+                    - strong [ref=f33e240]: —
+                - generic [ref=f33e241]:
+                  - generic [ref=f33e242]:
+                    - generic [ref=f33e243]: Gorivo
+                    - strong [ref=f33e244]: —
+                  - generic [ref=f33e245]:
+                    - generic [ref=f33e246]: Putarine
+                    - strong [ref=f33e247]: —
+                  - generic [ref=f33e248]:
+                    - generic [ref=f33e249]: Parking
+                    - strong [ref=f33e250]: —
+                  - generic [ref=f33e251]:
+                    - generic [ref=f33e252]: Ostalo
+                    - strong [ref=f33e253]: —
+              - article [ref=f33e254]:
+                - generic [ref=f33e256]:
+                  - generic [ref=f33e257]: FUEL CONTROL
+                  - heading "Gorivo i kartice" [level=2] [ref=f33e258]
+                  - paragraph [ref=f33e259]: Pregled kartica i transakcija goriva za aktivnu turu.
+                - generic [ref=f33e260]:
+                  - generic [ref=f33e261]:
+                    - generic [ref=f33e263]:
+                      - text: —
+                      - generic [ref=f33e264]: Fuel Card
+                    - generic [ref=f33e270]: •••• •••• •••• ••••
+                    - generic [ref=f33e271]:
+                      - generic [ref=f33e272]:
+                        - generic [ref=f33e273]: Dodeljena
+                        - strong [ref=f33e274]: —
+                      - generic [ref=f33e275]:
+                        - generic [ref=f33e276]: Vozač
+                        - strong [ref=f33e277]: —
+                      - generic [ref=f33e278]:
+                        - generic [ref=f33e279]: Status
+                        - strong [ref=f33e280]: —
+                  - generic [ref=f33e281]:
+                    - generic [ref=f33e282]:
+                      - generic [ref=f33e283]: Gorivo na turi
+                      - strong [ref=f33e284]: —
+                    - generic [ref=f33e285]:
+                      - generic [ref=f33e286]: Ukupno
+                      - strong [ref=f33e287]: —
+                    - generic [ref=f33e288]:
+                      - generic [ref=f33e289]: Prosečna cena
+                      - strong [ref=f33e290]: —
+                    - generic [ref=f33e291]:
+                      - generic [ref=f33e292]: Transakcije
+                      - strong [ref=f33e293]: "0"
+                - generic [ref=f33e295]:
+                  - strong [ref=f33e296]: Transakcije goriva
+                  - generic [ref=f33e297]: Aktivna tura
+              - article [ref=f33e298]:
+                - generic [ref=f33e299]:
+                  - generic [ref=f33e300]:
+                    - generic [ref=f33e301]: LEDGER
+                    - heading "Finansijske transakcije" [level=2] [ref=f33e302]
+                    - paragraph [ref=f33e303]: Kompletan pregled troškova, isplata i finansijskih promena.
+                  - button "⇩ Izvoz" [ref=f33e305] [cursor=pointer]
+                - generic [ref=f33e306]:
+                  - searchbox [ref=f33e308]
+                  - combobox [ref=f33e309]:
+                    - option "Sve kategorije" [selected]
+                    - option "Gorivo"
+                    - option "Putarina"
+                    - option "Parking"
+                    - option "Dnevnica"
+                    - option "Isplata"
+                    - option "Ostalo"
+                  - combobox [ref=f33e310]:
+                    - option "Svi statusi" [selected]
+                    - option "Approved"
+                    - option "Pending"
+                    - option "Paid"
+                - table [ref=f33e312]:
+                  - rowgroup [ref=f33e313]:
+                    - row [ref=f33e314]:
+                      - columnheader "Transakcija" [ref=f33e315]
+                      - columnheader "Tura" [ref=f33e316]
+                      - columnheader "Plaćanje" [ref=f33e317]
+                      - columnheader "Datum" [ref=f33e318]
+                      - columnheader "Status" [ref=f33e319]
+                      - columnheader "Iznos" [ref=f33e320]
+                  - rowgroup
+            - complementary [ref=f33e321]:
+              - article [ref=f33e322]:
+                - generic [ref=f33e324]:
+                  - generic [ref=f33e325]: Apsolutni saldo
+                  - strong [ref=f33e326]: —
+                  - generic [ref=f33e327]: u korist vozača
+                - generic [ref=f33e328]:
+                  - generic [ref=f33e329]:
+                    - generic [ref=f33e330]: Potraživanja
+                    - strong [ref=f33e332]: —
+                  - generic [ref=f33e333]:
+                    - generic [ref=f33e334]: Gotovinska zaduženja
+                    - strong [ref=f33e336]: —
+                  - generic [ref=f33e337]:
+                    - generic [ref=f33e338]: Isplate
+                    - strong [ref=f33e340]: —
+                - generic [ref=f33e341]:
+                  - text: Saldo
+                  - strong [ref=f33e342]: —
+                - generic [ref=f33e343]:
+                  - generic [ref=f33e344]: i
+                  - paragraph [ref=f33e345]: Troškovi plaćeni službenom ili fuel karticom prikazani su u trošku ture, ali nisu automatski lično zaduženje vozača.
+              - article [ref=f33e346]:
+                - generic [ref=f33e347]:
+                  - generic [ref=f33e348]:
+                    - generic [ref=f33e349]: PRETHODNA TURA
+                    - heading "—" [level=3] [ref=f33e350]
+                    - paragraph [ref=f33e351]: Nema završene ture
+                  - generic [ref=f33e352]: —
+                - generic [ref=f33e353]:
+                  - generic [ref=f33e354]:
+                    - generic [ref=f33e355]: Budžet
+                    - strong [ref=f33e356]: —
+                  - generic [ref=f33e357]:
+                    - generic [ref=f33e358]: Troškovi
+                    - strong [ref=f33e359]: —
+                  - generic [ref=f33e360]:
+                    - generic [ref=f33e361]: Saldo ture
+                    - strong [ref=f33e362]: —
+                - button "Detalji prethodne ture" [ref=f33e363] [cursor=pointer]
+              - article [ref=f33e366]:
+                - generic [ref=f33e367]:
+                  - generic [ref=f33e368]:
+                    - generic [ref=f33e369]: ZA PROVERU
+                    - heading "Troškovi na čekanju" [level=3] [ref=f33e370]
+                  - generic [ref=f33e371]: "0"
+              - article [ref=f33e372]:
+                - generic [ref=f33e374]:
+                  - generic [ref=f33e375]: PAYMENT METHODS
+                  - heading "Dodeljene kartice" [level=3] [ref=f33e376]

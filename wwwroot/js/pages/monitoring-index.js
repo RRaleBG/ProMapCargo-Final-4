@@ -32,83 +32,6 @@
 
     const DEFAULT_CENTER = [44.8125, 20.4612];
 
-    const DEMO_VEHICLES = [
-        {
-            id: "demo-001",
-            registration: "BG 123-AA",
-            name: "Mercedes Actros 01",
-            driver: "Marko Petrović",
-            status: "moving",
-            latitude: 44.8125,
-            longitude: 20.4612,
-            speed: 64,
-            heading: 35,
-            accuracy: 7,
-            trip: "TR-2026-0041",
-            destination: "Novi Sad",
-            lastGpsAt: new Date().toISOString()
-        },
-        {
-            id: "demo-002",
-            registration: "NS 742-BB",
-            name: "Volvo FH 02",
-            driver: "Nikola Jovanović",
-            status: "moving",
-            latitude: 45.2671,
-            longitude: 19.8335,
-            speed: 52,
-            heading: 190,
-            accuracy: 8,
-            trip: "TR-2026-0042",
-            destination: "Beograd",
-            lastGpsAt: new Date().toISOString()
-        },
-        {
-            id: "demo-003",
-            registration: "NI 551-CC",
-            name: "Scania R 03",
-            driver: "Milan Stojanović",
-            status: "idle",
-            latitude: 43.3209,
-            longitude: 21.8958,
-            speed: 0,
-            heading: 0,
-            accuracy: 12,
-            trip: "TR-2026-0038",
-            destination: "Niš",
-            lastGpsAt: new Date().toISOString()
-        },
-        {
-            id: "demo-004",
-            registration: "SU 913-DD",
-            name: "DAF XF 04",
-            driver: "Petar Ilić",
-            status: "moving",
-            latitude: 46.1005,
-            longitude: 19.6676,
-            speed: 71,
-            heading: 210,
-            accuracy: 9,
-            trip: "TR-2026-0044",
-            destination: "Subotica",
-            lastGpsAt: new Date().toISOString()
-        },
-        {
-            id: "demo-005",
-            registration: "KG 284-EE",
-            name: "MAN TGX 05",
-            driver: "Stefan Nikolić",
-            status: "offline",
-            latitude: 43.999,
-            longitude: 20.9114,
-            speed: 0,
-            heading: 0,
-            accuracy: null,
-            trip: "—",
-            destination: "—",
-            lastGpsAt: new Date(Date.now() - 1000 * 60 * 45).toISOString()
-        }
-    ];
 
     function escapeHtml(value) {
         return String(value ?? "")
@@ -1578,6 +1501,14 @@
 
         if (
             Array.isArray(
+                payload?.fleet
+            )
+        ) {
+            return payload.fleet;
+        }
+
+        if (
+            Array.isArray(
                 payload?.vehicles
             )
         ) {
@@ -1613,8 +1544,9 @@
 
     async function loadFleetFromApi() {
 
+        // Vehicles with their trip's current position (vehicles alone have no coordinates).
         const urls = [
-            "/api/business/vehicles"
+            "/api/dispatch/overview"
         ];
 
         let lastError =
@@ -1664,182 +1596,10 @@
         return false;
     }
 
-    function startDemoMode() {
-
-        if (
-            state.demoTimer
-        ) {
-            clearInterval(
-                state.demoTimer
-            );
-        }
-
-        setVehicles(
-            DEMO_VEHICLES,
-            "demo"
-        );
-
+    function showNoFleet() {
         showToast(
-            "Monitoring API trenutno nije dostupan — prikazan je lokalni telemetry preview."
+            "Nema vozila sa GPS pozicijom (pozicija stiže sa telefona vozača tokom ture)."
         );
-
-        state.demoTimer =
-            setInterval(
-                () => {
-
-                    const now =
-                        Date.now();
-
-                    state.vehicles =
-                        state.vehicles.map(
-                            vehicle => {
-
-                                if (
-                                    vehicle.status !==
-                                    "moving"
-                                ) {
-                                    return {
-                                        ...vehicle,
-                                        lastGpsAt:
-                                            vehicle.status ===
-                                                "idle"
-                                                ? new Date(now).toISOString()
-                                                : vehicle.lastGpsAt
-                                    };
-                                }
-
-                                const headingRad =
-                                    (
-                                        vehicle.heading ||
-                                        0
-                                    ) *
-                                    Math.PI /
-                                    180;
-
-                                const latitudeDelta =
-                                    Math.cos(
-                                        headingRad
-                                    ) *
-                                    .00055;
-
-                                const longitudeDelta =
-                                    Math.sin(
-                                        headingRad
-                                    ) *
-                                    .00055 /
-                                    Math.max(
-                                        Math.cos(
-                                            vehicle.latitude *
-                                            Math.PI /
-                                            180
-                                        ),
-                                        .25
-                                    );
-
-                                let latitude =
-                                    vehicle.latitude +
-                                    latitudeDelta;
-
-                                let longitude =
-                                    vehicle.longitude +
-                                    longitudeDelta;
-
-                                if (
-                                    latitude < 42 ||
-                                    latitude > 47
-                                ) {
-                                    latitude =
-                                        vehicle.latitude -
-                                        latitudeDelta;
-
-                                    vehicle.heading =
-                                        (
-                                            vehicle.heading +
-                                            180
-                                        ) %
-                                        360;
-                                }
-
-                                if (
-                                    longitude < 18 ||
-                                    longitude > 23
-                                ) {
-                                    longitude =
-                                        vehicle.longitude -
-                                        longitudeDelta;
-
-                                    vehicle.heading =
-                                        (
-                                            vehicle.heading +
-                                            180
-                                        ) %
-                                        360;
-                                }
-
-                                return {
-                                    ...vehicle,
-                                    latitude,
-                                    longitude,
-                                    speed:
-                                        Math.max(
-                                            35,
-                                            Math.min(
-                                                85,
-                                                vehicle.speed +
-                                                (
-                                                    Math.random() -
-                                                    .5
-                                                ) *
-                                                6
-                                            )
-                                        ),
-                                    lastGpsAt:
-                                        new Date(
-                                            now
-                                        ).toISOString()
-                                };
-                            }
-                        );
-
-                    state.lastUpdated =
-                        new Date();
-
-                    updateKpis();
-
-                    renderVehicleList();
-
-                    renderAlerts();
-
-                    updateMarkers();
-
-                    setText(
-                        "fleetUpdatedAt",
-                        formatTime(
-                            state.lastUpdated
-                        )
-                    );
-
-                    if (
-                        state.selectedVehicleId
-                    ) {
-
-                        const selected =
-                            state.vehicles.find(
-                                vehicle =>
-                                    vehicle.id ===
-                                    state.selectedVehicleId
-                            );
-
-                        if (selected) {
-                            renderVehicleDetail(
-                                selected
-                            );
-                        }
-                    }
-
-                },
-                2500
-            );
     }
 
     function setLoading(
@@ -1871,7 +1631,7 @@
             if (
                 state.vehicles.length === 0
             ) {
-                startDemoMode();
+                showNoFleet();
             }
         }
 
@@ -2316,7 +2076,7 @@
             await loadFleetFromApi();
 
         if (!loaded) {
-            startDemoMode();
+            showNoFleet();
         }
 
         setLoading(false);

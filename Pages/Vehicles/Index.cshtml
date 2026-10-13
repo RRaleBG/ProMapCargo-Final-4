@@ -73,7 +73,7 @@
                 <span class="compliance-kpi-label">Trailers</span>
                 <i data-lucide="trailer" class="compliance-kpi-icon"></i>
             </div>
-            <strong class="compliance-kpi-value">-</strong>
+            <strong class="compliance-kpi-value" id="trailerVehicles">-</strong>
             <span class="compliance-kpi-meta">  registered trailers    </span>
         </article>
 
@@ -83,7 +83,7 @@
                 <i data-lucide="wrench" class="compliance-kpi-icon"></i>
             </div>
 
-            <strong class="compliance-kpi-value">-</strong>
+            <strong class="compliance-kpi-value" id="serviceVehicles">-</strong>
 
             <span class="compliance-kpi-meta">  on service  </span>
         </article>
@@ -101,7 +101,7 @@
         <select id="vehicleStatusFilter" class="pm-select moderation-select" aria-label="Status vozila">
             <option value="">Svi statusi</option>
             <option value="Active">Aktivno</option>
-            <option value="Available">Dostupno</option>
+            <option value="OutOfService">Blokirano</option>
             <option value="Maintenance">Servis</option>
             <option value="Inactive">Neaktivno</option>
         </select>
@@ -365,6 +365,78 @@
                         <div class="pm-vehicle-detail-item">
                             <div class="pm-vehicle-detail-label">Poslednji GPS</div>
                             <div class="pm-vehicle-detail-value" id="detailGpsTime">—</div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="pm-vehicle-detail-section">
+
+                    <h3 class="pm-vehicle-detail-heading">
+                        Registracija i dokumenta
+                    </h3>
+
+                    <div class="pm-vehicle-detail-grid">
+
+                        <div class="pm-vehicle-detail-item">
+                            <div class="pm-vehicle-detail-label">Fleet broj</div>
+                            <div class="pm-vehicle-detail-value" id="detailFleet">—</div>
+                        </div>
+
+                        <div class="pm-vehicle-detail-item">
+                            <div class="pm-vehicle-detail-label">Euro klasa</div>
+                            <div class="pm-vehicle-detail-value" id="detailEuro">—</div>
+                        </div>
+
+                        <div class="pm-vehicle-detail-item">
+                            <div class="pm-vehicle-detail-label">Registracija do</div>
+                            <div class="pm-vehicle-detail-value" id="detailRegExpiry">—</div>
+                        </div>
+
+                        <div class="pm-vehicle-detail-item">
+                            <div class="pm-vehicle-detail-label">Tehnički pregled do</div>
+                            <div class="pm-vehicle-detail-value" id="detailInspection">—</div>
+                        </div>
+
+                        <div class="pm-vehicle-detail-item">
+                            <div class="pm-vehicle-detail-label">Tahograf do</div>
+                            <div class="pm-vehicle-detail-value" id="detailTacho">—</div>
+                        </div>
+
+                        <div class="pm-vehicle-detail-item">
+                            <div class="pm-vehicle-detail-label">TIR do</div>
+                            <div class="pm-vehicle-detail-value" id="detailTir">—</div>
+                        </div>
+
+                        <div class="pm-vehicle-detail-item">
+                            <div class="pm-vehicle-detail-label">Kartica goriva</div>
+                            <div class="pm-vehicle-detail-value" id="detailFuelCard">—</div>
+                        </div>
+
+                        <div class="pm-vehicle-detail-item">
+                            <div class="pm-vehicle-detail-label">Prikolica</div>
+                            <div class="pm-vehicle-detail-value" id="detailTrailer">—</div>
+                        </div>
+
+                        <div class="pm-vehicle-detail-item">
+                            <div class="pm-vehicle-detail-label">Kilometraža</div>
+                            <div class="pm-vehicle-detail-value" id="detailOdometer">—</div>
+                        </div>
+
+                        <div class="pm-vehicle-detail-item">
+                            <div class="pm-vehicle-detail-label">Dimenzije (D×Š×V)</div>
+                            <div class="pm-vehicle-detail-value" id="detailDimensions">—</div>
+                        </div>
+
+                        <div class="pm-vehicle-detail-item">
+                            <div class="pm-vehicle-detail-label">Osovine / osovinsko</div>
+                            <div class="pm-vehicle-detail-value" id="detailAxles">—</div>
+                        </div>
+
+                        <div class="pm-vehicle-detail-item">
+                            <div class="pm-vehicle-detail-label">Napomena</div>
+                            <div class="pm-vehicle-detail-value" id="detailNotes">—</div>
                         </div>
 
                     </div>

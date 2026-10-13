@@ -21,10 +21,11 @@
         addVehicle: document.getElementById("addVehicle"),
 
         kpiTotal: document.getElementById("kpiTotal"),
-        kpiActive: document.getElementById("kpiActive"),
-        kpiTrips: document.getElementById("kpiTrips"),
-        kpiGps: document.getElementById("kpiGps"),
-        kpiMaintenance: document.getElementById("kpiMaintenance"),
+        kpiActive: document.getElementById("activeVehicles"),
+        kpiExpiring: document.getElementById("expiringVehicles"),
+        kpiInactive: document.getElementById("inactiveVehicles"),
+        kpiTrailers: document.getElementById("trailerVehicles"),
+        kpiMaintenance: document.getElementById("serviceVehicles"),
 
         detailRegistration: document.getElementById("detailRegistration"),
         detailVehicleName: document.getElementById("detailVehicleName"),
@@ -71,11 +72,12 @@
         var value = vehicle && vehicle.status;
 
         if (typeof value === "number") {
+            // VehicleStatus: Active, Inactive, Maintenance, OutOfService.
             return [
                 "Active",
-                "Available",
+                "Inactive",
                 "Maintenance",
-                "Inactive"
+                "OutOfService"
             ][value] || "Inactive";
         }
 
@@ -87,7 +89,8 @@
             Active: "Aktivno",
             Available: "Dostupno",
             Maintenance: "Servis",
-            Inactive: "Neaktivno"
+            Inactive: "Neaktivno",
+            OutOfService: "Blokirano"
         };
 
         return labels[status] || status || "Nepoznato";
@@ -243,7 +246,14 @@
         return executionState || "Aktivna tura";
     }
 
+    // VehicleType: Truck, Tractor, Trailer, Van, Bus, Car, Special.
+    var VEHICLE_TYPES = ["Kamion", "Tegljač", "Prikolica", "Lako teretno vozilo", "Autobus", "Putničko vozilo", "Specijalno vozilo"];
+
     function vehicleType(vehicle) {
+        if (typeof vehicle.type === "number") {
+            return VEHICLE_TYPES[vehicle.type] || "Teretno vozilo";
+        }
+
         return (
             vehicle.vehicleType ||
             vehicle.type ||
@@ -254,6 +264,11 @@
     }
 
     function vehicleWeight(vehicle) {
+        if (vehicle.grossWeightTons) {
+            return Number(vehicle.grossWeightTons).toLocaleString("sr-Latn-RS", { maximumFractionDigits: 1 }) + " t" +
+                (vehicle.emptyWeightTons ? " (prazno " + Number(vehicle.emptyWeightTons).toLocaleString("sr-Latn-RS", { maximumFractionDigits: 1 }) + " t)" : "");
+        }
+
         var weight =
             vehicle.maxWeightKg ||
             vehicle.capacityKg ||
@@ -279,39 +294,42 @@
         return numeric.toLocaleString("sr-Latn-RS") + " kg";
     }
 
+    // Trucks and vans (trailers counted apart); documents expired or ending within 30 days.
     function updateKpis() {
-        var total = state.vehicles.length;
-        var active = 0;
-        var trips = 0;
-        var gpsOnline = 0;
-        var maintenance = 0;
+        var soon = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+        var counts = { total: 0, active: 0, expiring: 0, inactive: 0, trailers: 0, maintenance: 0 };
 
         state.vehicles.forEach(function (vehicle) {
             var status = getVehicleStatus(vehicle);
-            var gps = getGpsState(vehicle);
 
-            if (status === "Active") {
-                active++;
+            if (vehicle.type === 2) {
+                counts.trailers++;
+                return;
             }
 
-            if (vehicle.currentTripId) {
-                trips++;
-            }
+            counts.total++;
+            if (status === "Active") counts.active++;
+            if (status === "Inactive" || status === "OutOfService") counts.inactive++;
+            if (status === "Maintenance") counts.maintenance++;
 
-            if (gps === "online") {
-                gpsOnline++;
-            }
-
-            if (status === "Maintenance") {
-                maintenance++;
-            }
+            var dates = [vehicle.registrationExpiry, vehicle.technicalInspectionExpiry, vehicle.tachographCalibrationExpiry, vehicle.tirExpiry];
+            if (dates.some(function (date) { return date && date <= soon; })) counts.expiring++;
         });
 
-        elements.kpiTotal.textContent = total;
-        elements.kpiActive.textContent = active;
-        elements.kpiTrips.textContent = trips;
-        elements.kpiGps.textContent = gpsOnline;
-        elements.kpiMaintenance.textContent = maintenance;
+        setKpis(counts);
+    }
+
+    function setKpis(counts) {
+        [
+            [elements.kpiTotal, counts.total],
+            [elements.kpiActive, counts.active],
+            [elements.kpiExpiring, counts.expiring],
+            [elements.kpiInactive, counts.inactive],
+            [elements.kpiTrailers, counts.trailers],
+            [elements.kpiMaintenance, counts.maintenance]
+        ].forEach(function (pair) {
+            if (pair[0]) pair[0].textContent = pair[1];
+        });
     }
 
     function filteredVehicles() {
@@ -609,6 +627,28 @@
         elements.detailGpsTime.textContent =
             formatDate(vehicle.lastGpsAt);
 
+        var trailer = vehicle.trailerId ? findVehicle(vehicle.trailerId) : null;
+        var day = function (value) {
+            return value ? new Date(value + "T00:00:00").toLocaleDateString("sr-Latn-RS") : "—";
+        };
+        var set = function (id, value) {
+            var element = document.getElementById(id);
+            if (element) element.textContent = value === null || value === undefined || value === "" ? "—" : value;
+        };
+
+        set("detailFleet", vehicle.fleetNumber);
+        set("detailEuro", vehicle.emissionClass ? vehicle.emissionClass.replace("euro", "Euro ") : null);
+        set("detailRegExpiry", day(vehicle.registrationExpiry));
+        set("detailInspection", day(vehicle.technicalInspectionExpiry));
+        set("detailTacho", day(vehicle.tachographCalibrationExpiry));
+        set("detailTir", day(vehicle.tirExpiry));
+        set("detailFuelCard", vehicle.fuelCard);
+        set("detailTrailer", trailer ? trailer.registration + " · " + [trailer.make, trailer.model].filter(Boolean).join(" ") : null);
+        set("detailOdometer", vehicle.odometerKm ? vehicle.odometerKm.toLocaleString("sr-Latn-RS") + " km" : null);
+        set("detailDimensions", vehicle.lengthMeters + " × " + vehicle.widthMeters + " × " + vehicle.heightMeters + " m");
+        set("detailAxles", vehicle.axles + " / " + vehicle.axleLoadTons + " t");
+        set("detailNotes", vehicle.notes);
+
         elements.showVehicleTrip.disabled =
             !vehicle.currentTripId;
 
@@ -706,7 +746,7 @@
                 );
             }
 
-            elements.lastRefreshLabel.textContent =
+            if (elements.lastRefreshLabel) elements.lastRefreshLabel.textContent =
                 "Poslednje osvežavanje: " +
                 formatDate(
                     new Date().toISOString()
@@ -722,11 +762,7 @@
             state.drivers = [];
             state.trips = [];
 
-            elements.kpiTotal.textContent = "—";
-            elements.kpiActive.textContent = "—";
-            elements.kpiTrips.textContent = "—";
-            elements.kpiGps.textContent = "—";
-            elements.kpiMaintenance.textContent = "—";
+            setKpis({ total: "—", active: "—", expiring: "—", inactive: "—", trailers: "—", maintenance: "—" });
 
             renderError(
                 "Nije moguće učitati podatke sa " +

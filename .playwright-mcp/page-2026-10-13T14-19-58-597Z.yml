@@ -1,0 +1,216 @@
+- generic [active] [ref=f17e1]:
+  - checkbox [aria-hidden]
+  - generic [ref=f17e2]:
+    - complementary [ref=f17e3]:
+      - generic [ref=f17e4]:
+        - link "ProMap Cargo" [ref=f17e6] [cursor=pointer]:
+          - /url: ""
+        - generic [ref=f17e9]:
+          - generic [ref=f17e11]: Sistem operativan
+          - strong [ref=f17e12]: LIVE
+        - navigation "Glavna navigacija" [ref=f17e13]:
+          - generic [ref=f17e14]:
+            - generic [ref=f17e15]: OPERACIJE
+            - link "Dispatch" [ref=f17e16] [cursor=pointer]:
+              - /url: /dispatch
+            - link "Transportni nalozi" [ref=f17e23] [cursor=pointer]:
+              - /url: /orders
+            - link "Ture" [ref=f17e28] [cursor=pointer]:
+              - /url: /trips
+          - generic [ref=f17e34]:
+            - generic [ref=f17e35]: FLEET
+            - link "Vozila" [ref=f17e36] [cursor=pointer]:
+              - /url: /Vehicles
+            - link "Vozači" [ref=f17e43] [cursor=pointer]:
+              - /url: /Drivers
+            - link "Navigacija GPS" [ref=f17e49] [cursor=pointer]:
+              - /url: /navigation
+              - generic [ref=f17e52]: Navigacija
+              - generic [ref=f17e53]: GPS
+          - generic [ref=f17e54]:
+            - generic [ref=f17e55]: KONTROLA
+            - link "Upozorenja" [ref=f17e56] [cursor=pointer]:
+              - /url: /alerts
+            - link "Moderacija" [ref=f17e60] [cursor=pointer]:
+              - /url: /moderation
+            - link "Revizija" [ref=f17e65] [cursor=pointer]:
+              - /url: /audit
+            - link "Usklađenost" [ref=f17e72] [cursor=pointer]:
+              - /url: /compliance
+            - link "Praćenje" [ref=f17e78] [cursor=pointer]:
+              - /url: /monitoring
+          - generic [ref=f17e82]:
+            - generic [ref=f17e83]: ANALITIKA
+            - link "Finansije" [ref=f17e84] [cursor=pointer]:
+              - /url: /finance
+            - link "Izveštaji" [ref=f17e89] [cursor=pointer]:
+              - /url: /reports
+        - generic [ref=f17e93]:
+          - text: SISTEM
+          - link "Profil" [ref=f17e94] [cursor=pointer]:
+            - /url: /Account/Manage
+          - link "Administracija" [ref=f17e99] [cursor=pointer]:
+            - /url: /Account/Admin/Index
+          - link "Podešavanja" [ref=f17e104] [cursor=pointer]:
+            - /url: /settings
+          - link "Odjava" [ref=f17e109] [cursor=pointer]:
+            - /url: /Account/Logout
+    - generic [ref=f17e114]:
+      - banner [ref=f17e115]:
+        - generic [ref=f17e117]:
+          - generic [ref=f17e118]: ProMap Cargo
+          - generic [ref=f17e119]: /
+          - strong [ref=f17e120]: Vozači · ProMap Cargo
+        - generic [ref=f17e122]:
+          - combobox "Brza pretraga stranica" [ref=f17e126]
+          - generic [ref=f17e127]: Ctrl K
+        - generic [ref=f17e128]:
+          - status [ref=f17e129]:
+            - generic [ref=f17e131]: Sistem online
+          - link "Obaveštenja" [ref=f17e132] [cursor=pointer]:
+            - /url: /alerts
+          - link "MP Administrator Fleet Operations" [ref=f17e136] [cursor=pointer]:
+            - /url: /Account/Manage
+            - generic [ref=f17e137]: MP
+            - generic [ref=f17e138]:
+              - strong [ref=f17e139]: Administrator
+              - generic [ref=f17e140]: Fleet Operations
+      - main [ref=f17e143]:
+        - generic [ref=f17e146]:
+          - generic [ref=f17e147]:
+            - generic [ref=f17e148]:
+              - generic [ref=f17e149]: Fleet · Vozači
+              - paragraph [ref=f17e150]: Pregled vozača, statusa, dodeljenih vozila, aktivnih tura i poslednje GPS aktivnosti.
+            - generic [ref=f17e151]:
+              - button "Osveži" [disabled]
+              - button "Novi vozač" [ref=f17e152] [cursor=pointer]
+          - region "Statistika vozača" [ref=f17e156]:
+            - article [ref=f17e157]:
+              - generic [ref=f17e158]: Ukupno vozača
+              - generic [ref=f17e166]: —
+              - generic [ref=f17e167]: registrovanih vozača
+            - article [ref=f17e168]:
+              - generic [ref=f17e169]: Aktivni
+              - generic [ref=f17e174]: —
+              - generic [ref=f17e175]: status Active
+            - article [ref=f17e176]:
+              - generic [ref=f17e177]: Na turi
+              - generic [ref=f17e185]: —
+              - generic [ref=f17e186]: imaju aktivnu turu
+            - article [ref=f17e187]:
+              - generic [ref=f17e188]: GPS online
+              - generic [ref=f17e193]: —
+              - generic [ref=f17e194]: GPS signal ≤ 2 min
+            - article [ref=f17e195]:
+              - generic [ref=f17e196]: Van sistema
+              - generic [ref=f17e201]: —
+              - generic [ref=f17e202]: odmor ili suspendovan
+          - region "Filteri vozača" [ref=f17e203]:
+            - searchbox "Pretraži ime, telefon ili broj licence..." [ref=f17e205]
+            - combobox "Status vozača" [ref=f17e206]:
+              - option "Svi statusi" [selected]
+              - option "Aktivan"
+              - option "Neaktivan"
+              - option "Na odmoru"
+              - option "Suspendovan"
+            - combobox "GPS status" [ref=f17e207]:
+              - option "Svi GPS statusi" [selected]
+              - option "GPS online"
+              - option "GPS zastareo"
+              - option "GPS offline"
+            - generic [ref=f17e208]: Učitavanje...
+          - generic [ref=f17e209]:
+            - generic [ref=f17e210]:
+              - generic [ref=f17e211]:
+                - generic [ref=f17e212]:
+                  - heading "Operativni spisak vozača" [level=2] [ref=f17e213]
+                  - paragraph [ref=f17e214]: Podaci se učitavaju iz Fleet API-ja.
+                - button "Osveži podatke" [disabled] [ref=f17e215] [cursor=pointer]
+              - table [ref=f17e220]:
+                - rowgroup [ref=f17e221]:
+                  - row [ref=f17e222]:
+                    - columnheader "Vozač" [ref=f17e223]
+                    - columnheader "Status" [ref=f17e224]
+                    - columnheader "Telefon" [ref=f17e225]
+                    - columnheader "Vozilo" [ref=f17e226]
+                    - columnheader "Tura" [ref=f17e227]
+                    - columnheader "GPS" [ref=f17e228]
+                    - columnheader [ref=f17e229]
+                - rowgroup [ref=f17e230]:
+                  - row [ref=f17e231] [cursor=pointer]:
+                    - cell "Učitavanje vozača Preuzimanje podataka iz ProMap Cargo Fleet API-ja." [ref=f17e232]:
+                      - generic [ref=f17e233]:
+                        - generic [ref=f17e237]: Učitavanje vozača
+                        - generic [ref=f17e238]: Preuzimanje podataka iz ProMap Cargo Fleet API-ja.
+            - complementary [ref=f17e239]:
+              - generic [ref=f17e241]:
+                - generic [ref=f17e242]: —
+                - generic [ref=f17e243]:
+                  - heading "Izaberite vozača" [level=2] [ref=f17e244]
+                  - generic [ref=f17e245]: Detalji vozača će biti prikazani ovde.
+              - generic [ref=f17e246]:
+                - heading "Osnovni podaci" [level=3] [ref=f17e247]
+                - generic [ref=f17e248]:
+                  - generic [ref=f17e249]:
+                    - generic [ref=f17e250]: Telefon
+                    - generic [ref=f17e251]: —
+                  - generic [ref=f17e252]:
+                    - generic [ref=f17e253]: Licenca
+                    - generic [ref=f17e254]: —
+                  - generic [ref=f17e255]:
+                    - generic [ref=f17e256]: Zemlja
+                    - generic [ref=f17e257]: —
+                  - generic [ref=f17e258]:
+                    - generic [ref=f17e259]: GPS poslednji signal
+                    - generic [ref=f17e260]: —
+              - generic [ref=f17e261]:
+                - heading "Dozvole i sertifikati" [level=3] [ref=f17e262]
+                - generic [ref=f17e263]:
+                  - generic [ref=f17e264]:
+                    - generic [ref=f17e265]: Broj vozača
+                    - generic [ref=f17e266]: —
+                  - generic [ref=f17e267]:
+                    - generic [ref=f17e268]: E-mail
+                    - generic [ref=f17e269]: —
+                  - generic [ref=f17e270]:
+                    - generic [ref=f17e271]: Kategorije
+                    - generic [ref=f17e272]: —
+                  - generic [ref=f17e273]:
+                    - generic [ref=f17e274]: Vozačka do
+                    - generic [ref=f17e275]: —
+                  - generic [ref=f17e276]:
+                    - generic [ref=f17e277]: Kod 95 do
+                    - generic [ref=f17e278]: —
+                  - generic [ref=f17e279]:
+                    - generic [ref=f17e280]: ADR do
+                    - generic [ref=f17e281]: —
+                  - generic [ref=f17e282]:
+                    - generic [ref=f17e283]: Tahograf kartica
+                    - generic [ref=f17e284]: —
+                  - generic [ref=f17e285]:
+                    - generic [ref=f17e286]: Lekarski do
+                    - generic [ref=f17e287]: —
+                  - generic [ref=f17e288]:
+                    - generic [ref=f17e289]: Zaposlen od
+                    - generic [ref=f17e290]: —
+                  - generic [ref=f17e291]:
+                    - generic [ref=f17e292]: Adresa
+                    - generic [ref=f17e293]: —
+                  - generic [ref=f17e294]:
+                    - generic [ref=f17e295]: Napomena
+                    - generic [ref=f17e296]: —
+              - generic [ref=f17e297]:
+                - heading "Operativni status" [level=3] [ref=f17e298]
+                - generic [ref=f17e299]:
+                  - generic [ref=f17e300]:
+                    - generic [ref=f17e301]: Vozilo
+                    - generic [ref=f17e305]: —
+                  - generic [ref=f17e306]:
+                    - generic [ref=f17e307]: Aktivna tura
+                    - generic [ref=f17e311]: —
+                  - generic [ref=f17e312]:
+                    - generic [ref=f17e313]: GPS stanje
+                    - generic [ref=f17e317]: —
+              - generic [ref=f17e319]:
+                - button "Pozovi" [ref=f17e320] [cursor=pointer]
+                - button "Otvori turu" [ref=f17e324] [cursor=pointer]

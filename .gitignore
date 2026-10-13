@@ -277,3 +277,6 @@ apm_modules/
 
 # Local release notes (keys, passwords, procedure) - stays on this machine
 Tools/release/README.md
+
+# Uploaded receipts and documents (local dev storage)
+App_Data/

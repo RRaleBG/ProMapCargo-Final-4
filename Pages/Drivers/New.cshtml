@@ -1,0 +1,486 @@
+@page "/drivers/new"
+@{
+    ViewData["Title"] = "Novi vozač · ProMap Cargo";
+}
+
+<div class="pm-page" data-module="driver-new">
+
+    <header class="pm-header">
+        <div class="pm-heading">
+            <div class="pm-kicker">
+                <span class="pm-kicker-dot"></span>
+                FLEET · NOVI VOZAČ
+            </div>
+
+            <p class="pm-page-subtitle">
+                Unesite lične podatke vozača, dozvole i sertifikate i dodelite vozilo.
+            </p>
+        </div>
+
+        <div class="pm-header-actions">
+            <a href="/drivers" class="pm-btn pm-btn-secondary">
+                <i data-lucide="arrow-left" aria-hidden="true"></i>
+                Nazad na vozače
+            </a>
+
+            <button type="button" class="pm-btn pm-btn-primary" id="saveDriverTop">
+                <i data-lucide="save" aria-hidden="true"></i>
+                Sačuvaj vozača
+            </button>
+        </div>
+    </header>
+
+
+    <div id="driverFormMessage" class="vehicle-form-message" hidden></div>
+
+
+    <form id="driverForm" novalidate>
+
+        <div class="vehicle-new-layout">
+
+            <div class="vehicle-new-main">
+
+                <!-- LIČNI PODACI -->
+                <section class="vehicle-card pm-panel">
+
+                    <div class="vehicle-card-header pm-panel-heading">
+                        <div>
+                            <div class="vehicle-card-eyebrow">IDENTITET VOZAČA</div>
+                            <h2>Lični podaci</h2>
+                            <p>Podaci po kojima se vozač vodi u floti i kontakt.</p>
+                        </div>
+
+                        <div class="vehicle-card-icon">
+                            <i data-lucide="user-round" aria-hidden="true"></i>
+                        </div>
+                    </div>
+
+                    <div class="vehicle-form-grid">
+
+                        <div class="vehicle-field vehicle-field-wide">
+                            <label for="fullName">
+                                Ime i prezime
+                                <span>*</span>
+                            </label>
+                            <input id="fullName" type="text" placeholder="npr. Marko Petrović" autocomplete="off" required />
+                        </div>
+
+                        <div class="vehicle-field">
+                            <label for="employeeNumber">Broj vozača</label>
+                            <input id="employeeNumber" type="text" placeholder="DRV-0001" autocomplete="off" />
+                        </div>
+
+                        <div class="vehicle-field">
+                            <label for="phone">
+                                Telefon
+                                <span>*</span>
+                            </label>
+                            <input id="phone" type="tel" placeholder="+381 64 123 4567" autocomplete="off" required />
+                        </div>
+
+                        <div class="vehicle-field">
+                            <label for="email">E-mail</label>
+                            <input id="email" type="email" placeholder="vozac@firma.rs" autocomplete="off" />
+                            <small>Ako postoji nalog sa ovim e-mailom, vozač se povezuje sa njim (portal vozača i aplikacija).</small>
+                        </div>
+
+                        <div class="vehicle-field">
+                            <label for="hireDate">Datum zaposlenja</label>
+                            <input id="hireDate" type="date" />
+                        </div>
+
+                        <div class="vehicle-field vehicle-field-wide">
+                            <label for="address">Adresa</label>
+                            <input id="address" type="text" placeholder="Ulica i broj, mesto" autocomplete="off" />
+                        </div>
+
+                    </div>
+                </section>
+
+
+                <!-- DOZVOLE -->
+                <section class="vehicle-card pm-panel">
+
+                    <div class="vehicle-card-header pm-panel-heading">
+                        <div>
+                            <div class="vehicle-card-eyebrow">DOZVOLE I SERTIFIKATI</div>
+                            <h2>Vozačka dozvola i kartice</h2>
+                            <p>Rokovi važenja se prate u izveštaju o usklađenosti vozača.</p>
+                        </div>
+
+                        <div class="vehicle-card-icon">
+                            <i data-lucide="id-card" aria-hidden="true"></i>
+                        </div>
+                    </div>
+
+                    <div class="vehicle-form-grid">
+
+                        <div class="vehicle-field">
+                            <label for="licenseNumber">
+                                Broj vozačke dozvole
+                                <span>*</span>
+                            </label>
+                            <input id="licenseNumber" type="text" placeholder="SRB-C-000000" autocomplete="off" required />
+                        </div>
+
+                        <div class="vehicle-field">
+                            <label for="licenseCategories">Kategorije</label>
+                            <input id="licenseCategories" type="text" placeholder="B, C, CE" autocomplete="off" />
+                        </div>
+
+                        <div class="vehicle-field">
+                            <label for="licenseExpiry">
+                                Vozačka važi do
+                                <span>*</span>
+                            </label>
+                            <input id="licenseExpiry" type="date" required />
+                        </div>
+
+                        <div class="vehicle-field">
+                            <label for="code95Expiry">Kod 95 važi do</label>
+                            <input id="code95Expiry" type="date" />
+                        </div>
+
+                        <div class="vehicle-field">
+                            <label for="adrExpiry">ADR sertifikat važi do</label>
+                            <input id="adrExpiry" type="date" />
+                        </div>
+
+                        <div class="vehicle-field">
+                            <label for="medicalExpiry">Lekarski važi do</label>
+                            <input id="medicalExpiry" type="date" />
+                        </div>
+
+                        <div class="vehicle-field">
+                            <label for="tachographCardNumber">Broj tahograf kartice</label>
+                            <input id="tachographCardNumber" type="text" placeholder="RS0000000000" autocomplete="off" />
+                        </div>
+
+                        <div class="vehicle-field">
+                            <label for="tachographCardExpiry">Tahograf kartica važi do</label>
+                            <input id="tachographCardExpiry" type="date" />
+                        </div>
+
+                    </div>
+                </section>
+
+
+                <!-- OPERATIVNO -->
+                <section class="vehicle-card pm-panel">
+
+                    <div class="vehicle-card-header pm-panel-heading">
+                        <div>
+                            <div class="vehicle-card-eyebrow">OPERATIVNO</div>
+                            <h2>Status i vozilo</h2>
+                            <p>Trenutni status vozača i vozilo kojim upravlja.</p>
+                        </div>
+
+                        <div class="vehicle-card-icon">
+                            <i data-lucide="truck" aria-hidden="true"></i>
+                        </div>
+                    </div>
+
+                    <div class="vehicle-form-grid">
+
+                        <div class="vehicle-field">
+                            <label for="driverStatus">Status</label>
+                            <select id="driverStatus">
+                                <option value="Active">Aktivan</option>
+                                <option value="OnLeave">Na odmoru</option>
+                                <option value="Inactive">Neaktivan</option>
+                                <option value="Suspended">Suspendovan</option>
+                            </select>
+                        </div>
+
+                        <div class="vehicle-field">
+                            <label for="assignedVehicle">Vozilo</label>
+                            <select id="assignedVehicle">
+                                <option value="">Nije dodeljeno</option>
+                            </select>
+                        </div>
+
+                        <div class="vehicle-field vehicle-field-wide">
+                            <label for="driverNotes">Napomena</label>
+                            <textarea id="driverNotes" rows="3" placeholder="Dodatne informacije o vozaču..."></textarea>
+                        </div>
+
+                    </div>
+                </section>
+
+
+                <!-- AKCIJE -->
+                <section class="vehicle-actions-card pm-panel pm-panel-body">
+
+                    <div>
+                        <strong>Spremno za kreiranje?</strong>
+                        <span>Proverite obavezna polja pre čuvanja vozača.</span>
+                    </div>
+
+                    <div class="vehicle-actions">
+                        <a href="/drivers" class="vehicle-new-btn vehicle-new-btn-secondary pm-btn pm-btn-secondary">
+                            Otkaži
+                        </a>
+
+                        <button type="submit" class="vehicle-new-btn vehicle-new-btn-primary pm-btn pm-btn-primary" id="saveDriver">
+                            <span>✓</span>
+                            Kreiraj vozača
+                        </button>
+                    </div>
+
+                </section>
+            </div>
+
+
+            <!-- DESNI PANEL -->
+            <aside class="vehicle-new-sidebar">
+
+                <section class="vehicle-side-card vehicle-preview-card pm-panel pm-panel-body">
+
+                    <div class="vehicle-side-label">LIVE PREVIEW</div>
+
+                    <div class="vehicle-preview-icon"><i data-lucide="user-round" height="40" width="40"></i></div>
+
+                    <div class="vehicle-preview-name" id="previewName">Novi vozač</div>
+
+                    <div class="vehicle-preview-registration" id="previewNumber">BROJ VOZAČA</div>
+
+                    <div class="vehicle-preview-divider"></div>
+
+                    <div class="vehicle-preview-grid">
+                        <div>
+                            <span>KATEGORIJE</span>
+                            <strong id="previewCategories">—</strong>
+                        </div>
+                        <div>
+                            <span>DOZVOLA DO</span>
+                            <strong id="previewLicense">—</strong>
+                        </div>
+                        <div>
+                            <span>TELEFON</span>
+                            <strong id="previewPhone">—</strong>
+                        </div>
+                        <div>
+                            <span>VOZILO</span>
+                            <strong id="previewVehicle">—</strong>
+                        </div>
+                    </div>
+
+                    <div class="vehicle-preview-status">
+                        <span></span>
+                        DRAFT · NIJE SAČUVANO
+                    </div>
+
+                </section>
+
+
+                <section class="vehicle-side-card pm-panel pm-panel-body">
+
+                    <div class="vehicle-side-header">
+                        <div>
+                            <span class="vehicle-side-label">CHECKLIST</span>
+                            <h3>Podaci vozača</h3>
+                        </div>
+                    </div>
+
+                    <div class="vehicle-checklist">
+                        <div class="vehicle-check-item" id="checkName">
+                            <span>✓</span>
+                            <div>
+                                <strong>Identitet</strong>
+                                <small>Ime i prezime</small>
+                            </div>
+                        </div>
+
+                        <div class="vehicle-check-item" id="checkPhone">
+                            <span>✓</span>
+                            <div>
+                                <strong>Kontakt</strong>
+                                <small>Telefon</small>
+                            </div>
+                        </div>
+
+                        <div class="vehicle-check-item" id="checkLicense">
+                            <span>✓</span>
+                            <div>
+                                <strong>Vozačka dozvola</strong>
+                                <small>Broj i datum važenja</small>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+            </aside>
+        </div>
+    </form>
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        (function () {
+
+            "use strict";
+
+            const form = document.getElementById("driverForm");
+
+            if (!form) {
+                return;
+            }
+
+            const message = document.getElementById("driverFormMessage");
+            const required = ["fullName", "phone", "licenseNumber", "licenseExpiry"].map(function (id) { return document.getElementById(id); });
+            const saveButtons = [document.getElementById("saveDriver"), document.getElementById("saveDriverTop")];
+            const vehicleSelect = document.getElementById("assignedVehicle");
+
+
+            function value(id) {
+                const input = document.getElementById(id);
+                return input ? input.value.trim() : "";
+            }
+
+
+            function formatDate(iso) {
+                if (!iso) return "—";
+                const parts = iso.split("-");
+                return parts[2] + "." + parts[1] + "." + parts[0] + ".";
+            }
+
+
+            function updatePreview() {
+                document.getElementById("previewName").textContent = value("fullName") || "Novi vozač";
+                document.getElementById("previewNumber").textContent = value("employeeNumber").toUpperCase() || "BROJ VOZAČA";
+                document.getElementById("previewCategories").textContent = value("licenseCategories").toUpperCase() || "—";
+                document.getElementById("previewLicense").textContent = formatDate(value("licenseExpiry"));
+                document.getElementById("previewPhone").textContent = value("phone") || "—";
+                document.getElementById("previewVehicle").textContent =
+                    vehicleSelect.value ? vehicleSelect.options[vehicleSelect.selectedIndex].text.split(" · ")[0] : "—";
+
+                document.getElementById("checkName").classList.toggle("complete", value("fullName").length > 0);
+                document.getElementById("checkPhone").classList.toggle("complete", value("phone").length > 0);
+                document.getElementById("checkLicense").classList.toggle("complete", value("licenseNumber").length > 0 && value("licenseExpiry").length > 0);
+            }
+
+
+            function validate() {
+                let valid = true;
+
+                required.forEach(function (input) {
+                    const ok = input.value.trim().length > 0;
+                    input.classList.toggle("invalid", !ok);
+                    if (!ok) valid = false;
+                });
+
+                const email = document.getElementById("email");
+                if (email.value.trim() && !email.checkValidity()) {
+                    email.classList.add("invalid");
+                    valid = false;
+                }
+
+                return valid;
+            }
+
+
+            function showMessage(text, isError) {
+                message.hidden = false;
+                message.textContent = text;
+                message.classList.toggle("error", !!isError);
+                message.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+
+
+            function setSaving(saving) {
+                saveButtons.forEach(function (button) {
+                    if (!button) return;
+                    button.disabled = saving;
+                    if (saving) {
+                        button.dataset.originalText = button.innerHTML;
+                        button.innerHTML = "<span>…</span> Čuvanje...";
+                    } else if (button.dataset.originalText) {
+                        button.innerHTML = button.dataset.originalText;
+                    }
+                });
+            }
+
+
+            function saveDriver() {
+                if (!validate()) {
+                    showMessage("Popunite obavezna polja: ime i prezime, telefon, broj i datum važenja vozačke dozvole.", true);
+                    return;
+                }
+
+                setSaving(true);
+
+                fetch("/api/business/drivers", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        fullName: value("fullName"),
+                        employeeNumber: value("employeeNumber").toUpperCase() || null,
+                        phone: value("phone"),
+                        email: value("email") || null,
+                        address: value("address") || null,
+                        hireDate: value("hireDate") || null,
+                        licenseNumber: value("licenseNumber"),
+                        licenseCategories: value("licenseCategories") || null,
+                        licenseExpiry: value("licenseExpiry") || null,
+                        code95Expiry: value("code95Expiry") || null,
+                        adrExpiry: value("adrExpiry") || null,
+                        medicalExpiry: value("medicalExpiry") || null,
+                        tachographCardNumber: value("tachographCardNumber") || null,
+                        tachographCardExpiry: value("tachographCardExpiry") || null,
+                        status: value("driverStatus") || null,
+                        vehicleId: vehicleSelect.value || null,
+                        notes: value("driverNotes") || null
+                    })
+                })
+                    .then(function (response) {
+                        return response.json().catch(function () { return null; }).then(function (data) {
+                            if (!response.ok) {
+                                throw new Error(
+                                    (data && (data.message || data.title)) ||
+                                    (response.status === 401 ? "Prijavite se ponovo." : "Vozača nije moguće sačuvati.")
+                                );
+                            }
+                            return data;
+                        });
+                    })
+                    .then(function (driver) {
+                        showMessage("Vozač " + driver.fullName + " je sačuvan.", false);
+                        window.setTimeout(function () { window.location.href = "/drivers"; }, 900);
+                    })
+                    .catch(function (error) {
+                        setSaving(false);
+                        showMessage(error.message, true);
+                    });
+            }
+
+
+            // Vehicles without a driver (trailers have none).
+            fetch("/api/business/vehicles", { headers: { "Accept": "application/json" }, credentials: "same-origin" })
+                .then(function (response) { return response.ok ? response.json() : []; })
+                .then(function (vehicles) {
+                    vehicles
+                        .filter(function (vehicle) { return vehicle.type !== 2 && !vehicle.currentDriverId; })
+                        .forEach(function (vehicle) {
+                            vehicleSelect.add(new Option(vehicle.registration + " · " + [vehicle.make, vehicle.model].filter(Boolean).join(" "), vehicle.id));
+                        });
+                })
+                .catch(function () { });
+
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+                saveDriver();
+            });
+
+            document.getElementById("saveDriverTop").addEventListener("click", saveDriver);
+            form.addEventListener("input", updatePreview);
+            form.addEventListener("change", updatePreview);
+            updatePreview();
+
+        })();
+
+    </script>
+}

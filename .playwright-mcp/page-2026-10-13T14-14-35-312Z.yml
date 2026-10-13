@@ -1,0 +1,292 @@
+- generic [active] [ref=f13e1]:
+  - checkbox [aria-hidden]
+  - generic [ref=f13e2]:
+    - complementary [ref=f13e3]:
+      - generic [ref=f13e4]:
+        - link "ProMap Cargo" [ref=f13e6] [cursor=pointer]:
+          - /url: ""
+        - generic [ref=f13e9]:
+          - generic [ref=f13e11]: Sistem operativan
+          - strong [ref=f13e12]: LIVE
+        - navigation "Glavna navigacija" [ref=f13e13]:
+          - generic [ref=f13e14]:
+            - generic [ref=f13e15]: OPERACIJE
+            - link "Dispatch" [ref=f13e16] [cursor=pointer]:
+              - /url: /dispatch
+            - link "Transportni nalozi" [ref=f13e23] [cursor=pointer]:
+              - /url: /orders
+            - link "Ture" [ref=f13e28] [cursor=pointer]:
+              - /url: /trips
+          - generic [ref=f13e34]:
+            - generic [ref=f13e35]: FLEET
+            - link "Vozila" [ref=f13e36] [cursor=pointer]:
+              - /url: /Vehicles
+            - link "Vozači" [ref=f13e43] [cursor=pointer]:
+              - /url: /Drivers
+            - link "Navigacija GPS" [ref=f13e49] [cursor=pointer]:
+              - /url: /navigation
+              - generic [ref=f13e52]: Navigacija
+              - generic [ref=f13e53]: GPS
+          - generic [ref=f13e54]:
+            - generic [ref=f13e55]: KONTROLA
+            - link "Upozorenja 4 aktivnih upozorenja" [ref=f13e56] [cursor=pointer]:
+              - /url: /alerts
+              - generic [ref=f13e59]: Upozorenja
+              - generic "4 aktivnih upozorenja" [ref=f13e60]: "4"
+            - link "Moderacija" [ref=f13e61] [cursor=pointer]:
+              - /url: /moderation
+            - link "Revizija" [ref=f13e66] [cursor=pointer]:
+              - /url: /audit
+            - link "Usklađenost" [ref=f13e73] [cursor=pointer]:
+              - /url: /compliance
+            - link "Praćenje" [ref=f13e79] [cursor=pointer]:
+              - /url: /monitoring
+          - generic [ref=f13e83]:
+            - generic [ref=f13e84]: ANALITIKA
+            - link "Finansije" [ref=f13e85] [cursor=pointer]:
+              - /url: /finance
+            - link "Izveštaji" [ref=f13e90] [cursor=pointer]:
+              - /url: /reports
+        - generic [ref=f13e94]:
+          - text: SISTEM
+          - link "Profil" [ref=f13e95] [cursor=pointer]:
+            - /url: /Account/Manage
+          - link "Administracija" [ref=f13e100] [cursor=pointer]:
+            - /url: /Account/Admin/Index
+          - link "Podešavanja" [ref=f13e105] [cursor=pointer]:
+            - /url: /settings
+          - link "Odjava" [ref=f13e110] [cursor=pointer]:
+            - /url: /Account/Logout
+    - generic [ref=f13e115]:
+      - banner [ref=f13e116]:
+        - generic [ref=f13e118]:
+          - generic [ref=f13e119]: ProMap Cargo
+          - generic [ref=f13e120]: /
+          - strong [ref=f13e121]: Command Center · ProMap Cargo
+        - generic [ref=f13e123]:
+          - combobox "Brza pretraga stranica" [ref=f13e127]
+          - generic [ref=f13e128]: Ctrl K
+        - generic [ref=f13e129]:
+          - status [ref=f13e130]:
+            - generic [ref=f13e132]: Sistem online
+          - link "Obaveštenja" [ref=f13e133] [cursor=pointer]:
+            - /url: /alerts
+            - generic "4 aktivnih upozorenja" [ref=f13e137]: "4"
+          - link "MP Administrator Fleet Operations" [ref=f13e138] [cursor=pointer]:
+            - /url: /Account/Manage
+            - generic [ref=f13e139]: MP
+            - generic [ref=f13e140]:
+              - strong [ref=f13e141]: Administrator
+              - generic [ref=f13e142]: Fleet Operations
+      - main [ref=f13e145]:
+        - generic [ref=f13e147]:
+          - generic [ref=f13e148]:
+            - generic [ref=f13e149]:
+              - generic [ref=f13e150]: ProMap Cargo · Dispatch
+              - paragraph [ref=f13e151]: Pregled i upravljanje dokumentacijom vozila, prikolica i opreme. Obezbedite da sva vozila u floti budu u skladu sa zakonskim propisima i bez kritičnih problema.
+            - generic [ref=f13e152]:
+              - generic [ref=f13e153]:
+                - generic [ref=f13e155]: Alert engine
+                - strong [ref=f13e156]: LIVE
+              - button "Osveži" [ref=f13e157] [cursor=pointer]
+              - link "Nova ruta" [ref=f13e163] [cursor=pointer]:
+                - /url: /navigation
+          - generic [ref=f13e164]:
+            - generic [ref=f13e165]:
+              - article [ref=f13e166]:
+                - generic [ref=f13e167]: Aktivne ture
+                - generic [ref=f13e173]: "1"
+                - generic [ref=f13e174]:
+                  - generic [ref=f13e175]: trenutno u vožnji
+                  - generic [ref=f13e176]: LIVE
+              - article [ref=f13e177]:
+                - generic [ref=f13e178]:
+                  - generic [ref=f13e179]: Dispečeri
+                  - generic [ref=f13e180]: D
+                - generic [ref=f13e181]: "1"
+                - generic [ref=f13e182]:
+                  - generic [ref=f13e183]: 0 trenutno online
+                  - generic [ref=f13e184]: ONLINE
+              - article [ref=f13e185]:
+                - generic [ref=f13e186]:
+                  - generic [ref=f13e187]: Vozila
+                  - generic [ref=f13e188]: T
+                - generic [ref=f13e189]: "5"
+                - generic [ref=f13e190]:
+                  - generic [ref=f13e191]: fleet ukupno
+                  - generic [ref=f13e192]: FLEET
+              - article [ref=f13e193]:
+                - generic [ref=f13e194]: Kašnjenja
+                - generic [ref=f13e198]: "1"
+                - generic [ref=f13e199]:
+                  - generic [ref=f13e200]: zahteva pažnju
+                  - generic [ref=f13e201]: MONITOR
+              - article [ref=f13e202]:
+                - generic [ref=f13e203]:
+                  - generic [ref=f13e204]: Granice
+                  - generic [ref=f13e205]: B
+                - generic [ref=f13e206]: "1"
+                - generic [ref=f13e207]:
+                  - generic [ref=f13e208]: vozila na čekanju
+                  - generic [ref=f13e209]: WAITING
+              - article [ref=f13e210]:
+                - generic [ref=f13e211]: Incidenti
+                - generic [ref=f13e215]: "1"
+                - generic [ref=f13e216]:
+                  - generic [ref=f13e217]: otvoren slučaj
+                  - generic [ref=f13e218]: OPEN
+            - generic [ref=f13e219]:
+              - article [ref=f13e220]:
+                - generic [ref=f13e221]:
+                  - generic [ref=f13e222]:
+                    - generic [ref=f13e223]: Live Fleet Map
+                    - generic [ref=f13e224]: Vozila, ture i operativni događaji
+                  - generic [ref=f13e225]:
+                    - button "Sva vozila" [ref=f13e226] [cursor=pointer]
+                    - button "Aktivna" [ref=f13e227] [cursor=pointer]
+                    - button "Alerts" [ref=f13e228] [cursor=pointer]
+                - generic [ref=f13e229]:
+                  - generic:
+                    - generic:
+                      - strong: "5"
+                      - text: vozilo u floti
+                    - generic:
+                      - text: "Routing:"
+                      - strong: PostGIS · OSM
+                  - generic [ref=f13e230]:
+                    - generic:
+                      - generic [ref=f13e232]:
+                        - button "Zoom in" [ref=f13e233] [cursor=pointer]
+                        - button "Zoom out" [ref=f13e235] [cursor=pointer]: −
+                      - generic: 50 km
+                      - link "Leaflet" [ref=f13e239] [cursor=pointer]:
+                        - /url: https://leafletjs.com
+                  - generic [ref=f13e244]:
+                    - button "⛶" [ref=f13e245] [cursor=pointer]
+                    - button "◎" [ref=f13e246] [cursor=pointer]
+              - article [ref=f13e247]:
+                - generic [ref=f13e248]:
+                  - generic [ref=f13e249]:
+                    - generic [ref=f13e250]: Aktivne ture
+                    - generic [ref=f13e251]: Trenutni operativni status
+                  - link "Otvori ture" [ref=f13e252] [cursor=pointer]:
+                    - /url: /trips
+                - generic [ref=f13e253]:
+                  - generic [ref=f13e254] [cursor=pointer]:
+                    - generic [ref=f13e255]:
+                      - generic [ref=f13e256]:
+                        - generic [ref=f13e257]: BG-1234-AB · Kragujevac → Beograd
+                        - generic [ref=f13e258]: TR-2026-00941
+                      - generic [ref=f13e259]: IN TRANSIT
+                    - generic [ref=f13e260]:
+                      - generic [ref=f13e261]:
+                        - generic [ref=f13e262]: Vozač
+                        - generic [ref=f13e263]: Marko Petrović
+                      - generic [ref=f13e264]:
+                        - generic [ref=f13e265]: ETA
+                        - generic [ref=f13e266]: 23:39
+                      - generic [ref=f13e267]:
+                        - generic [ref=f13e268]: Napredak
+                        - generic [ref=f13e269]: 55%
+                  - generic [ref=f13e272] [cursor=pointer]:
+                    - generic [ref=f13e273]:
+                      - generic [ref=f13e274]:
+                        - generic [ref=f13e275]: KG-567-CD · Beograd → Zagreb
+                        - generic [ref=f13e276]: TR-2026-00952
+                      - generic [ref=f13e277]: ASSIGNED
+                    - generic [ref=f13e278]:
+                      - generic [ref=f13e279]:
+                        - generic [ref=f13e280]: Vozač
+                        - generic [ref=f13e281]: Nikola Jovanović
+                      - generic [ref=f13e282]:
+                        - generic [ref=f13e283]: Polazak
+                        - generic [ref=f13e284]: 00:03
+                      - generic [ref=f13e285]:
+                        - generic [ref=f13e286]: Napredak
+                        - generic [ref=f13e287]: 0%
+                  - generic [ref=f13e289] [cursor=pointer]:
+                    - generic [ref=f13e290]:
+                      - generic [ref=f13e291]:
+                        - generic [ref=f13e292]: NS-890-EF · Novi Sad → Skoplje
+                        - generic [ref=f13e293]: TR-2026-00957
+                      - generic [ref=f13e294]: PLANNED
+                    - generic [ref=f13e295]:
+                      - generic [ref=f13e296]:
+                        - generic [ref=f13e297]: Vozač
+                        - generic [ref=f13e298]: Stefan Ilić
+                      - generic [ref=f13e299]:
+                        - generic [ref=f13e300]: Polazak
+                        - generic [ref=f13e301]: 00:03
+                      - generic [ref=f13e302]:
+                        - generic [ref=f13e303]: Napredak
+                        - generic [ref=f13e304]: 0%
+            - generic [ref=f13e306]:
+              - article [ref=f13e307]:
+                - generic [ref=f13e308]:
+                  - generic [ref=f13e309]:
+                    - generic [ref=f13e310]: Operativni događaji
+                    - generic [ref=f13e311]: Najnovije promene u floti
+                  - button "Očisti" [ref=f13e312] [cursor=pointer]
+                - generic [ref=f13e313]:
+                  - generic [ref=f13e314]:
+                    - generic [ref=f13e315]: "!"
+                    - generic [ref=f13e316]:
+                      - generic [ref=f13e317]: Delay
+                      - generic [ref=f13e318]: "BG-1234-AB: Kašnjenje na utovaru 15 minuta"
+                    - generic [ref=f13e319]: 19 h
+                  - generic [ref=f13e320]:
+                    - generic [ref=f13e321]: "!"
+                    - generic [ref=f13e322]:
+                      - generic [ref=f13e323]: Incident
+                      - generic [ref=f13e324]: "KG-567-CD: Tahograf prijavljuje grešku pre polaska"
+                    - generic [ref=f13e325]: 19 h
+                  - generic [ref=f13e326]:
+                    - generic [ref=f13e327]: "!"
+                    - generic [ref=f13e328]:
+                      - generic [ref=f13e329]: Compliance
+                      - generic [ref=f13e330]: "NS-890-EF: NS-890-EF: istekao tehnički pregled; tahograf kartica vozača istekla"
+                    - generic [ref=f13e331]: 21 h
+                  - generic [ref=f13e332]:
+                    - generic [ref=f13e333]: "!"
+                    - generic [ref=f13e334]:
+                      - generic [ref=f13e335]: Maintenance
+                      - generic [ref=f13e336]: "NI-321-GH: Vozilo NI-321-GH na servisu, nije raspoloživo"
+                    - generic [ref=f13e337]: 2 d
+                  - generic [ref=f13e338]:
+                    - generic [ref=f13e339]: i
+                    - generic [ref=f13e340]:
+                      - generic [ref=f13e341]: Border · rešeno
+                      - generic [ref=f13e342]: "BG-1234-AB: Završena carinska provera, nastavak vožnje"
+                    - generic [ref=f13e343]: 8 d
+              - article [ref=f13e344]:
+                - generic [ref=f13e345]:
+                  - generic [ref=f13e346]:
+                    - generic [ref=f13e347]: Fleet status
+                    - generic [ref=f13e348]: Raspoloživost vozila
+                  - link "Vozila" [ref=f13e349] [cursor=pointer]:
+                    - /url: /vehicles
+                - generic [ref=f13e350]:
+                  - generic [ref=f13e351]:
+                    - generic [ref=f13e352]: In transit
+                    - generic [ref=f13e355]: "1"
+                  - generic [ref=f13e356]:
+                    - generic [ref=f13e357]: Loading
+                    - generic [ref=f13e359]: "0"
+                  - generic [ref=f13e360]:
+                    - generic [ref=f13e361]: Available
+                    - generic [ref=f13e364]: "3"
+                  - generic [ref=f13e365]:
+                    - generic [ref=f13e366]: Maintenance
+                    - generic [ref=f13e369]: "1"
+              - article [ref=f13e370]:
+                - generic [ref=f13e371]:
+                  - generic [ref=f13e372]:
+                    - generic [ref=f13e373]: Border watch
+                    - generic [ref=f13e374]: Aktivna čekanja
+                  - link "Monitoring" [ref=f13e375] [cursor=pointer]:
+                    - /url: /monitoring
+                - generic [ref=f13e377]:
+                  - generic [ref=f13e378]:
+                    - generic [ref=f13e379]: Batrovci - Bajakovo
+                    - generic [ref=f13e380]: RS → HR · 1 vozilo
+                  - generic [ref=f13e381]: 35 min

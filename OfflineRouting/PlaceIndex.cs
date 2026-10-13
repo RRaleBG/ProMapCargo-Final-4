@@ -67,6 +67,26 @@ public sealed class PlaceIndex
             return [];
         }
 
+        var matches = Match(nameTokens, contextTokens, nearLat, nearLon);
+
+        // "Kragujevac, Srbija": a city's context is its kind ("grad"), not the country,
+        // so a part after the comma that narrows to nothing is dropped.
+        if (matches.Count == 0 && contextTokens.Length > 0)
+        {
+            matches = Match(nameTokens, [], nearLat, nearLon);
+        }
+
+        // One result per name and place: a border crossing is mapped once per direction,
+        // a parking lot as a node and an area.
+        return matches
+            .OrderByDescending(match => match.Score)
+            .DistinctBy(match => (match.Entry.Key, match.Entry.ContextKey))
+            .Take(limit)
+            .ToList();
+    }
+
+    private List<PlaceMatch> Match(string[] nameTokens, string[] contextTokens, double? nearLat, double? nearLon)
+    {
         var fullKey = string.Join(' ', nameTokens);
         var matches = new List<PlaceMatch>();
 
@@ -115,13 +135,7 @@ public sealed class PlaceIndex
             matches.Add(new PlaceMatch(entry, score));
         }
 
-        // One result per name and place: a border crossing is mapped once per direction,
-        // a parking lot as a node and an area.
-        return matches
-            .OrderByDescending(match => match.Score)
-            .DistinctBy(match => (match.Entry.Key, match.Entry.ContextKey))
-            .Take(limit)
-            .ToList();
+        return matches;
     }
 
     private static string[] Tokens(string text)

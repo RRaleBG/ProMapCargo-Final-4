@@ -11,28 +11,39 @@
             <p class="pm-page-subtitle">Operativni, flotni i routing pokazatelji.</p>
         </div>
         <div class="pm-page-actions">
-            <button class="pm-btn pm-btn-secondary" type="button">Izvezi CSV</button>
-            <button class="pm-btn pm-btn-primary" type="button">Novi izveštaj</button>
+            <button class="pm-btn pm-btn-secondary" type="button" id="reportExportTop">Izvezi CSV</button>
+            <button class="pm-btn pm-btn-primary" type="button" id="reportNew">Novi izveštaj</button>
         </div>
     </header>
 
-    <section class="pm-grid pm-grid-3" aria-label="Ključni pokazatelji">
-        <article class="pm-card pm-card-body">
-            <div class="pm-kpi-label">Iskorišćenost flote</div>
-            <div class="pm-kpi-value">82%</div>
+    <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--3" aria-label="Ključni pokazatelji">
+        <article class="compliance-kpi compliance-kpi-info">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Iskorišćenost flote</span>
+                <i data-lucide="gauge" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value" id="kpiUtilization">—</strong>
             <div class="pm-progress pm-mt-3" role="progressbar" aria-label="Iskorišćenost flote" aria-valuemin="0"
-                 aria-valuemax="100" aria-valuenow="82"><span style="--pm-progress:82%"></span></div>
+                 aria-valuemax="100" aria-valuenow="0" id="kpiUtilizationBar"><span style="--pm-progress:0%"></span></div>
         </article>
-        <article class="pm-card pm-card-body">
-            <div class="pm-kpi-label">Isporuke na vreme</div>
-            <div class="pm-kpi-value">94%</div>
+
+        <article class="compliance-kpi compliance-kpi-good">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Isporuke na vreme</span>
+                <i data-lucide="timer" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value" id="kpiOnTime">—</strong>
             <div class="pm-progress pm-mt-3" role="progressbar" aria-label="Isporuke na vreme" aria-valuemin="0"
-                 aria-valuemax="100" aria-valuenow="94"><span style="--pm-progress:94%"></span></div>
+                 aria-valuemax="100" aria-valuenow="0" id="kpiOnTimeBar"><span style="--pm-progress:0%"></span></div>
         </article>
-        <article class="pm-card pm-card-body">
-            <div class="pm-kpi-label">Prosečno odstupanje rute</div>
-            <div class="pm-kpi-value">1,7%</div>
-            <div class="pm-kpi-footer">↓ 0,4 procentna poena u odnosu na prethodni mesec</div>
+
+        <article class="compliance-kpi compliance-kpi-neutral">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Prosečno odstupanje rute</span>
+                <i data-lucide="waypoints" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value" id="kpiDeviation">—</strong>
+            <span class="compliance-kpi-meta">pređeni u odnosu na planirani put završenih tura</span>
         </article>
     </section>
 
@@ -44,25 +55,38 @@
             </div>
         </header>
         <div class="pm-card-body">
-            <div class="pm-form-grid pm-form-grid-3">
+            <form id="reportForm" class="pm-form-grid pm-form-grid-3">
                 <label class="pm-field"><span class="pm-label">Tip izveštaja</span>
-                    <select class="pm-select">
-                        <option>Performanse flote</option>
-                        <option>Profitabilnost ture</option>
-                        <option>Usklađenost vozača</option>
-                        <option>Routing izuzeci</option>
+                    <select class="pm-select" id="reportType">
+                        <option value="fleet">Performanse flote</option>
+                        <option value="trips">Profitabilnost ture</option>
+                        <option value="drivers">Usklađenost vozača</option>
+                        <option value="routing">Routing izuzeci</option>
                     </select>
                 </label>
-                <label class="pm-field"><span class="pm-label">Od datuma</span><input class="pm-input" type="date"
-                                                                                          value="2026-09-01" /></label>
-                    <label class="pm-field"><span class="pm-label">Do datuma</span><input class="pm-input" type="date"
-                                                                                              value="2026-09-12" /></label>
-                    </div>
-                    <div class="pm-page-actions pm-mt-3">
-                        <button class="pm-btn pm-btn-primary" type="button">Generiši</button>
-                        <button class="pm-btn pm-btn-secondary" type="button">Preuzmi CSV</button>
-                        <button class="pm-btn pm-btn-ghost" type="button">Preuzmi PDF</button>
-                    </div>
-                </div>
-            </section>
+                <label class="pm-field"><span class="pm-label">Od datuma</span><input class="pm-input" type="date" id="reportFrom" /></label>
+                <label class="pm-field"><span class="pm-label">Do datuma</span><input class="pm-input" type="date" id="reportTo" /></label>
+            </form>
+            <div class="pm-page-actions pm-mt-3">
+                <button class="pm-btn pm-btn-primary" type="submit" form="reportForm">Generiši</button>
+                <button class="pm-btn pm-btn-secondary" type="button" id="reportCsv">Preuzmi CSV</button>
+                <button class="pm-btn pm-btn-ghost" type="button" id="reportPdf">Preuzmi PDF</button>
+            </div>
         </div>
+    </section>
+
+    <section class="pm-card" id="reportResult" hidden>
+        <header class="pm-card-header">
+            <div>
+                <h2 class="pm-card-title" id="reportTitle">Izveštaj</h2>
+                <p class="pm-card-subtitle" id="reportPeriod"></p>
+            </div>
+        </header>
+        <div class="pm-table-wrap">
+            <table class="pm-table">
+                <thead id="reportHead"></thead>
+                <tbody id="reportRows"></tbody>
+            </table>
+        </div>
+    </section>
+</div>

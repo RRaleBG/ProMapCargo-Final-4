@@ -1,6 +1,6 @@
 @page "/alerts"
 @{
-    ViewData["Title"] = "Alerts · ProMap Cargo";
+    ViewData["Title"] = "Alerts";
 }
 
 <div class="pm-page" data-module="alerts">
@@ -9,7 +9,7 @@
         <div class="pm-heading">
             <div class="pm-page-kicker">
                 <span class="pm-kicker-dot"></span>
-                Fleet · Alerti
+                Alerti
             </div>
             <p class="pm-subtitle">
                 Pregled alerti, statusa, dodeljenih vozila, aktivnih tura i poslednje GPS aktivnosti.
@@ -36,118 +36,51 @@
     </header>
 
 
-    <section class="moderation-kpi-grid pm-kpi-grid" aria-label="Alert statistika">
-
-        <article class="pm-alert-kpi pm-alert-kpi-open">
-            <div class="pm-alert-kpi-top">
-                <span>
-                    Otvoreni alerti
-                </span>
-                <span class="pm-alert-kpi-icon">
-                    !
-                </span>
+    <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--5" aria-label="Alert statistika">
+        <article class="compliance-kpi compliance-kpi-total">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Otvoreni alerti</span>
+                <i data-lucide="bell-ring" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
-            <strong id="alertsOpenCount">
-                —
-            </strong>
-            <small>
-                zahtevaju pažnju
-            </small>
+            <strong class="compliance-kpi-value" id="alertsOpenCount">—</strong>
+            <span class="compliance-kpi-meta">zahtevaju pažnju</span>
         </article>
 
-
-        <article class="pm-alert-kpi pm-alert-kpi-critical">
-            <div class="pm-alert-kpi-top">
-                <span>
-                    Critical
-                </span>
-                <span class="pm-alert-kpi-icon">
-                    !
-                </span>
+        <article class="compliance-kpi compliance-kpi-danger">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Critical</span>
+                <i data-lucide="octagon-alert" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
-            <strong id="alertsCriticalCount">
-                —
-            </strong>
-            <small>
-                bezbednosni / blokirajući
-            </small>
+            <strong class="compliance-kpi-value" id="alertsCriticalCount">—</strong>
+            <span class="compliance-kpi-meta">bezbednosni / blokirajući</span>
         </article>
 
-
-        <article class="pm-alert-kpi">
-
-            <div class="pm-alert-kpi-top">
-
-                <span>
-                    High
-                </span>
-
-                <span class="pm-alert-kpi-icon">
-                    ↑
-                </span>
-
+        <article class="compliance-kpi compliance-kpi-warning">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">High</span>
+                <i data-lucide="arrow-up" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
-
-            <strong id="alertsHighCount">
-                —
-            </strong>
-
-            <small>
-                visoki prioritet
-            </small>
-
+            <strong class="compliance-kpi-value" id="alertsHighCount">—</strong>
+            <span class="compliance-kpi-meta">visoki prioritet</span>
         </article>
 
-
-        <article class="pm-alert-kpi">
-
-            <div class="pm-alert-kpi-top">
-
-                <span>
-                    Danas
-                </span>
-
-                <span class="pm-alert-kpi-icon">
-                    ◷
-                </span>
-
+        <article class="compliance-kpi compliance-kpi-info">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Danas</span>
+                <i data-lucide="clock" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
-
-            <strong id="alertsTodayCount">
-                —
-            </strong>
-
-            <small>
-                generisano danas
-            </small>
-
+            <strong class="compliance-kpi-value" id="alertsTodayCount">—</strong>
+            <span class="compliance-kpi-meta">generisano danas</span>
         </article>
 
-
-        <article class="pm-alert-kpi">
-
-            <div class="pm-alert-kpi-top">
-
-                <span>
-                    Resolved
-                </span>
-
-                <span class="pm-alert-kpi-icon">
-                    ✓
-                </span>
-
+        <article class="compliance-kpi compliance-kpi-good">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Resolved</span>
+                <i data-lucide="circle-check" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
-
-            <strong id="alertsResolvedCount">
-                —
-            </strong>
-
-            <small>
-                uspešno rešeno
-            </small>
-
+            <strong class="compliance-kpi-value" id="alertsResolvedCount">—</strong>
+            <span class="compliance-kpi-meta">uspešno rešeno</span>
         </article>
-
     </section>
 
 
@@ -537,728 +470,718 @@
 @section Scripts
 {
     <script src="~/js/alerts.js"></script>
-}
-<script>
-    (function () {
-        "use strict";
 
-        function escapeHtml(value) {
-            return String(value ?? "")
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
+    <script>
+        (function() {
+            "use strict";
 
-        function $(id) {
-            return document.getElementById(id);
-        }
-
-        function formatDate(value) {
-            if (!value) {
-                return "—";
+            function escapeHtml(value) {
+                return String(value ?? "")
+                    .replaceAll("&", "&amp;")
+                    .replaceAll("<", "&lt;")
+                    .replaceAll(">", "&gt;")
+                    .replaceAll('"', "&quot;")
+                    .replaceAll("'", "&#039;");
             }
 
-            const date = new Date(value);
-
-            if (Number.isNaN(date.getTime())) {
-                return String(value);
+            function $(id) {
+                return document.getElementById(id);
             }
 
-            return new Intl.DateTimeFormat("sr-Latn-RS", {
-                dateStyle: "short",
-                timeStyle: "short"
-            }).format(date);
-        }
+            function formatDate(value) {
+                if (!value) {
+                    return "—";
+                }
 
-        function severityLabel(value) {
-            return window.ProMap.Alerts.severityLabel(value);
-        }
+                const date = new Date(value);
 
-        function categoryLabel(value) {
-            return window.ProMap.Alerts.categoryLabel(value);
-        }
+                if (Number.isNaN(date.getTime())) {
+                    return String(value);
+                }
 
-        function statusLabel(value) {
-            switch (value) {
-                case "open":
-                    return "OPEN";
-
-                case "acknowledged":
-                    return "ACKNOWLEDGED";
-
-                case "snoozed":
-                    return "SNOOZED";
-
-                case "resolved":
-                    return "RESOLVED";
-
-                default:
-                    return String(value || "").toUpperCase();
-            }
-        }
-
-        function alertIcon(alert) {
-            switch (alert.category) {
-                case "navigation":
-                    return "◎";
-
-                case "gps":
-                    return "◉";
-
-                case "compliance":
-                    return "▣";
-
-                case "maintenance":
-                    return "🔧";
-
-                case "fuel":
-                    return "⛽";
-
-                case "tachograph":
-                    return "◷";
-
-                case "border":
-                    return "⌂";
-
-                case "finance":
-                    return "₿";
-
-                case "driver":
-                    return "♙";
-
-                case "vehicle":
-                    return "▣";
-
-                case "orders":
-                    return "▤";
-
-                case "trips":
-                    return "↗";
-
-                default:
-                    return "!";
-            }
-        }
-
-        function getContextMain(alert) {
-            return (
-                alert.vehicle ||
-                alert.driver ||
-                alert.trip ||
-                alert.location ||
-                "Sistem"
-            );
-        }
-
-        function getContextSub(alert) {
-            const values = [];
-
-            if (alert.vehicle) {
-                values.push(alert.vehicle);
+                return new Intl.DateTimeFormat("sr-Latn-RS", {
+                    dateStyle: "short",
+                    timeStyle: "short"
+                }).format(date);
             }
 
-            if (alert.driver) {
-                values.push(alert.driver);
+            function severityLabel(value) {
+                return window.ProMap.Alerts.severityLabel(value);
             }
 
-            if (alert.trip) {
-                values.push(alert.trip);
+            function categoryLabel(value) {
+                return window.ProMap.Alerts.categoryLabel(value);
             }
 
-            return values.filter(Boolean).join(" · ");
-        }
+            function statusLabel(value) {
+                switch (value) {
+                    case "open":
+                        return "OPEN";
 
-        const state = {
-            alerts: [],
-            filtered: [],
-            selectedId: null
-        };
+                    case "acknowledged":
+                        return "ACKNOWLEDGED";
 
-        const elements = {
-            list: $("alertsList"),
-            empty: $("alertsEmpty"),
-            resultCount: $("alertsResultCount"),
+                    case "snoozed":
+                        return "SNOOZED";
 
-            search: $("alertsSearch"),
-            severity: $("alertsSeverity"),
-            category: $("alertsCategory"),
-            status: $("alertsStatus"),
-
-            detail: $("alertDetails"),
-
-            open: $("alertsOpenCount"),
-            critical: $("alertsCriticalCount"),
-            high: $("alertsHighCount"),
-            today: $("alertsTodayCount"),
-            resolved: $("alertsResolvedCount"),
-
-            sourceNavigation: $("sourceNavigation"),
-            sourceCompliance: $("sourceCompliance"),
-            sourceGps: $("sourceGps"),
-            sourceFleet: $("sourceFleet"),
-            sourceDriver: $("sourceDriver"),
-            sourceFinance: $("sourceFinance"),
-            sourceOperations: $("sourceOperations"),
-
-            criticalBar: $("severityCriticalBar"),
-            highBar: $("severityHighBar"),
-            mediumBar: $("severityMediumBar"),
-
-            criticalValue: $("severityCriticalValue"),
-            highValue: $("severityHighValue"),
-            mediumValue: $("severityMediumValue")
-        };
-
-        function updateKpis() {
-            const alerts = state.alerts;
-
-            const open = alerts.filter(alert => alert.status === "open");
-
-            const critical = open.filter(alert => alert.severity === "critical");
-
-            const high = open.filter(alert => alert.severity === "high");
-
-            const resolved = alerts.filter(alert => alert.status === "resolved");
-
-            elements.open.textContent = open.length;
-
-            elements.critical.textContent = critical.length;
-
-            elements.high.textContent = high.length;
-
-            elements.today.textContent = window.ProMap.Alerts.getTodayCount();
-
-            elements.resolved.textContent = resolved.length;
-
-            const sourceCounts = {
-                navigation: 0,
-                compliance: 0,
-                gps: 0,
-                fleet: 0,
-                driver: 0,
-                finance: 0,
-                operations: 0
-            };
-
-            open.forEach(function (alert) {
-                switch (alert.category) {
-                    case "navigation":
-                        sourceCounts.navigation++;
-                        break;
-
-                    case "compliance":
-                        sourceCounts.compliance++;
-                        break;
-
-                    case "gps":
-                        sourceCounts.gps++;
-                        break;
-
-                    case "vehicle":
-                    case "maintenance":
-                        sourceCounts.fleet++;
-                        break;
-
-                    case "driver":
-                    case "tachograph":
-                        sourceCounts.driver++;
-                        break;
-
-                    case "finance":
-                    case "fuel":
-                        sourceCounts.finance++;
-                        break;
+                    case "resolved":
+                        return "RESOLVED";
 
                     default:
-                        sourceCounts.operations++;
-                        break;
+                        return String(value || "").toUpperCase();
                 }
-            });
-
-            elements.sourceNavigation.textContent = sourceCounts.navigation;
-
-            elements.sourceCompliance.textContent = sourceCounts.compliance;
-
-            elements.sourceGps.textContent = sourceCounts.gps;
-
-            elements.sourceFleet.textContent = sourceCounts.fleet;
-
-            elements.sourceDriver.textContent = sourceCounts.driver;
-
-            elements.sourceFinance.textContent = sourceCounts.finance;
-
-            elements.sourceOperations.textContent = sourceCounts.operations;
-
-            const severityTotal = Math.max(1, open.length);
-
-            const criticalCount = open.filter(
-                    a => a.severity === "critical"
-            ).length;
-
-            const highCount = open.filter(a => a.severity === "high").length;
-
-            const mediumCount = open.filter(a => a.severity === "medium").length;
-
-            elements.criticalValue.textContent = criticalCount;
-
-            elements.highValue.textContent = highCount;
-
-            elements.mediumValue.textContent = mediumCount;
-
-            elements.criticalBar.style.width =
-                (criticalCount / severityTotal * 100  ) + "%";
-
-            elements.highBar.style.width = (highCount / severityTotal * 100    ) + "%";
-
-            elements.mediumBar.style.width =
-                (mediumCount / severityTotal * 100  ) + "%";
-        }
-
-        function applyFilters() {
-            const search = String(elements.search.value || "")
-                .trim()
-                .toLowerCase();
-
-            const severity = elements.severity.value;
-
-            const category = elements.category.value;
-
-            const status = elements.status.value;
-
-            state.filtered = state.alerts.filter(function (alert) {
-                if (severity && alert.severity !== severity) {
-                    return false;
-                }
-
-                if (category && alert.category !== category) {
-                    return false;
-                }
-
-                if (status && alert.status !== status) {
-                    return false;
-                }
-
-                if (!search) {
-                    return true;
-                }
-
-                const haystack = [
-                    alert.id,
-                    alert.title,
-                    alert.message,
-                    alert.type,
-                    alert.vehicle,
-                    alert.driver,
-                    alert.trip,
-                    alert.location,
-                    alert.source,
-                    categoryLabel(alert.category)
-                ]
-                    .filter(Boolean)
-                    .join(" ")
-                    .toLowerCase();
-
-                return haystack.includes(search);
-            });
-
-            renderList();
-        }
-
-        function renderList() {
-            elements.resultCount.textContent = state.filtered.length + " rezultata";
-
-            elements.empty.hidden = state.filtered.length !== 0;
-
-            elements.list.innerHTML = "";
-
-            if (!state.filtered.length) {
-                return;
             }
 
-            state.filtered.forEach(function (alert) {
-                const row = document.createElement("div");
+            function alertIcon(alert) {
+                switch (alert.category) {
+                    case "navigation":
+                        return "◎";
 
-                row.className =
-                    "pm-alert-row " +
-                    alert.severity +
-                    (state.selectedId === alert.id ? " selected" : "");
+                    case "gps":
+                        return "◉";
 
-                row.dataset.alertId = alert.id;
+                    case "compliance":
+                        return "▣";
 
-                row.innerHTML = `
-                    <div class="pm-alert-severity-line"></div>
+                    case "maintenance":
+                        return "🔧";
 
-                    <div class="pm-alert-row-icon">
-                        ${escapeHtml(alertIcon(alert))}
-                    </div>
+                    case "fuel":
+                        return "⛽";
 
-                    <div class="pm-alert-row-content">
+                    case "tachograph":
+                        return "◷";
 
-                        <div class="pm-alert-row-title">
-                            ${escapeHtml(alert.title)}
+                    case "border":
+                        return "⌂";
+
+                    case "finance":
+                        return "₿";
+
+                    case "driver":
+                        return "♙";
+
+                    case "vehicle":
+                        return "▣";
+
+                    case "orders":
+                        return "▤";
+
+                    case "trips":
+                        return "↗";
+
+                    default:
+                        return "!";
+                }
+            }
+
+            function getContextMain(alert) {
+                return (
+                    alert.vehicle ||
+                    alert.driver ||
+                    alert.trip ||
+                    alert.location ||
+                    "Sistem"
+                );
+            }
+
+            function getContextSub(alert) {
+                const values = [];
+
+                if (alert.vehicle) {
+                    values.push(alert.vehicle);
+                }
+
+                if (alert.driver) {
+                    values.push(alert.driver);
+                }
+
+                if (alert.trip) {
+                    values.push(alert.trip);
+                }
+
+                return values.filter(Boolean).join(" · ");
+            }
+
+            const state = {
+                alerts: [],
+                filtered: [],
+                selectedId: null
+            };
+
+            const elements = {
+                list: $("alertsList"),
+                empty: $("alertsEmpty"),
+                resultCount: $("alertsResultCount"),
+
+                search: $("alertsSearch"),
+                severity: $("alertsSeverity"),
+                category: $("alertsCategory"),
+                status: $("alertsStatus"),
+
+                detail: $("alertDetails"),
+
+                open: $("alertsOpenCount"),
+                critical: $("alertsCriticalCount"),
+                high: $("alertsHighCount"),
+                today: $("alertsTodayCount"),
+                resolved: $("alertsResolvedCount"),
+
+                sourceNavigation: $("sourceNavigation"),
+                sourceCompliance: $("sourceCompliance"),
+                sourceGps: $("sourceGps"),
+                sourceFleet: $("sourceFleet"),
+                sourceDriver: $("sourceDriver"),
+                sourceFinance: $("sourceFinance"),
+                sourceOperations: $("sourceOperations"),
+
+                criticalBar: $("severityCriticalBar"),
+                highBar: $("severityHighBar"),
+                mediumBar: $("severityMediumBar"),
+
+                criticalValue: $("severityCriticalValue"),
+                highValue: $("severityHighValue"),
+                mediumValue: $("severityMediumValue")
+            };
+
+            function updateKpis() {
+                const alerts = state.alerts;
+
+                const open = alerts.filter(alert => alert.status === "open");
+
+                const critical = open.filter(alert => alert.severity === "critical");
+
+                const high = open.filter(alert => alert.severity === "high");
+
+                const resolved = alerts.filter(alert => alert.status === "resolved");
+
+                elements.open.textContent = open.length;
+
+                elements.critical.textContent = critical.length;
+
+                elements.high.textContent = high.length;
+
+                elements.today.textContent = window.ProMap.Alerts.getTodayCount();
+
+                elements.resolved.textContent = resolved.length;
+
+                const sourceCounts = {
+                    navigation: 0,
+                    compliance: 0,
+                    gps: 0,
+                    fleet: 0,
+                    driver: 0,
+                    finance: 0,
+                    operations: 0
+                };
+
+                open.forEach(function(alert) {
+                    switch (alert.category) {
+                        case "navigation":
+                            sourceCounts.navigation++;
+                            break;
+
+                        case "compliance":
+                            sourceCounts.compliance++;
+                            break;
+
+                        case "gps":
+                            sourceCounts.gps++;
+                            break;
+
+                        case "vehicle":
+                        case "maintenance":
+                            sourceCounts.fleet++;
+                            break;
+
+                        case "driver":
+                        case "tachograph":
+                            sourceCounts.driver++;
+                            break;
+
+                        case "finance":
+                        case "fuel":
+                            sourceCounts.finance++;
+                            break;
+
+                        default:
+                            sourceCounts.operations++;
+                            break;
+                    }
+                });
+
+                elements.sourceNavigation.textContent = sourceCounts.navigation;
+
+                elements.sourceCompliance.textContent = sourceCounts.compliance;
+
+                elements.sourceGps.textContent = sourceCounts.gps;
+
+                elements.sourceFleet.textContent = sourceCounts.fleet;
+
+                elements.sourceDriver.textContent = sourceCounts.driver;
+
+                elements.sourceFinance.textContent = sourceCounts.finance;
+
+                elements.sourceOperations.textContent = sourceCounts.operations;
+
+                const severityTotal = Math.max(1, open.length);
+
+                const criticalCount = open.filter(
+                    a => a.severity === "critical"
+                ).length;
+
+                const highCount = open.filter(a => a.severity === "high").length;
+
+                const mediumCount = open.filter(a => a.severity === "medium").length;
+
+                elements.criticalValue.textContent = criticalCount;
+
+                elements.highValue.textContent = highCount;
+
+                elements.mediumValue.textContent = mediumCount;
+
+                elements.criticalBar.style.width =
+                    (criticalCount / severityTotal * 100) + "%";
+
+                elements.highBar.style.width = (highCount / severityTotal * 100) + "%";
+
+                elements.mediumBar.style.width =
+                    (mediumCount / severityTotal * 100) + "%";
+            }
+
+            function applyFilters() {
+                const search = String(elements.search.value || "")
+                    .trim()
+                    .toLowerCase();
+
+                const severity = elements.severity.value;
+
+                const category = elements.category.value;
+
+                const status = elements.status.value;
+
+                state.filtered = state.alerts.filter(function(alert) {
+                    if (severity && alert.severity !== severity) {
+                        return false;
+                    }
+
+                    if (category && alert.category !== category) {
+                        return false;
+                    }
+
+                    if (status && alert.status !== status) {
+                        return false;
+                    }
+
+                    if (!search) {
+                        return true;
+                    }
+
+                    const haystack = [
+                        alert.id,
+                        alert.title,
+                        alert.message,
+                        alert.type,
+                        alert.vehicle,
+                        alert.driver,
+                        alert.trip,
+                        alert.location,
+                        alert.source,
+                        categoryLabel(alert.category)
+                    ]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase();
+
+                    return haystack.includes(search);
+                });
+
+                renderList();
+            }
+
+            function renderList() {
+                elements.resultCount.textContent = state.filtered.length + " rezultata";
+
+                elements.empty.hidden = state.filtered.length !== 0;
+
+                elements.list.innerHTML = "";
+
+                if (!state.filtered.length) {
+                    return;
+                }
+
+                state.filtered.forEach(function(alert) {
+                    const row = document.createElement("div");
+
+                    row.className =
+                        "pm-alert-row " +
+                        alert.severity +
+                        (state.selectedId === alert.id ? " selected" : "");
+
+                    row.dataset.alertId = alert.id;
+
+                    row.innerHTML = `
+                            <div class="pm-alert-severity-line"></div>
+
+                            <div class="pm-alert-row-icon">
+                                ${escapeHtml(alertIcon(alert))}
+                            </div>
+
+                            <div class="pm-alert-row-content">
+
+                                <div class="pm-alert-row-title">
+                                    ${escapeHtml(alert.title)}
+                                </div>
+
+                                <div class="pm-alert-row-message">
+                                    ${escapeHtml(alert.message)}
+                                </div>
+
+                                <div class="pm-alert-row-meta">
+                                    ${escapeHtml(alert.id)}
+                                    ·
+                                    ${escapeHtml(categoryLabel(alert.category))}
+                                    ·
+                                    ${escapeHtml(formatDate(alert.createdAt))}
+                                </div>
+
+                            </div>
+
+                            <div class="pm-alert-row-context">
+
+                                <div class="pm-alert-context-main">
+                                    ${escapeHtml(getContextMain(alert))}
+                                </div>
+
+                                <div class="pm-alert-context-sub">
+                                    ${escapeHtml(getContextSub(alert))}
+                                </div>
+
+                            </div>
+
+                            <div class="pm-alert-row-status">
+
+                                <div>
+
+                                    <span class="pm-alert-severity-badge ${escapeHtml(alert.severity)}">
+                                        ${escapeHtml(severityLabel(alert.severity))}
+                                    </span>
+
+                                    <br />
+
+                                    <span class="pm-alert-status ${escapeHtml(alert.status)}">
+                                        ${escapeHtml(statusLabel(alert.status))}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="pm-alert-row-action">
+                                ›
+                            </div>
+                            `;
+
+                    row.addEventListener("click", function() {
+                        state.selectedId = alert.id;
+
+                        renderList();
+
+                        renderDetails(alert);
+                    });
+
+                    elements.list.appendChild(row);
+                });
+            }
+
+            function renderDetails(alert) {
+                if (!alert) {
+                    elements.detail.innerHTML = `
+                        <div class="pm-alert-detail-empty">
+
+                            <div>
+                                !
+                            </div>
+
+                            <strong>
+                                Izaberite alert
+                            </strong>
+
+                            <span>
+                                Kliknite na alert iz liste da vidite
+                                kompletan kontekst i akcije.
+                            </span>
+
                         </div>
+                        `;
 
-                        <div class="pm-alert-row-message">
-                            ${escapeHtml(alert.message)}
-                        </div>
+                    return;
+                }
 
-                        <div class="pm-alert-row-meta">
-                            ${escapeHtml(alert.id)}
-                            ·
-                            ${escapeHtml(categoryLabel(alert.category))}
-                            ·
-                            ${escapeHtml(formatDate(alert.createdAt))}
-                        </div>
+                elements.detail.innerHTML = `
+                    <div class="pm-alert-detail">
 
-                    </div>
+                        <div class="pm-alert-detail-top">
 
-                    <div class="pm-alert-row-context">
+                            <div>
 
-                        <div class="pm-alert-context-main">
-                            ${escapeHtml(getContextMain(alert))}
-                        </div>
+                                <div class="pm-alert-detail-id">
+                                    ${escapeHtml(alert.id)}
+                                </div>
 
-                        <div class="pm-alert-context-sub">
-                            ${escapeHtml(getContextSub(alert))}
-                        </div>
+                                <h3>
+                                    ${escapeHtml(alert.title)}
+                                </h3>
 
-                    </div>
-
-                    <div class="pm-alert-row-status">
-
-                        <div>
+                            </div>
 
                             <span class="pm-alert-severity-badge ${escapeHtml(alert.severity)}">
                                 ${escapeHtml(severityLabel(alert.severity))}
                             </span>
 
-                            <br />
+                        </div>
 
-                            <span class="pm-alert-status ${escapeHtml(alert.status)}">
-                                ${escapeHtml(statusLabel(alert.status))}
-                            </span>
+
+                        <div class="pm-alert-detail-message">
+                            ${escapeHtml(alert.message)}
+                        </div>
+
+
+                        <div class="pm-alert-detail-grid">
+
+                            <div class="pm-alert-detail-item">
+                                <span>Kategorija</span>
+                                <strong>
+                                    ${escapeHtml(categoryLabel(alert.category))}
+                                </strong>
+                            </div>
+
+                            <div class="pm-alert-detail-item">
+                                <span>Status</span>
+                                <strong>
+                                    ${escapeHtml(statusLabel(alert.status))}
+                                </strong>
+                            </div>
+
+                            <div class="pm-alert-detail-item">
+                                <span>Vozilo</span>
+                                <strong>
+                                    ${escapeHtml(alert.vehicle || "—")}
+                                </strong>
+                            </div>
+
+                            <div class="pm-alert-detail-item">
+                                <span>Vozač</span>
+                                <strong>
+                                    ${escapeHtml(alert.driver || "—")}
+                                </strong>
+                            </div>
+
+                            <div class="pm-alert-detail-item">
+                                <span>Tura</span>
+                                <strong>
+                                    ${escapeHtml(alert.trip || "—")}
+                                </strong>
+                            </div>
+
+                            <div class="pm-alert-detail-item">
+                                <span>Lokacija</span>
+                                <strong>
+                                    ${escapeHtml(alert.location || "—")}
+                                </strong>
+                            </div>
+
+                            <div class="pm-alert-detail-item">
+                                <span>Izvor</span>
+                                <strong>
+                                    ${escapeHtml(alert.source || "—")}
+                                </strong>
+                            </div>
+
+                            <div class="pm-alert-detail-item">
+                                <span>Vreme</span>
+                                <strong>
+                                    ${escapeHtml(formatDate(alert.createdAt))}
+                                </strong>
+                            </div>
 
                         </div>
 
-                    </div>
 
-                    <div class="pm-alert-row-action">
-                        ›
+                        <div class="pm-alert-detail-action">
+
+                            <span>
+                                Preporučena akcija
+                            </span>
+
+                            <p>
+                                ${escapeHtml(alert.action || "Proverite alert i preduzmite odgovarajuću akciju.")}
+                            </p>
+
+                        </div>
+
+
+                        <div class="pm-alert-detail-actions">
+
+                            ${alert.status === "resolved"
+                        ? `
+                                        <button
+                                            type="button"
+                                            class="pm-alert-detail-btn"
+                                            data-alert-action="reopen">
+                                            Ponovo otvori
+                                        </button>
+                                    `
+                        : `
+                                        <button
+                                            type="button"
+                                            class="pm-alert-detail-btn primary"
+                                            data-alert-action="resolve">
+                                            Reši alert
+                                        </button>
+                                    `
+                    }
+
+
+                            ${alert.status === "open"
+                        ? `
+                                        <button
+                                            type="button"
+                                            class="pm-alert-detail-btn"
+                                            data-alert-action="acknowledge">
+                                            Preuzmi
+                                        </button>
+                                    `
+                        : `
+                                        <button
+                                            type="button"
+                                            class="pm-alert-detail-btn"
+                                            data-alert-action="snooze">
+                                            Odloži 30 min
+                                        </button>
+                                    `
+                    }
+
+
+                            ${alert.actionUrl
+                        ? `
+                                        <button
+                                            type="button"
+                                            class="pm-alert-detail-btn"
+                                            data-alert-action="open-source">
+                                            Otvori modul
+                                        </button>
+                                    `
+                        : ""
+                    }
+
+                        </div>
+
                     </div>
                     `;
 
-                row.addEventListener("click", function () {
-                    state.selectedId = alert.id;
+                elements.detail
+                    .querySelectorAll("[data-alert-action]")
+                    .forEach(function(button) {
+                        button.addEventListener("click", function() {
+                            const action = button.dataset.alertAction;
 
-                    renderList();
+                            if (action === "resolve") {
+                                window.ProMap.Alerts.resolve(alert.id);
+                            }
 
-                    renderDetails(alert);
-                });
+                            if (action === "reopen") {
+                                window.ProMap.Alerts.reopen(alert.id);
+                            }
 
-                elements.list.appendChild(row);
-            });
-        }
+                            if (action === "acknowledge") {
+                                window.ProMap.Alerts.acknowledge(alert.id);
+                            }
 
-        function renderDetails(alert) {
-            if (!alert) {
-                elements.detail.innerHTML = `
-                <div class="pm-alert-detail-empty">
+                            if (action === "snooze") {
+                                window.ProMap.Alerts.snooze(alert.id, 30);
+                            }
 
-                    <div>
-                        !
-                    </div>
+                            if (action === "open-source") {
+                                window.location.href = alert.actionUrl;
+                                return;
+                            }
 
-                    <strong>
-                        Izaberite alert
-                    </strong>
-
-                    <span>
-                        Kliknite na alert iz liste da vidite
-                        kompletan kontekst i akcije.
-                    </span>
-
-                </div>
-                `;
-
-                return;
-            }
-
-            elements.detail.innerHTML = `
-            <div class="pm-alert-detail">
-
-                <div class="pm-alert-detail-top">
-
-                    <div>
-
-                        <div class="pm-alert-detail-id">
-                            ${escapeHtml(alert.id)}
-                        </div>
-
-                        <h3>
-                            ${escapeHtml(alert.title)}
-                        </h3>
-
-                    </div>
-
-                    <span class="pm-alert-severity-badge ${escapeHtml(alert.severity)}">
-                        ${escapeHtml(severityLabel(alert.severity))}
-                    </span>
-
-                </div>
-
-
-                <div class="pm-alert-detail-message">
-                    ${escapeHtml(alert.message)}
-                </div>
-
-
-                <div class="pm-alert-detail-grid">
-
-                    <div class="pm-alert-detail-item">
-                        <span>Kategorija</span>
-                        <strong>
-                            ${escapeHtml(categoryLabel(alert.category))}
-                        </strong>
-                    </div>
-
-                    <div class="pm-alert-detail-item">
-                        <span>Status</span>
-                        <strong>
-                            ${escapeHtml(statusLabel(alert.status))}
-                        </strong>
-                    </div>
-
-                    <div class="pm-alert-detail-item">
-                        <span>Vozilo</span>
-                        <strong>
-                            ${escapeHtml(alert.vehicle || "—")}
-                        </strong>
-                    </div>
-
-                    <div class="pm-alert-detail-item">
-                        <span>Vozač</span>
-                        <strong>
-                            ${escapeHtml(alert.driver || "—")}
-                        </strong>
-                    </div>
-
-                    <div class="pm-alert-detail-item">
-                        <span>Tura</span>
-                        <strong>
-                            ${escapeHtml(alert.trip || "—")}
-                        </strong>
-                    </div>
-
-                    <div class="pm-alert-detail-item">
-                        <span>Lokacija</span>
-                        <strong>
-                            ${escapeHtml(alert.location || "—")}
-                        </strong>
-                    </div>
-
-                    <div class="pm-alert-detail-item">
-                        <span>Izvor</span>
-                        <strong>
-                            ${escapeHtml(alert.source || "—")}
-                        </strong>
-                    </div>
-
-                    <div class="pm-alert-detail-item">
-                        <span>Vreme</span>
-                        <strong>
-                            ${escapeHtml(formatDate(alert.createdAt))}
-                        </strong>
-                    </div>
-
-                </div>
-
-
-                <div class="pm-alert-detail-action">
-
-                    <span>
-                        Preporučena akcija
-                    </span>
-
-                    <p>
-                        ${escapeHtml(alert.action || "Proverite alert i preduzmite odgovarajuću akciju.")}
-                    </p>
-
-                </div>
-
-
-                <div class="pm-alert-detail-actions">
-
-                    ${
-                            alert.status === "resolved"
-                                ? `
-                                <button
-                                    type="button"
-                                    class="pm-alert-detail-btn"
-                                    data-alert-action="reopen">
-                                    Ponovo otvori
-                                </button>
-                            `
-                                : `
-                                <button
-                                    type="button"
-                                    class="pm-alert-detail-btn primary"
-                                    data-alert-action="resolve">
-                                    Reši alert
-                                </button>
-                            `
-                        }
-
-
-                    ${
-                            alert.status === "open"
-                                ? `
-                                <button
-                                    type="button"
-                                    class="pm-alert-detail-btn"
-                                    data-alert-action="acknowledge">
-                                    Preuzmi
-                                </button>
-                            `
-                                : `
-                                <button
-                                    type="button"
-                                    class="pm-alert-detail-btn"
-                                    data-alert-action="snooze">
-                                    Odloži 30 min
-                                </button>
-                            `
-                        }
-
-
-                    ${
-                            alert.actionUrl
-                                ? `
-                                <button
-                                    type="button"
-                                    class="pm-alert-detail-btn"
-                                    data-alert-action="open-source">
-                                    Otvori modul
-                                </button>
-                            `
-                                : ""
-                        }
-
-                </div>
-
-            </div>
-            `;
-
-            elements.detail
-                .querySelectorAll("[data-alert-action]")
-                .forEach(function (button) {
-                    button.addEventListener("click", function () {
-                        const action = button.dataset.alertAction;
-
-                        if (action === "resolve") {
-                            window.ProMap.Alerts.resolve(alert.id);
-                        }
-
-                        if (action === "reopen") {
-                            window.ProMap.Alerts.reopen(alert.id);
-                        }
-
-                        if (action === "acknowledge") {
-                            window.ProMap.Alerts.acknowledge(alert.id);
-                        }
-
-                        if (action === "snooze") {
-                            window.ProMap.Alerts.snooze(alert.id, 30);
-                        }
-
-                        if (action === "open-source") {
-                            window.location.href = alert.actionUrl;
-                            return;
-                        }
-
-                        reload();
+                            reload();
+                        });
                     });
-                });
-        }
+            }
 
-        function reload() {
-            state.alerts = window.ProMap.Alerts.get();
+            function reload() {
+                state.alerts = window.ProMap.Alerts.get();
 
-            updateKpis();
+                updateKpis();
 
-            applyFilters();
+                applyFilters();
 
-            if (state.selectedId) {
-                const selected = state.alerts.find(
+                if (state.selectedId) {
+                    const selected = state.alerts.find(
                         alert => alert.id === state.selectedId
-                );
+                    );
 
-                renderDetails(selected || null);
-            }
-        }
-
-        function clearResolved() {
-            const remaining = window.ProMap.Alerts.get().filter(
-                        alert => alert.status !== "resolved"
-            );
-
-            localStorage.setItem(
-                window.ProMap.Alerts.storageKey,
-                JSON.stringify(remaining)
-            );
-
-            window.dispatchEvent(
-                new CustomEvent("promap:alerts-changed", {
-                    detail: {
-                        alerts: remaining
-                    }
-                })
-            );
-
-            state.selectedId = null;
-
-            reload();
-
-            renderDetails(null);
-        }
-
-        function bind() {
-            [
-                elements.search,
-                elements.severity,
-                elements.category,
-                elements.status
-            ].forEach(function (element) {
-                element.addEventListener("input", applyFilters);
-
-                element.addEventListener("change", applyFilters);
-            });
-
-            $("alertsRefresh").addEventListener("click", reload);
-
-            $("alertsClearResolved").addEventListener("click", clearResolved);
-
-            window.addEventListener("promap:alerts-changed", reload);
-        }
-
-        function init() {
-            if (!window.ProMap || !window.ProMap.Alerts) {
-                console.error("ProMap Alerts module nije učitan.");
-
-                return;
+                    renderDetails(selected || null);
+                }
             }
 
-            bind();
+                // Resolved alerts stay in the database (audit); "Očisti rešene" hides them.
+                function clearResolved() {
+                    elements.status.value = "open";
+                    state.selectedId = null;
+                    applyFilters();
+                    renderDetails(null);
+                }
 
-            reload();
-        }
+            function bind() {
+                [
+                    elements.search,
+                    elements.severity,
+                    elements.category,
+                    elements.status
+                ].forEach(function(element) {
+                    element.addEventListener("input", applyFilters);
 
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", init);
-        } else {
-            init();
-        }
-    })();
-</script>
+                    element.addEventListener("change", applyFilters);
+                });
 
+                $("alertsRefresh").addEventListener("click", load);
+
+                $("alertsClearResolved").addEventListener("click", clearResolved);
+
+                window.addEventListener("promap:alerts-changed", reload);
+            }
+
+            function init() {
+                if (!window.ProMap || !window.ProMap.Alerts) {
+                    console.error("ProMap Alerts module nije učitan.");
+
+                    return;
+                }
+
+                bind();
+
+                load();
+            }
+
+            function load() {
+                window.ProMap.Alerts.load().catch(function (error) {
+                    elements.list.innerHTML = "";
+                    elements.empty.hidden = false;
+                    elements.empty.textContent = error.message;
+                });
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+
+
+}

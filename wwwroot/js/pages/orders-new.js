@@ -492,8 +492,8 @@
         button.textContent = "Čuvanje…";
 
         try {
-            const response = await fetch("/api/business/orders", {
-                method: "POST",
+            const response = await fetch(state.editId ? `/api/business/orders/${encodeURIComponent(state.editId)}` : "/api/business/orders", {
+                method: state.editId ? "PUT" : "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json"
@@ -512,7 +512,7 @@
                 );
             }
 
-            toast("success", "Transportni nalog je uspešno kreiran.");
+            toast("success", state.editId ? "Transportni nalog je uspešno izmenjen." : "Transportni nalog je uspešno kreiran.");
 
             window.setTimeout(() => {
                 window.location.href = "/orders";
@@ -595,10 +595,60 @@
             }
         });
 
-        createStop({ type: "Loading" });
-        createStop({ type: "Unloading" });
+        const editId = new URLSearchParams(window.location.search).get("id");
+        if (editId) {
+            loadOrder(editId);
+        } else {
+            createStop({ type: "Loading" });
+            createStop({ type: "Unloading" });
+        }
+
         updateReview();
         setActiveTab("basic");
+    }
+
+    // "Izmeni" on /orders opens this form with ?id=: the saved order is loaded and saved back with PUT.
+    async function loadOrder(id) {
+        const priorities = ["Low", "Normal", "High", "Critical"];
+
+        try {
+            const response = await fetch(`/api/business/orders/${encodeURIComponent(id)}/details`, {
+                headers: { "Accept": "application/json" },
+                credentials: "same-origin"
+            });
+            if (!response.ok) {
+                throw new Error(response.status === 404 ? "Nalog nije pronađen." : "Nalog nije moguće učitati.");
+            }
+
+            const { order, stops } = await response.json();
+            state.editId = order.id;
+
+            document.querySelectorAll(".pm-page-kicker").forEach(kicker => {
+                kicker.textContent = kicker.textContent.replace("Kreiranje", "Izmena").replace("Novi nalog", "Izmena naloga");
+            });
+            document.querySelectorAll(".pm-page-title, .pm-card-title").forEach(title => {
+                title.textContent = title.textContent.replace("Novi transportni nalog", "Izmena naloga " + order.orderNumber)
+                    .replace("Kreiranje transportnog naloga", "Izmena transportnog naloga");
+            });
+
+            $("orderNumber").value = order.orderNumber;
+            $("customerName").value = order.customerName;
+            $("priority").value = priorities[order.priority] || "Normal";
+            $("cargoDescription").value = order.cargoDescription || "";
+            $("cargoWeightTons").value = order.cargoWeightTons ?? "";
+            $("cargoVolumeM3").value = order.cargoVolumeM3 ?? "";
+            $("pallets").value = order.pallets ?? "";
+            $("hazmat").checked = order.hazmat === true;
+
+            $("stops")?.replaceChildren();
+            state.stopIndex = 0;
+            stops.forEach(stop => createStop({ ...stop, type: state.stopTypes[stop.type]?.[0] || "Other" }));
+            updateReview();
+        } catch (error) {
+            toast("error", error.message);
+            createStop({ type: "Loading" });
+            createStop({ type: "Unloading" });
+        }
     }
 
     if (document.readyState === "loading") {

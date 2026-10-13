@@ -111,11 +111,12 @@
 
                             <select id="vehicleType" name="vehicleType" required>
                                 <option value="">Izaberite tip</option>
-                                <option value="truck">Kamion</option>
-                                <option value="tractor">Tegljač</option>
-                                <option value="rigid">Teretno vozilo</option>
-                                <option value="van">Lako teretno vozilo</option>
-                                <option value="special">Specijalno vozilo</option>
+                                <option value="Truck">Kamion</option>
+                                <option value="Tractor">Tegljač</option>
+                                <option value="Truck">Teretno vozilo</option>
+                                <option value="Van">Lako teretno vozilo</option>
+                                <option value="Special">Specijalno vozilo</option>
+                                <option value="Trailer">Prikolica / poluprikolica</option>
                             </select>
                         </div>
 
@@ -263,12 +264,12 @@
 
                             <select id="fuelType" name="fuelType">
                                 <option value="">Izaberite</option>
-                                <option value="diesel">Dizel</option>
-                                <option value="lng">LNG</option>
-                                <option value="cng">CNG</option>
-                                <option value="electric">Električno</option>
-                                <option value="hybrid">Hibrid</option>
-                                <option value="other">Drugo</option>
+                                <option value="Diesel">Dizel</option>
+                                <option value="LNG">LNG</option>
+                                <option value="CNG">CNG</option>
+                                <option value="Electric">Električno</option>
+                                <option value="Hybrid">Hibrid</option>
+                                <option value="Other">Drugo</option>
                             </select>
                         </div>
 
@@ -386,10 +387,10 @@
                             </label>
 
                             <select id="vehicleStatus" name="vehicleStatus">
-                                <option value="active">Aktivno</option>
-                                <option value="maintenance">Na održavanju</option>
-                                <option value="inactive">Neaktivno</option>
-                                <option value="blocked">Blokirano</option>
+                                <option value="Active">Aktivno</option>
+                                <option value="Maintenance">Na održavanju</option>
+                                <option value="Inactive">Neaktivno</option>
+                                <option value="OutOfService">Blokirano</option>
                             </select>
                         </div>
 
@@ -408,9 +409,6 @@
 
                             <select id="assignedDriver" name="assignedDriver">
                                 <option value="">Nije dodeljen</option>
-                                <option value="driver-001">Marko Petrović</option>
-                                <option value="driver-002">Nikola Jovanović</option>
-                                <option value="driver-003">Milan Stojanović</option>
                             </select>
                         </div>
 
@@ -468,9 +466,6 @@
 
                         <select id="assignedTrailer" name="assignedTrailer">
                             <option value="">Bez prikolice</option>
-                            <option value="TRL-001">BG-TR-001 · Schmitz Cargobull</option>
-                            <option value="TRL-002">BG-TR-002 · Krone</option>
-                            <option value="TRL-003">BG-TR-003 · Kögel</option>
                         </select>
 
                     </div>
@@ -953,24 +948,113 @@
 
             setSavingState(true);
 
-            /*
-             * UI ONLY.
-             *
-             * Backend model, Entity Framework persistence,
-             * Identity permissions i Compliance veze biće
-             * povezani kasnije.
-             */
+            fetch("/api/business/vehicles", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify(buildPayload())
+            })
+                .then(function (response) {
+                    return response.json().catch(function () { return null; }).then(function (data) {
+                        if (!response.ok) {
+                            throw new Error(
+                                (data && (data.message || data.title)) ||
+                                (response.status === 401 ? "Prijavite se ponovo." : "Vozilo nije moguće sačuvati.")
+                            );
+                        }
+                        return data;
+                    });
+                })
+                .then(function (vehicle) {
+                    showMessage("Vozilo " + vehicle.registration + " je sačuvano.", false);
+                    window.setTimeout(function () { window.location.href = "/vehicles"; }, 900);
+                })
+                .catch(function (error) {
+                    setSavingState(false);
+                    showMessage(error.message, true);
+                });
+        }
 
-            window.setTimeout(function () {
 
-                setSavingState(false);
+        function fieldValue(id) {
+            const input = document.getElementById(id);
+            return input ? input.value.trim() : "";
+        }
 
-                showMessage(
-                    "Vozilo je validirano i spremno za čuvanje. Backend persistence će biti povezan kada budu uvedeni modeli.",
-                    false
-                );
 
-            }, 700);
+        function numberOrNull(id) {
+            const value = fieldValue(id).replace(",", ".");
+            return value === "" ? null : Number(value);
+        }
+
+
+        function buildPayload() {
+            return {
+                name: fieldValue("vehicleName"),
+                registration: fieldValue("registrationNumber").toUpperCase(),
+                fleetNumber: fieldValue("fleetNumber") || null,
+                vin: fieldValue("vin").toUpperCase(),
+                type: fieldValue("vehicleType") || null,
+                make: fieldValue("manufacturer") || null,
+                model: fieldValue("model") || null,
+                year: numberOrNull("productionYear"),
+                registrationDate: fieldValue("registrationDate") || null,
+                registrationExpiry: fieldValue("registrationExpiry") || null,
+                registrationOffice: fieldValue("registrationOffice") || null,
+                registrationDocument: fieldValue("registrationDocument") || null,
+                engine: fieldValue("engine") || null,
+                enginePowerKw: numberOrNull("enginePower"),
+                emissionClass: fieldValue("emissionClass") || null,
+                fuel: fieldValue("fuelType") || null,
+                grossWeightTons: numberOrNull("grossWeight"),
+                emptyWeightTons: numberOrNull("emptyWeight"),
+                heightMeters: numberOrNull("vehicleHeight"),
+                widthMeters: numberOrNull("vehicleWidth"),
+                lengthMeters: numberOrNull("vehicleLength"),
+                axleLoadTons: numberOrNull("axleLoad"),
+                axles: numberOrNull("axles"),
+                maxSpeedKmh: numberOrNull("maxSpeed"),
+                status: fieldValue("vehicleStatus") || null,
+                department: fieldValue("department") || null,
+                driverId: fieldValue("assignedDriver") || null,
+                fuelCard: fieldValue("fuelCard") || null,
+                notes: fieldValue("vehicleNotes") || null,
+                trailerId: fieldValue("assignedTrailer") || null,
+                technicalInspectionExpiry: fieldValue("technicalInspection") || null,
+                tirExpiry: fieldValue("tirExpiry") || null,
+                euroConfirmationExpiry: fieldValue("euroConfirmation") || null,
+                tachographCalibrationExpiry: fieldValue("tachographCalibration") || null
+            };
+        }
+
+
+        // Drivers and trailers of the company for the two selects.
+        function loadOptions() {
+            const get = function (url) {
+                return fetch(url, { headers: { "Accept": "application/json" }, credentials: "same-origin" })
+                    .then(function (response) { return response.ok ? response.json() : []; })
+                    .catch(function () { return []; });
+            };
+
+            Promise.all([get("/api/business/drivers"), get("/api/business/vehicles")]).then(function (results) {
+                const drivers = results[0] || [];
+                const vehicles = results[1] || [];
+                const driverSelect = document.getElementById("assignedDriver");
+                const trailerSelect = document.getElementById("assignedTrailer");
+
+                drivers
+                    .filter(function (driver) { return driver.status !== 3; })
+                    .forEach(function (driver) {
+                        driverSelect.add(new Option(driver.fullName + (driver.employeeNumber ? " · " + driver.employeeNumber : ""), driver.id));
+                    });
+
+                const taken = vehicles.map(function (vehicle) { return vehicle.trailerId; }).filter(Boolean);
+                vehicles
+                    .filter(function (vehicle) { return vehicle.type === 2 && taken.indexOf(vehicle.id) < 0; })
+                    .forEach(function (trailer) {
+                        trailerSelect.add(new Option(trailer.registration + " · " + [trailer.make, trailer.model].filter(Boolean).join(" "), trailer.id));
+                    });
+            });
         }
 
 
@@ -1070,6 +1154,7 @@
 
         updatePreview();
         updateChecklist();
+        loadOptions();
 
     })();
 

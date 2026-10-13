@@ -18,22 +18,41 @@
             </button>
         </header>
 
-        <section aria-label="Sažetak tura" class="pm-trip-kpis pm-kpi-grid">
-            <article class="pm-kpi">
-                <div class="pm-trip-kpi-label">Ukupno tura</div>
-                <strong data-trip-kpi="total" class="pm-trip-kpi-value">—</strong>
+        <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--4" aria-label="Sažetak tura">
+            <article class="compliance-kpi compliance-kpi-total">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Ukupno tura</span>
+                    <i data-lucide="route" class="compliance-kpi-icon" aria-hidden="true"></i>
+                </div>
+                <strong class="compliance-kpi-value" data-trip-kpi="total">—</strong>
+                <span class="compliance-kpi-meta">sve ture</span>
             </article>
-            <article class="pm-kpi pm-kpi--success">
-                <div class="pm-trip-kpi-label">Aktivne</div>
-                <strong data-trip-kpi="active" class="pm-trip-kpi-value pm-trip-kpi-value--active">—</strong>
+
+            <article class="compliance-kpi compliance-kpi-good">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Aktivne</span>
+                    <i data-lucide="navigation" class="compliance-kpi-icon" aria-hidden="true"></i>
+                </div>
+                <strong class="compliance-kpi-value" data-trip-kpi="active">—</strong>
+                <span class="compliance-kpi-meta">u toku</span>
             </article>
-            <article class="pm-kpi pm-kpi--info">
-                <div class="pm-trip-kpi-label">Planirane</div>
-                <strong data-trip-kpi="planned" class="pm-trip-kpi-value pm-trip-kpi-value--planned">—</strong>
+
+            <article class="compliance-kpi compliance-kpi-info">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Planirane</span>
+                    <i data-lucide="calendar-clock" class="compliance-kpi-icon" aria-hidden="true"></i>
+                </div>
+                <strong class="compliance-kpi-value" data-trip-kpi="planned">—</strong>
+                <span class="compliance-kpi-meta">čekaju polazak</span>
             </article>
-            <article class="pm-kpi">
-                <div class="pm-trip-kpi-label">Završene</div>
-                <strong data-trip-kpi="completed" class="pm-trip-kpi-value">—</strong>
+
+            <article class="compliance-kpi compliance-kpi-neutral">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Završene</span>
+                    <i data-lucide="circle-check" class="compliance-kpi-icon" aria-hidden="true"></i>
+                </div>
+                <strong class="compliance-kpi-value" data-trip-kpi="completed">—</strong>
+                <span class="compliance-kpi-meta">isporučeno</span>
             </article>
         </section>
 

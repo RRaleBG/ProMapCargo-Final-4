@@ -26,53 +26,51 @@
         </header>
 
 
-        <section class="pm-kpi-grid">
-
-            <article class="pm-kpi">
-                <div class="pm-kpi-head">
-                    <span>Ukupno vozila</span>
-                    <span class="pm-kpi-icon">🚚</span>
+        <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--5" aria-label="Praćenje pregled">
+            <article class="compliance-kpi compliance-kpi-total">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Ukupno vozila</span>
+                    <i data-lucide="truck" class="compliance-kpi-icon" aria-hidden="true"></i>
                 </div>
-                <div id="kpiTotal" class="pm-kpi-value">0</div>
-                <div class="monitoring-kpi-meta">Registrovana flota</div>
+                <strong class="compliance-kpi-value" id="kpiTotal">0</strong>
+                <span class="compliance-kpi-meta">Registrovana flota</span>
             </article>
 
-            <article class="pm-kpi">
-                <div class="pm-kpi-head">
-                    <span>Online</span>
-                    <span class="pm-kpi-icon">●</span>
+            <article class="compliance-kpi compliance-kpi-good">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Online</span>
+                    <i data-lucide="wifi" class="compliance-kpi-icon" aria-hidden="true"></i>
                 </div>
-                <div id="kpiOnline" class="pm-kpi-value">0</div>
-                <div class="pm-kpi-meta">Aktivan GPS signal</div>
+                <strong class="compliance-kpi-value" id="kpiOnline">0</strong>
+                <span class="compliance-kpi-meta">Aktivan GPS signal</span>
             </article>
 
-            <article class="pm-kpi">
-                <div class="pm-kpi-head">
-                    <span>U vožnji</span>
-                    <span class="pm-kpi-icon">➜</span>
+            <article class="compliance-kpi compliance-kpi-info">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">U vožnji</span>
+                    <i data-lucide="navigation" class="compliance-kpi-icon" aria-hidden="true"></i>
                 </div>
-                <div id="kpiMoving" class="pm-kpi-value">0</div>
-                <div class="pm-kpi-meta">Brzina iznad 5 km/h</div>
+                <strong class="compliance-kpi-value" id="kpiMoving">0</strong>
+                <span class="compliance-kpi-meta">Brzina iznad 5 km/h</span>
             </article>
 
-            <article class="pm-kpi">
-                <div class="pm-kpi-head">
-                    <span>Zaustavljena</span>
-                    <span class="pm-kpi-icon">Ⅱ</span>
+            <article class="compliance-kpi compliance-kpi-neutral">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Zaustavljena</span>
+                    <i data-lucide="circle-pause" class="compliance-kpi-icon" aria-hidden="true"></i>
                 </div>
-                <div id="kpiIdle" class="pm-kpi-value">0</div>
-                <div class="pm-kpi-meta">Online bez kretanja</div>
+                <strong class="compliance-kpi-value" id="kpiIdle">0</strong>
+                <span class="compliance-kpi-meta">Online bez kretanja</span>
             </article>
 
-            <article class="pm-kpi">
-                <div class="pm-kpi-head">
-                    <span>Alerts</span>
-                    <span class="pm-kpi-icon">!</span>
+            <article class="compliance-kpi compliance-kpi-warning">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Alerts</span>
+                    <i data-lucide="triangle-alert" class="compliance-kpi-icon" aria-hidden="true"></i>
                 </div>
-                <div id="kpiAlerts" class="pm-kpi-value">0</div>
-                <div class="pm-kpi-meta">Operativna upozorenja</div>
+                <strong class="compliance-kpi-value" id="kpiAlerts">0</strong>
+                <span class="compliance-kpi-meta">Operativna upozorenja</span>
             </article>
-
         </section>
 
         <div class="monitoring-main pm-workspace-split">

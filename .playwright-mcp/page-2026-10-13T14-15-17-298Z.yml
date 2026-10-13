@@ -1,0 +1,245 @@
+- generic [active] [ref=f14e1]:
+  - checkbox [aria-hidden]
+  - generic [ref=f14e2]:
+    - complementary [ref=f14e3]:
+      - generic [ref=f14e4]:
+        - link "ProMap Cargo" [ref=f14e6] [cursor=pointer]:
+          - /url: ""
+        - generic [ref=f14e9]:
+          - generic [ref=f14e11]: Sistem operativan
+          - strong [ref=f14e12]: LIVE
+        - navigation "Glavna navigacija" [ref=f14e13]:
+          - generic [ref=f14e14]:
+            - generic [ref=f14e15]: OPERACIJE
+            - link "Dispatch" [ref=f14e16] [cursor=pointer]:
+              - /url: /dispatch
+            - link "Transportni nalozi" [ref=f14e23] [cursor=pointer]:
+              - /url: /orders
+            - link "Ture" [ref=f14e28] [cursor=pointer]:
+              - /url: /trips
+          - generic [ref=f14e34]:
+            - generic [ref=f14e35]: FLEET
+            - link "Vozila" [ref=f14e36] [cursor=pointer]:
+              - /url: /Vehicles
+            - link "Vozači" [ref=f14e43] [cursor=pointer]:
+              - /url: /Drivers
+            - link "Navigacija GPS" [ref=f14e49] [cursor=pointer]:
+              - /url: /navigation
+              - generic [ref=f14e52]: Navigacija
+              - generic [ref=f14e53]: GPS
+          - generic [ref=f14e54]:
+            - generic [ref=f14e55]: KONTROLA
+            - link "Upozorenja" [ref=f14e56] [cursor=pointer]:
+              - /url: /alerts
+            - link "Moderacija" [ref=f14e60] [cursor=pointer]:
+              - /url: /moderation
+            - link "Revizija" [ref=f14e65] [cursor=pointer]:
+              - /url: /audit
+            - link "Usklađenost" [ref=f14e72] [cursor=pointer]:
+              - /url: /compliance
+            - link "Praćenje" [ref=f14e78] [cursor=pointer]:
+              - /url: /monitoring
+          - generic [ref=f14e82]:
+            - generic [ref=f14e83]: ANALITIKA
+            - link "Finansije" [ref=f14e84] [cursor=pointer]:
+              - /url: /finance
+            - link "Izveštaji" [ref=f14e89] [cursor=pointer]:
+              - /url: /reports
+        - generic [ref=f14e93]:
+          - text: SISTEM
+          - link "Profil" [ref=f14e94] [cursor=pointer]:
+            - /url: /Account/Manage
+          - link "Administracija" [ref=f14e99] [cursor=pointer]:
+            - /url: /Account/Admin/Index
+          - link "Podešavanja" [ref=f14e104] [cursor=pointer]:
+            - /url: /settings
+          - link "Odjava" [ref=f14e109] [cursor=pointer]:
+            - /url: /Account/Logout
+    - generic [ref=f14e114]:
+      - banner [ref=f14e115]:
+        - generic [ref=f14e117]:
+          - generic [ref=f14e118]: ProMap Cargo
+          - generic [ref=f14e119]: /
+          - strong [ref=f14e120]: Transportni nalozi · ProMap Cargo
+        - generic [ref=f14e122]:
+          - combobox "Brza pretraga stranica" [ref=f14e126]
+          - generic [ref=f14e127]: Ctrl K
+        - generic [ref=f14e128]:
+          - status [ref=f14e129]:
+            - generic [ref=f14e131]: Sistem online
+          - link "Obaveštenja" [ref=f14e132] [cursor=pointer]:
+            - /url: /alerts
+          - link "MP Administrator Fleet Operations" [ref=f14e136] [cursor=pointer]:
+            - /url: /Account/Manage
+            - generic [ref=f14e137]: MP
+            - generic [ref=f14e138]:
+              - strong [ref=f14e139]: Administrator
+              - generic [ref=f14e140]: Fleet Operations
+      - main [ref=f14e143]:
+        - generic [ref=f14e145]:
+          - generic [ref=f14e146]:
+            - generic [ref=f14e147]:
+              - generic [ref=f14e148]: Nalozi
+              - paragraph [ref=f14e149]: Planiranje pickup/delivery naloga, cargo statusa i izvršenja transporta
+            - generic [ref=f14e150]:
+              - button "Osveži" [disabled]
+              - link "Novi nalog" [ref=f14e151] [cursor=pointer]:
+                - /url: /orders/new
+          - generic [ref=f14e155]:
+            - article [ref=f14e156]:
+              - generic [ref=f14e157]: Ukupno naloga
+              - generic [ref=f14e162]: "128"
+              - generic [ref=f14e163]: aktivni operativni period
+            - article [ref=f14e164]:
+              - generic [ref=f14e165]: U transportu
+              - generic [ref=f14e171]: "37"
+              - generic [ref=f14e172]: trenutno izvršenje
+            - article [ref=f14e173]:
+              - generic [ref=f14e174]:
+                - generic [ref=f14e175]: Planirano
+                - generic [ref=f14e176]: ◷
+              - generic [ref=f14e177]: "52"
+              - generic [ref=f14e178]: čeka dodelu ture
+            - article [ref=f14e179]:
+              - generic [ref=f14e180]: Kašnjenja
+              - generic [ref=f14e184]: "8"
+              - generic [ref=f14e185]: zahteva pažnju
+            - article [ref=f14e186]:
+              - generic [ref=f14e187]: Isporuke danas
+              - generic [ref=f14e191]: "31"
+              - generic [ref=f14e192]: —
+          - generic [ref=f14e193]:
+            - generic [ref=f14e194]:
+              - generic [ref=f14e195]:
+                - generic [ref=f14e196]: Pretraga i filteri
+                - generic [ref=f14e197]: Filtriraj naloge prema kupcu, relaciji, statusu i datumu
+              - button "Resetuj filtere" [ref=f14e198] [cursor=pointer]
+            - generic [ref=f14e199]:
+              - generic [ref=f14e200]:
+                - generic [ref=f14e201]: Pretraga
+                - searchbox "Pretraga" [ref=f14e202]
+              - generic [ref=f14e203]:
+                - generic [ref=f14e204]: Kupac
+                - combobox "Kupac" [ref=f14e205]:
+                  - option "Svi kupci" [selected]
+              - generic [ref=f14e206]:
+                - generic [ref=f14e207]: Pickup
+                - combobox "Pickup" [ref=f14e208]:
+                  - option "Sve lokacije" [selected]
+              - generic [ref=f14e209]:
+                - generic [ref=f14e210]: Status
+                - combobox "Status" [ref=f14e211]:
+                  - option "Svi statusi" [selected]
+                  - option "In Transit"
+                  - option "Loading"
+                  - option "Planned"
+                  - option "Delivered"
+                  - option "Delayed"
+              - generic [ref=f14e212]:
+                - generic [ref=f14e213]: Datum
+                - combobox "Datum" [ref=f14e214]:
+                  - option "Svi datumi" [selected]
+                  - option "Danas"
+                  - option "Sutra"
+                  - option "Ove nedelje"
+              - button "Primeni" [ref=f14e215] [cursor=pointer]
+            - generic [ref=f14e216]:
+              - button "Svi 128" [ref=f14e217] [cursor=pointer]:
+                - text: Svi
+                - generic [ref=f14e218]: "128"
+              - button "Planned 52" [ref=f14e219] [cursor=pointer]:
+                - text: Planned
+                - generic [ref=f14e220]: "52"
+              - button "Loading 18" [ref=f14e221] [cursor=pointer]:
+                - text: Loading
+                - generic [ref=f14e222]: "18"
+              - button "In Transit 37" [ref=f14e223] [cursor=pointer]:
+                - text: In Transit
+                - generic [ref=f14e224]: "37"
+              - button "Delivered 13" [ref=f14e225] [cursor=pointer]:
+                - text: Delivered
+                - generic [ref=f14e226]: "13"
+              - button "Delayed 8" [ref=f14e227] [cursor=pointer]:
+                - text: Delayed
+                - generic [ref=f14e228]: "8"
+          - generic [ref=f14e229]:
+            - article [ref=f14e230]:
+              - generic [ref=f14e231]:
+                - generic [ref=f14e232]:
+                  - generic [ref=f14e233]: Lista transportnih naloga
+                  - generic [ref=f14e234]: Operativni pregled pickup / delivery zahteva
+                - generic [ref=f14e235]:
+                  - text: "Prikazano:"
+                  - strong [ref=f14e236]: "5"
+                  - text: naloga
+              - table [ref=f14e238]:
+                - rowgroup [ref=f14e239]:
+                  - row [ref=f14e240]:
+                    - columnheader "Order" [ref=f14e241]
+                    - columnheader "Kupac" [ref=f14e242]
+                    - columnheader "Pickup / Delivery" [ref=f14e243]
+                    - columnheader "Cargo" [ref=f14e244]
+                    - columnheader "Težina" [ref=f14e245]
+                    - columnheader "Termin" [ref=f14e246]
+                    - columnheader "Status" [ref=f14e247]
+                    - columnheader "Prioritet" [ref=f14e248]
+                    - columnheader "Akcije" [ref=f14e249]
+                - rowgroup
+              - generic [ref=f14e250]: —
+            - complementary [ref=f14e252]:
+              - generic [ref=f14e253]:
+                - generic [ref=f14e254]: Selected order
+                - generic [ref=f14e255]: ORD-2026-00128
+                - generic [ref=f14e256]: ACME Logistics · REF-ACM-8841
+                - generic [ref=f14e257]: —
+              - generic [ref=f14e259]:
+                - generic [ref=f14e260]:
+                  - generic [ref=f14e261]: Transport route
+                  - generic [ref=f14e262]:
+                    - generic [ref=f14e264]:
+                      - generic [ref=f14e266]: Pickup
+                      - generic [ref=f14e267]: Beograd, Srbija
+                      - generic [ref=f14e268]: 18.09.2026 · 08:00–10:00
+                    - generic [ref=f14e269]:
+                      - generic [ref=f14e271]: Delivery
+                      - generic [ref=f14e272]: München, Germany
+                      - generic [ref=f14e273]: 18.09.2026 · ETA 18:40
+                - generic [ref=f14e274]:
+                  - generic [ref=f14e275]: Cargo
+                  - generic [ref=f14e276]:
+                    - generic [ref=f14e277]:
+                      - generic [ref=f14e278]: Tip
+                      - generic [ref=f14e279]: Industrijska roba
+                    - generic [ref=f14e280]:
+                      - generic [ref=f14e281]: Operacija
+                      - generic [ref=f14e282]: FTL
+                    - generic [ref=f14e283]:
+                      - generic [ref=f14e284]: Težina
+                      - generic [ref=f14e285]: 18 t
+                    - generic [ref=f14e286]:
+                      - generic [ref=f14e287]: Palete
+                      - generic [ref=f14e288]: "14"
+                - generic [ref=f14e289]:
+                  - generic [ref=f14e290]: Execution
+                  - generic [ref=f14e291]:
+                    - generic [ref=f14e292]:
+                      - generic [ref=f14e293]: Tura
+                      - generic [ref=f14e294]: TRP-8841
+                    - generic [ref=f14e295]:
+                      - generic [ref=f14e296]: Vozilo
+                      - generic [ref=f14e297]: BG-241-AA
+                    - generic [ref=f14e298]:
+                      - generic [ref=f14e299]: Vozač
+                      - generic [ref=f14e300]: M. Petrović
+                    - generic [ref=f14e301]:
+                      - generic [ref=f14e302]: Napredak
+                      - generic [ref=f14e303]: 68%
+                - generic [ref=f14e304]:
+                  - generic [ref=f14e305]: Actions
+                  - generic [ref=f14e306]:
+                    - link "Otvori turu" [ref=f14e307] [cursor=pointer]:
+                      - /url: /trips
+                    - link "Navigacija" [ref=f14e308] [cursor=pointer]:
+                      - /url: /navigation
+                    - button "Izmeni" [ref=f14e309] [cursor=pointer]
+                    - button "Više" [ref=f14e310] [cursor=pointer]

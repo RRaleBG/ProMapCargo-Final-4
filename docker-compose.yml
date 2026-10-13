@@ -83,6 +83,8 @@ services:
       - ./wwwroot/fonts:/app/wwwroot/fonts:ro
       - ./wwwroot/lib:/app/wwwroot/lib:ro
       - dataprotection_keys:/root/.aspnet/DataProtection-Keys
+      # Receipts and scanned documents uploaded through the forms (Storage:UploadsPath).
+      - uploads:/app/App_Data/uploads
     # The routing graph cache keeps Serbia in memory (~1.5 GB with the place search;
     # GC heap hard limit is 75% of this value).
     mem_limit: "4g"
@@ -101,3 +103,4 @@ networks:
 volumes:
   postgres_data:
   dataprotection_keys:
+  uploads:

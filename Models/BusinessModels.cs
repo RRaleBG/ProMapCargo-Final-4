@@ -11,6 +11,7 @@ public sealed class Company
     public string? Address { get; set; }
     public string? City { get; set; }
     public string? PostalCode { get; set; }
+    public string? DispatchPhone { get; set; }
     public bool IsActive
     { get; set; } = true;
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
@@ -57,10 +58,25 @@ public sealed class Driver
         get; set;
     }
     public DateTimeOffset? LastGpsAt { get; set; }
+
+    // "Novi vozač" form.
+    public string? EmployeeNumber { get; set; }
+    public string? Email { get; set; }
+    public string? LicenseCategories { get; set; }
+    public DateOnly? LicenseExpiry { get; set; }
+    public DateOnly? Code95Expiry { get; set; }
+    public DateOnly? AdrExpiry { get; set; }
+    public string? TachographCardNumber { get; set; }
+    public DateOnly? TachographCardExpiry { get; set; }
+    public DateOnly? MedicalExpiry { get; set; }
+    public DateOnly? HireDate { get; set; }
+    public string? Address { get; set; }
+    public string? Notes { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
 public enum VehicleType
 {
-    Truck, Tractor, Trailer, Van, Bus, Car
+    Truck, Tractor, Trailer, Van, Bus, Car, Special
 }
 public enum FuelType
 {
@@ -96,6 +112,28 @@ public sealed class Vehicle
     public decimal MaxSpeedKmh { get; set; } = 90;
     public bool Commercial { get; set; } = true;
     public bool Hazmat { get; set; }
+
+    // "Novo vozilo" form.
+    public string? Name { get; set; }
+    public string? FleetNumber { get; set; }
+    public DateOnly? RegistrationDate { get; set; }
+    public DateOnly? RegistrationExpiry { get; set; }
+    public string? RegistrationOffice { get; set; }
+    public string? RegistrationDocument { get; set; }
+    public string? Engine { get; set; }
+    public int? EnginePowerKw { get; set; }
+    public string? EmissionClass { get; set; }
+    public decimal? EmptyWeightTons { get; set; }
+    public string? Department { get; set; }
+    public string? FuelCard { get; set; }
+    public string? Notes { get; set; }
+    public Guid? TrailerId { get; set; }
+    public DateOnly? TechnicalInspectionExpiry { get; set; }
+    public DateOnly? TirExpiry { get; set; }
+    public DateOnly? EuroConfirmationExpiry { get; set; }
+    public DateOnly? TachographCalibrationExpiry { get; set; }
+    public int? OdometerKm { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
 public enum TransportOrderStatus
 {
@@ -212,6 +250,12 @@ public sealed class Trip
     public double? CurrentBearing { get; set; }
     public DateTimeOffset? LastGpsAt { get; set; }
     public Guid? ActiveRouteId { get; set; }
+    public string? TripNumber { get; set; }
+    public decimal? BudgetAmount { get; set; }
+    public string Currency { get; set; } = "EUR";
+    public DateTimeOffset? PlannedStartAt { get; set; }
+    public DateTimeOffset? PlannedArrivalAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
 public enum TripRouteStatus
 {
@@ -423,7 +467,12 @@ public sealed class RouteCountrySegment
 
 public enum TransportCostCategory
 {
-    Fuel, Toll, Border, Parking, Waiting, Ferry, Driver, Maintenance, Other
+    Fuel, Toll, Border, Parking, Waiting, Ferry, Driver, Maintenance, Other, AdBlue, Food, Accommodation, Allowance, Payment
+}
+
+public enum TransportCostStatus
+{
+    Pending, Approved, Rejected, Paid
 }
 
 public enum TransportCostSource
@@ -449,4 +498,115 @@ public sealed class TransportCost
     public bool IsEstimated { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public string? Notes { get; set; }
+
+    // "Novi trošak" form (Finansije).
+    public TransportCostStatus Status { get; set; } = TransportCostStatus.Pending;
+    public DateTimeOffset? IncurredAt { get; set; }
+    public string? Location { get; set; }
+    public string? CountryCode { get; set; }
+    public string? PaymentMethod { get; set; }
+    public string? CardLabel { get; set; }
+    public int? OdometerKm { get; set; }
+    public Guid? VehicleId { get; set; }
+    public Guid? DriverId { get; set; }
+    public Guid? ReceiptFileId { get; set; }
+    public Guid? CreatedByUserId { get; set; }
+}
+
+
+// ---- Compliance (vehicle documents, maintenance log, trailer changes) ----
+
+public sealed class ComplianceDocument
+{
+    public Guid Id { get; set; }
+    public Guid CompanyId { get; set; }
+    public Guid VehicleId { get; set; }
+    public string DocumentType { get; set; } = "";
+    public string? Number { get; set; }
+    public DateOnly? IssueDate { get; set; }
+    public DateOnly ExpiryDate { get; set; }
+    public string? Issuer { get; set; }
+    public string? Note { get; set; }
+    public Guid? FileId { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public Guid? CreatedByUserId { get; set; }
+}
+
+public enum VehicleLogKind
+{
+    ServiceMinor, ServiceMajor, Repair, Fault, Note
+}
+
+public enum VehicleLogStatus
+{
+    Open, Completed
+}
+
+public sealed class VehicleLogEntry
+{
+    public Guid Id { get; set; }
+    public Guid CompanyId { get; set; }
+    public Guid VehicleId { get; set; }
+    public VehicleLogKind Kind { get; set; }
+    public string Title { get; set; } = "";
+    public string? Description { get; set; }
+    public DateTimeOffset OccurredAt { get; set; } = DateTimeOffset.UtcNow;
+    public int? OdometerKm { get; set; }
+    public decimal? Cost { get; set; }
+    public string Currency { get; set; } = "EUR";
+    public VehicleLogStatus Status { get; set; } = VehicleLogStatus.Completed;
+    public string Severity { get; set; } = "Info";
+    public string? Workshop { get; set; }
+    public DateTimeOffset? ResolvedAt { get; set; }
+    public string? CreatedByName { get; set; }
+    public Guid? CreatedByUserId { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class TrailerAssignment
+{
+    public Guid Id { get; set; }
+    public Guid CompanyId { get; set; }
+    public Guid VehicleId { get; set; }
+    public Guid? TrailerId { get; set; }
+    public DateTimeOffset AssignedAt { get; set; } = DateTimeOffset.UtcNow;
+    public Guid? AssignedByUserId { get; set; }
+}
+
+// ---- Moderation (change requests that need a recorded decision) ----
+
+public sealed class ModerationRequest
+{
+    public Guid Id { get; set; }
+    public Guid CompanyId { get; set; }
+    public string Number { get; set; } = "";
+    public string Title { get; set; } = "";
+    public string? Description { get; set; }
+    public string Domain { get; set; } = "dispatch";
+    public string Risk { get; set; } = "medium";
+    public string Status { get; set; } = "pending";
+    public string? RequestedByName { get; set; }
+    public Guid? RequestedByUserId { get; set; }
+    public Guid? VehicleId { get; set; }
+    public Guid? TripId { get; set; }
+    public string? ImpactSummary { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset? DecidedAt { get; set; }
+    public Guid? DecidedByUserId { get; set; }
+    public string? DecidedByName { get; set; }
+    public string? DecisionNote { get; set; }
+}
+
+// ---- Uploaded files (receipts, scanned documents) ----
+
+public sealed class StoredFile
+{
+    public Guid Id { get; set; }
+    public Guid CompanyId { get; set; }
+    public string FileName { get; set; } = "";
+    public string ContentType { get; set; } = "application/octet-stream";
+    public long SizeBytes { get; set; }
+    public string StoragePath { get; set; } = "";
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public Guid? CreatedByUserId { get; set; }
 }

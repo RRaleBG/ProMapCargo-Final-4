@@ -1,0 +1,236 @@
+- generic [active] [ref=f16e1]:
+  - checkbox [aria-hidden]
+  - generic [ref=f16e2]:
+    - complementary [ref=f16e3]:
+      - generic [ref=f16e4]:
+        - link "ProMap Cargo" [ref=f16e6] [cursor=pointer]:
+          - /url: ""
+        - generic [ref=f16e9]:
+          - generic [ref=f16e11]: Sistem operativan
+          - strong [ref=f16e12]: LIVE
+        - navigation "Glavna navigacija" [ref=f16e13]:
+          - generic [ref=f16e14]:
+            - generic [ref=f16e15]: OPERACIJE
+            - link "Dispatch" [ref=f16e16] [cursor=pointer]:
+              - /url: /dispatch
+            - link "Transportni nalozi" [ref=f16e23] [cursor=pointer]:
+              - /url: /orders
+            - link "Ture" [ref=f16e28] [cursor=pointer]:
+              - /url: /trips
+          - generic [ref=f16e34]:
+            - generic [ref=f16e35]: FLEET
+            - link "Vozila" [ref=f16e36] [cursor=pointer]:
+              - /url: /Vehicles
+            - link "Vozači" [ref=f16e43] [cursor=pointer]:
+              - /url: /Drivers
+            - link "Navigacija GPS" [ref=f16e49] [cursor=pointer]:
+              - /url: /navigation
+              - generic [ref=f16e52]: Navigacija
+              - generic [ref=f16e53]: GPS
+          - generic [ref=f16e54]:
+            - generic [ref=f16e55]: KONTROLA
+            - link "Upozorenja" [ref=f16e56] [cursor=pointer]:
+              - /url: /alerts
+            - link "Moderacija" [ref=f16e60] [cursor=pointer]:
+              - /url: /moderation
+            - link "Revizija" [ref=f16e65] [cursor=pointer]:
+              - /url: /audit
+            - link "Usklađenost" [ref=f16e72] [cursor=pointer]:
+              - /url: /compliance
+            - link "Praćenje" [ref=f16e78] [cursor=pointer]:
+              - /url: /monitoring
+          - generic [ref=f16e82]:
+            - generic [ref=f16e83]: ANALITIKA
+            - link "Finansije" [ref=f16e84] [cursor=pointer]:
+              - /url: /finance
+            - link "Izveštaji" [ref=f16e89] [cursor=pointer]:
+              - /url: /reports
+        - generic [ref=f16e93]:
+          - text: SISTEM
+          - link "Profil" [ref=f16e94] [cursor=pointer]:
+            - /url: /Account/Manage
+          - link "Administracija" [ref=f16e99] [cursor=pointer]:
+            - /url: /Account/Admin/Index
+          - link "Podešavanja" [ref=f16e104] [cursor=pointer]:
+            - /url: /settings
+          - link "Odjava" [ref=f16e109] [cursor=pointer]:
+            - /url: /Account/Logout
+    - generic [ref=f16e114]:
+      - banner [ref=f16e115]:
+        - generic [ref=f16e117]:
+          - generic [ref=f16e118]: ProMap Cargo
+          - generic [ref=f16e119]: /
+          - strong [ref=f16e120]: ProMap Cargo · Vozila
+        - generic [ref=f16e122]:
+          - combobox "Brza pretraga stranica" [ref=f16e126]
+          - generic [ref=f16e127]: Ctrl K
+        - generic [ref=f16e128]:
+          - status [ref=f16e129]:
+            - generic [ref=f16e131]: Sistem online
+          - link "Obaveštenja" [ref=f16e132] [cursor=pointer]:
+            - /url: /alerts
+          - link "MP Administrator Fleet Operations" [ref=f16e136] [cursor=pointer]:
+            - /url: /Account/Manage
+            - generic [ref=f16e137]: MP
+            - generic [ref=f16e138]:
+              - strong [ref=f16e139]: Administrator
+              - generic [ref=f16e140]: Fleet Operations
+      - main [ref=f16e143]:
+        - generic [ref=f16e145]:
+          - generic [ref=f16e146]:
+            - generic [ref=f16e147]:
+              - generic [ref=f16e148]: Fleet · Vozila
+              - paragraph [ref=f16e149]: Pregled kompletnog voznog parka, statusa vozila, dodeljenih vozača, aktivnih tura i GPS aktivnosti.
+            - generic [ref=f16e150]:
+              - button "Osveži" [disabled]
+              - button "Novo vozilo" [ref=f16e151] [cursor=pointer]
+          - region "Statistika vozila" [ref=f16e155]:
+            - article [ref=f16e156]:
+              - generic [ref=f16e157]: Total
+              - strong [ref=f16e164]: "-"
+              - generic [ref=f16e165]: registered
+            - article [ref=f16e166]:
+              - generic [ref=f16e167]: Active
+              - strong [ref=f16e172]: "-"
+              - generic [ref=f16e173]: no critical issues
+            - article [ref=f16e174]:
+              - generic [ref=f16e175]: Expiring Soon
+              - strong [ref=f16e179]: "-"
+              - generic [ref=f16e180]: documents in the next 30 days
+            - article [ref=f16e181]:
+              - generic [ref=f16e182]: Inactive
+              - strong [ref=f16e188]: "-"
+              - generic [ref=f16e189]: inactive vehicles
+            - article [ref=f16e190]:
+              - generic [ref=f16e191]: Trailers
+              - strong [ref=f16e197]: "-"
+              - generic [ref=f16e198]: registered trailers
+            - article [ref=f16e199]:
+              - generic [ref=f16e200]: Service
+              - strong [ref=f16e204]: "-"
+              - generic [ref=f16e205]: on service
+          - generic [ref=f16e206]:
+            - searchbox "Pretraži registraciju, marku, model ili VIN..." [ref=f16e208]
+            - combobox "Status vozila" [ref=f16e209]:
+              - option "Svi statusi" [selected]
+              - option "Aktivno"
+              - option "Blokirano"
+              - option "Servis"
+              - option "Neaktivno"
+            - combobox "GPS status" [ref=f16e210]:
+              - option "Svi GPS statusi" [selected]
+              - option "GPS online"
+              - option "GPS zastareo"
+              - option "GPS offline"
+            - paragraph [ref=f16e211]: Učitavanje...
+          - generic [ref=f16e212]:
+            - generic [ref=f16e213]:
+              - generic [ref=f16e214]:
+                - generic [ref=f16e215]:
+                  - heading "Operativni spisak vozila" [level=2] [ref=f16e216]
+                  - paragraph [ref=f16e217]: Fleet podaci · status · vozač · tura · GPS
+                - button "Osveži podatke" [disabled] [ref=f16e218] [cursor=pointer]
+              - table [ref=f16e226]:
+                - rowgroup [ref=f16e227]:
+                  - row [ref=f16e228]:
+                    - columnheader "Vozilo" [ref=f16e229]
+                    - columnheader "Status" [ref=f16e230]
+                    - columnheader "Tip" [ref=f16e231]
+                    - columnheader "Vozač" [ref=f16e232]
+                    - columnheader "Tura" [ref=f16e233]
+                    - columnheader "GPS" [ref=f16e234]
+                    - columnheader [ref=f16e235]
+                - rowgroup [ref=f16e236]:
+                  - row [ref=f16e237] [cursor=pointer]:
+                    - cell "Učitavanje vozila Preuzimanje podataka iz ProMap Cargo Fleet API-ja." [ref=f16e238]:
+                      - generic [ref=f16e239]:
+                        - generic [ref=f16e243]: Učitavanje vozila
+                        - generic [ref=f16e244]: Preuzimanje podataka iz ProMap Cargo Fleet API-ja.
+            - complementary [ref=f16e245]:
+              - generic [ref=f16e252]:
+                - heading "Izaberite vozilo" [level=2] [ref=f16e253]
+                - generic [ref=f16e254]: Detalji vozila će biti prikazani ovde.
+              - generic [ref=f16e255]:
+                - heading "Identifikacija" [level=3] [ref=f16e256]
+                - generic [ref=f16e257]:
+                  - generic [ref=f16e258]:
+                    - generic [ref=f16e259]: Registracija
+                    - generic [ref=f16e260]: —
+                  - generic [ref=f16e261]:
+                    - generic [ref=f16e262]: VIN
+                    - generic [ref=f16e263]: —
+                  - generic [ref=f16e264]:
+                    - generic [ref=f16e265]: Marka
+                    - generic [ref=f16e266]: —
+                  - generic [ref=f16e267]:
+                    - generic [ref=f16e268]: Model
+                    - generic [ref=f16e269]: —
+              - generic [ref=f16e270]:
+                - heading "Operativni status" [level=3] [ref=f16e271]
+                - generic [ref=f16e272]:
+                  - generic [ref=f16e273]:
+                    - generic [ref=f16e274]: Vozač
+                    - generic [ref=f16e278]: —
+                  - generic [ref=f16e279]:
+                    - generic [ref=f16e280]: Aktivna tura
+                    - generic [ref=f16e284]: —
+                  - generic [ref=f16e285]:
+                    - generic [ref=f16e286]: GPS stanje
+                    - generic [ref=f16e290]: —
+              - generic [ref=f16e291]:
+                - heading "Tehnički podaci" [level=3] [ref=f16e292]
+                - generic [ref=f16e293]:
+                  - generic [ref=f16e294]:
+                    - generic [ref=f16e295]: Godina
+                    - generic [ref=f16e296]: —
+                  - generic [ref=f16e297]:
+                    - generic [ref=f16e298]: Tip
+                    - generic [ref=f16e299]: —
+                  - generic [ref=f16e300]:
+                    - generic [ref=f16e301]: Težina
+                    - generic [ref=f16e302]: —
+                  - generic [ref=f16e303]:
+                    - generic [ref=f16e304]: Poslednji GPS
+                    - generic [ref=f16e305]: —
+              - generic [ref=f16e306]:
+                - heading "Registracija i dokumenta" [level=3] [ref=f16e307]
+                - generic [ref=f16e308]:
+                  - generic [ref=f16e309]:
+                    - generic [ref=f16e310]: Fleet broj
+                    - generic [ref=f16e311]: —
+                  - generic [ref=f16e312]:
+                    - generic [ref=f16e313]: Euro klasa
+                    - generic [ref=f16e314]: —
+                  - generic [ref=f16e315]:
+                    - generic [ref=f16e316]: Registracija do
+                    - generic [ref=f16e317]: —
+                  - generic [ref=f16e318]:
+                    - generic [ref=f16e319]: Tehnički pregled do
+                    - generic [ref=f16e320]: —
+                  - generic [ref=f16e321]:
+                    - generic [ref=f16e322]: Tahograf do
+                    - generic [ref=f16e323]: —
+                  - generic [ref=f16e324]:
+                    - generic [ref=f16e325]: TIR do
+                    - generic [ref=f16e326]: —
+                  - generic [ref=f16e327]:
+                    - generic [ref=f16e328]: Kartica goriva
+                    - generic [ref=f16e329]: —
+                  - generic [ref=f16e330]:
+                    - generic [ref=f16e331]: Prikolica
+                    - generic [ref=f16e332]: —
+                  - generic [ref=f16e333]:
+                    - generic [ref=f16e334]: Kilometraža
+                    - generic [ref=f16e335]: —
+                  - generic [ref=f16e336]:
+                    - generic [ref=f16e337]: Dimenzije (D×Š×V)
+                    - generic [ref=f16e338]: —
+                  - generic [ref=f16e339]:
+                    - generic [ref=f16e340]: Osovine / osovinsko
+                    - generic [ref=f16e341]: —
+                  - generic [ref=f16e342]:
+                    - generic [ref=f16e343]: Napomena
+                    - generic [ref=f16e344]: —
+              - generic [ref=f16e346]:
+                - button "Otvori turu" [ref=f16e347] [cursor=pointer]
+                - button "Navigacija" [ref=f16e351] [cursor=pointer]

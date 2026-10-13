@@ -33,129 +33,52 @@
 
 
        
-    <section class="pm-orders-kpis pm-kpi-grid">
+    <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--5" aria-label="Statistika naloga">
+        <article class="compliance-kpi compliance-kpi-total">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Ukupno naloga</span>
+                <i data-lucide="clipboard-list" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value" id="kpiTotal">—</strong>
+            <span class="compliance-kpi-meta">aktivni operativni period</span>
+        </article>
 
-            <article class="pm-kpi">
+        <article class="compliance-kpi compliance-kpi-info">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">U transportu</span>
+                <i data-lucide="truck" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value" id="kpiTransit">—</strong>
+            <span class="compliance-kpi-meta">trenutno izvršenje</span>
+        </article>
 
-                <div class="pm-kpi-head">
+        <article class="compliance-kpi compliance-kpi-neutral">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Planirano</span>
+                <i data-lucide="calendar-clock" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value" id="kpiPlanned">—</strong>
+            <span class="compliance-kpi-meta">čeka dodelu ture</span>
+        </article>
 
-                    <div class="pm-kpi-label">
-                        Ukupno naloga
-                    </div>
+        <article class="compliance-kpi compliance-kpi-warning">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Kašnjenja</span>
+                <i data-lucide="clock-alert" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value" id="kpiDelayed">—</strong>
+            <span class="compliance-kpi-meta">zahteva pažnju</span>
+        </article>
 
-                    <div class="pm-kpi-icon">
-                        ▤
-                    </div>
-
-                </div>
-
-                <div class="pm-kpi-value">
-                    128
-                </div>
-
-                <div class="pm-kpi-meta">
-                    aktivni operativni period
-                </div>
-
-            </article>
-
-            <article class="pm-kpi">
-
-                <div class="pm-kpi-head">
-
-                    <div class="pm-kpi-label">
-                        U transportu
-                    </div>
-
-                    <div class="pm-kpi-icon">
-                        ↗
-                    </div>
-
-                </div>
-
-                <div class="pm-kpi-value">
-                    37
-                </div>
-
-                <div class="pm-kpi-meta green">
-                    trenutno izvršenje
-                </div>
-
-            </article>
-
-            <article class="pm-kpi">
-
-                <div class="pm-kpi-head">
-
-                    <div class="pm-kpi-label">
-                        Planirano
-                    </div>
-
-                    <div class="pm-kpi-icon">
-                        ◷
-                    </div>
-
-                </div>
-
-                <div class="pm-kpi-value">
-                    52
-                </div>
-
-                <div class="pm-kpi-meta blue">
-                    čeka dodelu ture
-                </div>
-
-            </article>
-
-            <article class="pm-kpi">
-
-                <div class="pm-kpi-head">
-
-                    <div class="pm-kpi-label">
-                        Kašnjenja
-                    </div>
-
-                    <div class="pm-kpi-icon">
-                        !
-                    </div>
-
-                </div>
-
-                <div class="pm-kpi-value">
-                    8
-                </div>
-
-                <div class="pm-kpi-meta yellow">
-                    zahteva pažnju
-                </div>
-
-            </article>
-
-            <article class="pm-kpi">
-
-                <div class="pm-kpi-head">
-
-                    <div class="pm-kpi-label">
-                        Isporuke danas
-                    </div>
-
-                    <div class="pm-kpi-icon">
-                        ✓
-                    </div>
-
-                </div>
-
-                <div class="pm-kpi-value">
-                    31
-                </div>
-
-                <div class="pm-kpi-meta green">
-                    27 uspešno završeno
-                </div>
-
-            </article>
-
-        </section>
+        <article class="compliance-kpi compliance-kpi-good">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Isporuke danas</span>
+                <i data-lucide="package-check" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value" id="kpiDeliveredToday">—</strong>
+            <span class="compliance-kpi-meta"><span id="kpiDeliveredMeta">—</span></span>
+        </article>
+    </section>
 
     <section class="pm-orders-filter-card pm-panel">
 
@@ -199,15 +122,8 @@
                     </label>
 
                     <select id="orderCustomer" class="pm-orders-select pm-select">
-
-                        <option value="">Svi kupci</option>
-                        <option value="ACME Logistics">ACME Logistics</option>
-                        <option value="Delta Trade">Delta Trade</option>
-                        <option value="EuroCargo">EuroCargo</option>
-                        <option value="Trans Balkan">Trans Balkan</option>
-                        <option value="Nord Cargo">Nord Cargo</option>
-
-                    </select>
+                    <option value="">Svi kupci</option>
+                </select>
 
                 </div>
 
@@ -218,15 +134,8 @@
                     </label>
 
                     <select id="orderPickup" class="pm-orders-select pm-select">
-
-                        <option value="">Sve lokacije</option>
-                        <option value="Beograd">Beograd</option>
-                        <option value="Novi Sad">Novi Sad</option>
-                        <option value="Niš">Niš</option>
-                        <option value="Subotica">Subotica</option>
-                        <option value="Kragujevac">Kragujevac</option>
-
-                    </select>
+                    <option value="">Sve lokacije</option>
+                </select>
 
                 </div>
 
@@ -418,696 +327,6 @@
 
                         <tbody id="ordersTableBody">
 
-                            <tr class="pm-order-row selected" data-order-id="ORD-2026-00128" data-status="in-transit"
-                                data-customer="ACME Logistics">
-
-                                <td>
-
-                                    <div class="pm-orders-order-id">
-                                        ORD-2026-00128
-                                    </div>
-
-                                    <div class="pm-orders-order-ref">
-                                        REF-ACM-8841
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-customer">
-                                        ACME Logistics
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-location">
-
-                                        <span class="pm-orders-location-point"></span>
-
-                                        <div class="pm-orders-location-copy">
-
-                                            <strong>
-                                                Beograd
-                                            </strong>
-
-                                            <small>
-                                                Pickup · 08:00–10:00
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="pm-orders-route-arrow">
-                                        ↓
-                                    </div>
-
-                                    <div class="pm-orders-location">
-
-                                        <span class="pm-orders-location-point delivery"></span>
-
-                                        <div class="pm-orders-location-copy">
-
-                                            <strong>
-                                                München
-                                            </strong>
-
-                                            <small>
-                                                Delivery · 18 Sep
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-cargo">
-                                        Industrijska roba
-                                    </div>
-
-                                    <small>
-                                        FTL
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-weight">
-                                        18 t
-                                    </div>
-
-                                    <small>
-                                        14 paleta
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-date">
-                                        18.09.2026
-                                    </div>
-
-                                    <small>
-                                        08:00
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <span class="pm-orders-badge green">
-                                        In Transit
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <span class="pm-orders-priority high">
-                                        <i></i>
-                                        High
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-actions">
-
-                                        <button type="button" class="pm-orders-action" title="Detalji">
-                                            →
-                                        </button>
-
-                                        <button type="button" class="pm-orders-action" title="Više">
-                                            ⋮
-                                        </button>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                            <tr class="pm-order-row" data-order-id="ORD-2026-00129" data-status="loading"
-                                data-customer="Delta Trade">
-
-                                <td>
-
-                                    <div class="pm-orders-order-id">
-                                        ORD-2026-00129
-                                    </div>
-
-                                    <div class="pm-orders-order-ref">
-                                        REF-DEL-7712
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-customer">
-                                        Delta Trade
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-location">
-
-                                        <span class="pm-orders-location-point"></span>
-
-                                        <div class="pm-orders-location-copy">
-
-                                            <strong>
-                                                Novi Sad
-                                            </strong>
-
-                                            <small>
-                                                Pickup · 09:30–11:00
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="pm-orders-route-arrow">
-                                        ↓
-                                    </div>
-
-                                    <div class="pm-orders-location">
-
-                                        <span class="pm-orders-location-point delivery"></span>
-
-                                        <div class="pm-orders-location-copy">
-
-                                            <strong>
-                                                Graz
-                                            </strong>
-
-                                            <small>
-                                                Delivery · 19 Sep
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-cargo">
-                                        Automotive
-                                    </div>
-
-                                    <small>
-                                        FTL
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-weight">
-                                        12 t
-                                    </div>
-
-                                    <small>
-                                        10 paleta
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-date">
-                                        18.09.2026
-                                    </div>
-
-                                    <small>
-                                        09:30
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <span class="pm-orders-badge blue">
-                                        Loading
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <span class="pm-orders-priority medium">
-                                        <i></i>
-                                        Medium
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-actions">
-
-                                        <button type="button" class="pm-orders-action" title="Detalji">
-                                            →
-                                        </button>
-
-                                        <button type="button" class="pm-orders-action" title="Više">
-                                            ⋮
-                                        </button>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                            <tr class="pm-order-row" data-order-id="ORD-2026-00130" data-status="planned"
-                                data-customer="EuroCargo">
-
-                                <td>
-
-                                    <div class="pm-orders-order-id">
-                                        ORD-2026-00130
-                                    </div>
-
-                                    <div class="pm-orders-order-ref">
-                                        REF-EUR-2198
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-customer">
-                                        EuroCargo
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-location">
-
-                                        <span class="pm-orders-location-point"></span>
-
-                                        <div class="pm-orders-location-copy">
-
-                                            <strong>
-                                                Niš
-                                            </strong>
-
-                                            <small>
-                                                Pickup · 12:00–13:00
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="pm-orders-route-arrow">
-                                        ↓
-                                    </div>
-
-                                    <div class="pm-orders-location">
-
-                                        <span class="pm-orders-location-point delivery"></span>
-
-                                        <div class="pm-orders-location-copy">
-
-                                            <strong>
-                                                Zagreb
-                                            </strong>
-
-                                            <small>
-                                                Delivery · 20 Sep
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-cargo">
-                                        General cargo
-                                    </div>
-
-                                    <small>
-                                        FTL
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-weight">
-                                        21 t
-                                    </div>
-
-                                    <small>
-                                        18 paleta
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-date">
-                                        19.09.2026
-                                    </div>
-
-                                    <small>
-                                        12:00
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <span class="pm-orders-badge neutral">
-                                        Planned
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <span class="pm-orders-priority medium">
-                                        <i></i>
-                                        Medium
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-actions">
-
-                                        <button type="button" class="pm-orders-action" title="Detalji">
-                                            →
-                                        </button>
-
-                                        <button type="button" class="pm-orders-action" title="Više">
-                                            ⋮
-                                        </button>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                            <tr class="pm-order-row" data-order-id="ORD-2026-00131" data-status="delivered"
-                                data-customer="Trans Balkan">
-
-                                <td>
-
-                                    <div class="pm-orders-order-id">
-                                        ORD-2026-00131
-                                    </div>
-
-                                    <div class="pm-orders-order-ref">
-                                        REF-TBK-5520
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-customer">
-                                        Trans Balkan
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-location">
-
-                                        <span class="pm-orders-location-point"></span>
-
-                                        <div class="pm-orders-location-copy">
-
-                                            <strong>
-                                                Subotica
-                                            </strong>
-
-                                            <small>
-                                                Pickup · 06:30–08:00
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="pm-orders-route-arrow">
-                                        ↓
-                                    </div>
-
-                                    <div class="pm-orders-location">
-
-                                        <span class="pm-orders-location-point delivery"></span>
-
-                                        <div class="pm-orders-location-copy">
-
-                                            <strong>
-                                                Milano
-                                            </strong>
-
-                                            <small>
-                                                Delivered · 17 Sep
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-cargo">
-                                        Paletirana roba
-                                    </div>
-
-                                    <small>
-                                        FTL
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-weight">
-                                        24 t
-                                    </div>
-
-                                    <small>
-                                        22 palete
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-date">
-                                        17.09.2026
-                                    </div>
-
-                                    <small>
-                                        07:20
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <span class="pm-orders-badge green">
-                                        Delivered
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <span class="pm-orders-priority low">
-                                        <i></i>
-                                        Low
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-actions">
-
-                                        <button type="button" class="pm-orders-action" title="Detalji">
-                                            →
-                                        </button>
-
-                                        <button type="button" class="pm-orders-action" title="Više">
-                                            ⋮
-                                        </button>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                            <tr class="pm-order-row" data-order-id="ORD-2026-00132" data-status="delayed"
-                                data-customer="Nord Cargo">
-
-                                <td>
-
-                                    <div class="pm-orders-order-id">
-                                        ORD-2026-00132
-                                    </div>
-
-                                    <div class="pm-orders-order-ref">
-                                        REF-NOR-4431
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-customer">
-                                        Nord Cargo
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-location">
-
-                                        <span class="pm-orders-location-point"></span>
-
-                                        <div class="pm-orders-location-copy">
-
-                                            <strong>
-                                                Beograd
-                                            </strong>
-
-                                            <small>
-                                                Pickup · 10:00–12:00
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="pm-orders-route-arrow">
-                                        ↓
-                                    </div>
-
-                                    <div class="pm-orders-location">
-
-                                        <span class="pm-orders-location-point delivery"></span>
-
-                                        <div class="pm-orders-location-copy">
-
-                                            <strong>
-                                                Linz
-                                            </strong>
-
-                                            <small>
-                                                Delivery · 18 Sep
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-cargo">
-                                        ADR 3
-                                    </div>
-
-                                    <small>
-                                        Hazmat · FTL
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-weight">
-                                        16 t
-                                    </div>
-
-                                    <small>
-                                        12 paleta
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-date">
-                                        18.09.2026
-                                    </div>
-
-                                    <small>
-                                        10:00
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <span class="pm-orders-badge red">
-                                        Delayed
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <span class="pm-orders-priority high">
-                                        <i></i>
-                                        High
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="pm-orders-actions">
-
-                                        <button type="button" class="pm-orders-action" title="Detalji">
-                                            →
-                                        </button>
-
-                                        <button type="button" class="pm-orders-action" title="Više">
-                                            ⋮
-                                        </button>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
                         </tbody>
 
                     </table>
@@ -1120,40 +339,11 @@
 
                 <div class="pm-orders-pagination pm-toolbar">
 
-                    <div class="pm-orders-pagination-info">
-                        Prikaz 1–5 od 128 naloga
+                    <div class="pm-orders-pagination-info" id="ordersPaginationInfo">
+                        —
                     </div>
 
-                    <div class="pm-orders-pagination-actions pm-filter-group">
-
-                        <button type="button" class="pm-pagination-btn">
-                            ‹
-                        </button>
-
-                        <button type="button" class="pm-pagination-btn active">
-                            1
-                        </button>
-
-                        <button type="button" class="pm-pagination-btn">
-                            2
-                        </button>
-
-                        <button type="button" class="pm-pagination-btn">
-                            3
-                        </button>
-
-                        <button type="button" class="pm-pagination-btn">
-                            …
-                        </button>
-
-                        <button type="button" class="pm-pagination-btn">
-                            26
-                        </button>
-
-                        <button type="button" class="pm-pagination-btn">
-                            ›
-                        </button>
-
+                    <div class="pm-orders-pagination-actions pm-filter-group" id="ordersPagination">
                     </div>
 
                 </div>
@@ -1178,9 +368,7 @@
 
                     <div class="pm-orders-detail-status">
 
-                        <span class="pm-orders-badge green">
-                            In Transit
-                        </span>
+                        <span class="pm-orders-badge green" id="detailStatus">—</span>
 
                     </div>
 
@@ -1202,15 +390,15 @@
 
                                 <span class="pm-orders-detail-point-dot"></span>
 
-                                <div class="pm-orders-detail-point-label">
+                                <div class="pm-orders-detail-point-label" id="detailPickupLabel">
                                     Pickup
                                 </div>
 
-                                <div class="pm-orders-detail-point-place">
+                                <div class="pm-orders-detail-point-place" id="detailPickupPlace">
                                     Beograd, Srbija
                                 </div>
 
-                                <div class="pm-orders-detail-point-time">
+                                <div class="pm-orders-detail-point-time" id="detailPickupTime">
                                     18.09.2026 · 08:00–10:00
                                 </div>
 
@@ -1220,15 +408,15 @@
 
                                 <span class="pm-orders-detail-point-dot delivery"></span>
 
-                                <div class="pm-orders-detail-point-label">
+                                <div class="pm-orders-detail-point-label" id="detailDeliveryLabel">
                                     Delivery
                                 </div>
 
-                                <div class="pm-orders-detail-point-place">
+                                <div class="pm-orders-detail-point-place" id="detailDeliveryPlace">
                                     München, Germany
                                 </div>
 
-                                <div class="pm-orders-detail-point-time">
+                                <div class="pm-orders-detail-point-time" id="detailDeliveryTime">
                                     18.09.2026 · ETA 18:40
                                 </div>
 
@@ -1252,7 +440,7 @@
                                     Tip
                                 </div>
 
-                                <div class="pm-orders-detail-stat-value">
+                                <div class="pm-orders-detail-stat-value" id="detailCargo">
                                     Industrijska roba
                                 </div>
 
@@ -1264,7 +452,7 @@
                                     Operacija
                                 </div>
 
-                                <div class="pm-orders-detail-stat-value">
+                                <div class="pm-orders-detail-stat-value" id="detailOperation">
                                     FTL
                                 </div>
 
@@ -1276,7 +464,7 @@
                                     Težina
                                 </div>
 
-                                <div class="pm-orders-detail-stat-value">
+                                <div class="pm-orders-detail-stat-value" id="detailWeight">
                                     18 t
                                 </div>
 
@@ -1288,7 +476,7 @@
                                     Palete
                                 </div>
 
-                                <div class="pm-orders-detail-stat-value">
+                                <div class="pm-orders-detail-stat-value" id="detailPallets">
                                     14
                                 </div>
 
@@ -1312,7 +500,7 @@
                                     Tura
                                 </div>
 
-                                <div class="pm-orders-detail-stat-value">
+                                <div class="pm-orders-detail-stat-value" id="detailTrip">
                                     TRP-8841
                                 </div>
 
@@ -1324,7 +512,7 @@
                                     Vozilo
                                 </div>
 
-                                <div class="pm-orders-detail-stat-value">
+                                <div class="pm-orders-detail-stat-value" id="detailVehicle">
                                     BG-241-AA
                                 </div>
 
@@ -1336,7 +524,7 @@
                                     Vozač
                                 </div>
 
-                                <div class="pm-orders-detail-stat-value">
+                                <div class="pm-orders-detail-stat-value" id="detailDriver">
                                     M. Petrović
                                 </div>
 
@@ -1348,7 +536,7 @@
                                     Napredak
                                 </div>
 
-                                <div class="pm-orders-detail-stat-value">
+                                <div class="pm-orders-detail-stat-value" id="detailProgress">
                                     68%
                                 </div>
 
@@ -1366,7 +554,7 @@
 
                         <div class="pm-orders-detail-actions pm-card-actions pm-filter-group">
 
-                            <a href="/trips" class="pm-orders-btn primary">
+                            <a href="/trips" class="pm-orders-btn primary" id="detailTripLink">
                                 Otvori turu
                             </a>
 

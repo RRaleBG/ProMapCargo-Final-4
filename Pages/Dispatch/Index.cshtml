@@ -37,80 +37,59 @@
 
     <div class="pm-page-content">
 
-        <section class="pm-kpi-grid">
-
-            <article class="pm-kpi">
-                <div class="pm-kpi-head">
-                    <div class="pm-kpi-label"> Aktivne ture </div>
-                    <div class="pm-kpi-icon"> ↗ </div>
+        <section class="moderation-kpi-grid pm-kpi-grid" aria-label="Dispatch pregled">
+            <article class="compliance-kpi compliance-kpi-good">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Aktivne ture</span>
+                    <i data-lucide="route" class="compliance-kpi-icon" aria-hidden="true"></i>
                 </div>
-                <div class="pm-kpi-value"> 12 </div>
-                <div class="pm-kpi-bottom">
-                    <div class="pm-kpi-meta">trenutno u vožnji</div>
-                    <div class="pm-kpi-state green">LIVE</div>
-                </div>
+                <strong class="compliance-kpi-value" id="kpiActiveTrips">—</strong>
+                <span class="compliance-kpi-meta">trenutno u vožnji</span>
             </article>
 
-            <article class="pm-kpi">
-                <div class="pm-kpi-head">
-                    <div class="pm-kpi-label">Dispečeri</div>
-                    <div class="pm-kpi-icon"> D </div>
+            <article class="compliance-kpi compliance-kpi-total">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Dispečeri</span>
+                    <i data-lucide="headset" class="compliance-kpi-icon" aria-hidden="true"></i>
                 </div>
-                <div class="pm-kpi-value"> 4 </div>
-                <div class="pm-kpi-bottom">
-                    <div class="pm-kpi-meta"> aktivni korisnici </div>
-                    <div class="pm-kpi-state green"> ONLINE </div>
-                </div>
+                <strong class="compliance-kpi-value" id="kpiDispatchers">—</strong>
+                <span class="compliance-kpi-meta"><span id="kpiDispatchersMeta">aktivni korisnici</span></span>
             </article>
 
-            <article class="pm-kpi">
-                <div class="pm-kpi-head">
-                    <div class="pm-kpi-label"> Vozila </div>
-                    <div class="pm-kpi-icon"> T </div>
+            <article class="compliance-kpi compliance-kpi-info">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Vozila</span>
+                    <i data-lucide="truck" class="compliance-kpi-icon" aria-hidden="true"></i>
                 </div>
-                <div class="pm-kpi-value">41</div>
-                <div class="pm-kpi-bottom">
-                    <div class="pm-kpi-meta"> fleet ukupno</div>
-                    <div class="pm-kpi-state blue"> FLEET</div>
-                </div>
+                <strong class="compliance-kpi-value" id="kpiVehicles">—</strong>
+                <span class="compliance-kpi-meta">fleet ukupno</span>
             </article>
 
-
-
-            <article class="pm-kpi">
-                <div class="pm-kpi-head">
-                    <div class="pm-kpi-label"> Kašnjenja </div>
-                    <div class="pm-kpi-icon"> ! </div>
+            <article class="compliance-kpi compliance-kpi-warning">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Kašnjenja</span>
+                    <i data-lucide="clock-alert" class="compliance-kpi-icon" aria-hidden="true"></i>
                 </div>
-                <div class="pm-kpi-value"> 3 </div>
-                <div class="pm-kpi-bottom">
-                    <div class="pm-kpi-meta"> zahteva pažnju </div>
-                    <div class="pm-kpi-state yellow">MONITOR </div>
-                </div>
+                <strong class="compliance-kpi-value" id="kpiDelays">—</strong>
+                <span class="compliance-kpi-meta">zahteva pažnju</span>
             </article>
 
-            <article class="pm-kpi">
-                <div class="pm-kpi-head">
-                    <div class="pm-kpi-label"> Granice </div>
-                    <div class="pm-kpi-icon"> B </div>
+            <article class="compliance-kpi compliance-kpi-neutral">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Granice</span>
+                    <i data-lucide="flag" class="compliance-kpi-icon" aria-hidden="true"></i>
                 </div>
-                <div class="pm-kpi-value"> 3 </div>
-                <div class="pm-kpi-bottom">
-                    <div class="pm-kpi-meta"> vozila na čekanju</div>
-                    <div class="pm-kpi-state yellow"> WAITING </div>
-                </div>
+                <strong class="compliance-kpi-value" id="kpiBorders">—</strong>
+                <span class="compliance-kpi-meta">vozila na čekanju</span>
             </article>
 
-            <article class="pm-kpi">
-                <div class="pm-kpi-head">
-                    <div class="pm-kpi-label"> Incidenti </div>
-                    <div class="pm-kpi-icon"> ! </div>
+            <article class="compliance-kpi compliance-kpi-danger">
+                <div class="compliance-kpi-top">
+                    <span class="compliance-kpi-label">Incidenti</span>
+                    <i data-lucide="siren" class="compliance-kpi-icon" aria-hidden="true"></i>
                 </div>
-                <div class="pm-kpi-value"> 1 </div>
-                <div class="pm-kpi-bottom">
-                    <div class="pm-kpi-meta"> otvoren slučaj</div>
-                    <div class="pm-kpi-state red"> OPEN </div>
-                </div>
+                <strong class="compliance-kpi-value" id="kpiIncidents">—</strong>
+                <span class="compliance-kpi-meta">otvoren slučaj</span>
             </article>
         </section>
 
@@ -145,9 +124,7 @@
 
                             <i></i>
 
-                            <strong>
-                                41
-                            </strong>
+                            <strong id="mapFleetCount">—</strong>
 
                             vozilo u floti
 
@@ -207,280 +184,7 @@
 
                 </div>
 
-                <div class="pm-dispatch-trip-list">
-
-                    <div class="pm-dispatch-trip" data-trip="BG-241-AA">
-
-                        <div class="pm-dispatch-trip-top">
-
-                            <div>
-
-                                <div class="pm-dispatch-trip-route">
-                                    BG-241-AA · Beograd → München
-                                </div>
-
-                                <div class="pm-dispatch-trip-id">
-                                    TRP-2026-0841
-                                </div>
-
-                            </div>
-
-                            <div class="pm-dispatch-trip-status green">
-                                IN TRANSIT
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-trip-meta">
-
-                            <div class="pm-dispatch-trip-stat">
-
-                                <div class="pm-dispatch-trip-stat-label">
-                                    Vozač
-                                </div>
-
-                                <div class="pm-dispatch-trip-stat-value">
-                                    Marko Petrović
-                                </div>
-
-                            </div>
-
-                            <div class="pm-dispatch-trip-stat">
-
-                                <div class="pm-dispatch-trip-stat-label">
-                                    ETA
-                                </div>
-
-                                <div class="pm-dispatch-trip-stat-value">
-                                    18:40
-                                </div>
-
-                            </div>
-
-                            <div class="pm-dispatch-trip-stat">
-
-                                <div class="pm-dispatch-trip-stat-label">
-                                    Napredak
-                                </div>
-
-                                <div class="pm-dispatch-trip-stat-value">
-                                    68%
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-progress">
-                            <span style="width:68%"></span>
-                        </div>
-
-                    </div>
-
-                    <div class="pm-dispatch-trip" data-trip="NS-882-KK">
-
-                        <div class="pm-dispatch-trip-top">
-
-                            <div>
-
-                                <div class="pm-dispatch-trip-route">
-                                    NS-882-KK · Novi Sad → Graz
-                                </div>
-
-                                <div class="pm-dispatch-trip-id">
-                                    TRP-2026-0837
-                                </div>
-
-                            </div>
-
-                            <div class="pm-dispatch-trip-status blue">
-                                APPROACHING
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-trip-meta">
-
-                            <div class="pm-dispatch-trip-stat">
-
-                                <div class="pm-dispatch-trip-stat-label">
-                                    Vozač
-                                </div>
-
-                                <div class="pm-dispatch-trip-stat-value">
-                                    Nikola Jovanović
-                                </div>
-
-                            </div>
-
-                            <div class="pm-dispatch-trip-stat">
-
-                                <div class="pm-dispatch-trip-stat-label">
-                                    ETA
-                                </div>
-
-                                <div class="pm-dispatch-trip-stat-value">
-                                    15:20
-                                </div>
-
-                            </div>
-
-                            <div class="pm-dispatch-trip-stat">
-
-                                <div class="pm-dispatch-trip-stat-label">
-                                    Napredak
-                                </div>
-
-                                <div class="pm-dispatch-trip-stat-value">
-                                    54%
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-progress">
-                            <span style="width:54%"></span>
-                        </div>
-
-                    </div>
-
-                    <div class="pm-dispatch-trip" data-trip="NI-401-TT">
-
-                        <div class="pm-dispatch-trip-top">
-
-                            <div>
-
-                                <div class="pm-dispatch-trip-route">
-                                    NI-401-TT · Niš → Zagreb
-                                </div>
-
-                                <div class="pm-dispatch-trip-id">
-                                    TRP-2026-0829
-                                </div>
-
-                            </div>
-
-                            <div class="pm-dispatch-trip-status yellow">
-                                BORDER CHECK
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-trip-meta">
-
-                            <div class="pm-dispatch-trip-stat">
-
-                                <div class="pm-dispatch-trip-stat-label">
-                                    Vozač
-                                </div>
-
-                                <div class="pm-dispatch-trip-stat-value">
-                                    Ivan Stojanović
-                                </div>
-
-                            </div>
-
-                            <div class="pm-dispatch-trip-stat">
-
-                                <div class="pm-dispatch-trip-stat-label">
-                                    ETA
-                                </div>
-
-                                <div class="pm-dispatch-trip-stat-value">
-                                    21:10
-                                </div>
-
-                            </div>
-
-                            <div class="pm-dispatch-trip-stat">
-
-                                <div class="pm-dispatch-trip-stat-label">
-                                    Napredak
-                                </div>
-
-                                <div class="pm-dispatch-trip-stat-value">
-                                    41%
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-progress">
-                            <span style="width:41%"></span>
-                        </div>
-
-                    </div>
-
-                    <div class="pm-dispatch-trip" data-trip="KG-119-MP">
-
-                        <div class="pm-dispatch-trip-top">
-
-                            <div>
-
-                                <div class="pm-dispatch-trip-route">
-                                    KG-119-MP · Kragujevac → Milano
-                                </div>
-
-                                <div class="pm-dispatch-trip-id">
-                                    TRP-2026-0846
-                                </div>
-
-                            </div>
-
-                            <div class="pm-dispatch-trip-status green">
-                                LOADING
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-trip-meta">
-
-                            <div class="pm-dispatch-trip-stat">
-
-                                <div class="pm-dispatch-trip-stat-label">
-                                    Vozač
-                                </div>
-
-                                <div class="pm-dispatch-trip-stat-value">
-                                    Stefan Ilić
-                                </div>
-
-                            </div>
-
-                            <div class="pm-dispatch-trip-stat">
-
-                                <div class="pm-dispatch-trip-stat-label">
-                                    Polazak
-                                </div>
-
-                                <div class="pm-dispatch-trip-stat-value">
-                                    16:00
-                                </div>
-
-                            </div>
-
-                            <div class="pm-dispatch-trip-stat">
-
-                                <div class="pm-dispatch-trip-stat-label">
-                                    Priprema
-                                </div>
-
-                                <div class="pm-dispatch-trip-stat-value">
-                                    27%
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-progress">
-                            <span style="width:27%"></span>
-                        </div>
-
-                    </div>
-
+                <div class="pm-dispatch-trip-list" id="dispatchTrips">
                 </div>
 
             </article>
@@ -512,103 +216,6 @@
                 </div>
 
                 <div class="pm-dispatch-list" id="dispatchEvents">
-
-                    <div class="pm-dispatch-event">
-
-                        <div class="pm-dispatch-event-icon warning">
-                            !
-                        </div>
-
-                        <div>
-
-                            <div class="pm-dispatch-event-title">
-                                Kašnjenje na granici
-                            </div>
-
-                            <div class="pm-dispatch-event-text">
-                                NI-401-TT čeka kontrolu na prelazu Batrovci.
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-event-time">
-                            2 min
-                        </div>
-
-                    </div>
-
-                    <div class="pm-dispatch-event">
-
-                        <div class="pm-dispatch-event-icon">
-                            ✓
-                        </div>
-
-                        <div>
-
-                            <div class="pm-dispatch-event-title">
-                                Ruta potvrđena
-                            </div>
-
-                            <div class="pm-dispatch-event-text">
-                                BG-241-AA nastavlja prema München-u.
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-event-time">
-                            7 min
-                        </div>
-
-                    </div>
-
-                    <div class="pm-dispatch-event">
-
-                        <div class="pm-dispatch-event-icon info">
-                            GPS
-                        </div>
-
-                        <div>
-
-                            <div class="pm-dispatch-event-title">
-                                GPS signal stabilan
-                            </div>
-
-                            <div class="pm-dispatch-event-text">
-                                NS-882-KK ima preciznost pozicije 8 m.
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-event-time">
-                            11 min
-                        </div>
-
-                    </div>
-
-                    <div class="pm-dispatch-event">
-
-                        <div class="pm-dispatch-event-icon danger">
-                            !
-                        </div>
-
-                        <div>
-
-                            <div class="pm-dispatch-event-title">
-                                Otvoren incident
-                            </div>
-
-                            <div class="pm-dispatch-event-text">
-                                Potrebna potvrda dispečera za vozilo KG-119-MP.
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-event-time">
-                            18 min
-                        </div>
-
-                    </div>
-
                 </div>
 
             </article>
@@ -635,76 +242,7 @@
 
                 </div>
 
-                <div class="pm-dispatch-fleet">
-
-                    <div class="pm-dispatch-fleet-row">
-
-                        <div class="pm-dispatch-fleet-label">
-                            In transit
-                        </div>
-
-                        <div class="pm-dispatch-fleet-track">
-                            <div class="pm-dispatch-fleet-fill" style="width:68%">
-                            </div>
-                        </div>
-
-                        <div class="pm-dispatch-fleet-value">
-                            28
-                        </div>
-
-                    </div>
-
-                    <div class="pm-dispatch-fleet-row">
-
-                        <div class="pm-dispatch-fleet-label">
-                            Loading
-                        </div>
-
-                        <div class="pm-dispatch-fleet-track">
-                            <div class="pm-dispatch-fleet-fill" style="width:24%">
-                            </div>
-                        </div>
-
-                        <div class="pm-dispatch-fleet-value">
-                            6
-                        </div>
-
-                    </div>
-
-                    <div class="pm-dispatch-fleet-row">
-
-                        <div class="pm-dispatch-fleet-label">
-                            Available
-                        </div>
-
-                        <div class="pm-dispatch-fleet-track">
-                            <div class="pm-dispatch-fleet-fill" style="width:12%">
-                            </div>
-                        </div>
-
-                        <div class="pm-dispatch-fleet-value">
-                            4
-                        </div>
-
-                    </div>
-
-                    <div class="pm-dispatch-fleet-row">
-
-                        <div class="pm-dispatch-fleet-label">
-                            Maintenance
-                        </div>
-
-                        <div class="pm-dispatch-fleet-track">
-                            <div class="pm-dispatch-fleet-fill" style="width:7%">
-                            </div>
-                        </div>
-
-                        <div class="pm-dispatch-fleet-value">
-                            3
-                        </div>
-
-                    </div>
-
+                <div class="pm-dispatch-fleet" id="dispatchFleet">
                 </div>
 
             </article>
@@ -731,68 +269,7 @@
 
                 </div>
 
-                <div class="pm-dispatch-border-list">
-
-                    <div class="pm-dispatch-border-item">
-
-                        <div>
-
-                            <div class="pm-dispatch-border-name">
-                                Batrovci
-                            </div>
-
-                            <div class="pm-dispatch-border-meta">
-                                SRB → HR · 1 vozilo
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-border-wait">
-                            34 min
-                        </div>
-
-                    </div>
-
-                    <div class="pm-dispatch-border-item">
-
-                        <div>
-
-                            <div class="pm-dispatch-border-name">
-                                Horgoš
-                            </div>
-
-                            <div class="pm-dispatch-border-meta">
-                                SRB → HUN · 1 vozilo
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-border-wait">
-                            21 min
-                        </div>
-
-                    </div>
-
-                    <div class="pm-dispatch-border-item">
-
-                        <div>
-
-                            <div class="pm-dispatch-border-name">
-                                Gradina
-                            </div>
-
-                            <div class="pm-dispatch-border-meta">
-                                SRB → BGR · 1 vozilo
-                            </div>
-
-                        </div>
-
-                        <div class="pm-dispatch-border-wait">
-                            18 min
-                        </div>
-
-                    </div>
-
+                <div class="pm-dispatch-border-list" id="dispatchBorders">
                 </div>
 
             </article>

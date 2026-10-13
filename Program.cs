@@ -208,6 +208,8 @@ builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 builder.Services.AddSingleton<UserPresenceTracker>();
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, IdentityClaimsFactory>();
 builder.Services.AddScoped<BusinessService>();
+builder.Services.AddScoped<AuditWriter>();
+builder.Services.AddScoped<FileStorageService>();
 builder.Services.AddScoped<MobileTokenService>();
 builder.Services.AddScoped<IIdentityEmailSender, LoggingIdentityEmailSender>();
 builder.Services.AddHttpClient<IIPAddressLocationService, IpAddressLocationService>(client =>
@@ -305,6 +307,13 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue("Seed:Enabled"
 {
     await SeedDefaultMobileUserAsync(app);
     await SeedAdministratorUserAsync(app);
+
+    // Demo company with fleet, orders and trips (adds only, never overwrites).
+    if (app.Environment.IsDevelopment() || app.Configuration.GetValue("Seed:DemoData", false))
+    {
+        await using var seedScope = app.Services.CreateAsyncScope();
+        await DemoDataSeeder.SeedAsync(seedScope.ServiceProvider, ["admin@admin.com"], "user@user.com");
+    }
 }
 else
 {
@@ -421,8 +430,12 @@ static async Task InitializeDatabaseAsync(WebApplication app)
         }
         else
         {
-            throw new InvalidOperationException(
-                "The configured PostgreSQL database is missing the ASP.NET Identity tables. Recreate or migrate the database before starting the app.");
+            // Production: create the application tables next to whatever is there (PostGIS,
+            // routing graph); nothing is dropped.
+            logger.LogWarning("The PostgreSQL schema is missing the application tables. Creating them.");
+            var creator = Microsoft.EntityFrameworkCore.Infrastructure.AccessorExtensions
+                .GetService<Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator>(db.Database);
+            await creator.CreateTablesAsync().ConfigureAwait(false);
         }
     }
     else if (hasMigrations && !appliedMigrations)
@@ -449,6 +462,11 @@ static async Task InitializeDatabaseAsync(WebApplication app)
     // Truck bans (idempotent: CREATE ... IF NOT EXISTS).
     await db.Database.ExecuteSqlRawAsync(
         await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Sql", "07-truck-bans.sql")).ConfigureAwait(false))
+        .ConfigureAwait(false);
+
+    // Columns and tables behind the web forms (idempotent, adds only).
+    await db.Database.ExecuteSqlRawAsync(
+        await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Sql", "08-business-forms.sql")).ConfigureAwait(false))
         .ConfigureAwait(false);
 }
 
@@ -596,12 +614,24 @@ static async Task SeedDefaultMobileUserAsync(WebApplication app)
 static async Task SeedAdministratorUserAsync(WebApplication app)
 {
     const string roleName = "Administrator";
-    const string email = "admin@promapcargo.com";
-    const string password = "Admin1234!";
+    const string email = "admin@admin.com";
+    const string password = "Admin123!";
+    const string previousEmail = "admin@promapcargo.com";
 
     using var scope = app.Services.CreateScope();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    // The earlier seeded administrator is replaced by the account above.
+    if (await userManager.FindByEmailAsync(previousEmail).ConfigureAwait(false) is { } previous)
+    {
+        var deleteResult = await userManager.DeleteAsync(previous).ConfigureAwait(false);
+        if (!deleteResult.Succeeded)
+        {
+            var errors = string.Join("; ", deleteResult.Errors.Select(x => x.Description));
+            throw new InvalidOperationException($"Failed to remove the previous admin user '{previousEmail}': {errors}");
+        }
+    }
 
     if (!await roleManager.RoleExistsAsync(roleName).ConfigureAwait(false))
     {

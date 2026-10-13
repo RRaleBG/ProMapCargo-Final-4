@@ -41,22 +41,22 @@
     <section class="finance-context-bar finance-reveal finance-delay-1 pm-panel">
 
         <div class="finance-context-main">
-            <div class="finance-context-icon">
-                MP
+            <div class="finance-context-icon" id="financeContextInitials">
+                —
             </div>
 
             <div class="finance-context-copy">
                 <span>Finansijski kontekst</span>
                 <strong id="financeContextTitle">
-                    Marko Petrović
+                    Učitavanje…
                 </strong>
 
                 <div class="finance-context-meta">
-                    <span>Vozač DRV-0048</span>
+                    <span id="financeContextDriver">—</span>
                     <i></i>
-                    <span>Aktivna tura TR-2026-00941</span>
+                    <span id="financeContextTrip">—</span>
                     <i></i>
-                    <span>BG-123-AB</span>
+                    <span id="financeContextVehicle">—</span>
                 </div>
             </div>
         </div>
@@ -80,98 +80,51 @@
     <!-- =========================================================
          KPI
     ========================================================== -->
-    <section class="finance-kpi-grid finance-reveal finance-delay-2 pm-kpi-grid">
-
-        <article class="finance-kpi finance-kpi-balance pm-kpi">
-            <div class="finance-kpi-top">
-                <span class="finance-kpi-label">Apsolutni saldo</span>
-                <span class="finance-kpi-icon">€</span>
+    <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--5 finance-reveal finance-delay-2" aria-label="Finansije pregled">
+        <article class="compliance-kpi compliance-kpi-total">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Apsolutni saldo</span>
+                <i data-lucide="wallet" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
-
-            <strong class="finance-kpi-value"
-                    data-finance-value="1245.80"
-                    data-finance-format="currency">
-                0,00 €
-            </strong>
-
-            <div class="finance-kpi-bottom">
-                <span class="finance-status finance-status-positive">
-                    +82,40 € ovaj mesec
-                </span>
-                <span>Vozač</span>
-            </div>
+            <strong class="compliance-kpi-value" id="kpiBalance" data-finance-value="0" data-finance-format="currency">0,00 €</strong>
+            <span class="compliance-kpi-meta"><span id="kpiBalanceDelta">—</span> · Vozač</span>
         </article>
 
-        <article class="finance-kpi pm-kpi">
-            <div class="finance-kpi-top">
-                <span class="finance-kpi-label">Aktivna tura</span>
-                <span class="finance-kpi-icon">↗</span>
+        <article class="compliance-kpi compliance-kpi-info">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Aktivna tura</span>
+                <i data-lucide="route" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
-
-            <strong class="finance-kpi-value">
-                316,50 €
-            </strong>
-
-            <div class="finance-kpi-bottom">
-                <span class="finance-status finance-status-live">
-                    TR-2026-00941
-                </span>
-                <span>Preostalo</span>
-            </div>
+            <strong class="compliance-kpi-value" id="kpiActiveRemaining">—</strong>
+            <span class="compliance-kpi-meta"><span id="kpiActiveTrip">—</span> · Preostalo</span>
         </article>
 
-        <article class="finance-kpi pm-kpi">
-            <div class="finance-kpi-top">
-                <span class="finance-kpi-label">Prethodna tura</span>
-                <span class="finance-kpi-icon">✓</span>
+        <article class="compliance-kpi compliance-kpi-good">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Prethodna tura</span>
+                <i data-lucide="circle-check" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
-
-            <strong class="finance-kpi-value">
-                +42,00 €
-            </strong>
-
-            <div class="finance-kpi-bottom">
-                <span class="finance-status finance-status-success">
-                    Obračunata
-                </span>
-                <span>TR-2026-00887</span>
-            </div>
+            <strong class="compliance-kpi-value" id="kpiPrevious">—</strong>
+            <span class="compliance-kpi-meta">Obračunata · <span id="kpiPreviousTrip">—</span></span>
         </article>
 
-        <article class="finance-kpi pm-kpi">
-            <div class="finance-kpi-top">
-                <span class="finance-kpi-label">Troškovi ture</span>
-                <span class="finance-kpi-icon">−</span>
+        <article class="compliance-kpi compliance-kpi-neutral">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Troškovi ture</span>
+                <i data-lucide="receipt" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
-
-            <strong class="finance-kpi-value">
-                1.095,19 €
-            </strong>
-
-            <div class="finance-kpi-bottom">
-                <span>8 transakcija</span>
-                <span>Aktivna tura</span>
-            </div>
+            <strong class="compliance-kpi-value" id="kpiTripCosts">—</strong>
+            <span class="compliance-kpi-meta"><span id="kpiTripCostCount">—</span> · Aktivna tura</span>
         </article>
 
-        <article class="finance-kpi pm-kpi">
-            <div class="finance-kpi-top">
-                <span class="finance-kpi-label">Na čekanju</span>
-                <span class="finance-kpi-icon">!</span>
+        <article class="compliance-kpi compliance-kpi-warning">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Na čekanju</span>
+                <i data-lucide="hourglass" class="compliance-kpi-icon" aria-hidden="true"></i>
             </div>
-
-            <strong class="finance-kpi-value">
-                127,00 €
-            </strong>
-
-            <div class="finance-kpi-bottom">
-                <span class="finance-status finance-status-warning">
-                    3 troška
-                </span>
-                <span>Za proveru</span>
-            </div>
+            <strong class="compliance-kpi-value" id="kpiPending">—</strong>
+            <span class="compliance-kpi-meta"><span id="kpiPendingCount">—</span> · Za proveru</span>
         </article>
-
     </section>
 
     <!-- =========================================================
@@ -193,37 +146,33 @@
                             AKTIVNA TURA
                         </div>
 
-                        <h2>TR-2026-00941</h2>
+                        <h2 id="tripNumber">—</h2>
 
-                        <p>
-                            Beograd → Novi Sad → Budapest
-                        </p>
+                        <p id="tripRoute">Nema aktivne ture</p>
                     </div>
 
-                    <span class="finance-status finance-status-live">
-                        U TOKU
-                    </span>
+                    <span class="finance-status finance-status-live" id="tripStatus">—</span>
                 </header>
 
                 <div class="finance-trip-identity">
                     <div>
                         <span>Vozač</span>
-                        <strong>Marko Petrović</strong>
+                        <strong id="tripDriver">—</strong>
                     </div>
 
                     <div>
                         <span>Vozilo</span>
-                        <strong>BG-123-AB</strong>
+                        <strong id="tripVehicle">—</strong>
                     </div>
 
                     <div>
                         <span>Polazak</span>
-                        <strong>17.09.2026 · 06:30</strong>
+                        <strong id="tripStart">—</strong>
                     </div>
 
                     <div>
                         <span>Planirani dolazak</span>
-                        <strong>18.09.2026 · 22:15</strong>
+                        <strong id="tripArrival">—</strong>
                     </div>
                 </div>
 
@@ -232,23 +181,22 @@
                     <div class="finance-budget-head">
                         <div>
                             <span>Budžet ture</span>
-                            <strong>1.500,00 €</strong>
+                            <strong id="tripBudget">—</strong>
                         </div>
 
                         <div class="finance-budget-spent">
                             <span>Potrošeno</span>
-                            <strong>1.183,50 €</strong>
+                            <strong id="tripSpent">—</strong>
                         </div>
                     </div>
 
                     <div class="finance-progress">
-                        <div class="finance-progress-bar"
-                             data-width="78.9"></div>
+                        <div class="finance-progress-bar" id="tripProgress" data-width="0"></div>
                     </div>
 
                     <div class="finance-budget-footer">
-                        <span>78,9% budžeta iskorišćeno</span>
-                        <strong>316,50 € preostalo</strong>
+                        <span id="tripBudgetUsed">—</span>
+                        <strong id="tripRemaining">—</strong>
                     </div>
 
                 </div>
@@ -256,22 +204,22 @@
                 <div class="finance-trip-stats">
                     <div>
                         <span>Gorivo</span>
-                        <strong>911,69 €</strong>
+                        <strong id="tripFuel">—</strong>
                     </div>
 
                     <div>
                         <span>Putarine</span>
-                        <strong>133,40 €</strong>
+                        <strong id="tripToll">—</strong>
                     </div>
 
                     <div>
                         <span>Parking</span>
-                        <strong>26,00 €</strong>
+                        <strong id="tripParking">—</strong>
                     </div>
 
                     <div>
                         <span>Ostalo</span>
-                        <strong>112,41 €</strong>
+                        <strong id="tripOther">—</strong>
                     </div>
                 </div>
 
@@ -292,29 +240,17 @@
                             Pregled kartica i transakcija goriva za aktivnu turu.
                         </p>
                     </div>
-
-                    <button class="finance-icon-button pm-btn pm-btn-ghost"
-                            type="button"
-                            title="Detalji kartice">
-                        ⋯
-                    </button>
                 </header>
 
                 <div class="finance-fuel-card-area">
 
                     <div class="finance-physical-card">
-
                         <div class="finance-card-light"></div>
 
                         <div class="finance-physical-top">
                             <div>
-                                <span class="finance-card-provider">
-                                    UTA
-                                </span>
-
-                                <small>
-                                    Fuel Card
-                                </small>
+                                <span class="finance-card-provider" id="fuelCardProvider">—</span>
+                                <small>Fuel Card</small>
                             </div>
 
                             <div class="finance-card-chip">
@@ -325,53 +261,48 @@
                             </div>
                         </div>
 
-                        <div class="finance-card-number">
-                            •••• &nbsp; •••• &nbsp; •••• &nbsp; 4821
+                        <div class="finance-card-number" id="fuelCardNumber">
+                            •••• &nbsp; •••• &nbsp; •••• &nbsp; ••••
                         </div>
 
                         <div class="finance-physical-bottom">
                             <div>
                                 <span>Dodeljena</span>
-                                <strong>BG-123-AB</strong>
+                                <strong id="fuelCardVehicle">—</strong>
                             </div>
 
                             <div>
                                 <span>Vozač</span>
-                                <strong>M. Petrović</strong>
+                                <strong id="fuelCardDriver">—</strong>
                             </div>
 
                             <div>
                                 <span>Status</span>
-                                <strong class="finance-card-active">
-                                    ACTIVE
-                                </strong>
+                                <strong class="finance-card-active" id="fuelCardStatus">—</strong>
                             </div>
                         </div>
-
                     </div>
 
                     <div class="finance-fuel-summary">
-
                         <div class="finance-fuel-stat">
                             <span>Gorivo na turi</span>
-                            <strong>599,50 L</strong>
+                            <strong id="fuelLiters">—</strong>
                         </div>
 
                         <div class="finance-fuel-stat">
                             <span>Ukupno</span>
-                            <strong>911,69 €</strong>
+                            <strong id="fuelAmount">—</strong>
                         </div>
 
                         <div class="finance-fuel-stat">
                             <span>Prosečna cena</span>
-                            <strong>1,521 €/L</strong>
+                            <strong id="fuelAverage">—</strong>
                         </div>
 
                         <div class="finance-fuel-stat">
                             <span>Transakcije</span>
-                            <strong>2</strong>
+                            <strong id="fuelCount">0</strong>
                         </div>
-
                     </div>
 
                 </div>
@@ -379,75 +310,11 @@
                 <div class="finance-section-title">
                     <div>
                         <strong>Transakcije goriva</strong>
-                        <span>
-                            Aktivna tura
-                        </span>
+                        <span>Aktivna tura</span>
                     </div>
                 </div>
 
-                <div class="finance-fuel-transactions">
-
-                    <div class="finance-fuel-row">
-                        <div class="finance-transaction-icon fuel">
-                            ⛽
-                        </div>
-
-                        <div class="finance-transaction-main">
-                            <strong>OMV Budapest</strong>
-                            <span>
-                                18.09.2026 · 14:32 · Hungary
-                            </span>
-                        </div>
-
-                        <div class="finance-fuel-card-label">
-                            <small>Kartica</small>
-                            <strong>UTA •••• 4821</strong>
-                        </div>
-
-                        <div class="finance-fuel-volume">
-                            <strong>312,40 L</strong>
-                            <span>1,556 €/L</span>
-                        </div>
-
-                        <div class="finance-transaction-amount">
-                            <strong>-486,20 €</strong>
-                            <span class="finance-status finance-status-success">
-                                APPROVED
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="finance-fuel-row">
-                        <div class="finance-transaction-icon fuel">
-                            ⛽
-                        </div>
-
-                        <div class="finance-transaction-main">
-                            <strong>OMV Novi Sad</strong>
-                            <span>
-                                17.09.2026 · 08:11 · Serbia
-                            </span>
-                        </div>
-
-                        <div class="finance-fuel-card-label">
-                            <small>Kartica</small>
-                            <strong>DKV •••• 1937</strong>
-                        </div>
-
-                        <div class="finance-fuel-volume">
-                            <strong>287,10 L</strong>
-                            <span>1,482 €/L</span>
-                        </div>
-
-                        <div class="finance-transaction-amount">
-                            <strong>-425,49 €</strong>
-                            <span class="finance-status finance-status-success">
-                                APPROVED
-                            </span>
-                        </div>
-                    </div>
-
-                </div>
+                <div class="finance-fuel-transactions" id="fuelTransactions"></div>
 
             </article>
 
@@ -521,276 +388,6 @@
 
                         <tbody id="financeTransactionTable">
 
-                            <tr data-category="fuel"
-                                data-status="approved"
-                                data-search="omv budapest gorivo uta 4821 tr-2026-00941">
-                                <td>
-                                    <div class="finance-table-transaction">
-                                        <span class="finance-transaction-icon fuel">
-                                            ⛽
-                                        </span>
-                                        <div>
-                                            <strong>OMV Budapest</strong>
-                                            <span>Gorivo · 312,40 L</span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <strong>TR-2026-00941</strong>
-                                </td>
-
-                                <td>
-                                    <span class="finance-payment-method">
-                                        UTA •••• 4821
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <strong>18.09.2026</strong>
-                                    <span class="finance-table-sub">
-                                        14:32
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <span class="finance-status finance-status-success">
-                                        APPROVED
-                                    </span>
-                                </td>
-
-                                <td class="align-right">
-                                    <strong class="finance-negative">
-                                        -486,20 €
-                                    </strong>
-                                </td>
-                            </tr>
-
-                            <tr data-category="toll"
-                                data-status="approved"
-                                data-search="putarina madjarska company card tr-2026-00941">
-                                <td>
-                                    <div class="finance-table-transaction">
-                                        <span class="finance-transaction-icon toll">
-                                            ⇄
-                                        </span>
-                                        <div>
-                                            <strong>Putarina HU</strong>
-                                            <span>Putarina</span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <strong>TR-2026-00941</strong>
-                                </td>
-
-                                <td>
-                                    <span class="finance-payment-method">
-                                        Company •••• 9234
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <strong>18.09.2026</strong>
-                                    <span class="finance-table-sub">
-                                        12:18
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <span class="finance-status finance-status-success">
-                                        APPROVED
-                                    </span>
-                                </td>
-
-                                <td class="align-right">
-                                    <strong class="finance-negative">
-                                        -87,40 €
-                                    </strong>
-                                </td>
-                            </tr>
-
-                            <tr data-category="parking"
-                                data-status="pending"
-                                data-search="parking budapest gotovina tr-2026-00941">
-                                <td>
-                                    <div class="finance-table-transaction">
-                                        <span class="finance-transaction-icon parking">
-                                            P
-                                        </span>
-                                        <div>
-                                            <strong>Truck Parking Budapest</strong>
-                                            <span>Parking</span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <strong>TR-2026-00941</strong>
-                                </td>
-
-                                <td>
-                                    <span class="finance-payment-method">
-                                        Gotovina
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <strong>18.09.2026</strong>
-                                    <span class="finance-table-sub">
-                                        11:04
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <span class="finance-status finance-status-warning">
-                                        PENDING
-                                    </span>
-                                </td>
-
-                                <td class="align-right">
-                                    <strong class="finance-negative">
-                                        -26,00 €
-                                    </strong>
-                                </td>
-                            </tr>
-
-                            <tr data-category="fuel"
-                                data-status="approved"
-                                data-search="omv novi sad gorivo dkv 1937 tr-2026-00941">
-                                <td>
-                                    <div class="finance-table-transaction">
-                                        <span class="finance-transaction-icon fuel">
-                                            ⛽
-                                        </span>
-                                        <div>
-                                            <strong>OMV Novi Sad</strong>
-                                            <span>Gorivo · 287,10 L</span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <strong>TR-2026-00941</strong>
-                                </td>
-
-                                <td>
-                                    <span class="finance-payment-method">
-                                        DKV •••• 1937
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <strong>17.09.2026</strong>
-                                    <span class="finance-table-sub">
-                                        08:11
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <span class="finance-status finance-status-success">
-                                        APPROVED
-                                    </span>
-                                </td>
-
-                                <td class="align-right">
-                                    <strong class="finance-negative">
-                                        -425,49 €
-                                    </strong>
-                                </td>
-                            </tr>
-
-                            <tr data-category="allowance"
-                                data-status="paid"
-                                data-search="dnevnica driver allowance tr-2026-00887">
-                                <td>
-                                    <div class="finance-table-transaction">
-                                        <span class="finance-transaction-icon allowance">
-                                            +
-                                        </span>
-                                        <div>
-                                            <strong>Dnevnica</strong>
-                                            <span>Driver allowance</span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <strong>TR-2026-00887</strong>
-                                </td>
-
-                                <td>
-                                    <span class="finance-payment-method">
-                                        Obračun
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <strong>16.09.2026</strong>
-                                    <span class="finance-table-sub">
-                                        18:00
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <span class="finance-status finance-status-info">
-                                        PAID
-                                    </span>
-                                </td>
-
-                                <td class="align-right">
-                                    <strong class="finance-positive">
-                                        +80,00 €
-                                    </strong>
-                                </td>
-                            </tr>
-
-                            <tr data-category="payment"
-                                data-status="paid"
-                                data-search="isplata vozacu bank transfer tr-2026-00887">
-                                <td>
-                                    <div class="finance-table-transaction">
-                                        <span class="finance-transaction-icon payment">
-                                            €
-                                        </span>
-                                        <div>
-                                            <strong>Isplata vozaču</strong>
-                                            <span>Bank transfer</span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <strong>TR-2026-00887</strong>
-                                </td>
-
-                                <td>
-                                    <span class="finance-payment-method">
-                                        Bank transfer
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <strong>16.09.2026</strong>
-                                    <span class="finance-table-sub">
-                                        17:20
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <span class="finance-status finance-status-info">
-                                        PAID
-                                    </span>
-                                </td>
-
-                                <td class="align-right">
-                                    <strong class="finance-negative">
-                                        -200,00 €
-                                    </strong>
-                                </td>
-                            </tr>
-
                         </tbody>
                     </table>
 
@@ -818,19 +415,18 @@
                 <div class="finance-balance-ring">
                     <div class="finance-balance-ring-inner">
                         <span>Apsolutni saldo</span>
-                        <strong>+1.245,80 €</strong>
-                        <small>u korist vozača</small>
+                        <strong id="balanceRing">—</strong>
+                        <small id="balanceRingNote">u korist vozača</small>
                     </div>
                 </div>
 
                 <div class="finance-balance-breakdown">
-
                     <div>
                         <span>
                             <i class="finance-bullet green"></i>
                             Potraživanja
                         </span>
-                        <strong>+2.410,00 €</strong>
+                        <strong id="balanceReceivables">—</strong>
                     </div>
 
                     <div>
@@ -838,7 +434,7 @@
                             <i class="finance-bullet yellow"></i>
                             Gotovinska zaduženja
                         </span>
-                        <strong>-500,00 €</strong>
+                        <strong id="balanceAdvances">—</strong>
                     </div>
 
                     <div>
@@ -846,14 +442,13 @@
                             <i class="finance-bullet red"></i>
                             Isplate
                         </span>
-                        <strong>-664,20 €</strong>
+                        <strong id="balancePayments">—</strong>
                     </div>
+                </div>
 
-                    <div class="finance-balance-total">
-                        <span>Saldo</span>
-                        <strong>+1.245,80 €</strong>
-                    </div>
-
+                <div class="finance-balance-total">
+                    <span>Saldo</span>
+                    <strong id="balanceTotal">—</strong>
                 </div>
 
                 <div class="finance-info-box">
@@ -876,37 +471,29 @@
                             PRETHODNA TURA
                         </div>
 
-                        <h3>TR-2026-00887</h3>
+                        <h3 id="previousNumber">—</h3>
 
-                        <p>
-                            Novi Sad → Beograd
-                        </p>
+                        <p id="previousRoute">Nema završene ture</p>
                     </div>
 
-                    <span class="finance-status finance-status-success">
-                        CLOSED
-                    </span>
+                    <span class="finance-status finance-status-success" id="previousStatus">—</span>
                 </header>
 
                 <div class="finance-previous-summary">
-
                     <div>
                         <span>Budžet</span>
-                        <strong>420,00 €</strong>
+                        <strong id="previousBudget">—</strong>
                     </div>
 
                     <div>
                         <span>Troškovi</span>
-                        <strong>378,00 €</strong>
+                        <strong id="previousSpent">—</strong>
                     </div>
 
                     <div>
                         <span>Saldo ture</span>
-                        <strong class="finance-positive">
-                            +42,00 €
-                        </strong>
+                        <strong class="finance-positive" id="previousNet">—</strong>
                     </div>
-
                 </div>
 
                 <button type="button"
@@ -930,62 +517,10 @@
                         <h3>Troškovi na čekanju</h3>
                     </div>
 
-                    <span class="finance-count-badge">
-                        3
-                    </span>
+                    <span class="finance-count-badge" id="pendingCount">0</span>
                 </header>
 
-                <div class="finance-pending-list">
-
-                    <button class="finance-pending-item"
-                            type="button">
-                        <span class="finance-transaction-icon parking">
-                            P
-                        </span>
-
-                        <span class="finance-pending-main">
-                            <strong>Truck Parking Budapest</strong>
-                            <small>18.09 · TR-00941</small>
-                        </span>
-
-                        <span class="finance-pending-value">
-                            26,00 €
-                        </span>
-                    </button>
-
-                    <button class="finance-pending-item"
-                            type="button">
-                        <span class="finance-transaction-icon other">
-                            ◇
-                        </span>
-
-                        <span class="finance-pending-main">
-                            <strong>Road service</strong>
-                            <small>18.09 · TR-00941</small>
-                        </span>
-
-                        <span class="finance-pending-value">
-                            65,00 €
-                        </span>
-                    </button>
-
-                    <button class="finance-pending-item"
-                            type="button">
-                        <span class="finance-transaction-icon other">
-                            ☕
-                        </span>
-
-                        <span class="finance-pending-main">
-                            <strong>Putni trošak</strong>
-                            <small>17.09 · TR-00941</small>
-                        </span>
-
-                        <span class="finance-pending-value">
-                            36,00 €
-                        </span>
-                    </button>
-
-                </div>
+                <div class="finance-pending-list" id="pendingList"></div>
 
             </article>
 
@@ -1002,48 +537,7 @@
                     </div>
                 </header>
 
-                <div class="finance-assigned-cards">
-
-                    <div class="finance-assigned-card">
-                        <span class="finance-assigned-logo uta">
-                            UTA
-                        </span>
-
-                        <div>
-                            <strong>UTA •••• 4821</strong>
-                            <span>Fuel card · BG-123-AB</span>
-                        </div>
-
-                        <span class="finance-dot-online"></span>
-                    </div>
-
-                    <div class="finance-assigned-card">
-                        <span class="finance-assigned-logo dkv">
-                            DKV
-                        </span>
-
-                        <div>
-                            <strong>DKV •••• 1937</strong>
-                            <span>Fuel card · Driver</span>
-                        </div>
-
-                        <span class="finance-dot-online"></span>
-                    </div>
-
-                    <div class="finance-assigned-card">
-                        <span class="finance-assigned-logo visa">
-                            VISA
-                        </span>
-
-                        <div>
-                            <strong>Company •••• 9234</strong>
-                            <span>Company payment card</span>
-                        </div>
-
-                        <span class="finance-dot-online"></span>
-                    </div>
-
-                </div>
+                <div class="finance-assigned-cards" id="assignedCards"></div>
 
             </article>
 
@@ -1106,10 +600,8 @@
 
                     <label class="finance-field">
                         <span>Tura</span>
-
-                        <select>
-                            <option>TR-2026-00941</option>
-                            <option>TR-2026-00887</option>
+                        <select id="expenseTrip">
+                            <option value="">Bez ture</option>
                         </select>
                     </label>
 
@@ -1117,11 +609,7 @@
                         <span>Iznos</span>
 
                         <div class="finance-money-input">
-                            <input type="number"
-                                   min="0"
-                                   step="0.01"
-                                   placeholder="0.00"
-                                   required />
+                            <input type="number" id="expenseAmount" min="0.01" step="0.01" placeholder="0.00" required />
 
                             <span>EUR</span>
                         </div>
@@ -1130,15 +618,13 @@
                     <label class="finance-field">
                         <span>Datum</span>
 
-                        <input type="datetime-local"
-                               value="2026-09-18T20:00" />
+                        <input type="datetime-local" id="expenseDate" />
                     </label>
 
                     <label class="finance-field finance-field-wide">
                         <span>Lokacija / prodajno mesto</span>
 
-                        <input type="text"
-                               placeholder="npr. OMV Budapest" />
+                        <input type="text" id="expenseLocation" placeholder="npr. OMV Budapest" />
                     </label>
 
                     <label class="finance-field">
@@ -1164,19 +650,7 @@
                            id="expenseCardField">
                         <span>Korišćena kartica</span>
 
-                        <select id="expenseCard">
-                            <option>
-                                UTA •••• 4821
-                            </option>
-
-                            <option>
-                                DKV •••• 1937
-                            </option>
-
-                            <option>
-                                Company VISA •••• 9234
-                            </option>
-                        </select>
+                        <select id="expenseCard"></select>
                     </label>
 
                 </div>
@@ -1194,10 +668,7 @@
                             <span>Količina</span>
 
                             <div class="finance-money-input">
-                                <input type="number"
-                                       min="0"
-                                       step="0.01"
-                                       placeholder="0.00" />
+                                <input type="number" id="expenseQuantity" min="0" step="0.01" placeholder="0.00" />
 
                                 <span>L</span>
                             </div>
@@ -1207,10 +678,7 @@
                             <span>Cena po litru</span>
 
                             <div class="finance-money-input">
-                                <input type="number"
-                                       min="0"
-                                       step="0.001"
-                                       placeholder="0.000" />
+                                <input type="number" id="expenseUnitPrice" min="0" step="0.001" placeholder="0.000" />
 
                                 <span>€/L</span>
                             </div>
@@ -1220,9 +688,7 @@
                             <span>Kilometraža vozila</span>
 
                             <div class="finance-money-input">
-                                <input type="number"
-                                       min="0"
-                                       placeholder="684320" />
+                                <input type="number" id="expenseOdometer" min="0" placeholder="684320" />
 
                                 <span>km</span>
                             </div>
@@ -1230,9 +696,8 @@
 
                         <label class="finance-field">
                             <span>Vozilo</span>
-
-                            <select>
-                                <option>BG-123-AB</option>
+                            <select id="expenseVehicle">
+                                <option value="">Vozilo ture</option>
                             </select>
                         </label>
 
@@ -1243,8 +708,7 @@
                 <label class="finance-field finance-field-block">
                     <span>Napomena</span>
 
-                    <textarea rows="3"
-                              placeholder="Dodatna napomena uz trošak..."></textarea>
+                    <textarea rows="3" id="expenseNotes" placeholder="Dodatna napomena uz trošak..."></textarea>
                 </label>
 
                 <div class="finance-upload">
@@ -1253,16 +717,16 @@
                     </div>
 
                     <div>
-                        <strong>Dodaj račun ili dokument</strong>
+                        <strong id="expenseReceiptName">Dodaj račun ili dokument</strong>
                         <span>
                             JPG, PNG ili PDF · maksimalno 10 MB
                         </span>
                     </div>
 
-                    <button type="button"
-                            class="finance-btn finance-btn-small">
+                    <button type="button" class="finance-btn finance-btn-small" id="expenseReceiptButton">
                         Izaberi fajl
                     </button>
+                    <input type="file" id="expenseReceipt" accept=".pdf,.jpg,.jpeg,.png" hidden />
                 </div>
 
                 <div class="finance-modal-footer">

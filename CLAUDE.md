@@ -29,7 +29,7 @@ dotnet build ProMapCargo.sln
 dotnet run --project ProMapCargo.Api.csproj
 ```
 
-- Admin login (dev, seeded in `Program.cs` `SeedAdministratorUserAsync`): `admin@promapcargo.com` / `Admin1234!`
+- Admin login (dev, seeded in `Program.cs` `SeedAdministratorUserAsync`): `admin@admin.com` / `Admin123!`
 - The phone reaches the API via the PC's LAN address (default `http://192.168.1.2:8080/`, changeable in the app's Settings; emulator uses `10.0.2.2`).
 
 ## Mobile

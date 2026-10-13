@@ -614,7 +614,7 @@
         <Setter Property="FontFamily" Value="OpenSansSemibold" />
         <Setter Property="CornerRadius" Value="22" />
         <Setter Property="HeightRequest" Value="44" />
-        <Setter Property="Padding" Value="16,4" />
+        <Setter Property="Padding" Value="15" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="BorderColor" Value="{StaticResource StrokeStrong}" />
         <Setter Property="BorderWidth" Value="1" />

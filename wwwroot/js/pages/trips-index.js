@@ -104,7 +104,11 @@
         const driver = lookups.drivers.get(driverId);
         const vehicle = lookups.vehicles.get(vehicleId);
         const orderNumber = value(order, "orderNumber");
-        const tripLabel = id ? `Tura ${id.slice(0, 8).toUpperCase()}` : "Tura bez ID-a";
+        const tripNumber = value(trip, "tripNumber");
+        const tripLabel = tripNumber ? `Tura ${tripNumber}` : id ? `Tura ${id.slice(0, 8).toUpperCase()}` : "Tura bez ID-a";
+        const budget = Number(value(trip, "budgetAmount"));
+        const when = (iso) => iso ? new Date(iso).toLocaleString("sr-Latn-RS", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—";
+        const plan = `${when(value(trip, "startedAt") || value(trip, "plannedStartAt"))} → ${when(value(trip, "completedAt") || value(trip, "plannedArrivalAt"))}`;
         const progressNumber = Number(value(trip, "routeProgressPercent"));
         const progress = Number.isFinite(progressNumber) ? Math.min(100, Math.max(0, progressNumber)) : 0;
         const routeDistance = formatDistance(value(trip, "plannedDistanceMeters"));
@@ -112,6 +116,7 @@
         const gps = gpsState(value(trip, "lastGpsAt"));
         const searchable = [
             tripLabel,
+            tripNumber,
             orderNumber,
             id,
             value(driver, "fullName"),
@@ -126,7 +131,7 @@
             html: `<tr data-trip-status="${escapeHtml(status)}" data-trip-search="${escapeHtml(searchable)}" class="pm-trip-table-row">
                 <td >
                     <div class="pm-trip-primary">${escapeHtml(tripLabel)}</div>
-                    <div class="pm-trip-secondary">Nalog ${escapeHtml(orderNumber || (orderId ? orderId.slice(0, 8).toUpperCase() : "nije povezan"))}</div>
+                    <div class="pm-trip-secondary">Nalog ${escapeHtml(orderNumber || (orderId ? orderId.slice(0, 8).toUpperCase() : "nije povezan"))}${Number.isFinite(budget) && budget > 0 ? " · budžet " + escapeHtml(budget.toLocaleString("sr-Latn-RS")) + " " + escapeHtml(value(trip, "currency") || "EUR") : ""}</div>
                 </td>
                 <td >
                     <span class="pm-status ${tones[status] ?? tones.completed}">${escapeHtml(statusLabels[status] ?? "Nepoznat status")}</span>
@@ -148,6 +153,7 @@
                 <td >
                     <div class="pm-trip-primary pm-trip-primary--medium">${escapeHtml(routeDistance)}</div>
                     <div class="pm-trip-secondary">Preostalo ${escapeHtml(formatDistance(value(trip, "routeRemainingMeters")))}</div>
+                    <div class="pm-trip-secondary pm-trip-secondary--nowrap">${escapeHtml(plan)}</div>
                 </td>
                 <td >
                     <div class="pm-trip-gps ${gps.tone}">${escapeHtml(gps.label)}</div>

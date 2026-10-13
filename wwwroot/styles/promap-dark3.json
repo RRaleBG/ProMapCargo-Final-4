@@ -2,7 +2,7 @@
   "version": 8,
   "name": "ProMap Cargo Orbis-Inspired Dark Navigation",
   "metadata": {
-    "promap:style-version": "2026-09-25-v19-orbis-inspired",
+    "promap:style-version": "2026-09-25-v20-bridges-tunnels-oneway",
     "promap:cartography": "orbis-inspired-local-pmtiles",
     "promap:road-group": "roads",
     "promap:coverage": "Europe PMTiles",
@@ -77,6 +77,23 @@
       }
     },
     {
+      "id": "earth",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "earth",
+      "filter": [
+        "==",
+        [
+          "geometry-type"
+        ],
+        "Polygon"
+      ],
+      "paint": {
+        "fill-color": "#0c171c",
+        "fill-opacity": 1
+      }
+    },
+    {
       "id": "landcover",
       "type": "fill",
       "source": "openmaptiles",
@@ -145,6 +162,44 @@
           "#324b47",
           "stadium",
           "#304946",
+          "university",
+          "#314845",
+          "college",
+          "#314845",
+          "aerodrome",
+          "#2b3c41",
+          "runway",
+          "#3a4b50",
+          "taxiway",
+          "#34454a",
+          "military",
+          "#33403c",
+          "naval_base",
+          "#33403c",
+          "airfield",
+          "#2b3c41",
+          "beach",
+          "#4a4536",
+          "zoo",
+          "#264c41",
+          "pier",
+          "#3a4846",
+          "pedestrian",
+          "#36484a",
+          "allotments",
+          "#244e42",
+          "playground",
+          "#244e42",
+          "village_green",
+          "#244e42",
+          "nature_reserve",
+          "#21483d",
+          "protected_area",
+          "#21483d",
+          "national_park",
+          "#21483d",
+          "golf_course",
+          "#244e42",
           "#29413e"
         ],
         "fill-opacity": 0.42
@@ -912,6 +967,225 @@
       }
     },
     {
+      "id": "road-tunnel-overlay",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "roads",
+      "minzoom": 11,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "is_tunnel"
+          ],
+          true
+        ],
+        [
+          "match",
+          [
+            "get",
+            "kind"
+          ],
+          [
+            "highway",
+            "major_road",
+            "minor_road"
+          ],
+          true,
+          false
+        ]
+      ],
+      "layout": {
+        "line-cap": "butt",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#091318",
+        "line-opacity": 0.55,
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          8,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            2.5,
+            "major_road",
+            1.5,
+            0.4
+          ],
+          12,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            4.8,
+            "major_road",
+            2.4,
+            1
+          ],
+          14,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            5.8,
+            "major_road",
+            3.2,
+            1.5
+          ],
+          17,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            7,
+            "major_road",
+            4.6,
+            2.2
+          ]
+        ]
+      }
+    },
+    {
+      "id": "road-tunnel-casing",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "roads",
+      "minzoom": 12,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "is_tunnel"
+          ],
+          true
+        ],
+        [
+          "match",
+          [
+            "get",
+            "kind"
+          ],
+          [
+            "highway",
+            "major_road",
+            "minor_road"
+          ],
+          true,
+          false
+        ]
+      ],
+      "layout": {
+        "line-cap": "butt",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#6f8a8a",
+        "line-opacity": 0.8,
+        "line-dasharray": [
+          1.5,
+          1.5
+        ],
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          12,
+          0.6,
+          16,
+          1.2
+        ],
+        "line-gap-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          8,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            2.5,
+            "major_road",
+            1.5,
+            0.4
+          ],
+          12,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            4.8,
+            "major_road",
+            2.4,
+            1
+          ],
+          14,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            5.8,
+            "major_road",
+            3.2,
+            1.5
+          ],
+          17,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            7,
+            "major_road",
+            4.6,
+            2.2
+          ]
+        ]
+      }
+    },
+    {
       "id": "road-construction",
       "type": "line",
       "source": "openmaptiles",
@@ -1075,6 +1349,307 @@
           3,
           3
         ]
+      }
+    },
+    {
+      "id": "road-bridge-casing",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "roads",
+      "minzoom": 11,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "is_bridge"
+          ],
+          true
+        ],
+        [
+          "match",
+          [
+            "get",
+            "kind"
+          ],
+          [
+            "highway",
+            "major_road",
+            "minor_road"
+          ],
+          true,
+          false
+        ]
+      ],
+      "layout": {
+        "line-cap": "butt",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#d9e8e5",
+        "line-opacity": 0.55,
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          8,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            4,
+            "major_road",
+            2.8,
+            1.4
+          ],
+          12,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            7,
+            "major_road",
+            4.4,
+            2.6
+          ],
+          14,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            8.6,
+            "major_road",
+            5.8,
+            3.4
+          ],
+          17,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            10.5,
+            "major_road",
+            8,
+            4.6
+          ]
+        ]
+      }
+    },
+    {
+      "id": "road-bridge",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "roads",
+      "minzoom": 11,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "is_bridge"
+          ],
+          true
+        ],
+        [
+          "match",
+          [
+            "get",
+            "kind"
+          ],
+          [
+            "highway",
+            "major_road",
+            "minor_road"
+          ],
+          true,
+          false
+        ]
+      ],
+      "layout": {
+        "line-cap": "butt",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": [
+          "match",
+          [
+            "get",
+            "kind_detail"
+          ],
+          [
+            "motorway",
+            "motorway_link"
+          ],
+          "#f0bd78",
+          [
+            "trunk",
+            "trunk_link"
+          ],
+          "#e3a66e",
+          [
+            "primary",
+            "primary_link"
+          ],
+          "#d8a66f",
+          [
+            "secondary",
+            "secondary_link"
+          ],
+          "#cbd0a3",
+          [
+            "tertiary",
+            "tertiary_link"
+          ],
+          "#b4c1b6",
+          [
+            "residential",
+            "unclassified",
+            "road"
+          ],
+          "#9eafb0",
+          "#819899"
+        ],
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          8,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            2.5,
+            "major_road",
+            1.5,
+            0.4
+          ],
+          12,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            4.8,
+            "major_road",
+            2.4,
+            1
+          ],
+          14,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            5.8,
+            "major_road",
+            3.2,
+            1.5
+          ],
+          17,
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "highway",
+            7,
+            "major_road",
+            4.6,
+            2.2
+          ]
+        ]
+      }
+    },
+    {
+      "id": "road-oneway",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "roads",
+      "minzoom": 14,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "oneway"
+          ],
+          "yes"
+        ],
+        [
+          "match",
+          [
+            "get",
+            "kind"
+          ],
+          [
+            "highway",
+            "major_road",
+            "minor_road"
+          ],
+          true,
+          false
+        ]
+      ],
+      "layout": {
+        "symbol-placement": "line",
+        "symbol-spacing": 120,
+        "text-field": "→",
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          14,
+          10,
+          17,
+          13
+        ],
+        "text-keep-upright": false,
+        "text-allow-overlap": false,
+        "text-rotation-alignment": "map"
+      },
+      "paint": {
+        "text-color": "#d9e8e5",
+        "text-opacity": 0.75,
+        "text-halo-color": "#091318",
+        "text-halo-width": 0.8
       }
     },
     {
@@ -2790,8 +3365,18 @@
       "source-layer": "water",
       "minzoom": 7,
       "filter": [
-        "has",
-        "name"
+        "all",
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "geometry-type"
+          ],
+          "LineString"
+        ]
       ],
       "layout": {
         "text-field": [
@@ -2833,6 +3418,121 @@
         "text-color": "#d9e8e5",
         "text-halo-color": "#091318",
         "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "waterway-label",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "water",
+      "minzoom": 11,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "geometry-type"
+          ],
+          "LineString"
+        ],
+        [
+          "has",
+          "name"
+        ]
+      ],
+      "layout": {
+        "symbol-placement": "line",
+        "symbol-spacing": 400,
+        "text-field": [
+          "coalesce",
+          [
+            "get",
+            "name"
+          ],
+          [
+            "get",
+            "name:en"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Italic"
+        ],
+        "text-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          11,
+          10,
+          15,
+          12
+        ],
+        "text-letter-spacing": 0.1
+      },
+      "paint": {
+        "text-color": "#7fb6c2",
+        "text-halo-color": "#091318",
+        "text-halo-width": 1.2
+      }
+    },
+    {
+      "id": "earth-label-islands",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "earth",
+      "minzoom": 8,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "kind"
+          ],
+          "island"
+        ],
+        [
+          "has",
+          "name"
+        ]
+      ],
+      "layout": {
+        "text-field": [
+          "coalesce",
+          [
+            "get",
+            "name"
+          ],
+          [
+            "get",
+            "name:en"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Italic"
+        ],
+        "text-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          8,
+          9,
+          14,
+          12
+        ],
+        "text-max-width": 8
+      },
+      "paint": {
+        "text-color": "#a9c2bd",
+        "text-halo-color": "#091318",
+        "text-halo-width": 1.2
       }
     },
     {

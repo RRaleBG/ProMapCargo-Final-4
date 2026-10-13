@@ -5,36 +5,42 @@
 }
 
 <div class="pm-page" data-module="account-admin">
-    <section class="pm-kpi-grid" aria-label="Account admin pregled">
-
-        <article class="pm-kpi">
-            <div class="pm-kpi-label">Ukupno korisnika</div>
-            <div class="pm-kpi-value">@Model.Summary.TotalUsers</div>
-            <div class="pm-kpi-footer">registrovani nalozi</div>
-            <i data-lucide="users" class="pm-kpi-icon" aria-hidden="true"></i>
+    <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--4" aria-label="Account admin pregled">
+        <article class="compliance-kpi compliance-kpi-total">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Ukupno korisnika</span>
+                <i data-lucide="users" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value">@Model.Summary.TotalUsers</strong>
+            <span class="compliance-kpi-meta">registrovani nalozi</span>
         </article>
 
-        <article class="pm-kpi">
-            <div class="pm-kpi-label">Aktivni nalozi</div>
-            <div class="pm-kpi-value">@Model.Summary.ActiveUsers</div>
-            <div class="pm-kpi-footer">status IsActive = true</div>
-            <i data-lucide="user-check" class="pm-kpi-icon" aria-hidden="true"></i>
+        <article class="compliance-kpi compliance-kpi-good">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Aktivni nalozi</span>
+                <i data-lucide="user-check" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value">@Model.Summary.ActiveUsers</strong>
+            <span class="compliance-kpi-meta">status IsActive = true</span>
         </article>
 
-        <article class="pm-kpi">
-            <div class="pm-kpi-label">Trenutno online</div>
-            <div class="pm-kpi-value">@Model.Summary.OnlineUsers</div>
-            <div class="pm-kpi-footer">SignalR prisustvo</div>
-            <i data-lucide="wifi" class="pm-kpi-icon" aria-hidden="true"></i>
+        <article class="compliance-kpi compliance-kpi-info">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Trenutno online</span>
+                <i data-lucide="wifi" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value">@Model.Summary.OnlineUsers</strong>
+            <span class="compliance-kpi-meta">SignalR prisustvo</span>
         </article>
 
-        <article class="pm-kpi">
-            <div class="pm-kpi-label">Sistemske role</div>
-            <div class="pm-kpi-value">@Model.Summary.RolesCount</div>
-            <div class="pm-kpi-footer">konfigurisane role</div>
-            <i data-lucide="shield-check" class="pm-kpi-icon" aria-hidden="true"></i>
+        <article class="compliance-kpi compliance-kpi-neutral">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Sistemske role</span>
+                <i data-lucide="shield-check" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value">@Model.Summary.RolesCount</strong>
+            <span class="compliance-kpi-meta">konfigurisane role</span>
         </article>
-
     </section>
 
     <section class="pm-card pm-panel pm-account-admin-tabs-shell">

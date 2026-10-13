@@ -170,61 +170,67 @@
                 Spacing="10"
                 VerticalOptions="End">
                 <Grid ColumnDefinitions="Auto,*" InputTransparent="False">
-                    <!--  Current speed bubble (bottom-left, like TomTom)  -->
-                    <Border
-                        BackgroundColor="{StaticResource MapGlass}"
-                        HeightRequest="68"
-                        IsVisible="{Binding HasRoute}"
-                        Stroke="{StaticResource StrokeStrong}"
-                        StrokeShape="Ellipse"
-                        StrokeThickness="2"
-                        VerticalOptions="End"
-                        WidthRequest="68">
-                        <VerticalStackLayout
+                    <!--  Reset route above the speed bubble (bottom-left)  -->
+                    <VerticalStackLayout
+                        HorizontalOptions="Start"
+                        Spacing="12"
+                        VerticalOptions="End">
+                        <ImageButton
+                            x:Name="ResetRouteButton"
+                            Clicked="OnResetRouteClicked"
                             HorizontalOptions="Center"
-                            Spacing="0"
-                            VerticalOptions="Center">
-                            <Label
-                                FontFamily="OpenSansSemibold"
-                                FontSize="24"
-                                HorizontalTextAlignment="Center"
-                                LineHeight="1"
-                                Text="{Binding CurrentSpeedText}"
-                                TextColor="{StaticResource TextPrimary}" />
-                            <Label
-                                FontSize="10"
-                                HorizontalTextAlignment="Center"
-                                Text="km/h"
-                                TextColor="{StaticResource TextSecondary}" />
-                        </VerticalStackLayout>
-                    </Border>
+                            IsVisible="{Binding HasRoute}"
+                            SemanticProperties.Description="Poništi rutu"
+                            Source="nav_reset.svg"
+                            Style="{StaticResource PmMapFloatingButton}" />
+                        <!--  Current speed bubble (bottom-left, like TomTom)  -->
+                        <Border
+                            BackgroundColor="{StaticResource MapGlass}"
+                            HeightRequest="68"
+                            IsVisible="{Binding HasRoute}"
+                            Stroke="{StaticResource StrokeStrong}"
+                            StrokeShape="Ellipse"
+                            StrokeThickness="2"
+                            VerticalOptions="End"
+                            WidthRequest="68">
+                            <VerticalStackLayout
+                                HorizontalOptions="Center"
+                                Spacing="0"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="24"
+                                    HorizontalTextAlignment="Center"
+                                    LineHeight="1"
+                                    Text="{Binding CurrentSpeedText}"
+                                    TextColor="{StaticResource TextPrimary}" />
+                                <Label
+                                    FontSize="10"
+                                    HorizontalTextAlignment="Center"
+                                    Text="km/h"
+                                    TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
 
                     <VerticalStackLayout
                         Grid.Column="1"
                         HorizontalOptions="End"
-                        Spacing="12">
-                        <!--  Reset and recenter sit at the screen edge (the overlay has 16 px padding)  -->
-                        <VerticalStackLayout
+                        Spacing="16">
+                        <!--  Recenter sits at the screen edge (the overlay has 16 px padding)  -->
+                        <ImageButton
+                            x:Name="RecenterButton"
                             Margin="0,0,-12,0"
+                            Clicked="OnRecenterClicked"
                             HorizontalOptions="End"
-                            Spacing="12">
-                            <ImageButton
-                                x:Name="ResetRouteButton"
-                                Clicked="OnResetRouteClicked"
-                                IsVisible="{Binding HasRoute}"
-                                SemanticProperties.Description="Poništi rutu"
-                                Source="nav_reset.svg"
-                                Style="{StaticResource PmMapFloatingButton}" />
-                            <ImageButton
-                                x:Name="RecenterButton"
-                                Clicked="OnRecenterClicked"
-                                SemanticProperties.Description="Centriraj na vozilo"
-                                Source="nav_recenter.svg"
-                                Style="{StaticResource PmMapFloatingButton}" />
-                        </VerticalStackLayout>
+                            SemanticProperties.Description="Centriraj na vozilo"
+                            Source="nav_recenter.svg"
+                            Style="{StaticResource PmMapFloatingButton}" />
                         <ImageButton
                             x:Name="VoicePromptButton"
+                            Margin="0,0,-12,0"
                             Command="{Binding SpeakNextPromptCommand}"
+                            HorizontalOptions="End"
                             SemanticProperties.Description="Glasovno uputstvo"
                             Source="nav_voice.svg"
                             Style="{StaticResource PmMapFloatingButton}" />
@@ -239,13 +245,19 @@
                             Style="{StaticResource PmMapMiniButton}"
                             Text="{Binding SimulationButtonText}" />
                     </VerticalStackLayout>
+
+
                 </Grid>
 
                 <Border
+                    Margin="0,0,0,0"
+                    HorizontalOptions="Fill"
                     InputTransparent="False"
                     IsVisible="{Binding HasRoute}"
                     StrokeShape="RoundRectangle 18"
-                    Style="{StaticResource PmMapGlassCard}">
+                    Style="{StaticResource PmMapGlassCard}"
+                    VerticalOptions="End">
+
                     <!--  Trip bar: arrival time · time left · distance left  -->
                     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
                         <VerticalStackLayout>

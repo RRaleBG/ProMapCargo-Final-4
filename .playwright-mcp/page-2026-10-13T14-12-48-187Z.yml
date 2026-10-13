@@ -1,0 +1,41 @@
+- main [ref=e2]:
+  - region "Prijava" [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]: Account · Access
+        - heading "Prijava" [level=2] [ref=e7]
+        - paragraph [ref=e8]: Unesite podatke za pristup vašem nalogu.
+      - generic [aria-hidden] [ref=e9]: ◈
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]: Email adresa
+        - generic [ref=e14]:
+          - generic [ref=e15]: "@"
+          - textbox "Email adresa" [ref=e16]:
+            - /placeholder: operator@promapcargo.com
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e19]: Lozinka
+          - link "Zaboravljena lozinka?" [ref=e20] [cursor=pointer]:
+            - /url: /Account/ForgotPassword
+        - generic [ref=e21]:
+          - generic [ref=e22]: ●
+          - textbox "Lozinka" [ref=e23]:
+            - /placeholder: Unesite lozinku
+          - button "Prikaži lozinku" [ref=e24] [cursor=pointer]: ◉
+      - generic [ref=e25] [cursor=pointer]:
+        - checkbox "Zapamti me na ovom uređaju"
+        - generic [ref=e27]: Zapamti me na ovom uređaju
+      - button "Prijavi se" [ref=e28] [cursor=pointer]:
+        - generic [aria-hidden] [ref=e30]: →
+    - generic [ref=e31]:
+      - generic [ref=e32]: SECURE IDENTITY ACCESS
+      - generic [ref=e34]:
+        - generic [aria-hidden] [ref=e35]: ✓
+        - generic [ref=e36]:
+          - strong [ref=e37]: Zaštićen pristup
+          - generic [ref=e38]: ASP.NET Core Identity · Secure session
+      - generic [ref=e39]:
+        - generic [ref=e40]: Nemate nalog?
+        - link "Kreirajte nalog" [ref=e41] [cursor=pointer]:
+          - /url: /Account/Register

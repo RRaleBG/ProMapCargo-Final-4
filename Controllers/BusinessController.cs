@@ -119,6 +119,69 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
     }
 
 
+    [HttpGet("orders/overview")]
+    public async Task<ActionResult<List<OrderOverview>>> OrdersOverview(CancellationToken ct)
+    {
+        try
+        {
+            return Ok(await service.OrdersOverviewAsync(ct));
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+    }
+
+    [HttpGet("orders/{orderId:guid}/details")]
+    public async Task<ActionResult<OrderDetails>> OrderDetails(Guid orderId, CancellationToken ct)
+    {
+        try
+        {
+            return await service.OrderDetailsAsync(orderId, ct) is { } details ? Ok(details) : NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+    }
+
+    [HttpPut("orders/{orderId:guid}")]
+    public Task<ActionResult> UpdateOrder(Guid orderId, [FromBody] CreateTransportOrderRequest request, CancellationToken ct)
+        => Run(async () => Ok(await service.UpdateOrderAsync(orderId, request, ct)));
+
+    [HttpPost("vehicles")]
+    public Task<ActionResult> CreateVehicle([FromBody] VehicleInput input, CancellationToken ct)
+        => Run(async () => Ok(await service.CreateVehicleAsync(input, ct)));
+
+    [HttpPost("drivers")]
+    public Task<ActionResult> CreateDriver([FromBody] DriverInput input, CancellationToken ct)
+        => Run(async () => Ok(await service.CreateDriverAsync(input, ct)));
+
+    // Same error shape as CreateOrder: 401 without a company, 400 invalid input, 404, 409 duplicate.
+    private async Task<ActionResult> Run(Func<Task<ActionResult>> action)
+    {
+        try
+        {
+            return await action();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { code = "ValidationError", message = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { code = "NotFound", message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { code = "Conflict", message = ex.Message });
+        }
+    }
+
     [HttpGet("trips")]
     public async Task<ActionResult<List<Trip>>> Trips(CancellationToken ct)
     {
