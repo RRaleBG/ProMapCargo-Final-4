@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <!-- Plan route: start dot, dashed route, destination pin (same palette as nav_recenter) -->
-  <path d="M18 46C18 36 46 40 46 28" fill="none" stroke="#94A3B8" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="1 7"/>
-  <circle cx="18" cy="46" r="6" fill="#10B981"/>
-  <circle cx="18" cy="46" r="2.5" fill="#F8FAFC"/>
-  <path d="M46 8C39.4 8 34 13.2 34 19.7C34 28.5 46 40 46 40C46 40 58 28.5 58 19.7C58 13.2 52.6 8 46 8Z" fill="#34D399"/>
-  <circle cx="46" cy="19.5" r="4.5" fill="#031712"/>
+<!-- Plan route (lucide route). Map buttons share one style: Lucide line icon (as on the web),
+     same 24 px grid, stroke 2, light stroke; the round button draws the circle. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ECFDF5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="6" cy="19" r="3"/>
+  <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/>
+  <circle cx="18" cy="5" r="3"/>
 </svg>

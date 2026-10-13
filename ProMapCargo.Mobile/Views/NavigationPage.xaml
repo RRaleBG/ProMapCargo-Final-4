@@ -54,7 +54,7 @@
                 x:Name="LoadErrorPanel"
                 Margin="24,0"
                 IsVisible="False"
-                Style="{StaticResource PmCardBorder}"
+            
                 VerticalOptions="Center">
                 <VerticalStackLayout Spacing="12">
                     <Label Style="{StaticResource PmSectionTitleLabel}" Text="Mapa nije učitana" />
@@ -83,8 +83,10 @@
             ZIndex="20">
 
             <!--  Guidance banner : maneuver icon + distance, road below, "then" on the right  -->
+            <!--  Full width: the negative margin cancels the overlay padding (16,14,16,20)  -->
             <Border
                 Grid.Row="0"
+                Margin="-16,-14,-16,0"
                 Padding="0"
                 InputTransparent="False"
                 Style="{StaticResource PmMapGlassCard}">
@@ -183,6 +185,7 @@
                             HorizontalOptions="Center"
                             IsVisible="{Binding HasRoute}"
                             SemanticProperties.Description="Poništi rutu"
+                            Padding="10"
                             Source="nav_reset.svg"
                             Style="{StaticResource PmMapFloatingButton}" />
                         <!--  Current speed bubble (bottom-left, like TomTom)  -->
@@ -250,8 +253,9 @@
 
                 </Grid>
 
+                <!--  Full width down to the bottom edge: cancels the overlay padding  -->
                 <Border
-                    Margin="0,0,0,0"
+                    Margin="-16,0,-16,-20"
                     HorizontalOptions="Fill"
                     InputTransparent="False"
                     IsVisible="{Binding HasRoute}"

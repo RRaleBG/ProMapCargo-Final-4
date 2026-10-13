@@ -19455,6 +19455,12 @@ select:focus-visible {
     box-shadow: none;
   }
 
+  /* Fullscreen in the app: the map itself has no frame or rounded corners. */
+  .pm-body.pm-embedded-mobile-shell .pm-map {
+    border: 0;
+    border-radius: 0;
+  }
+
   .pm-body.pm-embedded-mobile-shell .nav-map-topbar {
     top: max(10px, env(safe-area-inset-top));
     left: 10px;
