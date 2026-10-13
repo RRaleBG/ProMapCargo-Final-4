@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Recenter on the truck (lucide locate-fixed). Map buttons share one style: Lucide line icon (as on the web),
-     same 24 px grid, stroke 2, light stroke; the round button draws the circle. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ECFDF5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+     same 24 px grid, stroke 2, theme emerald stroke; the round button draws the circle. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <line x1="2" x2="5" y1="12" y2="12"/>
   <line x1="19" x2="22" y1="12" y2="12"/>
   <line x1="12" x2="12" y1="2" y2="5"/>

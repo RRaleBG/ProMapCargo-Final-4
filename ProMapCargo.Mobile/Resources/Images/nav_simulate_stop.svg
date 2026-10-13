@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Stop the simulated drive (lucide square). Map buttons share one style: Lucide line icon (as on the web),
-     same 24 px grid, stroke 2, light stroke; the round button draws the circle. -->
+     same 24 px grid, stroke 2, theme emerald stroke; the round button draws the circle. -->
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#FB7185" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <rect width="18" height="18" x="3" y="3" rx="2"/>
 </svg>

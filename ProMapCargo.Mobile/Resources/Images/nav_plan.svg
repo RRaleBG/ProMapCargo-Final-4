@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Plan route (lucide route). Map buttons share one style: Lucide line icon (as on the web),
-     same 24 px grid, stroke 2, light stroke; the round button draws the circle. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ECFDF5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+     same 24 px grid, stroke 2, theme emerald stroke; the round button draws the circle. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <circle cx="6" cy="19" r="3"/>
   <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/>
   <circle cx="18" cy="5" r="3"/>

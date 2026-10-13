@@ -89,11 +89,13 @@
                 Margin="-16,-14,-16,0"
                 Padding="0"
                 InputTransparent="False"
+                StrokeShape="Rectangle"
+                StrokeThickness="0"
                 Style="{StaticResource PmMapGlassCard}">
                 <Grid ColumnDefinitions="Auto,*,Auto">
                     <Border
                         BackgroundColor="{StaticResource Brand}"
-                        StrokeShape="RoundRectangle 19,0,19,0"
+                        StrokeShape="Rectangle"
                         StrokeThickness="0"
                         WidthRequest="100">
                         <Path
@@ -185,7 +187,7 @@
                             HorizontalOptions="Center"
                             IsVisible="{Binding HasRoute}"
                             SemanticProperties.Description="Poništi rutu"
-                            Padding="10"
+                            Padding="14"
                             Source="nav_reset.svg"
                             Style="{StaticResource PmMapFloatingButton}" />
                         <!--  Current speed bubble (bottom-left, like TomTom)  -->
@@ -259,7 +261,8 @@
                     HorizontalOptions="Fill"
                     InputTransparent="False"
                     IsVisible="{Binding HasRoute}"
-                    StrokeShape="RoundRectangle 18"
+                    StrokeShape="Rectangle"
+                    StrokeThickness="0"
                     Style="{StaticResource PmMapGlassCard}"
                     VerticalOptions="End">
 
