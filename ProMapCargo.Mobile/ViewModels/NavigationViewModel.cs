@@ -300,6 +300,8 @@ public class NavigationViewModel : ViewModelBase
 
     public string SimulationButtonText => IsSimulating ? "Zaustavi simulaciju" : "Simuliraj vožnju";
 
+    public string SimulationButtonIcon => IsSimulating ? "nav_simulate_stop.svg" : "nav_simulate.svg";
+
     private void ToggleSimulation()
     {
         if (simulationCts is { } running)
@@ -353,6 +355,7 @@ public class NavigationViewModel : ViewModelBase
     {
         RaisePropertyChanged(nameof(IsSimulating));
         RaisePropertyChanged(nameof(SimulationButtonText));
+        RaisePropertyChanged(nameof(SimulationButtonIcon));
     }
 
     private async Task RunSimulationAsync(IReadOnlyList<GeoPoint> route, CancellationTokenSource cts)

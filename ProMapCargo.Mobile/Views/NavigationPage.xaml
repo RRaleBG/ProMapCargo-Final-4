@@ -219,33 +219,32 @@
                         Grid.Column="1"
                         HorizontalOptions="End"
                         Spacing="16">
-                        <!--  Recenter sits at the screen edge (the overlay has 16 px padding)  -->
+                        <!--  Side rail at the screen edge (the overlay has 16 px padding): equal
+                              round buttons, icon only; the text stays as the screen-reader name  -->
                         <ImageButton
                             x:Name="RecenterButton"
-                            Margin="0,0,-12,0"
                             Clicked="OnRecenterClicked"
-                            HorizontalOptions="End"
                             SemanticProperties.Description="Centriraj na vozilo"
                             Source="nav_recenter.svg"
-                            Style="{StaticResource PmMapFloatingButton}" />
+                            Style="{StaticResource PmMapRailButton}" />
                         <ImageButton
                             x:Name="VoicePromptButton"
-                            Margin="0,0,-12,0"
                             Command="{Binding SpeakNextPromptCommand}"
-                            HorizontalOptions="End"
                             SemanticProperties.Description="Glasovno uputstvo"
                             Source="nav_voice.svg"
-                            Style="{StaticResource PmMapFloatingButton}" />
-                        <Button
+                            Style="{StaticResource PmMapRailButton}" />
+                        <ImageButton
                             Command="{Binding ToggleRouteInputCommand}"
-                            Style="{StaticResource PmMapMiniButton}"
-                            Text="{Binding RouteInputButtonText}" />
+                            SemanticProperties.Description="{Binding RouteInputButtonText}"
+                            Source="nav_plan.svg"
+                            Style="{StaticResource PmMapRailButton}" />
                         <!--  Test drive along the route without moving (no real GPS needed)  -->
-                        <Button
+                        <ImageButton
                             Command="{Binding ToggleSimulationCommand}"
                             IsVisible="{Binding HasRoute}"
-                            Style="{StaticResource PmMapMiniButton}"
-                            Text="{Binding SimulationButtonText}" />
+                            SemanticProperties.Description="{Binding SimulationButtonText}"
+                            Source="{Binding SimulationButtonIcon}"
+                            Style="{StaticResource PmMapRailButton}" />
                     </VerticalStackLayout>
 
 

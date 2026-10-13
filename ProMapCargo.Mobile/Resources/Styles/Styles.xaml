@@ -608,6 +608,13 @@
         <Setter Property="Aspect" Value="AspectFit" />
     </Style>
 
+    <!--  Map side rail (navigation): same size and edge position for every button, larger icon  -->
+    <Style x:Key="PmMapRailButton" BasedOn="{StaticResource PmMapFloatingButton}" TargetType="ImageButton">
+        <Setter Property="Padding" Value="10" />
+        <Setter Property="Margin" Value="0,0,-12,0" />
+        <Setter Property="HorizontalOptions" Value="End" />
+    </Style>
+
     <Style x:Key="PmMapMiniButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{StaticResource MapGlass}" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
