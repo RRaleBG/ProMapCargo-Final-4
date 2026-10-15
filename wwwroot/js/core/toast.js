@@ -25,6 +25,7 @@
         }[type] || "info";
     }
 
+    // message: string, or { title, text } for a bold title line above the text.
     function show(message, type = "info", timeout = 4000) {
         const item = document.createElement("article");
         item.className = `pm-toast pm-toast--${type}`;
@@ -37,7 +38,17 @@
 
         const content = document.createElement("p");
         content.className = "pm-toast-message";
-        content.textContent = String(message ?? "");
+        if (message && typeof message === "object") {
+            if (message.title) {
+                const title = document.createElement("strong");
+                title.className = "pm-toast-title";
+                title.textContent = String(message.title);
+                content.appendChild(title);
+            }
+            content.appendChild(document.createTextNode(String(message.text ?? "")));
+        } else {
+            content.textContent = String(message ?? "");
+        }
 
         const close = document.createElement("button");
         close.type = "button";
@@ -72,4 +83,12 @@
         error(message, timeout) { return show(message, "danger", timeout); },
         info(message, timeout) { return show(message, "info", timeout); },
     };
+
+    // Server messages (TempData "Toast.*") rendered by Pages/Shared/_Toasts.cshtml.
+    window.addEventListener("load", () => {
+        document.querySelectorAll("[data-server-toast]").forEach(element => {
+            show(element.textContent || "", element.dataset.serverToast || "info");
+            element.remove();
+        });
+    });
 })();

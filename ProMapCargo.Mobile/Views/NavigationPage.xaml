@@ -3,11 +3,11 @@
     x:Class="ProMapCargo.Mobile.Views.MobileNavigationPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:vm="clr-namespace:ProMapCargo.Mobile.ViewModels"
-    x:DataType="vm:NavigationViewModel"
     xmlns:converters="clr-namespace:ProMapCargo.Mobile.Converters"
     xmlns:models="clr-namespace:ProMapCargo.Mobile.Models"
+    xmlns:vm="clr-namespace:ProMapCargo.Mobile.ViewModels"
     Title="Navigacija"
+    x:DataType="vm:NavigationViewModel"
     BackgroundColor="{StaticResource SurfaceBase}"
     Shell.NavBarIsVisible="False">
     <ContentPage.Resources>
@@ -54,7 +54,6 @@
                 x:Name="LoadErrorPanel"
                 Margin="24,0"
                 IsVisible="False"
-            
                 VerticalOptions="Center">
                 <VerticalStackLayout Spacing="12">
                     <Label Style="{StaticResource PmSectionTitleLabel}" Text="Mapa nije učitana" />
@@ -183,11 +182,11 @@
                         VerticalOptions="End">
                         <ImageButton
                             x:Name="ResetRouteButton"
+                            Padding="14"
                             Clicked="OnResetRouteClicked"
                             HorizontalOptions="Center"
                             IsVisible="{Binding HasRoute}"
                             SemanticProperties.Description="Poništi rutu"
-                            Padding="14"
                             Source="nav_reset.svg"
                             Style="{StaticResource PmMapFloatingButton}" />
                         <!--  Current speed bubble (bottom-left, like TomTom)  -->
@@ -224,8 +223,10 @@
                         Grid.Column="1"
                         HorizontalOptions="End"
                         Spacing="16">
-                        <!--  Side rail at the screen edge (the overlay has 16 px padding): equal
-                              round buttons, icon only; the text stays as the screen-reader name  -->
+                        <!--
+                            Side rail at the screen edge (the overlay has 16 px padding): equal
+                            round buttons, icon only; the text stays as the screen-reader name
+                        -->
                         <ImageButton
                             x:Name="RecenterButton"
                             Clicked="OnRecenterClicked"

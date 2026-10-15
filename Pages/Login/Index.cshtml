@@ -99,14 +99,7 @@
         </section>
     </main>
 
-@if (TempData["ToastSuccess"] is string toastSuccess)
-{
-    <div id="pm-server-toast" data-toast-type="success" hidden>@toastSuccess</div>
-}
-@if (TempData["ToastError"] is string toastError)
-{
-    <div id="pm-server-toast" data-toast-type="danger" hidden>@toastError</div>
-}
+<partial name="_Toasts" />
 
 <script src="~/lib/lucide-icons.js" asp-append-version="true" defer></script>
 <script src="~/js/core/icons.js" asp-append-version="true" defer></script>
@@ -189,15 +182,6 @@
 
         form.addEventListener("submit", function () {
             inputs.forEach(applyValidationState);
-        });
-
-        window.addEventListener("load", function () {
-            const serverToast = document.getElementById("pm-server-toast");
-            if (serverToast && window.ProMapCargo?.toast) {
-                window.ProMapCargo.toast.show(
-                    serverToast.textContent || "",
-                    serverToast.dataset.toastType || "info");
-            }
         });
 
     });

@@ -254,18 +254,7 @@
     </div>
 </div>
 
-@if (TempData["ToastSuccess"] is string toastSuccess)
-{
-    <div id="pm-server-toast" data-toast-type="success" hidden>@toastSuccess</div>
-}
-@if (TempData["ToastError"] is string toastError)
-{
-    <div id="pm-server-toast" data-toast-type="danger" hidden>@toastError</div>
-}
-@if(TempData["ToastInfo"] is string toastInfo)
-{
-    <div id="pm-server-toast" data-toast-type="info" hidden>@toastInfo</div>
-}
+<partial name="_Toasts" />
 
 
 <script src="~/lib/lucide-icons.js" asp-append-version="true" defer></script>
@@ -277,16 +266,6 @@
 <script src="~/js/core/format.js" asp-append-version="true" defer></script>
 <script src="~/js/core/validation.js" asp-append-version="true" defer></script>
 <script src="~/js/core/toast.js" asp-append-version="true" defer></script>
-<script>
-        window.addEventListener("load", () => {
-            const serverToast = document.getElementById("pm-server-toast");
-            if (serverToast && window.ProMapCargo?.toast) {
-                window.ProMapCargo.toast.show(
-                    serverToast.textContent || "",
-                    serverToast.dataset.toastType || "info");
-            }
-        });
-</script>
 <script src="~/js/core/modal.js" asp-append-version="true" defer></script>
 <script src="~/js/core/icons.js" asp-append-version="true" defer></script>
 <script src="~/js/services/alerts.js" asp-append-version="true" defer></script>

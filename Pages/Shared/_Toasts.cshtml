@@ -1,0 +1,18 @@
+@* Server messages for the shared toast system (wwwroot/js/core/toast.js shows them on load).
+   PageModels set TempData["Toast.Success" | "Toast.Error" | "Toast.Warning" | "Toast.Info"]. *@
+@{
+    var toastTypes = new (string Key, string Type)[]
+    {
+        ("Toast.Success", "success"),
+        ("Toast.Error", "danger"),
+        ("Toast.Warning", "warning"),
+        ("Toast.Info", "info"),
+    };
+}
+@foreach (var (key, type) in toastTypes)
+{
+    if (TempData[key] is string message && !string.IsNullOrWhiteSpace(message))
+    {
+        <div data-server-toast="@type" hidden>@message</div>
+    }
+}
