@@ -22,7 +22,7 @@
   }
 
   .pm-tw-chip-live {
-    @apply inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-300;
+    @apply inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-emerald-300;
   }
 
   .pm-page {
@@ -45,7 +45,7 @@
 
   .pm-page-kicker,
   .pm-kicker {
-    @apply inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-pm-muted;
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-pm-muted;
   }
 
   .pm-page-title {

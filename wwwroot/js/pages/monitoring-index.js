@@ -430,28 +430,8 @@
         }
     }
 
-    function showToast(message) {
-
-        const toast = $("monitoringToast");
-
-        if (!toast) {
-            return;
-        }
-
-        toast.textContent = message;
-
-        toast.classList.add("show");
-
-        clearTimeout(
-            showToast.timer
-        );
-
-        showToast.timer = setTimeout(
-            () => {
-                toast.classList.remove("show");
-            },
-            2800
-        );
+    function showToast(message, type = "info") {
+        window.ProMapCargo?.toast?.show(message, type);
     }
 
     function animateCounter(
@@ -609,7 +589,8 @@
             typeof L === "undefined"
         ) {
             showToast(
-                "Leaflet nije učitan."
+                "Leaflet nije učitan.",
+                "danger"
             );
 
             return;
@@ -1598,7 +1579,8 @@
 
     function showNoFleet() {
         showToast(
-            "Nema vozila sa GPS pozicijom (pozicija stiže sa telefona vozača tokom ture)."
+            "Nema vozila sa GPS pozicijom (pozicija stiže sa telefona vozača tokom ture).",
+            "warning"
         );
     }
 
@@ -1639,7 +1621,8 @@
 
         if (success) {
             showToast(
-                "Fleet monitoring je osvežen."
+                "Fleet monitoring je osvežen.",
+                "success"
             );
         }
     }

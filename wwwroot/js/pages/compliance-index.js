@@ -92,13 +92,8 @@
         return state.data?.vehicles.find(vehicle => vehicle.id === state.selectedId) || null;
     }
 
-    function showToast(title, message) {
-        $("toastTitle").textContent = title || "Sačuvano";
-        $("toastText").textContent = message || "Promena je uspešno evidentirana.";
-        const toast = $("complianceToast");
-        toast.classList.add("show");
-        window.clearTimeout(showToast.timeout);
-        showToast.timeout = window.setTimeout(() => toast.classList.remove("show"), 3200);
+    function showToast(title, message, type = "success") {
+        window.ProMapCargo?.toast?.show({ title, text: message }, type);
     }
 
     async function request(url, options = {}) {
@@ -403,7 +398,7 @@
             renderList();
             renderDetail();
         } catch (error) {
-            showToast("Greška", error.message);
+            showToast("Greška", error.message, "danger");
         }
     }
 
@@ -463,8 +458,8 @@
         event.preventDefault();
         const vehicle = selected();
         if (!vehicle) return;
-        if (!$("documentType").value) { showToast("Nedostaje tip", "Izaberite tip dokumenta."); return; }
-        if (!$("documentExpiryDate").value) { showToast("Nedostaje datum", "Unesite datum važenja dokumenta."); return; }
+        if (!$("documentType").value) { showToast("Nedostaje tip", "Izaberite tip dokumenta.", "warning"); return; }
+        if (!$("documentExpiryDate").value) { showToast("Nedostaje datum", "Unesite datum važenja dokumenta.", "warning"); return; }
 
         const body = new FormData();
         body.append("documentType", $("documentType").value);
@@ -482,7 +477,7 @@
             showToast("Dokument sačuvan", `${vehicle.registration}: dokument je evidentiran.`);
             load();
         } catch (error) {
-            showToast("Greška", error.message);
+            showToast("Greška", error.message, "danger");
         }
     }
 
@@ -492,7 +487,7 @@
         const config = LOG_FORMS[state.logForm];
         if (!vehicle || !config) return;
         const title = $("logTitle").value.trim();
-        if (!title) { showToast("Nedostaje naslov", "Unesite naslov."); return; }
+        if (!title) { showToast("Nedostaje naslov", "Unesite naslov.", "warning"); return; }
 
         const number = id => $(id).value === "" ? null : Number($(id).value);
         const payload = {
@@ -513,7 +508,7 @@
             showToast("Sačuvano", `${config.title}: ${vehicle.registration}.`);
             load();
         } catch (error) {
-            showToast("Greška", error.message);
+            showToast("Greška", error.message, "danger");
         }
     }
 
@@ -531,7 +526,7 @@
             showToast("Prikolica promenjena", vehicle.registration);
             load();
         } catch (error) {
-            showToast("Greška", error.message);
+            showToast("Greška", error.message, "danger");
         }
     }
 
@@ -541,7 +536,7 @@
             showToast("Rešeno", "Zapis je označen kao završen.");
             load();
         } catch (error) {
-            showToast("Greška", error.message);
+            showToast("Greška", error.message, "danger");
         }
     }
 
@@ -574,7 +569,7 @@
     });
 
     $("showBlockedVehicles")?.addEventListener("click", () => root.querySelector('[data-status-filter="blocked"]')?.click());
-    $("refreshCompliance")?.addEventListener("click", () => load().then(() => showToast("Osveženo", "Podaci su ponovo učitani.")));
+    $("refreshCompliance")?.addEventListener("click", () => load().then(() => showToast("Osveženo", "Podaci su ponovo učitani.", "info")));
     $("addDocumentTop")?.addEventListener("click", () => openDocument());
     $("addDocument")?.addEventListener("click", () => openDocument());
     $("repairCompliance")?.addEventListener("click", () => {

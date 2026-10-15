@@ -32,7 +32,6 @@
     </header>
 
 
-    <div id="vehicleFormMessage" class="vehicle-form-message" hidden></div>
 
 
     <form id="vehicleForm" class="" novalidate>
@@ -737,7 +736,6 @@
             return;
         }
 
-        const message = document.getElementById("vehicleFormMessage");
 
         const nameInput = document.getElementById("vehicleName");
         const registrationInput = document.getElementById("registrationNumber");
@@ -891,15 +889,7 @@
 
 
         function showMessage(text, isError) {
-
-            message.hidden = false;
-            message.textContent = text;
-            message.classList.toggle("error", !!isError);
-
-            message.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest"
-            });
+            window.ProMapCargo?.toast?.show(text, isError ? "danger" : "success");
         }
 
 

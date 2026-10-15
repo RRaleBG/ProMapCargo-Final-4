@@ -63,7 +63,11 @@
         item.append(icon, content, close);
         const host = ensureHost();
         host.appendChild(item);
-        window.ProMapCargo.icons?.refresh?.(item);
+        if (root.icons?.refresh) {
+            root.icons.refresh(item);
+        } else {
+            window.lucide?.createIcons?.();
+        }
 
         const remove = () => {
             item.classList.add("is-leaving");

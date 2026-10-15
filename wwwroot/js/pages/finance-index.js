@@ -27,9 +27,6 @@
     const modeButtons = document.querySelectorAll("[data-finance-mode]");
     const refreshButton = $("financeRefreshButton");
     const exportButton = $("exportFinanceButton");
-    const toast = $("financeToast");
-    const toastTitle = $("financeToastTitle");
-    const toastText = $("financeToastText");
 
     // Form categories → TransportCostCategory.
     const FORM_CATEGORY = {
@@ -363,7 +360,7 @@
             state.canReview = state.data.canReview === true;
             render();
         } catch (error) {
-            showToast("Greška", error.message);
+            showToast("Greška", error.message, "danger");
         } finally {
             if (refreshButton) refreshButton.disabled = false;
         }
@@ -377,7 +374,7 @@
             body: JSON.stringify({ status })
         });
         if (!response.ok) {
-            showToast("Greška", response.status === 403 ? "Odobravanje je dozvoljeno dispečeru i administratoru." : "Status troška nije promenjen.");
+            showToast("Greška", response.status === 403 ? "Odobravanje je dozvoljeno dispečeru i administratoru." : "Status troška nije promenjen.", "danger");
             return;
         }
         showToast(status === "Approved" ? "Trošak odobren" : "Trošak odbijen", "Promena je sačuvana.");
@@ -424,7 +421,7 @@
 
         const amount = Number($("expenseAmount").value);
         if (!(amount > 0)) {
-            showToast("Nedostaje iznos", "Unesite iznos troška veći od nule.");
+            showToast("Nedostaje iznos", "Unesite iznos troška veći od nule.", "warning");
             $("expenseAmount").focus();
             return;
         }
@@ -465,7 +462,7 @@
             updateExpenseFields();
             load();
         } catch (error) {
-            showToast("Greška", error.message);
+            showToast("Greška", error.message, "danger");
         } finally {
             saveButton.disabled = false;
             saveButton.innerHTML = original;
@@ -508,14 +505,8 @@
 
     // ---- Toast ----
 
-    let toastTimeout = null;
-
-    function showToast(title, text) {
-        toastTitle.textContent = title;
-        toastText.textContent = text;
-        toast.classList.add("show");
-        if (toastTimeout) clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => toast.classList.remove("show"), 3200);
+    function showToast(title, text, type = "success") {
+        window.ProMapCargo?.toast?.show({ title, text }, type);
     }
 
     // ---- Events ----
@@ -561,7 +552,7 @@
         });
     });
 
-    refreshButton?.addEventListener("click", () => load().then(() => showToast("Finansije osvežene", "Podaci su ponovo učitani.")));
+    refreshButton?.addEventListener("click", () => load().then(() => showToast("Finansije osvežene", "Podaci su ponovo učitani.", "info")));
     exportButton?.addEventListener("click", exportCsv);
 
     $("previousTripDetails")?.addEventListener("click", () => {

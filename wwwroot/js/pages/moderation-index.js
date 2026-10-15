@@ -49,16 +49,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return iso ? new Date(iso).toLocaleDateString("sr-Latn-RS", { day: "2-digit", month: "2-digit", year: "numeric" }) : "—";
     }
 
-    let toastTimer = null;
-
-    function showToast(title, message) {
-        const toast = $("moderationToast");
-        if (!toast) return;
-        $("toastTitle").textContent = title;
-        $("toastText").textContent = message;
-        toast.classList.add("show");
-        if (toastTimer) clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
+    function showToast(title, message, type = "success") {
+        window.ProMapCargo?.toast?.show({ title, text: message }, type);
     }
 
     function selected() {
@@ -193,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
             renderQueue();
             renderDetail();
         } catch (error) {
-            showToast("Greška", error.message);
+            showToast("Greška", error.message, "danger");
         }
     }
 
@@ -202,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!item) return;
         const note = $("decisionReason").value.trim();
         if (status !== "approved" && !note) {
-            showToast("Obrazloženje je obavezno", "Unesite razlog odbijanja ili traženih izmena.");
+            showToast("Obrazloženje je obavezno", "Unesite razlog odbijanja ili traženih izmena.", "warning");
             $("decisionReason").focus();
             return;
         }
@@ -215,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const data = await response.json().catch(() => null);
         if (!response.ok) {
-            showToast("Greška", data?.message || (response.status === 403 ? "Odluku donosi moderator, dispečer ili administrator." : "Odluka nije sačuvana."));
+            showToast("Greška", data?.message || (response.status === 403 ? "Odluku donosi moderator, dispečer ili administrator." : "Odluka nije sačuvana."), "danger");
             return;
         }
 
@@ -250,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     $("showPending")?.addEventListener("click", () => root.querySelector('.moderation-filter[data-status="pending"]')?.click());
-    $("refreshModeration")?.addEventListener("click", () => load().then(() => showToast("Osveženo", "Zahtevi su ponovo učitani.")));
+    $("refreshModeration")?.addEventListener("click", () => load().then(() => showToast("Osveženo", "Zahtevi su ponovo učitani.", "info")));
 
     load();
 });

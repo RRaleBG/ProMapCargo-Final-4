@@ -1273,8 +1273,8 @@
         }
 
 
-        function showToast(message) {
-            window.ProMapCargo?.toast?.info(message);
+        function showToast(message, type = "info") {
+            window.ProMapCargo?.toast?.show(message, type);
         }
 
 
@@ -1305,7 +1305,8 @@
 
                     if (!file.type.startsWith("image/")) {
                         showToast(
-                            "Izabrani fajl nije validna slika."
+                            "Izabrani fajl nije validna slika.",
+                            "danger"
                         );
 
                         return;
@@ -1535,12 +1536,14 @@
                             );
 
                             showToast(
-                                "User ID je kopiran."
+                                "User ID je kopiran.",
+                                "success"
                             );
                         }
                         catch {
                             showToast(
-                                "Kopiranje nije dostupno."
+                                "Kopiranje nije dostupno.",
+                                "warning"
                             );
                         }
                     }

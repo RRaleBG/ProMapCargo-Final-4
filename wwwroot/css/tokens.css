@@ -5,6 +5,8 @@
        ========================================================= */
 
     --pm-font-family: "Inter", "Noto Sans", "Open Sans", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    /* Type scale: every font-size in promap.css uses one of these. 2xs is the floor for labels and badges. */
+    --pm-font-2xs: 12px;
     --pm-font-xs: 13px;
     --pm-font-sm: 14px;
     --pm-font-md: 15px;

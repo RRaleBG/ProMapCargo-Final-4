@@ -87,7 +87,7 @@
     gap: 6px;
     padding: 4px 10px;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: var(--pm-font-2xs);
     font-weight: 600;
     background: rgba(16, 185, 129, 0.16);
     color: var(--pm-emerald-300, #6ee7b7);
@@ -108,7 +108,7 @@
     border-radius: 999px;
     background: rgba(16, 185, 129, 0.08);
     color: var(--pm-text-soft, #d1fae5);
-    font-size: 12px;
+    font-size: var(--pm-font-2xs);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -149,7 +149,7 @@
     border-radius: 14px;
     background: rgba(251, 191, 36, 0.1);
     color: #fde68a;
-    font-size: 13px;
+    font-size: var(--pm-font-xs);
     line-height: 1.45;
 }
 

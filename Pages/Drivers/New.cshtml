@@ -31,7 +31,6 @@
     </header>
 
 
-    <div id="driverFormMessage" class="vehicle-form-message" hidden></div>
 
 
     <form id="driverForm" novalidate>
@@ -329,7 +328,6 @@
                 return;
             }
 
-            const message = document.getElementById("driverFormMessage");
             const required = ["fullName", "phone", "licenseNumber", "licenseExpiry"].map(function (id) { return document.getElementById(id); });
             const saveButtons = [document.getElementById("saveDriver"), document.getElementById("saveDriverTop")];
             const vehicleSelect = document.getElementById("assignedVehicle");
@@ -383,10 +381,7 @@
 
 
             function showMessage(text, isError) {
-                message.hidden = false;
-                message.textContent = text;
-                message.classList.toggle("error", !!isError);
-                message.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                window.ProMapCargo?.toast?.show(text, isError ? "danger" : "success");
             }
 
 
