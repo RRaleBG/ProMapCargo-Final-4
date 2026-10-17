@@ -385,7 +385,7 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
                 order.Pallets,
                 order.Hazmat,
                 ExtractTripNotes(stops),
-                stops.Select(MapStop).ToList()),
+                [.. stops.Select(MapStop)]),
             driver is null ? null : new TripDriverDetails(
                 driver.Id,
                 driver.FullName,
@@ -398,7 +398,7 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
                 driver.CurrentVehicleId,
                 driver.LastGpsAt,
                 driver.Notes,
-                historySource.Where(x => x.DriverId == driver.Id).Select(x => MapHistoryTrip(x, historyOrders, historyStops)).ToList()),
+                [.. historySource.Where(x => x.DriverId == driver.Id).Select(x => MapHistoryTrip(x, historyOrders, historyStops))]),
             vehicle is null ? null : new TripVehicleDetails(
                 vehicle.Id,
                 vehicle.Registration,
@@ -430,12 +430,157 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
                 payments,
                 driverPaid,
                 costs.Where(x => x.Status == TransportCostStatus.Pending).Sum(x => x.Amount),
-                costs.Select(MapCost).ToList()),
+                [.. costs.Select(MapCost)]),
             new TripComplianceDetails(
                 countrySegments.Select(x => new TripCountrySegmentDetails(x.Sequence, x.CountryCode, x.DistanceMeters, x.DurationSeconds, x.EstimatedEntry, x.EstimatedExit)).ToList(),
                 borderCrossings.Select(x => new TripBorderCrossingDetails(x.Id, x.CountryFrom, x.CountryTo, x.BorderPoint, x.Status.ToString(), x.EnteredAt, x.ClearedAt, x.WaitingMinutes, x.Inspection, x.CostAmount, x.Currency, x.Notes)).ToList(),
                 waitingEvents.Select(x => new TripWaitingEventDetails(x.Id, x.Reason.ToString(), x.StartedAt, x.EndedAt, x.DurationMinutes, x.CostAmount, x.Currency, x.Notes)).ToList()),
             route is null ? null : new TripRouteInfo(route.Id, route.Status.ToString(), route.Engine, route.UsedFallback, route.DistanceMeters, route.DurationSeconds, route.EstimatedArrival, route.ActivatedAt, route.CreatedAt));
+    }
+
+    public async Task<DriverDetails?> DriverDetailsAsync(Guid driverId, CancellationToken ct)
+    {
+        var companyId = GetRequiredCompanyId();
+        var driver = await db.Drivers.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == driverId, ct);
+        if (driver is null)
+        {
+            return null;
+        }
+
+        var vehicle = driver.CurrentVehicleId is Guid currentVehicleId
+            ? await db.Vehicles.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == currentVehicleId, ct)
+            : null;
+        var trips = await db.Trips.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.DriverId == driver.Id)
+            .OrderByDescending(x => x.StartedAt ?? x.PlannedStartAt ?? x.CreatedAt)
+            .Take(25)
+            .ToListAsync(ct);
+        var orderIds = trips.Select(x => x.TransportOrderId).Distinct().ToList();
+        var orders = orderIds.Count == 0
+            ? new Dictionary<Guid, TransportOrder>()
+            : await db.TransportOrders.AsNoTracking().Where(x => x.CompanyId == companyId && orderIds.Contains(x.Id)).ToDictionaryAsync(x => x.Id, x => x, ct);
+        var stops = orderIds.Count == 0
+            ? []
+            : await db.TransportStops.AsNoTracking().Where(x => x.CompanyId == companyId && orderIds.Contains(x.TransportOrderId)).OrderBy(x => x.Sequence).ToListAsync(ct);
+        var tripIds = trips.Select(x => x.Id).ToList();
+        var costs = tripIds.Count == 0
+            ? []
+            : await db.TransportCosts.AsNoTracking().Where(x => x.CompanyId == companyId && x.TripId != null && tripIds.Contains(x.TripId.Value)).OrderByDescending(x => x.IncurredAt ?? x.CreatedAt).ToListAsync(ct);
+
+        return new DriverDetails(
+            driver.Id,
+            driver.FullName,
+            driver.EmployeeNumber,
+            driver.Phone,
+            driver.Email,
+            driver.Status.ToString(),
+            driver.LicenseNumber,
+            driver.LicenseCategories,
+            driver.LicenseExpiry,
+            driver.Code95Expiry,
+            driver.AdrExpiry,
+            driver.TachographCardNumber,
+            driver.TachographCardExpiry,
+            driver.MedicalExpiry,
+            driver.HireDate,
+            driver.Address,
+            driver.Notes,
+            driver.CurrentCountryCode,
+            driver.LastGpsAt,
+            vehicle is null ? null : new DriverVehicleSummary(vehicle.Id, vehicle.Registration, vehicle.Name, vehicle.Make, vehicle.Model, vehicle.Status.ToString(), vehicle.FleetNumber, vehicle.FuelCard, vehicle.OdometerKm),
+            trips.Select(trip => new DriverTripSummary(
+                trip.Id,
+                trip.TripNumber,
+                trip.Status.ToString(),
+                trip.ExecutionState.ToString(),
+                orders.TryGetValue(trip.TransportOrderId, out var order) ? order.OrderNumber : null,
+                orders.TryGetValue(trip.TransportOrderId, out order) ? order.CustomerName : null,
+                string.Join(" → ", stops.Where(x => x.TransportOrderId == trip.TransportOrderId).Select(x => x.City ?? x.Name)),
+                trip.PlannedStartAt,
+                trip.PlannedArrivalAt,
+                trip.StartedAt,
+                trip.CompletedAt,
+                trip.RouteProgressPercent,
+                trip.BudgetAmount,
+                trip.Currency,
+                costs.Where(x => x.TripId == trip.Id && x.Status != TransportCostStatus.Rejected && x.Category is not (TransportCostCategory.Allowance or TransportCostCategory.Payment)).Sum(x => x.Amount),
+                costs.Where(x => x.TripId == trip.Id && x.Status == TransportCostStatus.Pending).Sum(x => x.Amount),
+                costs.Where(x => x.TripId == trip.Id).Select(MapCost).ToList())).ToList());
+    }
+
+    public async Task<VehicleDetails?> VehicleDetailsAsync(Guid vehicleId, CancellationToken ct)
+    {
+        var companyId = GetRequiredCompanyId();
+        var vehicle = await db.Vehicles.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == vehicleId, ct);
+        if (vehicle is null)
+        {
+            return null;
+        }
+
+        var driver = vehicle.CurrentDriverId is Guid currentDriverId
+            ? await db.Drivers.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == currentDriverId, ct)
+            : null;
+        var trip = vehicle.CurrentTripId is Guid currentTripId
+            ? await db.Trips.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == currentTripId, ct)
+            : null;
+        var trailer = vehicle.TrailerId is Guid trailerId
+            ? await db.Vehicles.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == trailerId, ct)
+            : null;
+        var documents = await db.ComplianceDocuments.AsNoTracking().Where(x => x.CompanyId == companyId && x.VehicleId == vehicle.Id).OrderBy(x => x.ExpiryDate).ToListAsync(ct);
+        // Vehicle has no LastGpsAt column: the newest position the phone sent for it.
+        var lastGpsAt = await db.VehiclePositionEvents.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.VehicleId == vehicle.Id)
+            .MaxAsync(x => (DateTimeOffset?)x.Timestamp, ct);
+        var logEntries = await db.VehicleLogEntries.AsNoTracking().Where(x => x.CompanyId == companyId && x.VehicleId == vehicle.Id).OrderByDescending(x => x.OccurredAt).Take(40).ToListAsync(ct);
+        var trailerAssignments = await db.TrailerAssignments.AsNoTracking().Where(x => x.CompanyId == companyId && x.VehicleId == vehicle.Id).OrderByDescending(x => x.AssignedAt).Take(20).ToListAsync(ct);
+        var historyTrips = await db.Trips.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.VehicleId == vehicle.Id)
+            .OrderByDescending(x => x.StartedAt ?? x.PlannedStartAt ?? x.CreatedAt)
+            .Take(25)
+            .ToListAsync(ct);
+        var historyOrderIds = historyTrips.Select(x => x.TransportOrderId).Distinct().ToList();
+        var historyOrders = historyOrderIds.Count == 0
+            ? new Dictionary<Guid, TransportOrder>()
+            : await db.TransportOrders.AsNoTracking().Where(x => x.CompanyId == companyId && historyOrderIds.Contains(x.Id)).ToDictionaryAsync(x => x.Id, x => x, ct);
+        var historyStops = historyOrderIds.Count == 0
+            ? []
+            : await db.TransportStops.AsNoTracking().Where(x => x.CompanyId == companyId && historyOrderIds.Contains(x.TransportOrderId)).OrderBy(x => x.Sequence).ToListAsync(ct);
+
+        return new VehicleDetails(
+            vehicle.Id,
+            vehicle.Registration,
+            vehicle.Name,
+            vehicle.Make,
+            vehicle.Model,
+            vehicle.VIN,
+            vehicle.Type.ToString(),
+            vehicle.Status.ToString(),
+            vehicle.FleetNumber,
+            vehicle.EmissionClass,
+            vehicle.RegistrationExpiry,
+            vehicle.TechnicalInspectionExpiry,
+            vehicle.TachographCalibrationExpiry,
+            vehicle.TirExpiry,
+            vehicle.FuelCard,
+            vehicle.TrailerId,
+            trailer?.Registration,
+            vehicle.OdometerKm,
+            vehicle.GrossWeightTons,
+            vehicle.AxleLoadTons,
+            vehicle.LengthMeters,
+            vehicle.WidthMeters,
+            vehicle.HeightMeters,
+            vehicle.Axles,
+            vehicle.MaxSpeedKmh,
+            vehicle.Year,
+            lastGpsAt,
+            vehicle.Notes,
+            driver is null ? null : new VehicleDriverSummary(driver.Id, driver.FullName, driver.Phone, driver.Email, driver.Status.ToString()),
+            trip is null ? null : new VehicleTripSummary(trip.Id, trip.TripNumber, trip.Status.ToString(), trip.ExecutionState.ToString(), trip.RouteProgressPercent, trip.PlannedStartAt, trip.PlannedArrivalAt),
+            documents.Select(x => new VehicleComplianceDocumentSummary(x.Id, x.DocumentType, x.Number, x.IssueDate, x.ExpiryDate, x.Issuer, x.Note, x.FileId)).ToList(),
+            logEntries.Select(x => new VehicleLogSummary(x.Id, x.Kind.ToString(), x.Title, x.Description, x.OccurredAt, x.OdometerKm, x.Cost, x.Currency, x.Status.ToString(), x.Severity, x.Workshop, x.ResolvedAt, x.CreatedByName)).ToList(),
+            trailerAssignments.Select(x => new VehicleTrailerAssignmentSummary(x.Id, x.TrailerId, x.AssignedAt)).ToList(),
+            historyTrips.Select(x => MapHistoryTrip(x, historyOrders, historyStops)).ToList());
     }
 
     public async Task<TripRoute?> ActiveRouteAsync(Guid tripId, CancellationToken ct)
@@ -456,26 +601,14 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
     {
         var companyId = GetRequiredCompanyId();
 
-        var trip = await db.Trips.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == tripId, ct);
-
-
-        if (trip is null)
-        {
-            throw new InvalidOperationException("Tura nije pronađena.");
-        }
-
+        var trip = await db.Trips.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == tripId, ct) ?? throw new InvalidOperationException("Tura nije pronađena.");
         var route = await db.TripRoutes
             .SingleOrDefaultAsync(
                 x =>
                     x.CompanyId == companyId &&
                     x.Id == routeId &&
                     x.TripId == tripId,
-                ct);
-
-        if (route is null)
-        {
-            throw new InvalidOperationException("Ruta nije pronađena za izabranu turu.");
-        }
+                ct) ?? throw new InvalidOperationException("Ruta nije pronađena za izabranu turu.");
 
         if (trip.DriverId is null)
         {
@@ -1126,3 +1259,12 @@ public sealed record TripCountrySegmentDetails(int Sequence, string CountryCode,
 public sealed record TripBorderCrossingDetails(Guid Id, string CountryFrom, string CountryTo, string BorderPoint, string Status, DateTimeOffset? EnteredAt, DateTimeOffset? ClearedAt, int WaitingMinutes, bool Inspection, decimal CostAmount, string Currency, string? Notes);
 public sealed record TripWaitingEventDetails(Guid Id, string Reason, DateTimeOffset StartedAt, DateTimeOffset? EndedAt, int DurationMinutes, decimal CostAmount, string Currency, string? Notes);
 public sealed record TripRouteInfo(Guid Id, string Status, string Engine, bool UsedFallback, double DistanceMeters, double DurationSeconds, DateTimeOffset? EstimatedArrival, DateTimeOffset? ActivatedAt, DateTimeOffset CreatedAt);
+public sealed record DriverDetails(Guid Id, string FullName, string? EmployeeNumber, string? Phone, string? Email, string Status, string? LicenseNumber, string? LicenseCategories, DateOnly? LicenseExpiry, DateOnly? Code95Expiry, DateOnly? AdrExpiry, string? TachographCardNumber, DateOnly? TachographCardExpiry, DateOnly? MedicalExpiry, DateOnly? HireDate, string? Address, string? Notes, string? CurrentCountryCode, DateTimeOffset? LastGpsAt, DriverVehicleSummary? Vehicle, IReadOnlyList<DriverTripSummary> Trips);
+public sealed record DriverVehicleSummary(Guid Id, string Registration, string? Name, string? Make, string? Model, string Status, string? FleetNumber, string? FuelCard, int? OdometerKm);
+public sealed record DriverTripSummary(Guid Id, string? TripNumber, string Status, string ExecutionState, string? OrderNumber, string? CustomerName, string? Route, DateTimeOffset? PlannedStartAt, DateTimeOffset? PlannedArrivalAt, DateTimeOffset? StartedAt, DateTimeOffset? CompletedAt, double RouteProgressPercent, decimal? BudgetAmount, string Currency, decimal SpentAmount, decimal PendingAmount, IReadOnlyList<TripCostDetails> Costs);
+public sealed record VehicleDetails(Guid Id, string Registration, string? Name, string? Make, string? Model, string? Vin, string Type, string Status, string? FleetNumber, string? EmissionClass, DateOnly? RegistrationExpiry, DateOnly? TechnicalInspectionExpiry, DateOnly? TachographCalibrationExpiry, DateOnly? TirExpiry, string? FuelCard, Guid? TrailerId, string? TrailerRegistration, int? OdometerKm, decimal GrossWeightTons, decimal AxleLoadTons, decimal LengthMeters, decimal WidthMeters, decimal HeightMeters, int Axles, decimal MaxSpeedKmh, int? Year, DateTimeOffset? LastGpsAt, string? Notes, VehicleDriverSummary? Driver, VehicleTripSummary? Trip, IReadOnlyList<VehicleComplianceDocumentSummary> Documents, IReadOnlyList<VehicleLogSummary> LogEntries, IReadOnlyList<VehicleTrailerAssignmentSummary> TrailerAssignments, IReadOnlyList<TripHistoryItem> TripHistory);
+public sealed record VehicleDriverSummary(Guid Id, string FullName, string? Phone, string? Email, string Status);
+public sealed record VehicleTripSummary(Guid Id, string? TripNumber, string Status, string ExecutionState, double RouteProgressPercent, DateTimeOffset? PlannedStartAt, DateTimeOffset? PlannedArrivalAt);
+public sealed record VehicleComplianceDocumentSummary(Guid Id, string DocumentType, string? Number, DateOnly? IssueDate, DateOnly ExpiryDate, string? Issuer, string? Note, Guid? FileId);
+public sealed record VehicleLogSummary(Guid Id, string Kind, string Title, string? Description, DateTimeOffset OccurredAt, int? OdometerKm, decimal? Cost, string Currency, string Status, string Severity, string? Workshop, DateTimeOffset? ResolvedAt, string? CreatedByName);
+public sealed record VehicleTrailerAssignmentSummary(Guid Id, Guid? TrailerId, DateTimeOffset AssignedAt);

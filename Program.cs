@@ -51,8 +51,7 @@ var connectionString =
 
 if (string.IsNullOrWhiteSpace(connectionString))
 {
-    throw new InvalidOperationException(
-        "PostgreSQL connection string is not configured. Configure User Secrets or the .env file.");
+    throw new InvalidOperationException("PostgreSQL connection string is not configured. Configure User Secrets or the .env file.");
 }
 
 // ============================================================
@@ -307,7 +306,7 @@ builder.Services.AddScoped<IPostGisRoutingService, PostGisRoutingService>();
 var corsOrigins =
     builder.Configuration.GetSection("Cors:Origins").Get<string[]>() is { Length: > 0 } configuredOrigins
         ? configuredOrigins
-        : new[] { "http://localhost:3000", "http://localhost:5173" };
+        : ["http://localhost:3000", "http://localhost:5173"];
 
 builder.Services.AddCors(options =>
 {
@@ -413,9 +412,7 @@ static async Task InitializeDatabaseAsync(WebApplication app)
         .CreateLogger("DatabaseInitialization");
 
     var hasMigrations = db.Database.GetMigrations().Any();
-    var appliedMigrations = hasMigrations
-        ? (await db.Database.GetAppliedMigrationsAsync().ConfigureAwait(false)).Any()
-        : false;
+    var appliedMigrations = hasMigrations && (await db.Database.GetAppliedMigrationsAsync().ConfigureAwait(false)).Any();
     var schemaExists = await SchemaExistsAsync(db).ConfigureAwait(false);
 
     if (!schemaExists)

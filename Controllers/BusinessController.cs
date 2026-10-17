@@ -47,6 +47,19 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
         }
     }
 
+    [HttpGet("drivers/{driverId:guid}/details")]
+    public async Task<ActionResult<DriverDetails>> DriverDetails(Guid driverId, CancellationToken ct)
+    {
+        try
+        {
+            return await service.DriverDetailsAsync(driverId, ct) is { } details ? Ok(details) : NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+    }
+
     [HttpGet("orders")]
     public async Task<ActionResult<List<TransportOrder>>> Orders(CancellationToken ct)
     {
@@ -191,6 +204,19 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
         catch (UnauthorizedAccessException)
         {
             return Ok(new List<Trip>()); // Return empty list instead of no content
+        }
+    }
+
+    [HttpGet("vehicles/{vehicleId:guid}/details")]
+    public async Task<ActionResult<VehicleDetails>> VehicleDetails(Guid vehicleId, CancellationToken ct)
+    {
+        try
+        {
+            return await service.VehicleDetailsAsync(vehicleId, ct) is { } details ? Ok(details) : NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
         }
     }
 

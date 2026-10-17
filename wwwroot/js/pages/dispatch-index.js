@@ -242,7 +242,13 @@
         });
         $("dispatchTrips")?.addEventListener("click", event => {
             const trip = event.target.closest("[data-trip]");
-            if (trip) focusTrip(trip.dataset.trip);
+            if (!trip) return;
+            const tripId = trip.dataset.trip;
+            if (tripId) {
+                window.location.href = `/trips/details/${encodeURIComponent(tripId)}`;
+                return;
+            }
+            focusTrip(tripId);
         });
     }
 

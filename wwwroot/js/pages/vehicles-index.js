@@ -530,6 +530,13 @@
                         row.getAttribute("data-vehicle-id")
                     );
                 });
+
+                row.addEventListener("dblclick", function () {
+                    var vehicleId = row.getAttribute("data-vehicle-id");
+                    if (vehicleId) {
+                        window.location.href = "/vehicles/details/" + encodeURIComponent(vehicleId);
+                    }
+                });
             }
         );
     }
@@ -604,6 +611,11 @@
             driver
                 ? (driver.fullName || "Bez imena")
                 : "Nije dodeljen";
+
+        elements.detailDriver.dataset.driverId =
+            driver && driver.id
+                ? driver.id
+                : "";
 
         elements.detailTrip.textContent =
             trip
@@ -825,11 +837,22 @@
             }
 
             window.location.href =
-                "/trips?tripId=" +
+                "/trips/details/" +
                 encodeURIComponent(
                     vehicle.currentTripId
-                ) +
-                "&open=details";
+                );
+        }
+    );
+
+    elements.detailDriver.addEventListener(
+        "click",
+        function () {
+            var driverId = elements.detailDriver.dataset.driverId;
+            if (!driverId) {
+                return;
+            }
+
+            window.location.href = "/drivers/details/" + encodeURIComponent(driverId);
         }
     );
 

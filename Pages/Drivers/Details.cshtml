@@ -1,0 +1,80 @@
+@page "/drivers/details/{driverId:guid}"
+@model ProMapCargo.Api.Pages.Drivers.DetailsModel
+@{
+    ViewData["Title"] = "Detalji vozača";
+}
+
+<div class="pm-page pm-page--drivers">
+    <div class="pm-page-content">
+        <header class="pm-header pm-page-header">
+            <div class="pm-heading">
+                <div class="pm-page-kicker"><span class="pm-kicker-dot"></span>Vozači</div>
+                <h1 class="pm-page-title">Detalji vozača</h1>
+                <p class="pm-subtitle">Kompletan pregled vozača, njegovih tura, troškova i vezanog vozila.</p>
+            </div>
+            <div class="pm-header-actions">
+                <a href="/drivers" class="pm-btn">Nazad na vozače</a>
+            </div>
+        </header>
+
+        <section class="pm-drivers-card pm-driver-details pm-card" id="driverDetailsPage">
+            <div class="pm-driver-profile">
+                <div class="pm-driver-profile-top">
+                    <div class="pm-driver-profile-avatar" id="detailAvatar">—</div>
+                    <div>
+                        <h2 class="pm-driver-profile-name" id="detailName">Učitavanje vozača…</h2>
+                        <div class="pm-driver-profile-meta" id="detailLicense">Detalji vozača će biti prikazani ovde.</div>
+                        <div class="pm-driver-profile-status" id="detailStatus"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pm-driver-detail-section">
+                <h3 class="pm-driver-detail-heading">Osnovni podaci</h3>
+                <div class="pm-driver-detail-grid">
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Telefon</div><div class="pm-driver-detail-value" id="detailPhone">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Licenca</div><div class="pm-driver-detail-value" id="detailLicenseValue">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Zemlja</div><div class="pm-driver-detail-value" id="detailCountry">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">GPS poslednji signal</div><div class="pm-driver-detail-value" id="detailGps">—</div></div>
+                </div>
+            </div>
+
+            <div class="pm-driver-detail-section">
+                <h3 class="pm-driver-detail-heading">Dozvole i sertifikati</h3>
+                <div class="pm-driver-detail-grid">
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Broj vozača</div><div class="pm-driver-detail-value" id="detailEmployee">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">E-mail</div><div class="pm-driver-detail-value" id="detailEmail">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Kategorije</div><div class="pm-driver-detail-value" id="detailCategories">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Vozačka do</div><div class="pm-driver-detail-value" id="detailLicenseExpiry">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Kod 95 do</div><div class="pm-driver-detail-value" id="detailCode95">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">ADR do</div><div class="pm-driver-detail-value" id="detailAdr">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Tahograf kartica</div><div class="pm-driver-detail-value" id="detailTachoCard">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Lekarski do</div><div class="pm-driver-detail-value" id="detailMedical">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Zaposlen od</div><div class="pm-driver-detail-value" id="detailHired">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Adresa</div><div class="pm-driver-detail-value" id="detailAddress">—</div></div>
+                    <div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Napomena</div><div class="pm-driver-detail-value" id="detailNotes">—</div></div>
+                </div>
+            </div>
+
+            <div class="pm-driver-detail-section">
+                <h3 class="pm-driver-detail-heading">Operativni status</h3>
+                <div class="pm-driver-operational">
+                    <div class="pm-driver-operation-row"><div class="pm-driver-operation-label">Vozilo</div><div class="pm-driver-operation-value" id="detailVehicle">—</div></div>
+                    <div class="pm-driver-operation-row"><div class="pm-driver-operation-label">Aktivna tura</div><div class="pm-driver-operation-value" id="detailTrip">—</div></div>
+                    <div class="pm-driver-operation-row"><div class="pm-driver-operation-label">GPS stanje</div><div class="pm-driver-operation-value" id="detailGpsStatus">—</div></div>
+                </div>
+                <div class="pm-filter-group" style="margin-top:12px;">
+                    <a id="detailVehicleLink" class="pm-btn pm-btn-sm" href="/vehicles">Otvori vozilo</a>
+                    <a id="detailTripLink" class="pm-btn pm-btn-sm" href="/trips">Otvori aktivnu turu</a>
+                </div>
+            </div>
+
+            <div class="pm-driver-detail-section">
+                <h3 class="pm-driver-detail-heading">Ture vozača i troškovi</h3>
+                <div id="driverTripDetails" class="pm-driver-trip-details">
+                    <div class="pm-driver-detail-value">Učitavanje detalja vozača…</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>

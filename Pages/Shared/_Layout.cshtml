@@ -2,7 +2,7 @@
 @{
     var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
     var pageTitle = ViewData["Title"]?.ToString() ?? "ProMap Cargo";
-    var pageAssetKey = currentPage.Trim('/').Replace('/', '-').ToLowerInvariant();
+    var pageAssetKey = (ViewData["PageAssetKey"]?.ToString() ?? currentPage.Trim('/').Replace('/', '-').ToLowerInvariant());
     var webRootPath = string.IsNullOrWhiteSpace(Environment.WebRootPath)
         ? System.IO.Path.Combine(Environment.ContentRootPath, "wwwroot")
         : Environment.WebRootPath;

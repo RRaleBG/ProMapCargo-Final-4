@@ -18,6 +18,16 @@ public sealed record TripStopItem(
     bool IsNext,
     bool IsLast);
 
+public sealed record DriverTripListItem(
+    Guid Id,
+    string Title,
+    string Route,
+    string StatusText,
+    string TimelineText,
+    string FinancialText,
+    bool IsCurrent,
+    DriverPortalTripSummary Source);
+
 /// <summary>
 /// Home screen: search, the driver's trip (stops, arrival and completion, break, incident,
 /// a route sent by dispatch), recent destinations, truck profile and driving bans. The trip
@@ -70,6 +80,7 @@ public sealed class DashboardViewModel : ViewModelBase
         SignInCommand = new Command(async () => await AppNavigation.GoToAsync(AppNavigation.Login));
         NavigateToNextStopCommand = new Command(NavigateToNextStop, () => NextStop?.Latitude is not null && NextStop.Longitude is not null);
         CallDispatchCommand = new Command(CallDispatch);
+        OpenTripDetailsCommand = new Command<DriverTripListItem>(OpenTripDetails);
 
         telemetry.StatusChanged += (_, _) => RaisePropertyChanged(nameof(GpsStatusText));
     }
@@ -82,12 +93,18 @@ public sealed class DashboardViewModel : ViewModelBase
 
     public ICommand CallDispatchCommand { get; }
 
+    public ICommand OpenTripDetailsCommand { get; }
+
     /// <summary>Places the driver routed to, newest first (TomTom-style recents).</summary>
     public ObservableCollection<RecentDestination> Recents { get; } = new();
 
     public ObservableCollection<TripStopItem> Stops { get; } = new();
 
+    public ObservableCollection<DriverTripListItem> DriverTrips { get; } = new();
+
     public bool HasRecents => Recents.Count > 0;
+
+    public bool HasDriverTrips => DriverTrips.Count > 0;
 
     // The app sends no truck profile, so routing uses the server default
     // (RoutingController: 40 t, 4.0 m high, 2.55 m wide, 16.5 m long).
@@ -231,10 +248,6 @@ public sealed class DashboardViewModel : ViewModelBase
     public string CostLedgerSummary => portal?.Financial?.Costs is { Count: > 0 } costs
         ? string.Join(Environment.NewLine, costs.Take(4).Select(cost => $"{cost.Category}: {FormatMoney(cost.Amount, cost.Currency)} · {cost.PaymentMethod ?? "nepoznato"}{(string.IsNullOrWhiteSpace(cost.Location) ? string.Empty : $" · {cost.Location}")}"))
         : "Još nema unetih troškova za ovu turu.";
-
-    public string DriverTripsSummary => portal?.Trips is { Count: > 0 } trips
-        ? string.Join(Environment.NewLine, trips.Take(6).Select(trip => $"{trip.TripNumber ?? "Tura"}: {trip.Route ?? "Ruta nije definisana"} · {trip.Status ?? "—"} · trošak {FormatMoney(trip.Spent, portal?.Financial?.Currency ?? "EUR")}"))
-        : "Nema evidentiranih tura za ovog vozača.";
 
     public string VehicleRepairsSummary => portal?.VehicleRepairs is { Count: > 0 } repairs
         ? string.Join(Environment.NewLine, repairs.Take(5).Select(repair => $"{repair.Title ?? repair.Kind ?? "Stavka"}: {repair.Status ?? "—"}{(repair.Cost is { } cost ? $" · {FormatMoney(cost, repair.Currency ?? "EUR")}" : string.Empty)}"))
@@ -483,13 +496,16 @@ public sealed class DashboardViewModel : ViewModelBase
             stop.Id == value?.NextStopId,
             index == stops.Count - 1)));
 
+        var allTrips = value?.Trips ?? [];
+        ReplaceItems(DriverTrips, allTrips.Select(MapDriverTrip));
+
         (NavigateToNextStopCommand as Command)?.ChangeCanExecute();
         foreach (var name in new[]
                  {
                      nameof(HasTrip), nameof(ShowNoTrip), nameof(ShowNotDriver), nameof(TripTitle), nameof(TripRoute),
                      nameof(TripStatusText), nameof(IsTripActive), nameof(IsTripPaused), nameof(IsTripPlanned),
                      nameof(CanPause), nameof(PauseButtonText), nameof(TripProgress), nameof(TripProgressText),
-                     nameof(TripDetailText), nameof(TripNotesText), nameof(TripFinancialSummary), nameof(TripEarningsSummary), nameof(EuStaySummary), nameof(EuStayDetailText), nameof(CostLedgerSummary), nameof(DriverTripsSummary), nameof(VehicleRepairsSummary), nameof(PortalUpdatedText), nameof(HasNextStop), nameof(NextStopTitle),
+                     nameof(TripDetailText), nameof(TripNotesText), nameof(TripFinancialSummary), nameof(TripEarningsSummary), nameof(EuStaySummary), nameof(EuStayDetailText), nameof(CostLedgerSummary), nameof(HasDriverTrips), nameof(VehicleRepairsSummary), nameof(PortalUpdatedText), nameof(HasNextStop), nameof(NextStopTitle),
                      nameof(NextStopDetail), nameof(NextStopActionText), nameof(CanNavigateToNextStop),
                      nameof(HasPendingRoute), nameof(PendingRouteText), nameof(HasDispatchPhone), nameof(GpsStatusText),
                   })
@@ -619,6 +635,16 @@ public sealed class DashboardViewModel : ViewModelBase
         SafeUi.Run(() => AppNavigation.GoToAsync(AppNavigation.Navigation));
     }
 
+    private void OpenTripDetails(DriverTripListItem? trip)
+    {
+        if (trip is null)
+        {
+            return;
+        }
+
+        SafeUi.Run(() => AppNavigation.GoToAsync(AppNavigation.GetTripDetailsRoute(trip.Id)));
+    }
+
     private void CallDispatch()
     {
         if (portal?.DispatchPhone is not { Length: > 0 } phone)
@@ -706,6 +732,37 @@ public sealed class DashboardViewModel : ViewModelBase
         "Skipped" => "Preskočeno",
         _ => "Planirano",
     };
+
+    private DriverTripListItem MapDriverTrip(DriverPortalTripSummary trip)
+    {
+        var status = string.IsNullOrWhiteSpace(trip.Status)
+            ? "Nepoznato"
+            : trip.Status switch
+            {
+                "Planned" => "Planirana",
+                "Active" => DescribeState(trip.State),
+                "Paused" => "Pauza",
+                "Completed" => "Završena",
+                "Cancelled" => "Otkazana",
+                _ => trip.Status
+            };
+
+        var timeline = trip.StartedAt ?? trip.PlannedStartAt;
+        var timelineText = timeline is { } at
+            ? $"{(trip.StartedAt is null ? "Polazak" : "Krenuo")} {at.ToLocalTime():dd.MM. HH:mm}"
+            : "Vreme nije definisano";
+
+        var currentTripId = Trip?.Id;
+        return new DriverTripListItem(
+            trip.Id,
+            string.IsNullOrWhiteSpace(trip.TripNumber) ? "Tura" : $"Tura {trip.TripNumber}",
+            string.IsNullOrWhiteSpace(trip.Route) ? "Ruta nije definisana" : trip.Route,
+            status,
+            timelineText,
+            $"Trošak {FormatMoney(trip.Spent, portal?.Financial?.Currency ?? "EUR")}",
+            currentTripId.HasValue && currentTripId.Value == trip.Id,
+            trip);
+    }
 
     private static string DescribeState(string? state) => state switch
     {

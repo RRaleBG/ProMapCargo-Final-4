@@ -9,6 +9,12 @@ namespace ProMapCargo.Api.Pages.Account.Admin;
 [Authorize(Policy = "users.read")]
 public sealed class IndexModel(IAccountAdminService accountAdminService) : PageModel
 {
+    private bool HasPermission(string permission)
+        => User.IsInRole("Administrator") || User.HasClaim("permission", permission);
+
+    private IActionResult ForbidIfMissing(string permission)
+        => HasPermission(permission) ? null! : Forbid();
+
     [BindProperty(SupportsGet = true)]
     public string? Search { get; set; }
 
@@ -43,41 +49,56 @@ public sealed class IndexModel(IAccountAdminService accountAdminService) : PageM
         await LoadAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    [Authorize(Policy = "users.manage")]
     public async Task<IActionResult> OnPostToggleActiveAsync(Guid userId, CancellationToken cancellationToken)
     {
+        if (!HasPermission("users.manage"))
+        {
+            return Forbid();
+        }
         var result = await accountAdminService.ToggleActiveAsync(userId, cancellationToken).ConfigureAwait(false);
         TempData[result.Success ? "Toast.Success" : "Toast.Error"] = result.Message;
         return RedirectWithFilters();
     }
 
-    [Authorize(Policy = "users.manage")]
     public async Task<IActionResult> OnPostToggleLockAsync(Guid userId, CancellationToken cancellationToken)
     {
+        if (!HasPermission("users.manage"))
+        {
+            return Forbid();
+        }
         var result = await accountAdminService.ToggleLockAsync(userId, cancellationToken).ConfigureAwait(false);
         TempData[result.Success ? "Toast.Success" : "Toast.Error"] = result.Message;
         return RedirectWithFilters();
     }
 
-    [Authorize(Policy = "roles.manage")]
     public async Task<IActionResult> OnPostSetRoleAsync(Guid userId, string roleName, bool assign, CancellationToken cancellationToken)
     {
+        if (!HasPermission("roles.manage"))
+        {
+            return Forbid();
+        }
         var result = await accountAdminService.SetRoleAsync(userId, roleName, assign, cancellationToken).ConfigureAwait(false);
         TempData[result.Success ? "Toast.Success" : "Toast.Error"] = result.Message;
         return RedirectWithFilters();
     }
 
-    [Authorize(Policy = "permissions.manage")]
     public async Task<IActionResult> OnPostTogglePermissionAsync(Guid roleId, string permission, bool grant, CancellationToken cancellationToken)
     {
+        if (!HasPermission("permissions.manage"))
+        {
+            return Forbid();
+        }
         var result = await accountAdminService.TogglePermissionAsync(roleId, permission, grant, cancellationToken).ConfigureAwait(false);
         TempData[result.Success ? "Toast.Success" : "Toast.Error"] = result.Message;
         return RedirectWithFilters();
     }
 
-    [Authorize(Policy = "users.manage")]
     public async Task<IActionResult> OnPostCreateUserAsync(CancellationToken cancellationToken)
     {
+        if (!HasPermission("users.manage"))
+        {
+            return Forbid();
+        }
         var result = await accountAdminService.CreateUserAsync(new AccountAdminCreateUserInput(
             CreateUser.DisplayName,
             CreateUser.Email,
@@ -90,9 +111,12 @@ public sealed class IndexModel(IAccountAdminService accountAdminService) : PageM
         return RedirectWithFilters();
     }
 
-    [Authorize(Policy = "users.manage")]
     public async Task<IActionResult> OnPostUpdateUserAsync(CancellationToken cancellationToken)
     {
+        if (!HasPermission("users.manage"))
+        {
+            return Forbid();
+        }
         var result = await accountAdminService.UpdateUserAsync(new AccountAdminUpdateUserInput(
             EditUser.UserId,
             EditUser.DisplayName,

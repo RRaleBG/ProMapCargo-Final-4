@@ -171,6 +171,18 @@
         setText("tripStatus", trip ? (TRIP_STATUS[trip.status] || trip.status) : "—");
         setText("tripDriver", trip?.driver || "—");
         setText("tripVehicle", trip?.vehicle || "—");
+        const tripDriverEl = $("tripDriver");
+        if (tripDriverEl) {
+            const driverOption = (state.data?.drivers || []).find(driver => driver.fullName === trip?.driver);
+            tripDriverEl.onclick = driverOption?.id ? () => { window.location.href = `/drivers/details/${encodeURIComponent(driverOption.id)}`; } : null;
+            tripDriverEl.style.cursor = driverOption?.id ? "pointer" : "default";
+        }
+        const tripVehicleEl = $("tripVehicle");
+        if (tripVehicleEl) {
+            const vehicleOption = (state.data?.options?.vehicles || []).find(vehicle => vehicle.registration === trip?.vehicle);
+            tripVehicleEl.onclick = vehicleOption?.id ? () => { window.location.href = `/vehicles/details/${encodeURIComponent(vehicleOption.id)}`; } : null;
+            tripVehicleEl.style.cursor = vehicleOption?.id ? "pointer" : "default";
+        }
         setText("tripStart", dateTime(trip?.startedAt));
         setText("tripArrival", dateTime(trip?.plannedArrivalAt));
         setText("tripBudget", trip?.budget != null ? eur(trip.budget) : "—");
@@ -239,6 +251,11 @@
             ? `<div class="finance-table-sub"><button type="button" class="finance-btn finance-btn-small" data-review="Approved" data-id="${item.id}">Odobri</button> <button type="button" class="finance-btn finance-btn-small" data-review="Rejected" data-id="${item.id}">Odbij</button></div>`
             : "";
         const receipt = item.receiptFileId ? ` · <a href="/api/files/${item.receiptFileId}" target="_blank" rel="noopener">račun</a>` : "";
+        const tripLink = item.tripId ? `<a href="/trips/details/${encodeURIComponent(item.tripId)}"><strong>${escapeHtml(item.tripNumber || "—")}</strong></a>` : `<strong>${escapeHtml(item.tripNumber || "—")}</strong>`;
+        const driverOption = (state.data?.drivers || []).find(driver => driver.fullName === item.driver);
+        const driverLink = driverOption?.id ? `<a href="/drivers/details/${encodeURIComponent(driverOption.id)}">${escapeHtml(item.driver || "—")}</a>` : escapeHtml(item.driver || "—");
+        const vehicleOption = (state.data?.options?.vehicles || []).find(vehicle => vehicle.registration === item.vehicle);
+        const vehicleLink = vehicleOption?.id ? `<a href="/vehicles/details/${encodeURIComponent(vehicleOption.id)}">${escapeHtml(item.vehicle || "—")}</a>` : escapeHtml(item.vehicle || "—");
         const search = [item.location, name, payment, item.tripNumber, item.vehicle, item.driver, item.notes].join(" ").toLowerCase();
 
         return `
@@ -248,11 +265,11 @@
                         <span class="finance-transaction-icon ${iconClass}">${icon}</span>
                         <div>
                             <strong>${escapeHtml(item.location || name)}</strong>
-                            <span>${escapeHtml(detail)}${state.data?.mode === "dispatch" && item.driver ? " · " + escapeHtml(item.driver) : ""}${receipt}</span>
+                            <span>${escapeHtml(detail)}${state.data?.mode === "dispatch" && item.driver ? " · " + driverLink : ""}${receipt}</span>
                         </div>
                     </div>
                 </td>
-                <td><strong>${escapeHtml(item.tripNumber || "—")}</strong></td>
+                <td>${tripLink}<div class="finance-table-sub">${vehicleLink}</div></td>
                 <td><span class="finance-payment-method">${escapeHtml(payment)}</span></td>
                 <td>
                     <strong>${at.toLocaleDateString("sr-Latn-RS", { day: "2-digit", month: "2-digit", year: "numeric" })}</strong>
@@ -286,10 +303,11 @@
         const pending = data.transactions.filter(item => item.status === "Pending");
         setText("pendingCount", String(pending.length));
         $("pendingList").innerHTML = pending.slice(0, 6).map(item => {
+            const tripHref = item.tripId ? `/trips/details/${encodeURIComponent(item.tripId)}` : null;
             const [iconClass, icon, name] = CATEGORY[item.category] || CATEGORY.Other;
             const at = new Date(item.at).toLocaleDateString("sr-Latn-RS", { day: "2-digit", month: "2-digit" });
             return `
-                <button class="finance-pending-item" type="button" data-search-for="${escapeHtml(item.location || name)}">
+                <button class="finance-pending-item" type="button" data-search-for="${escapeHtml(item.location || name)}"${tripHref ? ` data-trip-href="${escapeHtml(tripHref)}"` : ""}>
                     <span class="finance-transaction-icon ${iconClass}">${icon}</span>
                     <span class="finance-pending-main">
                         <strong>${escapeHtml(item.location || name)}</strong>
@@ -539,6 +557,10 @@
     $("pendingList")?.addEventListener("click", event => {
         const item = event.target.closest("[data-search-for]");
         if (!item) return;
+        if (item.dataset.tripHref) {
+            window.location.href = item.dataset.tripHref;
+            return;
+        }
         searchInput.value = item.dataset.searchFor;
         statusFilter.value = "pending";
         filterTransactions();
@@ -556,6 +578,11 @@
     exportButton?.addEventListener("click", exportCsv);
 
     $("previousTripDetails")?.addEventListener("click", () => {
+        const tripId = state.data?.previousTrip?.id;
+        if (tripId) {
+            window.location.href = `/trips/details/${encodeURIComponent(tripId)}`;
+            return;
+        }
         const number = state.data?.previousTrip?.number;
         if (!number) return;
         searchInput.value = number;

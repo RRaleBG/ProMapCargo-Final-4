@@ -1,0 +1,3 @@
+25. [GET] http://localhost:8090/api/business/trips/9e9f9ac1-5799-40b2-b820-42856a19130b/details => [200] OK
+
+Note: 22 static requests not shown, run with "static" option to see them.

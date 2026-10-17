@@ -360,7 +360,9 @@ public sealed class AccountAdminService(
         if (input.ProfileImage is not null)
         {
             var photo = await files.SaveAsync(input.ProfileImage, companyId, cancellationToken).ConfigureAwait(false);
-            user.ProfileImageUrl = photo is null ? null : $"/api/files/{photo.Id}";
+            user.ProfileImageUrl = photo is null ? null : (photo.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)
+                ? $"/api/files/{photo.Id}/inline"
+                : $"/api/files/{photo.Id}");
         }
 
         var createResult = await userManager.CreateAsync(user, input.Password).ConfigureAwait(false);
@@ -421,7 +423,9 @@ public sealed class AccountAdminService(
         if (input.ProfileImage is not null)
         {
             var photo = await files.SaveAsync(input.ProfileImage, companyId, cancellationToken).ConfigureAwait(false);
-            user.ProfileImageUrl = photo is null ? user.ProfileImageUrl : $"/api/files/{photo.Id}";
+            user.ProfileImageUrl = photo is null ? user.ProfileImageUrl : (photo.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)
+                ? $"/api/files/{photo.Id}/inline"
+                : $"/api/files/{photo.Id}");
         }
 
         var updateResult = await userManager.UpdateAsync(user).ConfigureAwait(false);

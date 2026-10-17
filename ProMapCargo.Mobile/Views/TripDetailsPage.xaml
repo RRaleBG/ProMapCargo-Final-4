@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ProMapCargo.Mobile.Views.TripDetailsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ProMapCargo.Mobile.ViewModels"
+    x:DataType="vm:TripDetailsViewModel"
+    Title="Detalji ture"
+    BackgroundColor="{StaticResource SurfaceBase}"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False">
+    <Grid RowDefinitions="*,Auto">
+        <RefreshView
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsPullRefreshing}"
+            RefreshColor="{StaticResource Brand}">
+            <ScrollView>
+                <VerticalStackLayout
+                    Padding="20,24,20,24"
+                    MaximumWidthRequest="720"
+                    Spacing="16">
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <ImageButton
+                            BackgroundColor="{StaticResource SurfaceOverlay}"
+                            Clicked="OnBackClicked"
+                            SemanticProperties.Description="Nazad"
+                            Source="ic_back.svg"
+                            Style="{StaticResource PmMapFloatingButton}" />
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            Spacing="0"
+                            VerticalOptions="Center">
+                            <Label Style="{StaticResource PmPageTitleLabel}" Text="{Binding TripTitle}" />
+                            <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding TripStatusText}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Border Style="{StaticResource PmHeroBorder}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Style="{StaticResource PmHeroCaptionLabel}" Text="Ruta i status" />
+                            <Label Style="{StaticResource PmSectionTitleLabel}" Text="{Binding RouteText}" />
+                            <Label Style="{StaticResource PmMutedLabel}" Text="{Binding SummaryText}" />
+                            <ProgressBar Progress="{Binding ProgressValue}" HeightRequest="8" ProgressColor="{StaticResource Brand}" />
+                            <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding ProgressText}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Style="{StaticResource PmSectionCaption}" Text="Sledeća radnja" />
+                            <Label Style="{StaticResource PmBodyLabel}" Text="{Binding NextStopTitle}" />
+                            <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding NextStopDetail}" />
+                            <HorizontalStackLayout Spacing="10">
+                                <Button
+                                    Clicked="OnOpenNavigationClicked"
+                                    IsVisible="{Binding CanOpenNavigation}"
+                                    Style="{StaticResource PmPrimaryButton}"
+                                    Text="Navigacija do stanice" />
+                                <Button
+                                    Clicked="OnCallDispatchClicked"
+                                    IsVisible="{Binding HasDispatchPhone}"
+                                    Style="{StaticResource PmSecondaryButton}"
+                                    Text="Pozovi dispečera" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Style="{StaticResource PmSectionCaption}" Text="Napomene" />
+                            <Label Style="{StaticResource PmBodyLabel}" Text="{Binding NotesText}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Style="{StaticResource PmSectionCaption}" Text="Finansije" />
+                            <Label Style="{StaticResource PmBodyLabel}" Text="{Binding FinancialSummary}" />
+                            <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding EarningsSummary}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Style="{StaticResource PmSectionCaption}" Text="Stanice" />
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Stops}" Spacing="10">
+                                <BindableLayout.EmptyView>
+                                    <Label Style="{StaticResource PmBodyLabel}" Text="Stanice nisu dostupne." />
+                                </BindableLayout.EmptyView>
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:TripStopDetailItem">
+                                        <Border Padding="12,10" Style="{StaticResource PmCardInnerBorder}">
+                                            <VerticalStackLayout Spacing="4">
+                                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                                    <Border Padding="7,3" Style="{StaticResource PmChipNeutral}">
+                                                        <Label Style="{StaticResource PmChipNeutralLabel}" Text="{Binding SequenceText}" />
+                                                    </Border>
+                                                    <Label Grid.Column="1" Style="{StaticResource PmRowTitleLabel}" Text="{Binding Title}" />
+                                                    <Border Grid.Column="2" Padding="8,3" Style="{StaticResource PmChipNeutral}">
+                                                        <Label Style="{StaticResource PmChipNeutralLabel}" Text="{Binding StatusText}" />
+                                                    </Border>
+                                                </Grid>
+                                                <Label Style="{StaticResource PmBodyLabel}" Text="{Binding Detail}" />
+                                                <Label IsVisible="{Binding HasNotes}" Style="{StaticResource PmRowDetailLabel}" Text="{Binding Notes}" />
+                                            </VerticalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Style="{StaticResource PmSectionCaption}" Text="Troškovi ture" />
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Costs}" Spacing="10">
+                                <BindableLayout.EmptyView>
+                                    <Label Style="{StaticResource PmBodyLabel}" Text="Troškovi još nisu evidentirani." />
+                                </BindableLayout.EmptyView>
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:TripCostDetailItem">
+                                        <Border Padding="12,10" Style="{StaticResource PmCardInnerBorder}">
+                                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                                <VerticalStackLayout Spacing="4">
+                                                    <Label Style="{StaticResource PmRowTitleLabel}" Text="{Binding Title}" />
+                                                    <Label Style="{StaticResource PmBodyLabel}" Text="{Binding Detail}" />
+                                                    <Label IsVisible="{Binding HasNotes}" Style="{StaticResource PmRowDetailLabel}" Text="{Binding Notes}" />
+                                                </VerticalStackLayout>
+                                                <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" Spacing="8">
+                                                    <Label HorizontalTextAlignment="End" Style="{StaticResource PmRowTitleLabel}" Text="{Binding AmountText}" />
+                                                    <Button
+                                                        Clicked="OnOpenReceiptClicked"
+                                                        CommandParameter="{Binding ReceiptFileId}"
+                                                        IsVisible="{Binding HasReceipt}"
+                                                        Style="{StaticResource PmSecondaryButton}"
+                                                        Text="Račun" />
+                                                </VerticalStackLayout>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Style="{StaticResource PmSectionCaption}" Text="Istorija vozača" />
+                            <Label Style="{StaticResource PmBodyLabel}" Text="{Binding DriverHistorySummary}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Style="{StaticResource PmSectionCaption}" Text="Istorija vozila" />
+                            <Label Style="{StaticResource PmBodyLabel}" Text="{Binding VehicleHistorySummary}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <Border
+            Grid.Row="1"
+            Margin="16,0,16,16"
+            Padding="14,10"
+            BackgroundColor="{StaticResource SurfaceOverlay}"
+            Stroke="{StaticResource StrokeSubtle}"
+            StrokeShape="RoundRectangle 14">
+            <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding StatusMessage}" />
+        </Border>
+    </Grid>
+</ContentPage>

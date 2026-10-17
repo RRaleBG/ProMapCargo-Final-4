@@ -90,7 +90,7 @@
                         </label>
                         <label class="pm-field">
                             <span>Slika korisnika</span>
-                            <input asp-for="CreateUser.ProfileImage" class="pm-input" type="file" accept=".jpg,.jpeg,.png,.pdf" />
+                            <input asp-for="CreateUser.ProfileImage" class="pm-input" type="file" accept=".jpg,.jpeg,.png" />
                         </label>
                     </div>
                     <div class="pm-account-admin-role-picks">
@@ -258,7 +258,7 @@
                                                             <option value="@driver.Id" selected="@(user.DriverId == driver.Id)">@driver.FullName (@(driver.EmployeeNumber ?? "bez broja"))</option>
                                                         }
                                                     </select>
-                                                    <input type="file" name="EditUser.ProfileImage" class="pm-input" accept=".jpg,.jpeg,.png,.pdf" />
+                                                    <input type="file" name="EditUser.ProfileImage" class="pm-input" accept=".jpg,.jpeg,.png" />
                                                     <div class="pm-account-admin-role-picks">
                                                         @foreach (var role in Model.AvailableRoles)
                                                         {

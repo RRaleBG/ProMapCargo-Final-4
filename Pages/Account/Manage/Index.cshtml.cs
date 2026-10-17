@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ProMapCargo.Api.Models;
+using ProMapCargo.Api.Services;
 
 namespace ProMapCargo.Api.Pages.Account.Manage;
 
-//[Authorize]
-public sealed class IndexModel(UserManager<ApplicationUser> userManager) : PageModel
+[Authorize]
+public sealed class IndexModel(UserManager<ApplicationUser> userManager, FileStorageService fileStorageService) : PageModel
 {
     private static readonly string[] AllowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
     public ApplicationUser CurrentUser { get; private set; } = null!;
@@ -48,20 +49,22 @@ public sealed class IndexModel(UserManager<ApplicationUser> userManager) : PageM
             return RedirectToPage();
         }
 
-        var uploadDirectory = Path.Combine(
-            HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootPath,
-            "uploads",
-            "profiles");
-        Directory.CreateDirectory(uploadDirectory);
-
-        var fileName = $"{user.Id:N}-{Guid.NewGuid():N}{extension}";
-        var filePath = Path.Combine(uploadDirectory, fileName);
-        await using (var stream = System.IO.File.Create(filePath))
+        if (user.CompanyId is not Guid companyId)
         {
-            await ProfileImage.CopyToAsync(stream);
+            TempData["Toast.Error"] = "Korisnik nema dodeljenu kompaniju.";
+            return RedirectToPage();
         }
 
-        user.ProfileImageUrl = $"/uploads/profiles/{fileName}";
+        var stored = await fileStorageService.SaveAsync(ProfileImage, companyId, HttpContext.RequestAborted);
+        if (stored is null)
+        {
+            TempData["Toast.Error"] = "Slika nije sačuvana.";
+            return RedirectToPage();
+        }
+
+        user.ProfileImageUrl = stored.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)
+            ? $"/api/files/{stored.Id}/inline"
+            : $"/api/files/{stored.Id}";
         await userManager.UpdateAsync(user);
         TempData["Toast.Success"] = "Profilna slika je sačuvana.";
         return RedirectToPage();

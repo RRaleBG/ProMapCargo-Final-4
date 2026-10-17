@@ -1,0 +1,83 @@
+@page "/vehicles/details/{vehicleId:guid}"
+@model ProMapCargo.Api.Pages.Vehicles.DetailsModel
+@{
+    ViewData["Title"] = "Detalji vozila";
+}
+
+<div class="pm-page pm-page--vehicles">
+    <header class="pm-header pm-page-header">
+        <div class="pm-heading">
+            <div class="pm-page-kicker"><span class="pm-kicker-dot"></span>Fleet · Vozila</div>
+            <h1 class="pm-page-title">Detalji vozila</h1>
+            <p class="pm-page-subtitle">Kompletan pregled vozila, vozača, ture, usklađenosti i servisne istorije.</p>
+        </div>
+        <div class="pm-header-actions">
+            <a href="/vehicles" class="pm-btn">Nazad na vozila</a>
+        </div>
+    </header>
+
+    <section class="pm-vehicles-card pm-vehicle-details pm-panel pm-card" id="vehicleDetailsPage">
+        <div class="pm-vehicle-profile">
+            <div class="pm-vehicle-profile-top">
+                <div class="pm-vehicle-profile-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M3 17h3"></path><path d="M18 17h3"></path><path d="M5 17V9h10l4 4v4"></path><circle cx="8" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M15 9v4h4"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="pm-vehicle-profile-registration" id="detailRegistration">Učitavanje vozila…</h2>
+                    <div class="pm-vehicle-profile-meta" id="detailVehicleName">Detalji vozila će biti prikazani ovde.</div>
+                    <div class="pm-vehicle-profile-status" id="detailStatus"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pm-vehicle-detail-section">
+            <h3 class="pm-vehicle-detail-heading">Identifikacija</h3>
+            <div class="pm-vehicle-detail-grid">
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Registracija</div><div class="pm-vehicle-detail-value" id="detailRegistrationValue">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">VIN</div><div class="pm-vehicle-detail-value" id="detailVin">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Marka</div><div class="pm-vehicle-detail-value" id="detailMake">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Model</div><div class="pm-vehicle-detail-value" id="detailModel">—</div></div>
+            </div>
+        </div>
+
+        <div class="pm-vehicle-detail-section">
+            <h3 class="pm-vehicle-detail-heading">Operativni status</h3>
+            <div class="pm-vehicle-operational">
+                <div class="pm-vehicle-operation-row"><div class="pm-vehicle-operation-label">Vozač</div><div class="pm-vehicle-operation-value" id="detailDriver">—</div></div>
+                <div class="pm-vehicle-operation-row"><div class="pm-vehicle-operation-label">Aktivna tura</div><div class="pm-vehicle-operation-value" id="detailTrip">—</div></div>
+                <div class="pm-vehicle-operation-row"><div class="pm-vehicle-operation-label">GPS stanje</div><div class="pm-vehicle-operation-value" id="detailGpsStatus">—</div></div>
+            </div>
+            <div class="pm-filter-group" style="margin-top:12px;">
+                <a id="detailDriverLink" class="pm-btn pm-btn-sm" href="/drivers">Otvori vozača</a>
+                <a id="detailTripLink" class="pm-btn pm-btn-sm" href="/trips">Otvori turu</a>
+            </div>
+        </div>
+
+        <div class="pm-vehicle-detail-section">
+            <h3 class="pm-vehicle-detail-heading">Tehnički podaci</h3>
+            <div class="pm-vehicle-detail-grid">
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Godina</div><div class="pm-vehicle-detail-value" id="detailYear">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Tip</div><div class="pm-vehicle-detail-value" id="detailType">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Težina</div><div class="pm-vehicle-detail-value" id="detailWeight">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Poslednji GPS</div><div class="pm-vehicle-detail-value" id="detailGpsTime">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Fleet broj</div><div class="pm-vehicle-detail-value" id="detailFleet">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Euro klasa</div><div class="pm-vehicle-detail-value" id="detailEuro">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Kartica goriva</div><div class="pm-vehicle-detail-value" id="detailFuelCard">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Prikolica</div><div class="pm-vehicle-detail-value" id="detailTrailer">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Kilometraža</div><div class="pm-vehicle-detail-value" id="detailOdometer">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Dimenzije (D×Š×V)</div><div class="pm-vehicle-detail-value" id="detailDimensions">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Osovine / osovinsko</div><div class="pm-vehicle-detail-value" id="detailAxles">—</div></div>
+                <div class="pm-vehicle-detail-item"><div class="pm-vehicle-detail-label">Napomena</div><div class="pm-vehicle-detail-value" id="detailNotes">—</div></div>
+            </div>
+        </div>
+
+        <div class="pm-vehicle-detail-section">
+            <h3 class="pm-vehicle-detail-heading">Dokumenta i servis</h3>
+            <div id="vehicleDocuments" class="timeline"></div>
+            <div id="vehicleLogs" class="timeline" style="margin-top:16px;"></div>
+            <div id="vehicleTripHistory" class="timeline" style="margin-top:16px;"></div>
+        </div>
+    </section>
+</div>

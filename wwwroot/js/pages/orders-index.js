@@ -265,6 +265,11 @@
         setText("detailVehicle", item.vehicleRegistration || "—");
         setText("detailDriver", item.driverName || "—");
         setText("detailProgress", item.tripProgressPercent != null ? Math.round(item.tripProgressPercent) + "%" : "—");
+        const tripLink = $("detailTripLink");
+        if (tripLink) {
+            tripLink.setAttribute("href", item.tripId ? `/trips/details/${encodeURIComponent(item.tripId)}` : "/trips");
+            tripLink.setAttribute("aria-disabled", item.tripId ? "false" : "true");
+        }
     }
 
     function renderSummary() {
@@ -349,7 +354,7 @@
         $("editOrderButton")?.addEventListener("click", () => editSelected());
         $("orderMoreButton")?.addEventListener("click", () => {
             const item = state.orders.find(entry => entry.order.id === state.selectedId);
-            if (item?.tripId) window.location.href = "/trips";
+            if (item?.tripId) window.location.href = `/trips/details/${encodeURIComponent(item.tripId)}`;
             else editSelected();
         });
 

@@ -456,9 +456,39 @@
                         </Border>
 
                         <Border Padding="14,12" Style="{StaticResource PmCardInnerBorder}">
-                            <VerticalStackLayout Spacing="6">
+                            <VerticalStackLayout Spacing="8">
                                 <Label Style="{StaticResource PmCaptionLabel}" Text="Moje ture" />
-                                <Label Style="{StaticResource PmBodyLabel}" Text="{Binding DriverTripsSummary}" />
+                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding DriverTrips}" Spacing="10">
+                                    <BindableLayout.EmptyView>
+                                        <Label Style="{StaticResource PmBodyLabel}" Text="Nema evidentiranih tura za ovog vozača." />
+                                    </BindableLayout.EmptyView>
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:DriverTripListItem">
+                                            <Border Padding="12,10" Style="{StaticResource PmCardInnerBorder}">
+                                                <Grid>
+                                                    <VerticalStackLayout Spacing="4">
+                                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                                            <Label Style="{StaticResource PmRowTitleLabel}" Text="{Binding Title}" />
+                                                            <Border Grid.Column="1" Padding="8,3" Style="{StaticResource PmChipNeutral}">
+                                                                <Label Style="{StaticResource PmChipNeutralLabel}" Text="{Binding StatusText}" />
+                                                            </Border>
+                                                        </Grid>
+                                                        <Label Style="{StaticResource PmBodyLabel}" Text="{Binding Route}" />
+                                                        <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding TimelineText}" />
+                                                        <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding FinancialText}" />
+                                                        <Label IsVisible="{Binding IsCurrent}" Style="{StaticResource PmAccentLabel}" Text="Aktivna tura na početnoj strani" />
+                                                    </VerticalStackLayout>
+                                                    <Button
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DashboardViewModel}}, Path=OpenTripDetailsCommand}"
+                                                        CommandParameter="{Binding .}"
+                                                        Margin="-12,-10"
+                                                        SemanticProperties.Description="Otvori detalje ture"
+                                                        Style="{StaticResource PmTapTarget}" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
                             </VerticalStackLayout>
                         </Border>
 

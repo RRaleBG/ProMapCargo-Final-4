@@ -36,4 +36,6 @@
         ContentTemplate="{DataTemplate views:SettingsPage}"
         Route="settings" />
 
+    <!--  Detalji ture: pushed page with ?tripId=, registered in AppShell.xaml.cs (a ShellContent too = "Duplicated route")  -->
+
 </Shell>

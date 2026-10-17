@@ -35,6 +35,7 @@
         detailGpsStatus: document.getElementById("detailGpsStatus"),
         detailVehicle: document.getElementById("detailVehicle"),
         detailTrip: document.getElementById("detailTrip"),
+        driverTripDetails: document.getElementById("driverTripDetails"),
 
         callDriver: document.getElementById("callDriver"),
         showDriverRoute: document.getElementById("showDriverRoute"),
@@ -456,6 +457,13 @@
                 row.addEventListener("click", function () {
                     selectDriver(row.getAttribute("data-driver-id"));
                 });
+
+                row.addEventListener("dblclick", function () {
+                    var driverId = row.getAttribute("data-driver-id");
+                    if (driverId) {
+                        window.location.href = "/drivers/details/" + encodeURIComponent(driverId);
+                    }
+                });
             }
         );
     }
@@ -556,6 +564,62 @@
         elements.showDriverRoute.disabled = !driver.currentTripId;
 
         renderTable();
+        void loadDriverDetails(driver.id);
+    }
+
+    function renderDriverTripDetails(details) {
+        if (!elements.driverTripDetails) {
+            return;
+        }
+
+        var trips = details && Array.isArray(details.trips) ? details.trips : [];
+        if (!trips.length) {
+            elements.driverTripDetails.innerHTML = '<div class="pm-driver-detail-value">Vozač nema evidentiranih tura.</div>';
+            return;
+        }
+
+        elements.driverTripDetails.innerHTML = trips.map(function (trip) {
+            var costs = Array.isArray(trip.costs) ? trip.costs : [];
+            var costHtml = costs.length
+                ? '<ul class="pm-driver-trip-cost-list">' + costs.map(function (cost) {
+                    return '<li><strong>' + escapeHtml(cost.category || 'Trošak') + '</strong> · ' +
+                        escapeHtml((cost.amount != null ? Number(cost.amount).toLocaleString('sr-Latn-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00') + ' ' + (cost.currency || trip.currency || 'EUR')) +
+                        ' · ' + escapeHtml(cost.paymentMethod || '—') +
+                        (cost.location ? ' · ' + escapeHtml(cost.location) : '') + '</li>';
+                }).join('') + '</ul>'
+                : '<div class="pm-driver-detail-value">Nema unetih troškova za ovu turu.</div>';
+
+            return '<article class="pm-driver-trip-card">' +
+                '<div class="pm-driver-trip-card-head">' +
+                    '<div><strong>' + escapeHtml(trip.tripNumber || 'Tura') + '</strong><div class="pm-driver-detail-label">' + escapeHtml(trip.route || 'Ruta nije definisana') + '</div></div>' +
+                    '<a class="pm-btn pm-btn-sm" href="/trips/details/' + encodeURIComponent(trip.id) + '">Detalji ture</a>' +
+                '</div>' +
+                '<div class="pm-driver-detail-grid">' +
+                    '<div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Nalog</div><div class="pm-driver-detail-value">' + escapeHtml(trip.orderNumber || '—') + '</div></div>' +
+                    '<div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Kupac</div><div class="pm-driver-detail-value">' + escapeHtml(trip.customerName || '—') + '</div></div>' +
+                    '<div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Status</div><div class="pm-driver-detail-value">' + escapeHtml(trip.status || '—') + ' · ' + escapeHtml(trip.executionState || '—') + '</div></div>' +
+                    '<div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Napredak</div><div class="pm-driver-detail-value">' + escapeHtml(Math.round(Number(trip.routeProgressPercent || 0)) + '%') + '</div></div>' +
+                    '<div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Budžet</div><div class="pm-driver-detail-value">' + escapeHtml(trip.budgetAmount != null ? Number(trip.budgetAmount).toLocaleString('sr-Latn-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (trip.currency || 'EUR') : '—') + '</div></div>' +
+                    '<div class="pm-driver-detail-item"><div class="pm-driver-detail-label">Trošak</div><div class="pm-driver-detail-value">' + escapeHtml(Number(trip.spentAmount || 0).toLocaleString('sr-Latn-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (trip.currency || 'EUR')) + ' · Na čekanju ' + escapeHtml(Number(trip.pendingAmount || 0).toLocaleString('sr-Latn-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (trip.currency || 'EUR')) + '</div></div>' +
+                '</div>' +
+                '<div class="pm-driver-detail-label">Troškovi ture</div>' + costHtml +
+            '</article>';
+        }).join('');
+    }
+
+    async function loadDriverDetails(driverId) {
+        if (!driverId || !elements.driverTripDetails) {
+            return;
+        }
+
+        elements.driverTripDetails.innerHTML = '<div class="pm-driver-detail-value">Učitavanje detalja vozača…</div>';
+        try {
+            var details = await fetchJson('/api/business/drivers/' + encodeURIComponent(driverId) + '/details');
+            renderDriverTripDetails(details);
+        } catch (error) {
+            console.error('Driver details error:', error);
+            elements.driverTripDetails.innerHTML = '<div class="pm-driver-detail-value">Detalji vozača trenutno nisu dostupni.</div>';
+        }
     }
 
     function renderError(message) {
@@ -689,7 +753,7 @@
         }
 
         window.location.href =
-            "/trips?tripId=" +
+            "/trips/details/" +
             encodeURIComponent(driver.currentTripId);
     });
 

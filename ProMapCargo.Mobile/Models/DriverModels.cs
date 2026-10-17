@@ -81,7 +81,8 @@ public sealed record DriverPortalCost(
     [property: JsonPropertyName("location")] string? Location,
     [property: JsonPropertyName("countryCode")] string? CountryCode,
     [property: JsonPropertyName("at")] DateTimeOffset At,
-    [property: JsonPropertyName("notes")] string? Notes);
+    [property: JsonPropertyName("notes")] string? Notes,
+    [property: JsonPropertyName("receiptFileId")] Guid? ReceiptFileId);
 
 public sealed record DriverPortalEuStay(
     [property: JsonPropertyName("daysUsed")] int DaysUsed,

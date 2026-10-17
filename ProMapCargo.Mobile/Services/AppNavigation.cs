@@ -12,6 +12,10 @@ public static class AppNavigation
     public const string Settings = "//settings";
     public const string InstallMaps = "//install-maps";
     public const string Login = "//login";
+    public const string TripDetails = "trip-details";
+
+    public static string GetTripDetailsRoute(Guid tripId)
+        => $"{TripDetails}?tripId={tripId:D}";
 
     public static async Task<bool> GoToAsync(string route)
     {

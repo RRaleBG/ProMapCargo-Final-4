@@ -1,0 +1,141 @@
+@page "/trips/details/{tripId:guid}"
+@model ProMapCargo.Api.Pages.Trips.DetailsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Detalji ture";
+}
+
+<div class="pm-page pm-page--trip-details">
+    <header class="pm-page-header pm-header pm-trip-header">
+        <div class="pm-trip-heading">
+            <div class="pm-page-kicker pm-trip-kicker">Operacije flote</div>
+            <h1 class="pm-page-title pm-trip-title">Detalji ture</h1>
+            <p class="pm-page-subtitle pm-trip-subtitle">Puna operativna strana ture sa povezanim vozačem, vozilom, nalogom i troškovima.</p>
+        </div>
+        <div class="pm-header-actions">
+            <a href="/trips" class="pm-btn pm-btn--secondary">Nazad na ture</a>
+        </div>
+    </header>
+
+    <section class="pm-card pm-panel">
+        <div id="tripDetailsLoading" class="pm-trip-detail-loading">Učitavanje detalja ture…</div>
+        <div id="tripDetailsError" class="pm-trip-error" hidden role="alert"></div>
+        <div id="tripDetailsBody" class="pm-trip-detail-body" hidden>
+            <section class="pm-trip-detail-section">
+                <div class="detail-section-header">
+                    <div>
+                        <div class="modal-kicker">Tura</div>
+                        <h2 id="tripDetailsTitle">Tura</h2>
+                        <p id="tripDetailsSubtitle">Kompletan pregled ture, naloga, vozača i troškova.</p>
+                    </div>
+                </div>
+                <div class="pm-trip-detail-grid pm-trip-detail-grid--summary">
+                    <article class="pm-trip-detail-card"><span>Status</span><strong id="tripDetailStatus">—</strong><small id="tripDetailExecution">—</small></article>
+                    <article class="pm-trip-detail-card"><span>Ruta</span><strong id="tripDetailRoute">—</strong><small id="tripDetailSchedule">—</small></article>
+                    <article class="pm-trip-detail-card"><span>Napredak</span><strong id="tripDetailProgress">—</strong><small id="tripDetailDistance">—</small></article>
+                    <article class="pm-trip-detail-card"><span>Budžet</span><strong id="tripDetailBudget">—</strong><small id="tripDetailSpent">—</small></article>
+                </div>
+            </section>
+
+            <section class="pm-trip-detail-section">
+                <div class="detail-section-header">
+                    <div>
+                        <h3>Vozač i vozilo</h3>
+                        <p>Dodela, kontakt i istorija povezanih tura.</p>
+                    </div>
+                </div>
+                <div class="pm-trip-detail-two-column">
+                    <article class="pm-trip-detail-panel">
+                        <h4>Vozač</h4>
+                        <div class="pm-trip-detail-list">
+                            <div><span>Ime</span><strong id="tripDetailDriverName">—</strong></div>
+                            <div><span>Kontakt</span><strong id="tripDetailDriverContact">—</strong></div>
+                            <div><span>Dokumenta</span><strong id="tripDetailDriverLicense">—</strong></div>
+                            <div><span>Napomena</span><strong id="tripDetailDriverNotes">—</strong></div>
+                        </div>
+                        <div class="pm-filter-group">
+                            <a id="tripDetailDriverLink" class="pm-btn pm-btn-sm" href="/drivers">Otvori vozača</a>
+                        </div>
+                        <div>
+                            <h5>Istorija vozača</h5>
+                            <div id="tripDetailDriverHistory" class="timeline"></div>
+                        </div>
+                    </article>
+                    <article class="pm-trip-detail-panel">
+                        <h4>Vozilo</h4>
+                        <div class="pm-trip-detail-list">
+                            <div><span>Registracija</span><strong id="tripDetailVehicleRegistration">—</strong></div>
+                            <div><span>Opis</span><strong id="tripDetailVehicleDescription">—</strong></div>
+                            <div><span>Kapacitet</span><strong id="tripDetailVehicleCapacity">—</strong></div>
+                            <div><span>Gorivo / kartica</span><strong id="tripDetailVehicleFuel">—</strong></div>
+                        </div>
+                        <div class="pm-filter-group">
+                            <a id="tripDetailVehicleLink" class="pm-btn pm-btn-sm" href="/vehicles">Otvori vozilo</a>
+                        </div>
+                        <div>
+                            <h5>Istorija vozila</h5>
+                            <div id="tripDetailVehicleHistory" class="timeline"></div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="pm-trip-detail-section">
+                <div class="detail-section-header">
+                    <div>
+                        <h3>Nalog i napomene</h3>
+                        <p>Detalji naloga, tereta i napomena za vozača.</p>
+                    </div>
+                </div>
+                <div class="pm-trip-detail-two-column">
+                    <article class="pm-trip-detail-panel">
+                        <div class="pm-trip-detail-list">
+                            <div><span>Nalog</span><strong id="tripDetailOrderNumber">—</strong></div>
+                            <div><span>Kupac</span><strong id="tripDetailCustomer">—</strong></div>
+                            <div><span>Teret</span><strong id="tripDetailCargo">—</strong></div>
+                            <div><span>Dispečer</span><strong id="tripDetailDispatcher">—</strong></div>
+                        </div>
+                        <div class="pm-trip-note-box">
+                            <span>NAPOMENE</span>
+                            <strong id="tripDetailNotes">—</strong>
+                        </div>
+                    </article>
+                    <article class="pm-trip-detail-panel">
+                        <h4>Stanice</h4>
+                        <div id="tripDetailStops" class="timeline"></div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="pm-trip-detail-section">
+                <div class="detail-section-header">
+                    <div>
+                        <h3>Troškovi i zarada</h3>
+                        <p>Svi troškovi ture, način plaćanja i iznosi za povraćaj.</p>
+                    </div>
+                </div>
+                <div class="pm-trip-detail-grid pm-trip-detail-grid--finance">
+                    <article class="pm-trip-detail-card"><span>Ukupno troškovi</span><strong id="tripDetailCostsTotal">—</strong><small id="tripDetailCostsPending">—</small></article>
+                    <article class="pm-trip-detail-card"><span>Vozač platio</span><strong id="tripDetailDriverPaid">—</strong><small id="tripDetailAllowances">—</small></article>
+                    <article class="pm-trip-detail-card"><span>Isplaćeno</span><strong id="tripDetailPaidOut">—</strong><small id="tripDetailRemaining">—</small></article>
+                </div>
+                <div class="pm-trip-cost-table-wrap">
+                    <table class="pm-trip-cost-table">
+                        <thead>
+                            <tr>
+                                <th>Trošak</th>
+                                <th>Iznos</th>
+                                <th>Plaćanje</th>
+                                <th>Vreme / mesto</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tripDetailCostsRows">
+                            <tr><td colspan="5" class="pm-trip-empty">Nema troškova.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </section>
+</div>
