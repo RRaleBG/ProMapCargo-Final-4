@@ -337,7 +337,7 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue("Seed:Enabled"
     if (app.Environment.IsDevelopment() || app.Configuration.GetValue("Seed:DemoData", false))
     {
         await using var seedScope = app.Services.CreateAsyncScope();
-        await DemoDataSeeder.SeedAsync(seedScope.ServiceProvider, ["admin@admin.com"], "user@user.com");
+        await DemoDataSeeder.SeedAsync(seedScope.ServiceProvider, ["admin@admin.com"], "vozac@vozac.com");
     }
 }
 else
@@ -559,8 +559,8 @@ static async Task<bool> RoutingGraphExistsAsync(ProMapCargoDbContext db)
 
 static async Task SeedDefaultMobileUserAsync(WebApplication app)
 {
-    const string email = "user@user.com";
-    const string password = "Abcd1234!";
+    const string email = "vozac@vozac.com";
+    const string password = "Vozac123!";
 
     using var scope = app.Services.CreateScope();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -577,7 +577,7 @@ static async Task SeedDefaultMobileUserAsync(WebApplication app)
             Email = email,
             EmailConfirmed = true,
             ProfileImageUrl = null,
-            DisplayName = "ProMapCargo Mobile User",
+            DisplayName = "Vozač ProMap Cargo",
             IsActive = true
         };
 
@@ -641,7 +641,7 @@ static async Task SeedAdministratorUserAsync(WebApplication app)
     const string roleName = "Administrator";
     const string email = "admin@admin.com";
     const string password = "Admin123!";
-    const string previousEmail = "admin@promapcargo.com";
+    const string previousEmail = "admin@admin.com";
 
     using var scope = app.Services.CreateScope();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();

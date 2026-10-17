@@ -18,10 +18,29 @@ public sealed class FinanceQueries(ProMapCargoDbContext db, ICurrentUserContext 
     {
         if (current.CompanyId is not Guid c) return null;
 
-        var drivers = await db.Drivers.AsNoTracking().Where(x => x.CompanyId == c).OrderBy(x => x.FullName).ToListAsync(ct);
+        var dispatcherDriverIds = current.IsAdministrator ? null : await ResolveDispatcherDriverIdsAsync(c, ct).ConfigureAwait(false);
+        var driversQuery = db.Drivers.AsNoTracking().Where(x => x.CompanyId == c);
+        if (dispatcherDriverIds is { Count: > 0 })
+        {
+            driversQuery = driversQuery.Where(x => dispatcherDriverIds.Contains(x.Id));
+        }
+
+        var drivers = await driversQuery.OrderBy(x => x.FullName).ToListAsync(ct);
         var vehicles = await db.Vehicles.AsNoTracking().Where(x => x.CompanyId == c).ToListAsync(ct);
-        var trips = await db.Trips.AsNoTracking().Where(x => x.CompanyId == c).OrderByDescending(x => x.CreatedAt).ToListAsync(ct);
-        var costs = await db.TransportCosts.AsNoTracking().Where(x => x.CompanyId == c).OrderByDescending(x => x.IncurredAt ?? x.CreatedAt).Take(1000).ToListAsync(ct);
+        var tripsQuery = db.Trips.AsNoTracking().Where(x => x.CompanyId == c);
+        if (dispatcherDriverIds is { Count: > 0 })
+        {
+            tripsQuery = tripsQuery.Where(x => x.DriverId != null && dispatcherDriverIds.Contains(x.DriverId.Value));
+        }
+
+        var trips = await tripsQuery.OrderByDescending(x => x.CreatedAt).ToListAsync(ct);
+        var costsQuery = db.TransportCosts.AsNoTracking().Where(x => x.CompanyId == c);
+        if (dispatcherDriverIds is { Count: > 0 })
+        {
+            costsQuery = costsQuery.Where(x => x.DriverId != null && dispatcherDriverIds.Contains(x.DriverId.Value));
+        }
+
+        var costs = await costsQuery.OrderByDescending(x => x.IncurredAt ?? x.CreatedAt).Take(1000).ToListAsync(ct);
         var orderIds = trips.Select(x => x.TransportOrderId).Distinct().ToList();
         var stops = await db.TransportStops.AsNoTracking().Where(x => x.CompanyId == c && orderIds.Contains(x.TransportOrderId)).OrderBy(x => x.Sequence).ToListAsync(ct);
 
@@ -160,5 +179,31 @@ public sealed class FinanceQueries(ProMapCargoDbContext db, ICurrentUserContext 
                     .Select(v => new { Label = v.FuelCard, Vehicle = v.Registration, Active = v.Status != VehicleStatus.OutOfService }),
             },
         });
+    }
+    private async Task<HashSet<Guid>?> ResolveDispatcherDriverIdsAsync(Guid companyId, CancellationToken ct)
+    {
+        if (!current.IsInRole("Dispatcher") || current.UserId is not Guid userId)
+        {
+            return null;
+        }
+
+        var tripIds = await db.RouteDispatches.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.SentByUserId == userId)
+            .Select(x => x.TripId)
+            .Distinct()
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+
+        if (tripIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await db.Trips.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && tripIds.Contains(x.Id) && x.DriverId != null)
+            .Select(x => x.DriverId!.Value)
+            .Distinct()
+            .ToHashSetAsync(ct)
+            .ConfigureAwait(false);
     }
 }

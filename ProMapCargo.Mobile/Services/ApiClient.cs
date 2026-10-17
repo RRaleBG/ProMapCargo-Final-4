@@ -91,6 +91,47 @@ public sealed class ApiClient(HttpClient httpClient, MobileServerEndpointService
     public async Task<DriverPortal?> GetDriverPortalAsync(CancellationToken cancellationToken)
         => await GetAsync<DriverPortal>("api/driver/portal", cancellationToken).ConfigureAwait(false);
 
+    public async Task AddTripCostAsync(DriverExpenseDraft draft, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(draft);
+
+        await ExecuteWithRetryAsync(async token =>
+        {
+            using var content = new MultipartFormDataContent();
+            content.Add(new StringContent(draft.Category), "Category");
+            if (draft.TripId is { } tripId) content.Add(new StringContent(tripId.ToString()), "TripId");
+            content.Add(new StringContent(draft.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)), "Amount");
+            content.Add(new StringContent(draft.IncurredAt.ToString("O")), "IncurredAt");
+            if (!string.IsNullOrWhiteSpace(draft.Location)) content.Add(new StringContent(draft.Location), "Location");
+            if (!string.IsNullOrWhiteSpace(draft.CountryCode)) content.Add(new StringContent(draft.CountryCode), "CountryCode");
+            if (!string.IsNullOrWhiteSpace(draft.PaymentMethod)) content.Add(new StringContent(draft.PaymentMethod), "PaymentMethod");
+            if (!string.IsNullOrWhiteSpace(draft.CardLabel)) content.Add(new StringContent(draft.CardLabel), "CardLabel");
+            if (draft.Quantity is { } quantity) content.Add(new StringContent(quantity.ToString(System.Globalization.CultureInfo.InvariantCulture)), "Quantity");
+            if (draft.UnitPrice is { } unitPrice) content.Add(new StringContent(unitPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)), "UnitPrice");
+            if (draft.OdometerKm is { } odometerKm) content.Add(new StringContent(odometerKm.ToString(System.Globalization.CultureInfo.InvariantCulture)), "OdometerKm");
+            if (draft.VehicleId is { } vehicleId) content.Add(new StringContent(vehicleId.ToString()), "VehicleId");
+            if (!string.IsNullOrWhiteSpace(draft.Notes)) content.Add(new StringContent(draft.Notes), "Notes");
+            if (draft.ReceiptBytes is { Length: > 0 } receiptBytes)
+            {
+                var receiptContent = new ByteArrayContent(receiptBytes);
+                if (!string.IsNullOrWhiteSpace(draft.ReceiptContentType))
+                {
+                    receiptContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(draft.ReceiptContentType);
+                }
+                content.Add(receiptContent, "Receipt", draft.ReceiptFileName ?? "receipt.bin");
+            }
+
+            using var response = await httpClient.PostAsync(serverEndpointService.CreateUri("api/finance/costs"), content, token).ConfigureAwait(false);
+            var payload = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw CreateHttpRequestException(response.StatusCode, payload);
+            }
+
+            return true;
+        }, cancellationToken, maxAttempts: 1).ConfigureAwait(false);
+    }
+
     public Task ArriveAtStopAsync(Guid stopId, CancellationToken cancellationToken)
         => SendDriverActionAsync($"api/driver/stops/{stopId}/arrive", null, cancellationToken);
 

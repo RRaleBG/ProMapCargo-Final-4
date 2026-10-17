@@ -194,6 +194,18 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
         }
     }
 
+    [HttpGet("trips/{tripId:guid}/details")]
+    public async Task<ActionResult<TripDetails>> TripDetails(Guid tripId, CancellationToken ct)
+    {
+        try
+        {
+            return await service.TripDetailsAsync(tripId, ct) is { } details ? Ok(details) : NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+    }
 
     [HttpGet("trips/{tripId}/route")]
     public async Task<ActionResult<TripRoute>> ActiveRoute(Guid tripId, CancellationToken ct)

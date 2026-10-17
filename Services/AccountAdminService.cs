@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProMapCargo.Api.Data;
@@ -13,6 +14,8 @@ public interface IAccountAdminService
     Task<AccountAdminOperationResult> ToggleLockAsync(Guid targetUserId, CancellationToken cancellationToken);
     Task<AccountAdminOperationResult> SetRoleAsync(Guid targetUserId, string roleName, bool assign, CancellationToken cancellationToken);
     Task<AccountAdminOperationResult> TogglePermissionAsync(Guid roleId, string permission, bool grant, CancellationToken cancellationToken);
+    Task<AccountAdminOperationResult> CreateUserAsync(AccountAdminCreateUserInput input, CancellationToken cancellationToken);
+    Task<AccountAdminOperationResult> UpdateUserAsync(AccountAdminUpdateUserInput input, CancellationToken cancellationToken);
 }
 
 public sealed class AccountAdminService(
@@ -22,6 +25,7 @@ public sealed class AccountAdminService(
     ICurrentUserContext currentUser,
     UserPresenceTracker presenceTracker,
     IIPAddressLocationService ipAddressLocationService,
+    FileStorageService files,
     ILogger<AccountAdminService> logger) : IAccountAdminService
 {
     public static readonly IReadOnlyList<string> PermissionCatalog =
@@ -43,6 +47,10 @@ public sealed class AccountAdminService(
         "settings.manage"
     ];
 
+    private const string DriverRole = "Driver";
+    private const string DispatcherRole = "Dispatcher";
+    private const string AdministratorRole = "Administrator";
+
     public async Task<AccountAdminDashboard> GetDashboardAsync(AccountAdminQuery query, CancellationToken cancellationToken)
     {
         var normalizedQuery = query with
@@ -57,6 +65,13 @@ public sealed class AccountAdminService(
         var users = await userManager.Users
             .OrderBy(x => x.Email)
             .AsNoTracking()
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var drivers = await db.Drivers
+            .AsNoTracking()
+            .Where(x => x.CompanyId == currentUser.CompanyId)
+            .OrderBy(x => x.FullName)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
@@ -124,11 +139,16 @@ public sealed class AccountAdminService(
                 .ResolveAsync(presence?.LastIpAddress, cancellationToken)
                 .ConfigureAwait(false);
 
+            var linkedDriver = drivers.FirstOrDefault(x => x.UserId == user.Id);
             userRows.Add(new AccountAdminUserRow
             {
                 Id = user.Id,
                 DisplayName = string.IsNullOrWhiteSpace(user.DisplayName) ? (user.UserName ?? user.Email ?? user.Id.ToString()) : user.DisplayName,
                 Email = user.Email ?? user.UserName ?? string.Empty,
+                PhoneNumber = user.PhoneNumber,
+                ProfileImageUrl = user.ProfileImageUrl,
+                DriverId = linkedDriver?.Id,
+                DriverName = linkedDriver?.FullName,
                 IsActive = user.IsActive,
                 IsLocked = isLocked,
                 IsOnline = presenceTracker.IsOnline(user.Id),
@@ -206,6 +226,7 @@ public sealed class AccountAdminService(
                 })
                 .ToList(),
             RecentAuditLogs = auditLogs,
+            DriverOptions = drivers.Select(x => new AccountAdminDriverOption(x.Id, x.FullName, x.EmployeeNumber, x.UserId)).ToList(),
             Pager = new AccountAdminPager
             {
                 Page = page,
@@ -303,6 +324,128 @@ public sealed class AccountAdminService(
         return AccountAdminOperationResult.Ok(assign ? "Rola je dodeljena." : "Rola je uklonjena.");
     }
 
+    public async Task<AccountAdminOperationResult> CreateUserAsync(AccountAdminCreateUserInput input, CancellationToken cancellationToken)
+    {
+        if (currentUser.CompanyId is not Guid companyId)
+        {
+            return AccountAdminOperationResult.Fail("Kompnija nije određena za trenutnog administratora.");
+        }
+
+        var email = input.Email?.Trim();
+        var displayName = input.DisplayName?.Trim();
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(displayName) || string.IsNullOrWhiteSpace(input.Password))
+        {
+            return AccountAdminOperationResult.Fail("Ime, email i lozinka su obavezni.");
+        }
+
+        if (await userManager.FindByEmailAsync(email).ConfigureAwait(false) is not null)
+        {
+            return AccountAdminOperationResult.Fail("Korisnik sa tim email-om već postoji.");
+        }
+
+        var user = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = email,
+            Email = email,
+            CompanyId = companyId,
+            DisplayName = displayName,
+            PhoneNumber = Clean(input.PhoneNumber),
+            IsActive = true,
+            EmailConfirmed = true,
+            PhoneNumberConfirmed = !string.IsNullOrWhiteSpace(input.PhoneNumber),
+            CreatedAt = DateTimeOffset.UtcNow,
+        };
+
+        if (input.ProfileImage is not null)
+        {
+            var photo = await files.SaveAsync(input.ProfileImage, companyId, cancellationToken).ConfigureAwait(false);
+            user.ProfileImageUrl = photo is null ? null : $"/api/files/{photo.Id}";
+        }
+
+        var createResult = await userManager.CreateAsync(user, input.Password).ConfigureAwait(false);
+        if (!createResult.Succeeded)
+        {
+            return AccountAdminOperationResult.Fail(string.Join("; ", createResult.Errors.Select(x => x.Description)));
+        }
+
+        foreach (var roleName in NormalizeRoles(input.RoleNames))
+        {
+            if (await roleManager.RoleExistsAsync(roleName).ConfigureAwait(false))
+            {
+                var roleResult = await userManager.AddToRoleAsync(user, roleName).ConfigureAwait(false);
+                if (!roleResult.Succeeded)
+                {
+                    return AccountAdminOperationResult.Fail(string.Join("; ", roleResult.Errors.Select(x => x.Description)));
+                }
+            }
+        }
+
+        await LinkDriverAsync(user, input.DriverId, cancellationToken).ConfigureAwait(false);
+        await WriteAuditAsync("User.Create", nameof(ApplicationUser), user.Id.ToString(), new { user.Email, user.DisplayName, input.DriverId }, cancellationToken).ConfigureAwait(false);
+        return AccountAdminOperationResult.Ok("Korisnik je kreiran.");
+    }
+
+    public async Task<AccountAdminOperationResult> UpdateUserAsync(AccountAdminUpdateUserInput input, CancellationToken cancellationToken)
+    {
+        if (currentUser.CompanyId is not Guid companyId)
+        {
+            return AccountAdminOperationResult.Fail("Kompnija nije određena za trenutnog administratora.");
+        }
+
+        var user = await userManager.Users.SingleOrDefaultAsync(x => x.Id == input.UserId && x.CompanyId == companyId, cancellationToken).ConfigureAwait(false);
+        if (user is null)
+        {
+            return AccountAdminOperationResult.Fail("Korisnik nije pronađen.");
+        }
+
+        var email = input.Email?.Trim();
+        var displayName = input.DisplayName?.Trim();
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(displayName))
+        {
+            return AccountAdminOperationResult.Fail("Ime i email su obavezni.");
+        }
+
+        var existing = await userManager.FindByEmailAsync(email).ConfigureAwait(false);
+        if (existing is not null && existing.Id != user.Id)
+        {
+            return AccountAdminOperationResult.Fail("Email već koristi drugi korisnik.");
+        }
+
+        user.Email = email;
+        user.UserName = email;
+        user.DisplayName = displayName;
+        user.PhoneNumber = Clean(input.PhoneNumber);
+        user.PhoneNumberConfirmed = !string.IsNullOrWhiteSpace(user.PhoneNumber);
+
+        if (input.ProfileImage is not null)
+        {
+            var photo = await files.SaveAsync(input.ProfileImage, companyId, cancellationToken).ConfigureAwait(false);
+            user.ProfileImageUrl = photo is null ? user.ProfileImageUrl : $"/api/files/{photo.Id}";
+        }
+
+        var updateResult = await userManager.UpdateAsync(user).ConfigureAwait(false);
+        if (!updateResult.Succeeded)
+        {
+            return AccountAdminOperationResult.Fail(string.Join("; ", updateResult.Errors.Select(x => x.Description)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(input.Password))
+        {
+            var resetToken = await userManager.GeneratePasswordResetTokenAsync(user).ConfigureAwait(false);
+            var resetResult = await userManager.ResetPasswordAsync(user, resetToken, input.Password).ConfigureAwait(false);
+            if (!resetResult.Succeeded)
+            {
+                return AccountAdminOperationResult.Fail(string.Join("; ", resetResult.Errors.Select(x => x.Description)));
+            }
+        }
+
+        await SyncRolesAsync(user, input.RoleNames, cancellationToken).ConfigureAwait(false);
+        await LinkDriverAsync(user, input.DriverId, cancellationToken).ConfigureAwait(false);
+        await WriteAuditAsync("User.Update", nameof(ApplicationUser), user.Id.ToString(), new { user.Email, user.DisplayName, input.DriverId }, cancellationToken).ConfigureAwait(false);
+        return AccountAdminOperationResult.Ok("Korisnik je ažuriran.");
+    }
+
     public async Task<AccountAdminOperationResult> TogglePermissionAsync(Guid roleId, string permission, bool grant, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(permission))
@@ -335,6 +478,85 @@ public sealed class AccountAdminService(
 
         return AccountAdminOperationResult.Ok(grant ? "Dozvola je dodeljena roli." : "Dozvola je uklonjena sa role.");
     }
+
+    private async Task SyncRolesAsync(ApplicationUser user, IEnumerable<string>? desiredRoles, CancellationToken cancellationToken)
+    {
+        var normalized = NormalizeRoles(desiredRoles).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var currentRoles = await userManager.GetRolesAsync(user).ConfigureAwait(false);
+        var toRemove = currentRoles.Where(role => !normalized.Contains(role)).ToList();
+        if (toRemove.Count > 0)
+        {
+            var removeResult = await userManager.RemoveFromRolesAsync(user, toRemove).ConfigureAwait(false);
+            if (!removeResult.Succeeded)
+            {
+                throw new InvalidOperationException(string.Join("; ", removeResult.Errors.Select(x => x.Description)));
+            }
+        }
+
+        var toAdd = normalized.Where(role => !currentRoles.Contains(role, StringComparer.OrdinalIgnoreCase)).ToList();
+        if (toAdd.Count > 0)
+        {
+            var addResult = await userManager.AddToRolesAsync(user, toAdd).ConfigureAwait(false);
+            if (!addResult.Succeeded)
+            {
+                throw new InvalidOperationException(string.Join("; ", addResult.Errors.Select(x => x.Description)));
+            }
+        }
+    }
+
+    private async Task LinkDriverAsync(ApplicationUser user, Guid? driverId, CancellationToken cancellationToken)
+    {
+        if (user.CompanyId is not Guid companyId)
+        {
+            return;
+        }
+
+        var currentlyLinked = await db.Drivers.Where(x => x.CompanyId == companyId && x.UserId == user.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
+        foreach (var linkedDriver in currentlyLinked.Where(x => x.Id != driverId))
+        {
+            linkedDriver.UserId = null;
+        }
+
+        if (driverId is not Guid targetDriverId)
+        {
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        var targetDriver = await db.Drivers.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == targetDriverId, cancellationToken).ConfigureAwait(false);
+        if (targetDriver is null)
+        {
+            throw new InvalidOperationException("Izabrani vozač nije pronađen.");
+        }
+
+        var duplicateLink = await db.Drivers.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id != targetDriverId && x.UserId == user.Id, cancellationToken).ConfigureAwait(false);
+        if (duplicateLink is not null)
+        {
+            duplicateLink.UserId = null;
+        }
+
+        targetDriver.UserId = user.Id;
+        targetDriver.Email = user.Email;
+        targetDriver.Phone = string.IsNullOrWhiteSpace(user.PhoneNumber) ? targetDriver.Phone : user.PhoneNumber;
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    private static IReadOnlyList<string> NormalizeRoles(IEnumerable<string>? roles)
+    {
+        if (roles is null)
+        {
+            return [];
+        }
+
+        return roles
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private static string? Clean(string? value)
+        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     private static string? FormatLocation(IpAddressLocation? location)
     {
@@ -388,6 +610,7 @@ public sealed class AccountAdminDashboard
     public IReadOnlyList<AccountAdminRoleRow> AvailableRoles { get; set; } = [];
     public IReadOnlyList<AccountAdminRolePermissionRow> RolePermissions { get; set; } = [];
     public IReadOnlyList<AuditLog> RecentAuditLogs { get; set; } = [];
+    public IReadOnlyList<AccountAdminDriverOption> DriverOptions { get; set; } = [];
     public AccountAdminPager Pager { get; set; } = new();
 }
 
@@ -404,6 +627,10 @@ public sealed class AccountAdminUserRow
     public Guid Id { get; set; }
     public string DisplayName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public string? PhoneNumber { get; set; }
+    public string? ProfileImageUrl { get; set; }
+    public Guid? DriverId { get; set; }
+    public string? DriverName { get; set; }
     public bool IsActive { get; set; }
     public bool IsLocked { get; set; }
     public bool IsOnline { get; set; }
@@ -414,6 +641,27 @@ public sealed class AccountAdminUserRow
     public string? LastLocation { get; set; }
     public List<string> Roles { get; set; } = [];
 }
+
+public sealed record AccountAdminDriverOption(Guid Id, string FullName, string? EmployeeNumber, Guid? UserId);
+
+public sealed record AccountAdminCreateUserInput(
+    string? DisplayName,
+    string? Email,
+    string? Password,
+    string? PhoneNumber,
+    Guid? DriverId,
+    IReadOnlyList<string>? RoleNames,
+    IFormFile? ProfileImage);
+
+public sealed record AccountAdminUpdateUserInput(
+    Guid UserId,
+    string? DisplayName,
+    string? Email,
+    string? Password,
+    string? PhoneNumber,
+    Guid? DriverId,
+    IReadOnlyList<string>? RoleNames,
+    IFormFile? ProfileImage);
 
 public sealed record AccountAdminRoleRow(Guid Id, string Name);
 

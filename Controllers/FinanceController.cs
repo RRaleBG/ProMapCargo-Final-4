@@ -108,6 +108,16 @@ public sealed class FinanceController(ProMapCargoDbContext db, ICurrentUserConte
 
         var cost = await db.TransportCosts.SingleOrDefaultAsync(x => x.CompanyId == c && x.Id == id, ct);
         if (cost is null) return NotFound();
+        if (!current.IsAdministrator && current.IsInRole("Dispatcher"))
+        {
+            var isScoped = await db.RouteDispatches.AsNoTracking()
+                .AnyAsync(x => x.CompanyId == c && x.TripId == cost.TripId && x.SentByUserId == current.UserId, ct)
+                .ConfigureAwait(false);
+            if (!isScoped)
+            {
+                return Forbid();
+            }
+        }
 
         var old = cost.Status.ToString();
         cost.Status = status;

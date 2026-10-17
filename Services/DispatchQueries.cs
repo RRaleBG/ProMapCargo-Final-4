@@ -12,9 +12,28 @@ public sealed class DispatchQueries(ProMapCargoDbContext db, ICurrentUserContext
     {
         if (current.CompanyId is not Guid c) return null;
 
-        var vehicles = await db.Vehicles.AsNoTracking().Where(x => x.CompanyId == c && x.Type != VehicleType.Trailer).ToListAsync(ct);
+        var dispatchDriverIds = current.IsAdministrator
+            ? null
+            : await ResolveDispatcherDriverIdsAsync(c, ct).ConfigureAwait(false);
+        var dispatchVehicleIds = current.IsAdministrator
+            ? null
+            : await ResolveDispatcherVehicleIdsAsync(c, dispatchDriverIds, ct).ConfigureAwait(false);
+
+        var vehiclesQuery = db.Vehicles.AsNoTracking().Where(x => x.CompanyId == c && x.Type != VehicleType.Trailer);
+        if (dispatchVehicleIds is { Count: > 0 })
+        {
+            vehiclesQuery = vehiclesQuery.Where(x => dispatchVehicleIds.Contains(x.Id));
+        }
+
+        var vehicles = await vehiclesQuery.ToListAsync(ct);
         var drivers = await db.Drivers.AsNoTracking().Where(x => x.CompanyId == c).ToDictionaryAsync(x => x.Id, x => x.FullName, ct);
-        var trips = await db.Trips.AsNoTracking().Where(x => x.CompanyId == c && x.Status != TripStatus.Cancelled).ToListAsync(ct);
+        var tripsQuery = db.Trips.AsNoTracking().Where(x => x.CompanyId == c && x.Status != TripStatus.Cancelled);
+        if (dispatchVehicleIds is { Count: > 0 })
+        {
+            tripsQuery = tripsQuery.Where(x => (x.VehicleId != null && dispatchVehicleIds.Contains(x.VehicleId.Value)) || (x.DriverId != null && dispatchDriverIds!.Contains(x.DriverId.Value)));
+        }
+
+        var trips = await tripsQuery.ToListAsync(ct);
         var running = trips.Where(x => x.Status is TripStatus.Active or TripStatus.Paused or TripStatus.Planned).ToList();
         var orderIds = running.Select(x => x.TransportOrderId).ToList();
         var stops = await db.TransportStops.AsNoTracking().Where(x => x.CompanyId == c && orderIds.Contains(x.TransportOrderId)).OrderBy(x => x.Sequence).ToListAsync(ct);
@@ -106,5 +125,53 @@ public sealed class DispatchQueries(ProMapCargoDbContext db, ICurrentUserContext
                 WaitingMinutes = g.Max(x => x.WaitingMinutes),
             }),
         });
+    }
+    private async Task<HashSet<Guid>?> ResolveDispatcherDriverIdsAsync(Guid companyId, CancellationToken ct)
+    {
+        if (!current.IsInRole("Dispatcher") || current.UserId is not Guid userId)
+        {
+            return null;
+        }
+
+        var assignedTripIds = await db.RouteDispatches.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.SentByUserId == userId)
+            .Select(x => x.TripId)
+            .Distinct()
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+
+        if (assignedTripIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await db.Trips.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && assignedTripIds.Contains(x.Id) && x.DriverId != null)
+            .Select(x => x.DriverId!.Value)
+            .Distinct()
+            .ToHashSetAsync(ct)
+            .ConfigureAwait(false);
+    }
+
+    private async Task<HashSet<Guid>?> ResolveDispatcherVehicleIdsAsync(Guid companyId, HashSet<Guid>? driverIds, CancellationToken ct)
+    {
+        if (driverIds is null)
+        {
+            return null;
+        }
+
+        var vehicleIds = await db.Trips.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.VehicleId != null && x.DriverId != null && driverIds.Contains(x.DriverId.Value))
+            .Select(x => x.VehicleId!.Value)
+            .Distinct()
+            .ToHashSetAsync(ct)
+            .ConfigureAwait(false);
+
+        foreach (var currentVehicleId in await db.Drivers.AsNoTracking().Where(x => x.CompanyId == companyId && x.CurrentVehicleId != null && driverIds.Contains(x.Id)).Select(x => x.CurrentVehicleId!.Value).Distinct().ToListAsync(ct).ConfigureAwait(false))
+        {
+            vehicleIds.Add(currentVehicleId);
+        }
+
+        return vehicleIds;
     }
 }

@@ -58,6 +58,54 @@
                 </div>
             </header>
 
+            <div class="pm-account-admin-user-forms">
+                <form method="post" enctype="multipart/form-data" asp-page-handler="CreateUser" class="pm-card pm-panel pm-account-admin-form-card">
+                    <h3 class="pm-card-title">Kreiraj korisnika / vozača</h3>
+                    <div class="pm-form-grid pm-form-grid--2">
+                        <label class="pm-field">
+                            <span>Ime i prezime</span>
+                            <input asp-for="CreateUser.DisplayName" class="pm-input" />
+                        </label>
+                        <label class="pm-field">
+                            <span>Email</span>
+                            <input asp-for="CreateUser.Email" class="pm-input" />
+                        </label>
+                        <label class="pm-field">
+                            <span>Lozinka</span>
+                            <input asp-for="CreateUser.Password" class="pm-input" type="password" />
+                        </label>
+                        <label class="pm-field">
+                            <span>Telefon</span>
+                            <input asp-for="CreateUser.PhoneNumber" class="pm-input" />
+                        </label>
+                        <label class="pm-field">
+                            <span>Poveži vozača</span>
+                            <select asp-for="CreateUser.DriverId" class="pm-select">
+                                <option value="">Bez povezivanja</option>
+                                @foreach (var driver in Model.DriverOptions)
+                                {
+                                    <option value="@driver.Id">@driver.FullName (@(driver.EmployeeNumber ?? "bez broja"))</option>
+                                }
+                            </select>
+                        </label>
+                        <label class="pm-field">
+                            <span>Slika korisnika</span>
+                            <input asp-for="CreateUser.ProfileImage" class="pm-input" type="file" accept=".jpg,.jpeg,.png,.pdf" />
+                        </label>
+                    </div>
+                    <div class="pm-account-admin-role-picks">
+                        @foreach (var role in Model.AvailableRoles)
+                        {
+                            <label class="pm-account-admin-check">
+                                <input type="checkbox" name="CreateUser.RoleNames" value="@role.Name" />
+                                <span>@role.Name</span>
+                            </label>
+                        }
+                    </div>
+                    <button type="submit" class="pm-btn pm-btn-primary">Kreiraj korisnika</button>
+                </form>
+            </div>
+
             <form method="get" class="pm-account-admin-toolbar pm-toolbar">
                 <input type="search" name="Search" value="@Model.Search" placeholder="Pretraga korisnika (ime/email)" class="pm-input" />
                 <select name="Status" class="pm-select">
@@ -98,8 +146,22 @@
                         @foreach (var user in Model.Users)
                         {
                             <tr>
-                                <td>@user.DisplayName</td>
-                                <td>@user.Email</td>
+                                <td>
+                                    <div class="pm-account-admin-user-title">
+                                        @if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl))
+                                        {
+                                            <img src="@user.ProfileImageUrl" alt="@user.DisplayName" class="pm-account-admin-avatar" />
+                                        }
+                                        <div>
+                                            <div>@user.DisplayName</div>
+                                            <small>@(string.IsNullOrWhiteSpace(user.DriverName) ? "Bez povezanog vozača" : $"Vozač: {user.DriverName}")</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>@user.Email</div>
+                                    <small>@(string.IsNullOrWhiteSpace(user.PhoneNumber) ? "—" : user.PhoneNumber)</small>
+                                </td>
                                 <td>
                                     <div class="pm-account-admin-role-list">
                                         @if (user.Roles.Count == 0)
@@ -177,6 +239,38 @@
                                                         </button>
                                                     </form>
                                                 }
+                                            </div>
+                                        </details>
+
+                                        <details class="pm-account-admin-role-editor">
+                                            <summary class="pm-btn pm-btn-sm">Izmeni</summary>
+                                            <div class="pm-account-admin-role-editor-body">
+                                                <form method="post" enctype="multipart/form-data" asp-page-handler="UpdateUser" class="pm-account-admin-edit-form">
+                                                    <input type="hidden" name="EditUser.UserId" value="@user.Id" />
+                                                    <input type="text" name="EditUser.DisplayName" value="@user.DisplayName" class="pm-input" placeholder="Ime i prezime" />
+                                                    <input type="email" name="EditUser.Email" value="@user.Email" class="pm-input" placeholder="Email" />
+                                                    <input type="text" name="EditUser.PhoneNumber" value="@user.PhoneNumber" class="pm-input" placeholder="Telefon" />
+                                                    <input type="password" name="EditUser.Password" class="pm-input" placeholder="Nova lozinka (opciono)" />
+                                                    <select name="EditUser.DriverId" class="pm-select">
+                                                        <option value="">Bez povezivanja</option>
+                                                        @foreach (var driver in Model.DriverOptions)
+                                                        {
+                                                            <option value="@driver.Id" selected="@(user.DriverId == driver.Id)">@driver.FullName (@(driver.EmployeeNumber ?? "bez broja"))</option>
+                                                        }
+                                                    </select>
+                                                    <input type="file" name="EditUser.ProfileImage" class="pm-input" accept=".jpg,.jpeg,.png,.pdf" />
+                                                    <div class="pm-account-admin-role-picks">
+                                                        @foreach (var role in Model.AvailableRoles)
+                                                        {
+                                                            var checkedRole = user.Roles.Contains(role.Name, StringComparer.OrdinalIgnoreCase);
+                                                            <label class="pm-account-admin-check">
+                                                                <input type="checkbox" name="EditUser.RoleNames" value="@role.Name" checked="@checkedRole" />
+                                                                <span>@role.Name</span>
+                                                            </label>
+                                                        }
+                                                    </div>
+                                                    <button class="pm-btn pm-btn-primary pm-btn-sm" type="submit">Sačuvaj izmene</button>
+                                                </form>
                                             </div>
                                         </details>
                                     </div>

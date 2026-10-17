@@ -61,6 +61,7 @@
   <ItemGroup>
     <Folder Include="tmp\" />
     <Folder Include="wwwroot\icons\" />
+    <Folder Include="wwwroot\uploads\profiles\" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".github\copilot-instructions.md" />

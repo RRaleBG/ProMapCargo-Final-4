@@ -828,7 +828,8 @@
                 "/trips?tripId=" +
                 encodeURIComponent(
                     vehicle.currentTripId
-                );
+                ) +
+                "&open=details";
         }
     );
 

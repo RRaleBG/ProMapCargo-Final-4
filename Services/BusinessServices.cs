@@ -274,6 +274,170 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
             .ToListAsync(ct);
     }
 
+    public async Task<TripDetails?> TripDetailsAsync(Guid tripId, CancellationToken ct)
+    {
+        var companyId = GetRequiredCompanyId();
+        var trip = await db.Trips.AsNoTracking()
+            .SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == tripId, ct);
+        if (trip is null)
+        {
+            return null;
+        }
+
+        var order = await db.TransportOrders.AsNoTracking()
+            .SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == trip.TransportOrderId, ct);
+        var stops = await db.TransportStops.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.TransportOrderId == trip.TransportOrderId)
+            .OrderBy(x => x.Sequence)
+            .ToListAsync(ct);
+        var driver = trip.DriverId is { } driverId
+            ? await db.Drivers.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == driverId, ct)
+            : null;
+        var vehicle = trip.VehicleId is { } vehicleId
+            ? await db.Vehicles.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == vehicleId, ct)
+            : null;
+        var dispatcher = await ResolveDispatchUserAsync(companyId, trip, ct);
+        var route = await db.TripRoutes.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.TripId == trip.Id)
+            .OrderByDescending(x => x.ActivatedAt ?? x.CreatedAt)
+            .FirstOrDefaultAsync(ct);
+        var routeId = route?.Id ?? trip.ActiveRouteId;
+
+        var borderCrossings = await db.BorderCrossings.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.TripId == trip.Id)
+            .OrderBy(x => x.EnteredAt ?? x.ClearedAt)
+            .ToListAsync(ct);
+        var waitingEvents = await db.WaitingEvents.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.TripId == trip.Id)
+            .OrderByDescending(x => x.StartedAt)
+            .ToListAsync(ct);
+        var countrySegments = routeId is Guid segmentRouteId
+            ? await db.RouteCountrySegments.AsNoTracking()
+                .Where(x => x.CompanyId == companyId && x.TripRouteId == segmentRouteId)
+                .OrderBy(x => x.Sequence)
+                .ToListAsync(ct)
+            : [];
+        var costs = await db.TransportCosts.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.TripId == trip.Id)
+            .OrderByDescending(x => x.IncurredAt ?? x.CreatedAt)
+            .ToListAsync(ct);
+        var historyVehicleId = trip.VehicleId;
+        var historyDriverId = trip.DriverId;
+        var historySource = await db.Trips.AsNoTracking()
+            .Where(x => x.CompanyId == companyId &&
+                        x.Id != trip.Id &&
+                        ((historyVehicleId != null && x.VehicleId == historyVehicleId) ||
+                         (historyDriverId != null && x.DriverId == historyDriverId)))
+            .OrderByDescending(x => x.StartedAt ?? x.PlannedStartAt ?? x.CreatedAt)
+            .Take(30)
+            .ToListAsync(ct);
+        var historyOrderIds = historySource.Select(x => x.TransportOrderId).Distinct().ToList();
+        var historyOrders = historyOrderIds.Count == 0
+            ? new Dictionary<Guid, TransportOrder>()
+            : await db.TransportOrders.AsNoTracking()
+                .Where(x => x.CompanyId == companyId && historyOrderIds.Contains(x.Id))
+                .ToDictionaryAsync(x => x.Id, x => x, ct);
+        var historyStops = historyOrderIds.Count == 0
+            ? []
+            : await db.TransportStops.AsNoTracking()
+                .Where(x => x.CompanyId == companyId && historyOrderIds.Contains(x.TransportOrderId))
+                .OrderBy(x => x.Sequence)
+                .ToListAsync(ct);
+
+        var spent = costs.Where(x => x.Status != TransportCostStatus.Rejected && x.Category is not (TransportCostCategory.Allowance or TransportCostCategory.Payment)).Sum(x => x.Amount);
+        var allowance = costs.Where(x => x.Status != TransportCostStatus.Rejected && x.Category == TransportCostCategory.Allowance).Sum(x => x.Amount);
+        var payments = costs.Where(x => x.Status != TransportCostStatus.Rejected && x.Category == TransportCostCategory.Payment).Sum(x => x.Amount);
+        var driverPaid = costs.Where(x => x.Status != TransportCostStatus.Rejected && x.PaymentMethod is "cash" or "driver-card").Sum(x => x.Amount);
+
+        return new TripDetails(
+            new TripDetailsSummary(
+                trip.Id,
+                trip.TripNumber,
+                trip.Status.ToString(),
+                trip.ExecutionState.ToString(),
+                trip.StartedAt,
+                trip.CompletedAt,
+                trip.PlannedStartAt,
+                trip.PlannedArrivalAt,
+                trip.PlannedDistanceMeters,
+                trip.PlannedDurationSeconds,
+                trip.RouteCoveredMeters,
+                trip.RouteRemainingMeters,
+                trip.RouteProgressPercent,
+                trip.DistanceToRouteMeters,
+                trip.IsOffRoute,
+                trip.CurrentLatitude,
+                trip.CurrentLongitude,
+                trip.CurrentSpeedKmh,
+                trip.LastGpsAt,
+                trip.BudgetAmount,
+                trip.Currency,
+                trip.BudgetAmount is null ? null : trip.BudgetAmount.Value - spent),
+            order is null ? null : new TripOrderDetails(
+                order.Id,
+                order.OrderNumber,
+                order.CustomerName,
+                order.Status.ToString(),
+                order.Priority.ToString(),
+                order.CargoDescription,
+                order.CargoWeightTons,
+                order.CargoVolumeM3,
+                order.Pallets,
+                order.Hazmat,
+                ExtractTripNotes(stops),
+                stops.Select(MapStop).ToList()),
+            driver is null ? null : new TripDriverDetails(
+                driver.Id,
+                driver.FullName,
+                driver.EmployeeNumber,
+                driver.Phone,
+                driver.Email,
+                driver.Status.ToString(),
+                driver.LicenseNumber,
+                driver.LicenseCategories,
+                driver.CurrentVehicleId,
+                driver.LastGpsAt,
+                driver.Notes,
+                historySource.Where(x => x.DriverId == driver.Id).Select(x => MapHistoryTrip(x, historyOrders, historyStops)).ToList()),
+            vehicle is null ? null : new TripVehicleDetails(
+                vehicle.Id,
+                vehicle.Registration,
+                vehicle.Name,
+                vehicle.Make,
+                vehicle.Model,
+                vehicle.Type.ToString(),
+                vehicle.Status.ToString(),
+                vehicle.FleetNumber,
+                vehicle.FuelCard,
+                vehicle.TrailerId,
+                vehicle.OdometerKm,
+                vehicle.GrossWeightTons,
+                vehicle.AxleLoadTons,
+                vehicle.LengthMeters,
+                vehicle.WidthMeters,
+                vehicle.HeightMeters,
+                vehicle.Axles,
+                vehicle.MaxSpeedKmh,
+                vehicle.Hazmat,
+                vehicle.Notes,
+                historySource.Where(x => x.VehicleId == vehicle.Id).Select(x => MapHistoryTrip(x, historyOrders, historyStops)).ToList()),
+            dispatcher,
+            new TripFinancialDetails(
+                trip.Currency,
+                trip.BudgetAmount,
+                spent,
+                allowance,
+                payments,
+                driverPaid,
+                costs.Where(x => x.Status == TransportCostStatus.Pending).Sum(x => x.Amount),
+                costs.Select(MapCost).ToList()),
+            new TripComplianceDetails(
+                countrySegments.Select(x => new TripCountrySegmentDetails(x.Sequence, x.CountryCode, x.DistanceMeters, x.DurationSeconds, x.EstimatedEntry, x.EstimatedExit)).ToList(),
+                borderCrossings.Select(x => new TripBorderCrossingDetails(x.Id, x.CountryFrom, x.CountryTo, x.BorderPoint, x.Status.ToString(), x.EnteredAt, x.ClearedAt, x.WaitingMinutes, x.Inspection, x.CostAmount, x.Currency, x.Notes)).ToList(),
+                waitingEvents.Select(x => new TripWaitingEventDetails(x.Id, x.Reason.ToString(), x.StartedAt, x.EndedAt, x.DurationMinutes, x.CostAmount, x.Currency, x.Notes)).ToList()),
+            route is null ? null : new TripRouteInfo(route.Id, route.Status.ToString(), route.Engine, route.UsedFallback, route.DistanceMeters, route.DurationSeconds, route.EstimatedArrival, route.ActivatedAt, route.CreatedAt));
+    }
+
     public async Task<TripRoute?> ActiveRouteAsync(Guid tripId, CancellationToken ct)
     {
         var companyId = GetRequiredCompanyId();
@@ -293,7 +457,7 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
         var companyId = GetRequiredCompanyId();
 
         var trip = await db.Trips.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == tripId, ct);
-          
+
 
         if (trip is null)
         {
@@ -404,6 +568,55 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
             .ToListAsync(ct);
         return new OrderDetails(order, stops);
     }
+
+    private async Task<TripDispatcherDetails?> ResolveDispatchUserAsync(Guid companyId, Trip trip, CancellationToken ct)
+    {
+        var dispatchUserId = await db.RouteDispatches.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.TripId == trip.Id && x.SentByUserId != null)
+            .OrderByDescending(x => x.CreatedAt)
+            .Select(x => x.SentByUserId)
+            .FirstOrDefaultAsync(ct);
+
+        Guid? userId = dispatchUserId;
+        if (userId is null && trip.TransportOrderId != Guid.Empty)
+        {
+            userId = await db.AuditLogs.AsNoTracking()
+                .Where(x => x.CompanyId == companyId && x.EntityType == nameof(TransportOrder) && x.EntityId == trip.TransportOrderId.ToString() && x.UserId != null)
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(x => x.UserId)
+                .FirstOrDefaultAsync(ct);
+        }
+
+        if (userId is not Guid dispatcherId)
+        {
+            return null;
+        }
+
+        var user = await db.Users.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == dispatcherId, ct);
+        return user is null ? null : new TripDispatcherDetails(user.Id, user.DisplayName, user.Email, user.PhoneNumber);
+    }
+
+    private static string? ExtractTripNotes(IEnumerable<TransportStop> stops)
+    {
+        var notes = stops
+            .Where(x => !string.IsNullOrWhiteSpace(x.Notes))
+            .Select(x => $"{x.Sequence}. {x.Name}: {x.Notes}")
+            .ToList();
+        return notes.Count == 0 ? null : string.Join(Environment.NewLine, notes);
+    }
+
+    private static TripStopDetails MapStop(TransportStop stop)
+        => new(stop.Id, stop.Sequence, stop.Type.ToString(), stop.Status.ToString(), stop.Name, stop.Address, stop.City, stop.CountryCode, stop.Latitude, stop.Longitude, stop.PlannedAt, stop.ArrivedAt, stop.CompletedAt, stop.WaitingMinutes, stop.ServiceMinutes, stop.Notes);
+
+    private static TripHistoryItem MapHistoryTrip(Trip trip, IReadOnlyDictionary<Guid, TransportOrder> orders, IReadOnlyList<TransportStop> stops)
+    {
+        orders.TryGetValue(trip.TransportOrderId, out var order);
+        var route = string.Join(" → ", stops.Where(x => x.TransportOrderId == trip.TransportOrderId).Select(x => x.City ?? x.Name));
+        return new TripHistoryItem(trip.Id, trip.TripNumber, trip.Status.ToString(), trip.ExecutionState.ToString(), order?.OrderNumber, route, trip.StartedAt ?? trip.PlannedStartAt, trip.CompletedAt ?? trip.PlannedArrivalAt, trip.RouteProgressPercent);
+    }
+
+    private static TripCostDetails MapCost(TransportCost cost)
+        => new(cost.Id, cost.Category.ToString(), cost.Status.ToString(), cost.Source.ToString(), cost.Amount, cost.Currency, cost.Quantity, cost.Unit, cost.UnitPrice, cost.IncurredAt ?? cost.CreatedAt, cost.Location, cost.CountryCode, cost.PaymentMethod, cost.CardLabel, cost.OdometerKm, cost.Notes, cost.ReceiptFileId, cost.CreatedByUserId);
 
     public async Task<TransportOrder> UpdateOrderAsync(Guid orderId, CreateTransportOrderRequest request, CancellationToken ct)
     {
@@ -757,3 +970,159 @@ public sealed record DriverInput
     public Guid? VehicleId { get; init; }
     public string? Notes { get; init; }
 }
+
+public sealed record TripDetails(
+    TripDetailsSummary Trip,
+    TripOrderDetails? Order,
+    TripDriverDetails? Driver,
+    TripVehicleDetails? Vehicle,
+    TripDispatcherDetails? Dispatcher,
+    TripFinancialDetails Financial,
+    TripComplianceDetails Compliance,
+    TripRouteInfo? Route);
+
+public sealed record TripDetailsSummary(
+    Guid Id,
+    string? TripNumber,
+    string Status,
+    string ExecutionState,
+    DateTimeOffset? StartedAt,
+    DateTimeOffset? CompletedAt,
+    DateTimeOffset? PlannedStartAt,
+    DateTimeOffset? PlannedArrivalAt,
+    double PlannedDistanceMeters,
+    double PlannedDurationSeconds,
+    double RouteCoveredMeters,
+    double RouteRemainingMeters,
+    double RouteProgressPercent,
+    double DistanceToRouteMeters,
+    bool IsOffRoute,
+    double? CurrentLatitude,
+    double? CurrentLongitude,
+    double? CurrentSpeedKmh,
+    DateTimeOffset? LastGpsAt,
+    decimal? BudgetAmount,
+    string Currency,
+    decimal? RemainingBudget);
+
+public sealed record TripOrderDetails(
+    Guid Id,
+    string OrderNumber,
+    string CustomerName,
+    string Status,
+    string Priority,
+    string? CargoDescription,
+    decimal? CargoWeightTons,
+    decimal? CargoVolumeM3,
+    int? Pallets,
+    bool Hazmat,
+    string? Notes,
+    List<TripStopDetails> Stops);
+
+public sealed record TripStopDetails(
+    Guid Id,
+    int Sequence,
+    string Type,
+    string Status,
+    string Name,
+    string? Address,
+    string? City,
+    string? CountryCode,
+    double Latitude,
+    double Longitude,
+    DateTimeOffset? PlannedAt,
+    DateTimeOffset? ArrivedAt,
+    DateTimeOffset? CompletedAt,
+    int WaitingMinutes,
+    int ServiceMinutes,
+    string? Notes);
+
+public sealed record TripDriverDetails(
+    Guid Id,
+    string FullName,
+    string? EmployeeNumber,
+    string? Phone,
+    string? Email,
+    string Status,
+    string? LicenseNumber,
+    string? LicenseCategories,
+    Guid? CurrentVehicleId,
+    DateTimeOffset? LastGpsAt,
+    string? Notes,
+    List<TripHistoryItem> TripHistory);
+
+public sealed record TripVehicleDetails(
+    Guid Id,
+    string Registration,
+    string? Name,
+    string? Make,
+    string? Model,
+    string Type,
+    string Status,
+    string? FleetNumber,
+    string? FuelCard,
+    Guid? TrailerId,
+    int? OdometerKm,
+    decimal GrossWeightTons,
+    decimal AxleLoadTons,
+    decimal LengthMeters,
+    decimal WidthMeters,
+    decimal HeightMeters,
+    int Axles,
+    decimal MaxSpeedKmh,
+    bool Hazmat,
+    string? Notes,
+    List<TripHistoryItem> TripHistory);
+
+public sealed record TripHistoryItem(
+    Guid Id,
+    string? TripNumber,
+    string Status,
+    string ExecutionState,
+    string? OrderNumber,
+    string Route,
+    DateTimeOffset? StartedAt,
+    DateTimeOffset? CompletedAt,
+    double RouteProgressPercent);
+
+public sealed record TripDispatcherDetails(Guid Id, string DisplayName, string? Email, string? PhoneNumber);
+
+public sealed record TripFinancialDetails(
+    string Currency,
+    decimal? BudgetAmount,
+    decimal SpentAmount,
+    decimal AllowanceAmount,
+    decimal PaidOutAmount,
+    decimal DriverPaidAmount,
+    decimal PendingAmount,
+    List<TripCostDetails> Costs);
+
+public sealed record TripCostDetails(
+    Guid Id,
+    string Category,
+    string Status,
+    string Source,
+    decimal Amount,
+    string Currency,
+    decimal Quantity,
+    string Unit,
+    decimal UnitPrice,
+    DateTimeOffset At,
+    string? Location,
+    string? CountryCode,
+    string? PaymentMethod,
+    string? CardLabel,
+    int? OdometerKm,
+    string? Notes,
+    Guid? ReceiptFileId,
+    Guid? CreatedByUserId);
+
+public sealed record TripComplianceDetails(
+    List<TripCountrySegmentDetails> CountrySegments,
+    List<TripBorderCrossingDetails> BorderCrossings,
+    List<TripWaitingEventDetails> WaitingEvents);
+
+public sealed record TripCountrySegmentDetails(int Sequence, string CountryCode, double DistanceMeters, double DurationSeconds, DateTimeOffset? EstimatedEntry, DateTimeOffset? EstimatedExit);
+public sealed record TripBorderCrossingDetails(Guid Id, string CountryFrom, string CountryTo, string BorderPoint, string Status, DateTimeOffset? EnteredAt, DateTimeOffset? ClearedAt, int WaitingMinutes, bool Inspection, decimal CostAmount, string Currency, string? Notes);
+public sealed record TripWaitingEventDetails(Guid Id, string Reason, DateTimeOffset StartedAt, DateTimeOffset? EndedAt, int DurationMinutes, decimal CostAmount, string Currency, string? Notes);
+public sealed record TripRouteInfo(Guid Id, string Status, string Engine, bool UsedFallback, double DistanceMeters, double DurationSeconds, DateTimeOffset? EstimatedArrival, DateTimeOffset? ActivatedAt, DateTimeOffset CreatedAt);

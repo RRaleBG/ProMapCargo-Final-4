@@ -19093,6 +19093,15 @@ select:focus-visible {
   background: rgba(255, 255, 255, 0.025);
 }
 
+.pm-trip-table-row--interactive {
+  cursor: pointer;
+}
+
+.pm-trip-table-row--interactive:focus-visible {
+  outline: 2px solid var(--pm-emerald-300);
+  outline-offset: -2px;
+}
+
 .pm-trip-primary {
   color: var(--pm-text);
   font-weight: 700;
@@ -19140,6 +19149,144 @@ select:focus-visible {
 
 .pm-trip-gps {
   font-weight: 500;
+}
+
+.pm-trip-detail-modal {
+  padding: 18px;
+}
+
+.pm-trip-detail-dialog {
+  width: min(1180px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+}
+
+.pm-trip-detail-header {
+  align-items: flex-start;
+}
+
+.pm-trip-detail-loading {
+  padding: 22px 4px 6px;
+  color: var(--pm-text-dim);
+  font-size: var(--pm-font-xs);
+}
+
+.pm-trip-detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.pm-trip-detail-section {
+  padding: 16px;
+  border: 1px solid var(--pm-border);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.pm-trip-detail-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.pm-trip-detail-grid--summary,
+.pm-trip-detail-grid--finance {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.pm-trip-detail-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pm-trip-detail-card,
+.pm-trip-detail-panel {
+  padding: 14px;
+  border: 1px solid var(--pm-border-soft);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.pm-trip-detail-card span,
+.pm-trip-detail-panel span,
+.pm-trip-note-box span,
+.pm-trip-detail-list span {
+  display: block;
+  color: var(--pm-text-dim);
+  font-size: var(--pm-font-2xs);
+}
+
+.pm-trip-detail-card strong,
+.pm-trip-detail-panel strong,
+.pm-trip-note-box strong,
+.pm-trip-detail-list strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--pm-text);
+  font-size: var(--pm-font-sm);
+}
+
+.pm-trip-detail-card small,
+.pm-trip-detail-panel small {
+  display: block;
+  margin-top: 4px;
+  color: var(--pm-text-muted);
+  font-size: var(--pm-font-2xs);
+}
+
+.pm-trip-detail-panel h4,
+.pm-trip-detail-panel h5 {
+  margin: 0 0 12px;
+  color: var(--pm-text-soft);
+}
+
+.pm-trip-detail-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.pm-trip-note-box {
+  padding: 14px;
+  border: 1px solid rgba(45, 212, 191, 0.18);
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.pm-trip-cost-table-wrap {
+  margin-top: 14px;
+  overflow: auto;
+}
+
+.pm-trip-cost-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pm-trip-cost-table th,
+.pm-trip-cost-table td {
+  padding: 12px 10px;
+  border-top: 1px solid var(--pm-border-soft);
+  text-align: left;
+  vertical-align: top;
+}
+
+.pm-trip-cost-table th {
+  color: var(--pm-text-muted);
+  font-size: var(--pm-font-2xs);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .pm-trip-detail-grid--summary,
+  .pm-trip-detail-grid--finance,
+  .pm-trip-detail-two-column {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Login validation / interaction states */

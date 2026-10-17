@@ -176,9 +176,69 @@ public sealed class DashboardViewModel : ViewModelBase
             var parts = new List<string>();
             if (Trip?.Vehicle is { Length: > 0 } vehicle) parts.Add(vehicle);
             if (Trip?.PlannedArrivalAt is { } eta) parts.Add($"dolazak {eta.ToLocalTime():dd.MM. HH:mm}");
+            if (portal?.Financial?.BudgetAmount is { } budget) parts.Add($"budžet {FormatMoney(budget, portal.Financial.Currency)}");
             return string.Join(" · ", parts);
         }
     }
+
+    public string TripNotesText => string.IsNullOrWhiteSpace(portal?.Notes) ? "Nema posebnih napomena za vozača." : portal.Notes!;
+
+    public string TripFinancialSummary
+    {
+        get
+        {
+            var financial = portal?.Financial;
+            if (financial is null)
+            {
+                return "Troškovi nisu dostupni.";
+            }
+
+            return $"Troškovi {FormatMoney(financial.SpentAmount, financial.Currency)} · vozač platio {FormatMoney(financial.DriverPaidAmount, financial.Currency)}";
+        }
+    }
+
+    public string TripEarningsSummary
+    {
+        get
+        {
+            var financial = portal?.Financial;
+            if (financial is null)
+            {
+                return "Zarada nije dostupna.";
+            }
+
+            return $"Dnevnice {FormatMoney(financial.AllowanceAmount, financial.Currency)} · isplaćeno {FormatMoney(financial.PaidOutAmount, financial.Currency)} · na čekanju {FormatMoney(financial.PendingAmount, financial.Currency)}";
+        }
+    }
+
+    public string EuStaySummary => portal?.EuStay?.StatusText ?? "EU 90/180 pregled nije dostupan.";
+
+    public string EuStayDetailText
+    {
+        get
+        {
+            var euStay = portal?.EuStay;
+            if (euStay is null)
+            {
+                return string.Empty;
+            }
+
+            var countries = euStay.Countries is { Count: > 0 } list ? string.Join(", ", list) : "bez EU segmenata";
+            return $"{euStay.DaysUsed}/90 dana · preostaje {euStay.DaysRemaining} · period {euStay.WindowStart:dd.MM.yyyy} - {euStay.WindowEnd:dd.MM.yyyy} · {countries}";
+        }
+    }
+
+    public string CostLedgerSummary => portal?.Financial?.Costs is { Count: > 0 } costs
+        ? string.Join(Environment.NewLine, costs.Take(4).Select(cost => $"{cost.Category}: {FormatMoney(cost.Amount, cost.Currency)} · {cost.PaymentMethod ?? "nepoznato"}{(string.IsNullOrWhiteSpace(cost.Location) ? string.Empty : $" · {cost.Location}")}"))
+        : "Još nema unetih troškova za ovu turu.";
+
+    public string DriverTripsSummary => portal?.Trips is { Count: > 0 } trips
+        ? string.Join(Environment.NewLine, trips.Take(6).Select(trip => $"{trip.TripNumber ?? "Tura"}: {trip.Route ?? "Ruta nije definisana"} · {trip.Status ?? "—"} · trošak {FormatMoney(trip.Spent, portal?.Financial?.Currency ?? "EUR")}"))
+        : "Nema evidentiranih tura za ovog vozača.";
+
+    public string VehicleRepairsSummary => portal?.VehicleRepairs is { Count: > 0 } repairs
+        ? string.Join(Environment.NewLine, repairs.Take(5).Select(repair => $"{repair.Title ?? repair.Kind ?? "Stavka"}: {repair.Status ?? "—"}{(repair.Cost is { } cost ? $" · {FormatMoney(cost, repair.Currency ?? "EUR")}" : string.Empty)}"))
+        : "Nema prijavljenih popravki ili beleški za vozilo.";
 
     /// <summary>When the trip was loaded; says so when it is the saved copy (no signal).</summary>
     public string PortalUpdatedText => portalSavedAt is not { } at
@@ -429,10 +489,10 @@ public sealed class DashboardViewModel : ViewModelBase
                      nameof(HasTrip), nameof(ShowNoTrip), nameof(ShowNotDriver), nameof(TripTitle), nameof(TripRoute),
                      nameof(TripStatusText), nameof(IsTripActive), nameof(IsTripPaused), nameof(IsTripPlanned),
                      nameof(CanPause), nameof(PauseButtonText), nameof(TripProgress), nameof(TripProgressText),
-                     nameof(TripDetailText), nameof(PortalUpdatedText), nameof(HasNextStop), nameof(NextStopTitle),
+                     nameof(TripDetailText), nameof(TripNotesText), nameof(TripFinancialSummary), nameof(TripEarningsSummary), nameof(EuStaySummary), nameof(EuStayDetailText), nameof(CostLedgerSummary), nameof(DriverTripsSummary), nameof(VehicleRepairsSummary), nameof(PortalUpdatedText), nameof(HasNextStop), nameof(NextStopTitle),
                      nameof(NextStopDetail), nameof(NextStopActionText), nameof(CanNavigateToNextStop),
                      nameof(HasPendingRoute), nameof(PendingRouteText), nameof(HasDispatchPhone), nameof(GpsStatusText),
-                 })
+                  })
         {
             RaisePropertyChanged(name);
         }
@@ -483,6 +543,35 @@ public sealed class DashboardViewModel : ViewModelBase
 
     public Task ReportIncidentAsync(string message, bool critical)
         => RunActionAsync(ct => apiClient.ReportIncidentAsync(message, critical ? "Critical" : "Warning", ct), "Incident je prijavljen dispečeru.");
+
+    public Task SubmitExpenseAsync(string category, decimal amount, string paymentMethod, string? cardLabel, string? location, string? notes, byte[]? receiptBytes, string? receiptFileName, string? receiptContentType)
+    {
+        if (Trip is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        return RunActionAsync(async ct =>
+        {
+            await apiClient.AddTripCostAsync(new DriverExpenseDraft(
+                category,
+                Trip.Id,
+                amount,
+                DateTimeOffset.Now,
+                location,
+                NextStop?.CountryCode,
+                paymentMethod,
+                string.Equals(paymentMethod, "cash", StringComparison.OrdinalIgnoreCase) ? null : cardLabel,
+                null,
+                null,
+                null,
+                portal?.Driver?.CurrentVehicleId ?? Trip.VehicleId,
+                notes,
+                receiptBytes,
+                receiptFileName,
+                receiptContentType), ct).ConfigureAwait(false);
+        }, "Trošak je poslat dispečeru na proveru.");
+    }
 
     public string NextStopConfirmText => NextStop is { } stop
         ? $"{NextStopActionText}: {StopTitle(stop)}?"
@@ -629,6 +718,9 @@ public sealed class DashboardViewModel : ViewModelBase
         "BorderCrossing" => "Granični prelaz",
         _ => "U vožnji",
     };
+
+    private static string FormatMoney(decimal amount, string? currency)
+        => $"{amount.ToString("N2", CultureInfo.GetCultureInfo("sr-Latn-RS"))} {currency ?? "EUR"}";
 
     private Task SetBusyAsync(bool value) => MainThread.InvokeOnMainThreadAsync(() => IsBusy = value);
 

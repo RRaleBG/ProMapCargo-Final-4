@@ -426,6 +426,49 @@
                                 Text="Dispečer" />
                         </Grid>
 
+                        <Button
+                            Clicked="OnAddExpenseClicked"
+                            Style="{StaticResource PmPrimaryButton}"
+                            Text="Dodaj trošak ture" />
+
+                        <Border Padding="14,12" Style="{StaticResource PmCardInnerBorder}">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Style="{StaticResource PmCaptionLabel}" Text="NAPOMENE" />
+                                <Label Style="{StaticResource PmBodyLabel}" Text="{Binding TripNotesText}" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Padding="14,12" Style="{StaticResource PmCardInnerBorder}">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Style="{StaticResource PmCaptionLabel}" Text="Troškovi i zarada" />
+                                <Label Style="{StaticResource PmBodyLabel}" Text="{Binding TripFinancialSummary}" />
+                                <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding TripEarningsSummary}" />
+                                <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding CostLedgerSummary}" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Padding="14,12" Style="{StaticResource PmCardInnerBorder}">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Style="{StaticResource PmCaptionLabel}" Text="EU 90/180" />
+                                <Label Style="{StaticResource PmBodyLabel}" Text="{Binding EuStaySummary}" />
+                                <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding EuStayDetailText}" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Padding="14,12" Style="{StaticResource PmCardInnerBorder}">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Style="{StaticResource PmCaptionLabel}" Text="Moje ture" />
+                                <Label Style="{StaticResource PmBodyLabel}" Text="{Binding DriverTripsSummary}" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Padding="14,12" Style="{StaticResource PmCardInnerBorder}">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Style="{StaticResource PmCaptionLabel}" Text="Vozilo i popravke" />
+                                <Label Style="{StaticResource PmBodyLabel}" Text="{Binding VehicleRepairsSummary}" />
+                            </VerticalStackLayout>
+                        </Border>
+
                         <!--  GPS for dispatch, and how fresh the trip is  -->
                         <BoxView Style="{StaticResource PmDivider}" />
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">

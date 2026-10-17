@@ -29,7 +29,14 @@ public sealed class IndexModel(IAccountAdminService accountAdminService) : PageM
     public IReadOnlyList<AccountAdminRoleRow> AvailableRoles { get; private set; } = [];
     public IReadOnlyList<AccountAdminRolePermissionRow> RolePermissions { get; private set; } = [];
     public IReadOnlyList<AuditLog> RecentAuditLogs { get; private set; } = [];
+    public IReadOnlyList<AccountAdminDriverOption> DriverOptions { get; private set; } = [];
     public AccountAdminPager Pager { get; private set; } = new();
+
+    [BindProperty]
+    public CreateUserInput CreateUser { get; set; } = new();
+
+    [BindProperty]
+    public UpdateUserInput EditUser { get; set; } = new();
 
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
@@ -68,6 +75,37 @@ public sealed class IndexModel(IAccountAdminService accountAdminService) : PageM
         return RedirectWithFilters();
     }
 
+    [Authorize(Policy = "users.manage")]
+    public async Task<IActionResult> OnPostCreateUserAsync(CancellationToken cancellationToken)
+    {
+        var result = await accountAdminService.CreateUserAsync(new AccountAdminCreateUserInput(
+            CreateUser.DisplayName,
+            CreateUser.Email,
+            CreateUser.Password,
+            CreateUser.PhoneNumber,
+            CreateUser.DriverId,
+            CreateUser.RoleNames,
+            CreateUser.ProfileImage), cancellationToken).ConfigureAwait(false);
+        TempData[result.Success ? "Toast.Success" : "Toast.Error"] = result.Message;
+        return RedirectWithFilters();
+    }
+
+    [Authorize(Policy = "users.manage")]
+    public async Task<IActionResult> OnPostUpdateUserAsync(CancellationToken cancellationToken)
+    {
+        var result = await accountAdminService.UpdateUserAsync(new AccountAdminUpdateUserInput(
+            EditUser.UserId,
+            EditUser.DisplayName,
+            EditUser.Email,
+            EditUser.Password,
+            EditUser.PhoneNumber,
+            EditUser.DriverId,
+            EditUser.RoleNames,
+            EditUser.ProfileImage), cancellationToken).ConfigureAwait(false);
+        TempData[result.Success ? "Toast.Success" : "Toast.Error"] = result.Message;
+        return RedirectWithFilters();
+    }
+
     private async Task LoadAsync(CancellationToken cancellationToken)
     {
         var dashboard = await accountAdminService
@@ -79,6 +117,7 @@ public sealed class IndexModel(IAccountAdminService accountAdminService) : PageM
         AvailableRoles = dashboard.AvailableRoles;
         RolePermissions = dashboard.RolePermissions;
         RecentAuditLogs = dashboard.RecentAuditLogs;
+        DriverOptions = dashboard.DriverOptions;
         Pager = dashboard.Pager;
 
         Page = Pager.Page;
@@ -112,4 +151,20 @@ public sealed class IndexModel(IAccountAdminService accountAdminService) : PageM
             PageSize = fallbackPageSize is < 5 or > 100 ? 20 : fallbackPageSize
         });
     }
+}
+
+public class CreateUserInput
+{
+    public string? DisplayName { get; set; }
+    public string? Email { get; set; }
+    public string? Password { get; set; }
+    public string? PhoneNumber { get; set; }
+    public Guid? DriverId { get; set; }
+    public List<string> RoleNames { get; set; } = [];
+    public IFormFile? ProfileImage { get; set; }
+}
+
+public sealed class UpdateUserInput : CreateUserInput
+{
+    public Guid UserId { get; set; }
 }
