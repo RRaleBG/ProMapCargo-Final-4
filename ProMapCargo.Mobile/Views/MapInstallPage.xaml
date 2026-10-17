@@ -1,245 +1,265 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Offline maps: readiness for driving without signal, what is on the phone (with delete),
+  and the server catalog (install / update). Works without signal: the installed part
+  comes from the phone, the catalog only when the server answers.
+-->
 <ContentPage
     x:Class="ProMapCargo.Mobile.Views.MapInstallPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:ProMapCargo.Mobile.Models"
     xmlns:vm="clr-namespace:ProMapCargo.Mobile.ViewModels"
     x:DataType="vm:MapInstallViewModel"
-    xmlns:models="clr-namespace:ProMapCargo.Mobile.Models"
     Title="Mape"
     BackgroundColor="{StaticResource SurfaceBase}"
     Shell.NavBarIsVisible="False">
     <Grid RowDefinitions="*,Auto">
 
-        <ScrollView>
-            <VerticalStackLayout
-                Padding="20,28,20,24"
-                MaximumWidthRequest="720"
-                Spacing="20">
+        <RefreshView
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsPullRefreshing}"
+            RefreshColor="{StaticResource Brand}">
+            <ScrollView>
+                <VerticalStackLayout
+                    Padding="20,24,20,24"
+                    MaximumWidthRequest="720"
+                    Spacing="18">
 
-                <!--  Header  -->
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
-                    <Border
-                        BackgroundColor="{StaticResource StatusSuccessBg}"
-                        HeightRequest="56"
-                        Stroke="Transparent"
-                        StrokeShape="RoundRectangle 18"
-                        WidthRequest="56">
-                        <Image
-                            HeightRequest="28"
-                            HorizontalOptions="Center"
-                            Source="ic_map.svg"
-                            VerticalOptions="Center"
-                            WidthRequest="28" />
-                    </Border>
-                    <VerticalStackLayout
-                        Grid.Column="1"
-                        Spacing="2"
-                        VerticalOptions="Center">
-                        <Label Style="{StaticResource PmPageTitleLabel}" Text="Offline mape" />
-                        <Label Style="{StaticResource PmMutedLabel}" Text="Preuzmite mape i pakete za rad bez interneta." />
-                    </VerticalStackLayout>
-                </Grid>
+                    <!--  Header  -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <ImageButton
+                            BackgroundColor="{StaticResource SurfaceOverlay}"
+                            Command="{Binding BackCommand}"
+                            SemanticProperties.Description="Nazad"
+                            Source="ic_back.svg"
+                            Style="{StaticResource PmMapFloatingButton}" />
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            Spacing="0"
+                            VerticalOptions="Center">
+                            <Label Style="{StaticResource PmPageTitleLabel}" Text="Offline mape" />
+                            <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding StorageText}" />
+                        </VerticalStackLayout>
+                    </Grid>
 
-                <!--  Status  -->
-                <Border Style="{StaticResource PmCardBorder}">
-                    <VerticalStackLayout Spacing="14">
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <ActivityIndicator
-                                HeightRequest="22"
-                                IsRunning="{Binding IsBusy}"
-                                IsVisible="{Binding IsBusy}"
-                                VerticalOptions="Center"
-                                WidthRequest="22" />
-                            <Label
-                                Grid.Column="1"
-                                FontFamily="OpenSansSemibold"
-                                Style="{StaticResource PmBodyLabel}"
-                                Text="{Binding StatusText}"
-                                VerticalOptions="Center" />
+                    <!--  Readiness for driving without signal  -->
+                    <Border Style="{StaticResource PmHeroBorder}">
+                        <Grid ColumnDefinitions="40,*" ColumnSpacing="14">
+                            <Border Style="{StaticResource PmRowIcon}" VerticalOptions="Start">
+                                <Image HeightRequest="20" Source="ic_map.svg" WidthRequest="20" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="10">
+                                <Label Style="{StaticResource PmBodyLabel}" Text="{Binding BundleStatusText}" />
+                                <HorizontalStackLayout Spacing="8">
+                                    <Border Style="{StaticResource PmChipNeutral}">
+                                        <Border.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding OfflineMapReady}"
+                                                TargetType="Border"
+                                                Value="True">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource StatusSuccessBg}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Label Style="{StaticResource PmChipNeutralLabel}" Text="Mapa">
+                                            <Label.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding OfflineMapReady}"
+                                                    TargetType="Label"
+                                                    Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource StatusSuccess}" />
+                                                    <Setter Property="Text" Value="✓ Mapa" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <Border Style="{StaticResource PmChipNeutral}">
+                                        <Border.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding OfflineBundleReady}"
+                                                TargetType="Border"
+                                                Value="True">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource StatusSuccessBg}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Label Style="{StaticResource PmChipNeutralLabel}" Text="Rute">
+                                            <Label.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding OfflineBundleReady}"
+                                                    TargetType="Label"
+                                                    Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource StatusSuccess}" />
+                                                    <Setter Property="Text" Value="✓ Rute" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
                         </Grid>
-                        <BoxView Style="{StaticResource PmDivider}" />
-                        <VerticalStackLayout Spacing="2">
-                            <Label Style="{StaticResource PmCaptionLabel}" Text="Spremnost offline rutiranja" />
-                            <Label Style="{StaticResource PmAccentLabel}" Text="{Binding BundleStatusText}" />
-                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  No server  -->
+                    <Border IsVisible="{Binding IsOffline}" Style="{StaticResource PmOfflineBanner}">
+                        <Label
+                            FontSize="13"
+                            Text="{Binding StatusText}"
+                            TextColor="{StaticResource StatusWarning}" />
+                    </Border>
+
+                    <!--  On the phone  -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource PmSectionCaption}" Text="Na telefonu" />
+                        <Border Padding="16,2" Style="{StaticResource PmCardBorder}">
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding InstalledItems}">
+                                <BindableLayout.EmptyView>
+                                    <Label
+                                        Padding="0,14"
+                                        Style="{StaticResource PmRowDetailLabel}"
+                                        Text="Još ništa nije instalirano na telefonu." />
+                                </BindableLayout.EmptyView>
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:InstalledOfflineItem">
+                                        <Grid
+                                            Padding="0,10"
+                                            ColumnDefinitions="*,Auto"
+                                            ColumnSpacing="12">
+                                            <VerticalStackLayout Spacing="1" VerticalOptions="Center">
+                                                <Label Style="{StaticResource PmRowTitleLabel}" Text="{Binding Title}" />
+                                                <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding Detail}" />
+                                            </VerticalStackLayout>
+                                            <Button
+                                                Grid.Column="1"
+                                                Clicked="OnDeleteClicked"
+                                                SemanticProperties.Description="Obriši sa telefona"
+                                                Style="{StaticResource PmDangerButton}"
+                                                Text="Obriši"
+                                                VerticalOptions="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </Border>
                     </VerticalStackLayout>
-                </Border>
 
-                <!--  Available maps  -->
-                <VerticalStackLayout Spacing="10">
-                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Dostupne mape" />
-                    <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
-                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding AvailablePackages}">
-                            <BindableLayout.EmptyView>
-                                <Label
-                                    Padding="0,14"
-                                    Style="{StaticResource PmMutedLabel}"
-                                    Text="Nema dostupnih mapa. Osvežite listu." />
-                            </BindableLayout.EmptyView>
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="models:MapPackageCatalogItem">
-                                    <Grid
-                                        Padding="0,12"
-                                        ColumnDefinitions="*,Auto"
-                                        ColumnSpacing="12"
-                                        RowDefinitions="Auto,Auto">
-                                        <VerticalStackLayout Spacing="2">
-                                            <Label
-                                                FontFamily="OpenSansSemibold"
-                                                Style="{StaticResource PmBodyLabel}"
-                                                Text="{Binding DisplayName}" />
-                                            <Label
-                                                LineBreakMode="TailTruncation"
-                                                Style="{StaticResource PmMutedLabel}"
-                                                Text="{Binding FileName}" />
-                                        </VerticalStackLayout>
-                                        <Button
-                                            Grid.Column="1"
-                                            Clicked="OnInstallClicked"
-                                            CommandParameter="{Binding .}"
-                                            Style="{StaticResource PmTonalButton}"
-                                            Text="{Binding InstallState}"
-                                            VerticalOptions="Center" />
-                                        <BoxView
-                                            Grid.Row="1"
-                                            Grid.ColumnSpan="2"
-                                            Margin="0,12,0,0"
-                                            Style="{StaticResource PmDivider}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
-                    </Border>
+                    <!--  Maps on the server  -->
+                    <VerticalStackLayout IsVisible="{Binding IsOffline, Converter={StaticResource InvertedBoolConverter}}" Spacing="8">
+                        <Label Style="{StaticResource PmSectionCaption}" Text="Mape" />
+                        <Border Padding="16,2" Style="{StaticResource PmCardBorder}">
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding AvailablePackages}">
+                                <BindableLayout.EmptyView>
+                                    <Label
+                                        Padding="0,14"
+                                        Style="{StaticResource PmRowDetailLabel}"
+                                        Text="Nema mapa na serveru." />
+                                </BindableLayout.EmptyView>
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="models:MapPackageCatalogItem">
+                                        <Grid
+                                            Padding="0,10"
+                                            ColumnDefinitions="*,Auto"
+                                            ColumnSpacing="12">
+                                            <VerticalStackLayout Spacing="1" VerticalOptions="Center">
+                                                <Label Style="{StaticResource PmRowTitleLabel}" Text="{Binding DisplayName}" />
+                                                <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding SizeText}" />
+                                            </VerticalStackLayout>
+                                            <Button
+                                                Grid.Column="1"
+                                                Clicked="OnInstallClicked"
+                                                CommandParameter="{Binding .}"
+                                                IsEnabled="{Binding IsInstalled, Converter={StaticResource InvertedBoolConverter}}"
+                                                Style="{StaticResource PmTonalButton}"
+                                                Text="{Binding InstallState}"
+                                                VerticalOptions="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!--  Routing packages on the server  -->
+                    <VerticalStackLayout IsVisible="{Binding IsOffline, Converter={StaticResource InvertedBoolConverter}}" Spacing="8">
+                        <Label Style="{StaticResource PmSectionCaption}" Text="Paketi za rutiranje" />
+                        <Border Padding="16,2" Style="{StaticResource PmCardBorder}">
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding AvailableBundles}">
+                                <BindableLayout.EmptyView>
+                                    <Label
+                                        Padding="0,14"
+                                        Style="{StaticResource PmRowDetailLabel}"
+                                        Text="Nema paketa na serveru." />
+                                </BindableLayout.EmptyView>
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="models:OfflineRoutingBundleCatalogItem">
+                                        <Grid
+                                            Padding="0,10"
+                                            ColumnDefinitions="*,Auto"
+                                            ColumnSpacing="12">
+                                            <VerticalStackLayout Spacing="1" VerticalOptions="Center">
+                                                <Label Style="{StaticResource PmRowTitleLabel}" Text="{Binding DisplayName}" />
+                                                <Label Style="{StaticResource PmRowDetailLabel}">
+                                                    <Label.FormattedText>
+                                                        <FormattedString>
+                                                            <Span Text="{Binding SizeText}" />
+                                                            <Span Text=" · verzija " />
+                                                            <Span Text="{Binding Version}" />
+                                                        </FormattedString>
+                                                    </Label.FormattedText>
+                                                </Label>
+                                            </VerticalStackLayout>
+                                            <Button
+                                                Grid.Column="1"
+                                                Clicked="OnInstallBundleClicked"
+                                                CommandParameter="{Binding .}"
+                                                IsEnabled="{Binding IsInstalled, Converter={StaticResource InvertedBoolConverter}}"
+                                                Style="{StaticResource PmTonalButton}"
+                                                Text="{Binding InstallState}"
+                                                VerticalOptions="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <Label
+                        IsVisible="{Binding IsOffline, Converter={StaticResource InvertedBoolConverter}}"
+                        Style="{StaticResource PmRowDetailLabel}"
+                        Text="{Binding StatusText}" />
                 </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
 
-                <!--  Installed maps  -->
-                <VerticalStackLayout Spacing="10">
-                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Instalirane mape" />
-                    <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
-                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding InstalledPackages}">
-                            <BindableLayout.EmptyView>
-                                <Label
-                                    Padding="0,14"
-                                    Style="{StaticResource PmMutedLabel}"
-                                    Text="Još nema instaliranih mapa." />
-                            </BindableLayout.EmptyView>
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="models:InstalledMapPackage">
-                                    <Grid
-                                        Padding="0,12"
-                                        ColumnDefinitions="*,Auto"
-                                        ColumnSpacing="12"
-                                        RowDefinitions="Auto,Auto">
-                                        <VerticalStackLayout Spacing="2">
-                                            <Label
-                                                FontFamily="OpenSansSemibold"
-                                                Style="{StaticResource PmBodyLabel}"
-                                                Text="{Binding DisplayName}" />
-                                            <Label
-                                                LineBreakMode="TailTruncation"
-                                                Style="{StaticResource PmMutedLabel}"
-                                                Text="{Binding FileName}" />
-                                        </VerticalStackLayout>
-                                        <Border
-                                            Grid.Column="1"
-                                            Style="{StaticResource PmChip}"
-                                            VerticalOptions="Center">
-                                            <Label Style="{StaticResource PmChipLabel}" Text="Instalirano" />
-                                        </Border>
-                                        <BoxView
-                                            Grid.Row="1"
-                                            Grid.ColumnSpan="2"
-                                            Margin="0,12,0,0"
-                                            Style="{StaticResource PmDivider}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
-                    </Border>
-                </VerticalStackLayout>
-
-                <!--  Routing bundles  -->
-                <VerticalStackLayout Spacing="10">
-                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Paketi za rutiranje" />
-                    <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
-                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding AvailableBundles}">
-                            <BindableLayout.EmptyView>
-                                <Label
-                                    Padding="0,14"
-                                    Style="{StaticResource PmMutedLabel}"
-                                    Text="Nema dostupnih paketa." />
-                            </BindableLayout.EmptyView>
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="models:OfflineRoutingBundleCatalogItem">
-                                    <Grid
-                                        Padding="0,12"
-                                        ColumnDefinitions="*,Auto"
-                                        ColumnSpacing="12"
-                                        RowDefinitions="Auto,Auto">
-                                        <VerticalStackLayout Spacing="2">
-                                            <Label
-                                                FontFamily="OpenSansSemibold"
-                                                Style="{StaticResource PmBodyLabel}"
-                                                Text="{Binding DisplayName}" />
-                                            <Label Style="{StaticResource PmMutedLabel}" Text="{Binding Version, StringFormat='Verzija {0}'}" />
-                                        </VerticalStackLayout>
-                                        <Button
-                                            Grid.Column="1"
-                                            Clicked="OnInstallBundleClicked"
-                                            CommandParameter="{Binding .}"
-                                            Style="{StaticResource PmTonalButton}"
-                                            Text="{Binding InstallState}"
-                                            VerticalOptions="Center" />
-                                        <BoxView
-                                            Grid.Row="1"
-                                            Grid.ColumnSpan="2"
-                                            Margin="0,12,0,0"
-                                            Style="{StaticResource PmDivider}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
-                    </Border>
-                </VerticalStackLayout>
-            </VerticalStackLayout>
-        </ScrollView>
-
-        <!--  Bottom action bar  -->
+        <!--  Download in progress: stays visible while scrolling  -->
         <Border
             Grid.Row="1"
             Padding="16,12,16,16"
             BackgroundColor="{StaticResource SurfaceElevated}"
+            IsVisible="{Binding IsDownloading}"
             Stroke="{StaticResource StrokeSubtle}"
             StrokeShape="RoundRectangle 24,24,0,0"
             StrokeThickness="1">
-            <VerticalStackLayout Spacing="12">
-                <!--  Download progress: the packages are far below the status card, so it stays visible here  -->
-                <VerticalStackLayout IsVisible="{Binding IsDownloading}" Spacing="6">
-                    <Label
-                        FontFamily="OpenSansSemibold"
-                        LineBreakMode="TailTruncation"
-                        Style="{StaticResource PmBodyLabel}"
-                        Text="{Binding StatusText}" />
-                    <ProgressBar Progress="{Binding DownloadProgress}" />
-                </VerticalStackLayout>
-                <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
-                    <Button
-                        Command="{Binding RefreshCommand}"
-                        Style="{StaticResource PmGhostButton}"
-                        Text="Osveži" />
-                    <Button
-                        Grid.Column="1"
-                        Command="{Binding OpenSettingsCommand}"
-                        Style="{StaticResource PmGhostButton}"
-                        Text="Podešavanja" />
-                    <Button
-                        Grid.Column="2"
-                        Command="{Binding ContinueCommand}"
-                        Style="{StaticResource PmPrimaryButton}"
-                        Text="Nastavi" />
-                </Grid>
-            </VerticalStackLayout>
+            <Grid
+                ColumnDefinitions="*,Auto"
+                ColumnSpacing="12"
+                RowDefinitions="Auto,Auto"
+                RowSpacing="8">
+                <Label
+                    FontFamily="OpenSansSemibold"
+                    LineBreakMode="TailTruncation"
+                    Style="{StaticResource PmBodyLabel}"
+                    Text="{Binding StatusText}"
+                    VerticalOptions="Center" />
+                <Button
+                    Grid.Column="1"
+                    Command="{Binding CancelDownloadCommand}"
+                    Style="{StaticResource PmGhostButton}"
+                    Text="Prekini" />
+                <ProgressBar
+                    Grid.Row="1"
+                    Grid.ColumnSpan="2"
+                    Progress="{Binding DownloadProgress}" />
+            </Grid>
         </Border>
     </Grid>
 </ContentPage>

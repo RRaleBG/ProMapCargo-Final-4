@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Sign-in of the driver. Signed in, the app shows the driver's trip and sends the truck's
+  position to dispatch; maps and navigation also work without an account ("Nastavi bez prijave").
+-->
 <ContentPage
     x:Class="ProMapCargo.Mobile.Views.LoginPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -7,83 +11,139 @@
     x:DataType="vm:LoginViewModel"
     Title="Prijava"
     BackgroundColor="{StaticResource SurfaceBase}"
-    Shell.NavBarIsVisible="False">
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="24,56,24,32"
-            MaximumWidthRequest="480"
-            Spacing="28">
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False">
+    <Grid>
+        <Grid.Background>
+            <RadialGradientBrush Center="0.5,0.12" Radius="1">
+                <GradientStop Offset="0" Color="#0A2A23" />
+                <GradientStop Offset="0.5" Color="#031712" />
+                <GradientStop Offset="1" Color="#010D0B" />
+            </RadialGradientBrush>
+        </Grid.Background>
 
-            <VerticalStackLayout HorizontalOptions="Center" Spacing="14">
-                <Image
-                    HeightRequest="88"
-                    SemanticProperties.Description="ProMap Cargo logo"
-                    Source="splash.svg"
-                    WidthRequest="88" />
-                <Label
-                    HorizontalTextAlignment="Center"
-                    Style="{StaticResource PmPageTitleLabel}"
-                    Text="ProMap Cargo" />
-                <Label
-                    HorizontalTextAlignment="Center"
-                    Style="{StaticResource PmMutedLabel}"
-                    Text="Navigacija i dispečing za teretni transport" />
-            </VerticalStackLayout>
+        <ScrollView>
+            <VerticalStackLayout
+                Padding="24,56,24,32"
+                MaximumWidthRequest="480"
+                Spacing="26">
 
-            <Border Style="{StaticResource PmCardBorder}">
-                <VerticalStackLayout Spacing="16">
-                    <Label Style="{StaticResource PmSectionTitleLabel}" Text="Prijavite se" />
-
-                    <VerticalStackLayout Spacing="6">
-                        <Label Style="{StaticResource PmCaptionLabel}" Text="E-pošta" />
-                        <Border Style="{StaticResource PmFieldBorder}">
-                            <Entry
-                                Keyboard="Email"
-                                Placeholder="ime@firma.rs"
-                                SemanticProperties.Description="E-pošta"
-                                Style="{StaticResource PmEntry}"
-                                Text="{Binding Email}" />
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <VerticalStackLayout Spacing="6">
-                        <Label Style="{StaticResource PmCaptionLabel}" Text="Lozinka" />
-                        <Border Style="{StaticResource PmFieldBorder}">
-                            <Entry
-                                IsPassword="True"
-                                Placeholder="••••••••"
-                                ReturnCommand="{Binding LoginCommand}"
-                                ReturnType="Go"
-                                SemanticProperties.Description="Lozinka"
-                                Style="{StaticResource PmEntry}"
-                                Text="{Binding Password}" />
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <Border
-                        IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
-                        Style="{StaticResource PmChipWarning}"
-                        HorizontalOptions="Fill"
-                        Padding="12,10">
-                        <Label Style="{StaticResource PmErrorLabel}" Text="{Binding ErrorMessage}" />
-                    </Border>
-
-                    <Button
-                        Command="{Binding LoginCommand}"
-                        Style="{StaticResource PmPrimaryButton}"
-                        Text="Prijavi se" />
-
-                    <ActivityIndicator
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="14">
+                    <Image
+                        HeightRequest="84"
                         HorizontalOptions="Center"
-                        IsRunning="{Binding IsBusy}"
-                        IsVisible="{Binding IsBusy}" />
+                        SemanticProperties.Description="ProMap Cargo"
+                        Source="brand_truck.svg"
+                        WidthRequest="84">
+                        <Image.Shadow>
+                            <Shadow Brush="#10B981" Opacity="0.35" Radius="28" Offset="0,0" />
+                        </Image.Shadow>
+                    </Image>
+                    <Label
+                        FontFamily="OpenSansSemibold"
+                        FontSize="28"
+                        HorizontalTextAlignment="Center"
+                        SemanticProperties.HeadingLevel="Level1">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="ProMap " TextColor="#F0FDF8" />
+                                <Span Text="Cargo" TextColor="#34D399" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label
+                        HorizontalTextAlignment="Center"
+                        Style="{StaticResource PmMutedLabel}"
+                        Text="Prijavite se nalogom vozača da vidite svoju turu i stanice." />
                 </VerticalStackLayout>
-            </Border>
 
-            <Label
-                HorizontalTextAlignment="Center"
-                Style="{StaticResource PmMutedLabel}"
-                Text="Koristite nalog kreiran u ProMap Cargo sistemu." />
-        </VerticalStackLayout>
-    </ScrollView>
+                <Border Style="{StaticResource PmCardBorder}">
+                    <VerticalStackLayout Spacing="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="E-pošta" />
+                            <Border Style="{StaticResource PmFieldBorder}">
+                                <Entry
+                                    x:Name="EmailEntry"
+                                    Keyboard="Email"
+                                    Placeholder="ime@firma.rs"
+                                    ReturnType="Next"
+                                    SemanticProperties.Description="E-pošta"
+                                    Style="{StaticResource PmEntry}"
+                                    Text="{Binding Email}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="Lozinka" />
+                            <Border Style="{StaticResource PmFieldBorder}">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Entry
+                                        x:Name="PasswordEntry"
+                                        IsPassword="{Binding IsPasswordHidden}"
+                                        Placeholder="••••••••"
+                                        ReturnCommand="{Binding LoginCommand}"
+                                        ReturnType="Go"
+                                        SemanticProperties.Description="Lozinka"
+                                        Style="{StaticResource PmEntry}"
+                                        Text="{Binding Password}" />
+                                    <Button
+                                        Grid.Column="1"
+                                        Margin="0,0,-8,0"
+                                        Command="{Binding TogglePasswordCommand}"
+                                        SemanticProperties.Description="Prikaži ili sakrij lozinku"
+                                        Style="{StaticResource PmGhostButton}"
+                                        Text="{Binding PasswordToggleText}" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <Border
+                            Padding="12,10"
+                            HorizontalOptions="Fill"
+                            IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                            Style="{StaticResource PmChipDanger}">
+                            <Label Style="{StaticResource PmErrorLabel}" Text="{Binding ErrorMessage}" />
+                        </Border>
+
+                        <Grid>
+                            <Button
+                                Command="{Binding LoginCommand}"
+                                Style="{StaticResource PmPrimaryButton}"
+                                Text="{Binding LoginButtonText}" />
+                            <ActivityIndicator
+                                Margin="0,0,18,0"
+                                HeightRequest="22"
+                                HorizontalOptions="End"
+                                IsRunning="{Binding IsBusy}"
+                                IsVisible="{Binding IsBusy}"
+                                Color="{StaticResource BrandOn}"
+                                WidthRequest="22" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button
+                    Command="{Binding SkipCommand}"
+                    HorizontalOptions="Center"
+                    Style="{StaticResource PmGhostButton}"
+                    Text="Nastavi bez prijave" />
+
+                <!--  Server: a phone pointing at the wrong address cannot sign in, so it is changeable here  -->
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource PmCaptionLabel}" Text="Server" />
+                        <Label
+                            LineBreakMode="MiddleTruncation"
+                            Style="{StaticResource PmMutedLabel}"
+                            Text="{Binding ServerText}" />
+                    </VerticalStackLayout>
+                    <Button
+                        Grid.Column="1"
+                        Command="{Binding OpenSettingsCommand}"
+                        Style="{StaticResource PmGhostButton}"
+                        Text="Promeni" />
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

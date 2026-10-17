@@ -20,18 +20,6 @@ public sealed class ApiClient(HttpClient httpClient, MobileServerEndpointService
         PropertyNameCaseInsensitive = true
     };
 
-    public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(request);
-
-        return await PostAsync<LoginRequest, LoginResponse>(
-            "api/mobile-auth/login",
-            request,
-            cancellationToken,
-            requireBody: true).ConfigureAwait(false)
-            ?? throw new InvalidOperationException("Login response was empty.");
-    }
-
     public async Task<DashboardSummary?> GetDashboardAsync(CancellationToken cancellationToken)
         => await GetAsync<DashboardSummary>("api/business/dashboard", cancellationToken).ConfigureAwait(false);
 
@@ -94,6 +82,81 @@ public sealed class ApiClient(HttpClient httpClient, MobileServerEndpointService
         => await GetAsync<List<GeocodeResult>>($"api/geocode?q={Uri.EscapeDataString(query)}&limit=5", cancellationToken).ConfigureAwait(false)
            ?? [];
 
+    // ---- Driver (/api/driver, DriverController) ----
+
+    /// <summary>
+    /// The signed-in driver's trip and stops. Throws HttpRequestException 404 when the
+    /// account is not linked to a driver, 401/403 when not signed in as a driver.
+    /// </summary>
+    public async Task<DriverPortal?> GetDriverPortalAsync(CancellationToken cancellationToken)
+        => await GetAsync<DriverPortal>("api/driver/portal", cancellationToken).ConfigureAwait(false);
+
+    public Task ArriveAtStopAsync(Guid stopId, CancellationToken cancellationToken)
+        => SendDriverActionAsync($"api/driver/stops/{stopId}/arrive", null, cancellationToken);
+
+    public Task CompleteStopAsync(Guid stopId, CancellationToken cancellationToken)
+        => SendDriverActionAsync($"api/driver/stops/{stopId}/complete", null, cancellationToken);
+
+    /// <summary>Starts the break, or ends it when the trip is paused.</summary>
+    public Task TogglePauseAsync(CancellationToken cancellationToken)
+        => SendDriverActionAsync("api/driver/pause", null, cancellationToken);
+
+    public Task StartTripAsync(Guid tripId, CancellationToken cancellationToken)
+        => SendDriverActionAsync($"api/driver/trips/{tripId}/start", null, cancellationToken);
+
+    public Task AcceptRouteAsync(Guid dispatchId, CancellationToken cancellationToken)
+        => SendDriverActionAsync($"api/driver/routes/{dispatchId}/accept", null, cancellationToken);
+
+    public Task RejectRouteAsync(Guid dispatchId, string? reason, CancellationToken cancellationToken)
+        => SendDriverActionAsync($"api/driver/routes/{dispatchId}/reject", new DriverRejectRouteRequest(reason), cancellationToken);
+
+    public Task ReportIncidentAsync(string message, string severity, CancellationToken cancellationToken)
+        => SendDriverActionAsync("api/driver/incident", new DriverIncidentRequest(message, severity), cancellationToken);
+
+    /// <summary>One GPS position of the driver's vehicle (NavigationTelemetryController).</summary>
+    public Task SendGpsPositionAsync(GpsPositionRequest position, CancellationToken cancellationToken)
+        => SendDriverActionAsync("api/navigation/gps", position, cancellationToken);
+
+    // Driver actions are not idempotent (a second "arrive" is a conflict): one attempt only.
+    private async Task SendDriverActionAsync(string uri, object? body, CancellationToken cancellationToken)
+        => await PostAsync<object?, System.Text.Json.JsonElement>(uri, body, cancellationToken, requireBody: false, maxAttempts: 1).ConfigureAwait(false);
+
+    /// <summary>The server's { "message": "..." } of a failed request, else the HTTP status.</summary>
+    public static string DescribeError(Exception exception)
+    {
+        if (exception is HttpRequestException { StatusCode: { } status } httpException)
+        {
+            var payload = httpException.Message;
+            var start = payload.IndexOf('{');
+            if (start >= 0)
+            {
+                try
+                {
+                    using var document = JsonDocument.Parse(payload[start..]);
+                    if (document.RootElement.TryGetProperty("message", out var message) && message.GetString() is { Length: > 0 } text)
+                    {
+                        return text;
+                    }
+                }
+                catch (JsonException)
+                {
+                }
+            }
+
+            return status switch
+            {
+                HttpStatusCode.Unauthorized => "Prijavite se ponovo.",
+                HttpStatusCode.Forbidden => "Nalog nema pravo na ovu radnju.",
+                HttpStatusCode.NotFound => "Podatak nije pronađen na serveru.",
+                _ => $"Server je odgovorio greškom {(int)status}.",
+            };
+        }
+
+        return exception is OperationCanceledException or HttpRequestException
+            ? "Nema veze sa serverom."
+            : exception.Message;
+    }
+
     private async Task<TResponse?> PostAsync<TRequest, TResponse>(
         string uri,
         TRequest request,
@@ -112,7 +175,10 @@ public sealed class ApiClient(HttpClient httpClient, MobileServerEndpointService
                 throw CreateHttpRequestException(response.StatusCode, payload);
             }
 
-            var result = JsonSerializer.Deserialize<TResponse>(payload, SerializerOptions);
+            // Some actions answer 200 without a body (e.g. the GPS endpoint).
+            var result = string.IsNullOrWhiteSpace(payload)
+                ? default
+                : JsonSerializer.Deserialize<TResponse>(payload, SerializerOptions);
             if (requireBody && result is null)
             {
                 throw new InvalidOperationException($"Response body was empty for '{uri}'.");

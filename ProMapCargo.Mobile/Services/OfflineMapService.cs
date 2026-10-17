@@ -72,17 +72,47 @@ public sealed class OfflineMapService(HttpClient httpClient, MobileServerEndpoin
         return installed;
     }
 
+    /// <summary>Removes an installed map (file and manifest entry) to free space.</summary>
+    public async Task DeleteAsync(string packageId, CancellationToken cancellationToken)
+    {
+        var existing = await GetInstalledManifestAsync(cancellationToken).ConfigureAwait(false);
+        foreach (var package in existing.Packages.Where(item => string.Equals(item.Id, packageId, StringComparison.OrdinalIgnoreCase)))
+        {
+            TryDelete(package.LocalPath);
+            TryDelete(package.LocalPath + ".part");
+        }
+
+        await WriteManifestAsync(existing.Packages.Where(item => !string.Equals(item.Id, packageId, StringComparison.OrdinalIgnoreCase)), cancellationToken).ConfigureAwait(false);
+    }
+
+    private static void TryDelete(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception)
+        {
+            // The map is open in the navigation WebView: it goes with the next delete.
+        }
+    }
+
     private async Task UpsertManifestAsync(InstalledMapPackage package, CancellationToken cancellationToken)
     {
         var existing = await GetInstalledManifestAsync(cancellationToken).ConfigureAwait(false);
 
-        var list = existing.Packages
-            .Where(item => !string.Equals(item.Id, package.Id, StringComparison.OrdinalIgnoreCase))
-            .Append(package)
-            .OrderBy(item => item.DisplayName, StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        await WriteManifestAsync(
+            existing.Packages
+                .Where(item => !string.Equals(item.Id, package.Id, StringComparison.OrdinalIgnoreCase))
+                .Append(package),
+            cancellationToken).ConfigureAwait(false);
+    }
 
-        var updated = new InstalledMapManifest(DateTime.UtcNow, list);
+    private async Task WriteManifestAsync(IEnumerable<InstalledMapPackage> packages, CancellationToken cancellationToken)
+    {
+        var updated = new InstalledMapManifest(
+            DateTime.UtcNow,
+            packages.OrderBy(item => item.DisplayName, StringComparer.OrdinalIgnoreCase).ToArray());
 
         Directory.CreateDirectory(mapsRootPath);
         await using var stream = File.Create(manifestPath);

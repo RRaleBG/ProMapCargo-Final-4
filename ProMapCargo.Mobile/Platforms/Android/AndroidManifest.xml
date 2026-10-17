@@ -1,10 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:supportsRtl="true" android:usesCleartextTraffic="true" android:label="ProMap Cargo"></application>
+	<!--
+		allowBackup="false": SecureStorage keys cannot be restored on another device, so a
+		restored backup left a session that could not be read (sign-in broken).
+		usesCleartextTraffic: the server runs on the company LAN over HTTP (address set in Podešavanja).
+	-->
+	<application android:allowBackup="false" android:fullBackupContent="false" android:icon="@mipmap/appicon" android:supportsRtl="true" android:usesCleartextTraffic="true" android:label="ProMap Cargo"></application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<!-- GPS with the screen off during navigation and a running trip (LocationTrackingService). -->
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+	<!-- Android 13+: the notification of the tracking service. -->
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+	<!-- "Pozovi dispečera" opens the dialer. -->
+	<queries>
+		<intent>
+			<action android:name="android.intent.action.DIAL" />
+			<data android:scheme="tel" />
+		</intent>
+	</queries>
 </manifest>

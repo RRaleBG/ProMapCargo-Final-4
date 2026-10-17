@@ -25,10 +25,16 @@ public sealed class DriverPortalQueries(ProMapCargoDbContext db, ICurrentUserCon
         var next = stops.FirstOrDefault(x => x.Status is TransportStopStatus.Planned or TransportStopStatus.Arrived or TransportStopStatus.InService);
         var vehicle = trip?.VehicleId is { } vehicleId ? await db.Vehicles.AsNoTracking().SingleOrDefaultAsync(x => x.Id == vehicleId, ct) : null;
         var phone = await db.Companies.AsNoTracking().Where(x => x.Id == c).Select(x => x.DispatchPhone).FirstOrDefaultAsync(ct);
+        // A route sent by dispatch that the driver has not answered yet (accept / reject in the app).
+        var pendingRoute = await db.RouteDispatches.AsNoTracking()
+            .Where(x => x.CompanyId == c && x.DriverId == driver.Id && (x.Status == RouteDispatchStatus.Pending || x.Status == RouteDispatchStatus.Sent))
+            .OrderByDescending(x => x.CreatedAt)
+            .Select(x => new { x.Id, x.TripId, Status = x.Status.ToString(), x.CreatedAt, x.SentAt })
+            .FirstOrDefaultAsync(ct);
 
         return new DriverPortal(new
         {
-            Driver = new { driver.Id, driver.FullName, driver.EmployeeNumber, Status = driver.Status.ToString() },
+            Driver = new { driver.Id, driver.FullName, driver.EmployeeNumber, Status = driver.Status.ToString(), driver.CurrentVehicleId },
             Trip = trip is null ? null : new
             {
                 trip.Id,
@@ -39,14 +45,19 @@ public sealed class DriverPortalQueries(ProMapCargoDbContext db, ICurrentUserCon
                 trip.PlannedArrivalAt,
                 Route = stops.Count == 0 ? "" : (stops[0].City ?? stops[0].Name) + " → " + (stops[^1].City ?? stops[^1].Name),
                 Vehicle = vehicle?.Registration,
+                // The phone sends its GPS position for this vehicle and trip.
+                trip.VehicleId,
             },
             Stops = stops.Select(x => new
             {
                 x.Id, x.Sequence, Type = x.Type.ToString(), Status = x.Status.ToString(), x.Name, x.City, x.CountryCode,
                 x.PlannedAt, x.ArrivedAt, x.CompletedAt, x.Notes,
+                // Navigation to the stop from the app.
+                x.Address, x.Latitude, x.Longitude,
             }),
             NextStopId = next?.Id,
             DispatchPhone = phone,
+            PendingRoute = pendingRoute,
         });
     }
 

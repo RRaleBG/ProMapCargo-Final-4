@@ -59,6 +59,8 @@ public partial class MobileNavigationPage : ContentPage
 
         pageActive = true;
         webViewReady = false;
+        // While guiding, the screen does not go dark (Podešavanja → Ekran uvek uključen).
+        DeviceDisplay.Current.KeepScreenOn = AppSettings.KeepScreenOn;
         mapState.ResetLocation();
         ShowMapLoading();
 
@@ -107,6 +109,7 @@ public partial class MobileNavigationPage : ContentPage
         webViewReady = false;
 
         viewModel.StopGpsTracking();
+        DeviceDisplay.Current.KeepScreenOn = false;
 
         base.OnDisappearing();
     }
@@ -159,10 +162,14 @@ public partial class MobileNavigationPage : ContentPage
         LoadingOverlay.IsVisible = true;
         LoadingPanel.IsVisible = false;
         LoadErrorPanel.IsVisible = true;
-        LoadErrorText.Text =
-            $"Server {serverEndpointService.CurrentApiBaseUrl} nije dostupan. Proverite da li server radi i da li je " +
-            "telefon na istoj mreži. Na telefonu unesite IP adresu računara (npr. http://192.168.1.10:8080/), " +
-            "adresa 10.0.2.2 radi samo u emulatoru.";
+        // Without signal the stored copy is used; it exists once the app was online after
+        // installation (start-up stores it), so this is the first start without a connection.
+        LoadErrorText.Text = offlineWebCache.IsOffline
+            ? "Nema veze sa serverom, a navigacija još nije sačuvana na telefonu. Pokrenite aplikaciju jednom " +
+              "dok ste na mreži (sačuva se sama), uz instalirane offline mape."
+            : $"Server {serverEndpointService.CurrentApiBaseUrl} nije dostupan. Proverite da li server radi i da li je " +
+              "telefon na istoj mreži. Na telefonu unesite IP adresu računara (npr. http://192.168.1.10:8080/), " +
+              "adresa 10.0.2.2 radi samo u emulatoru.";
     }
 
     private void OnRetryMapClicked(object? sender, EventArgs e)

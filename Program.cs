@@ -135,11 +135,26 @@ if (!builder.Environment.IsDevelopment() &&
 }
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(mobileAuthOptions.SigningKey));
 
+// Web pages sign in with the Identity cookie, the phone sends "Authorization: Bearer".
+// Endpoints without an explicit scheme ([Authorize], [Authorize(Roles = ...)], none)
+// used only the cookie, so the phone's token was ignored there (empty dashboard,
+// 401 on /api/driver). The policy scheme picks the scheme per request.
+const string CookieOrBearerScheme = "CookieOrBearer";
+
 builder.Services
     .AddAuthentication(options =>
     {
-        options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-        options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultScheme = CookieOrBearerScheme;
+        options.DefaultAuthenticateScheme = CookieOrBearerScheme;
+        options.DefaultChallengeScheme = CookieOrBearerScheme;
+        options.DefaultForbidScheme = CookieOrBearerScheme;
+    })
+    .AddPolicyScheme(CookieOrBearerScheme, "Identity cookie or mobile bearer token", options =>
+    {
+        options.ForwardDefaultSelector = context =>
+            context.Request.Headers.Authorization.ToString().StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+                ? JwtBearerDefaults.AuthenticationScheme
+                : IdentityConstants.ApplicationScheme;
     })
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {

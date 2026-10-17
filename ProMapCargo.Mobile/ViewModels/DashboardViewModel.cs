@@ -1,84 +1,91 @@
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Net;
+using System.Windows.Input;
 using ProMapCargo.Mobile.Models;
 using ProMapCargo.Mobile.Services;
-using System.Collections.ObjectModel;
-using System.Windows.Input;
 
 namespace ProMapCargo.Mobile.ViewModels;
 
+/// <summary>A stop of the driver's trip as shown on the home screen.</summary>
+public sealed record TripStopItem(
+    Guid Id,
+    int Sequence,
+    string Title,
+    string Detail,
+    string StatusText,
+    bool IsDone,
+    bool IsNext,
+    bool IsLast);
+
+/// <summary>
+/// Home screen: search, the driver's trip (stops, arrival and completion, break, incident,
+/// a route sent by dispatch), recent destinations, truck profile and driving bans. The trip
+/// is kept on the phone, so it is shown without signal; actions need the server.
+/// </summary>
 public sealed class DashboardViewModel : ViewModelBase
 {
     private readonly ApiClient apiClient;
     private readonly OfflineWebCache offlineWebCache;
     private readonly OfflineRoutingBundleService offlineBundles;
-    private string? announcedBundleVersion;
     private readonly MobileSessionService sessionService;
     private readonly IMobileNotifier notifier;
-    private const int DashboardManeuverPreviewCount = 5;
+    private readonly DriverPortalStore portalStore;
+    private readonly GpsTelemetryUploader telemetry;
+    private string? announcedBundleVersion;
 
     private CancellationTokenSource? loadCancellationTokenSource;
     private bool isBusy;
+    private bool isActionRunning;
+    private bool isOffline;
+    private bool isNotDriver;
     private string statusText = "Spremno";
-    private string routeSummary = "Ruta nije učitana.";
-    private string routeEngine = "Ruter: —";
-    private string routeSafety = "Provera za kamion u toku";
-    private string routeDiagnosticsSummary = "Nema dijagnostike.";
-    private string routeStartSnap = "—";
-    private string routeEndSnap = "—";
-    private string routeFailureReason = "—";
+    private string fleetSummary = string.Empty;
+    private DriverPortal? portal;
+    private DateTimeOffset? portalSavedAt;
     private TruckBanSummary.Result truckBans = TruckBanSummary.Build(TruckBanSummary.LoadSaved(), DateTimeOffset.Now);
 
-
-    public DashboardViewModel(ApiClient apiClient, MobileSessionService sessionService, IMobileNotifier notifier, OfflineWebCache offlineWebCache, OfflineRoutingBundleService offlineBundles)
+    public DashboardViewModel(
+        ApiClient apiClient,
+        MobileSessionService sessionService,
+        IMobileNotifier notifier,
+        OfflineWebCache offlineWebCache,
+        OfflineRoutingBundleService offlineBundles,
+        DriverPortalStore portalStore,
+        GpsTelemetryUploader telemetry)
     {
         this.offlineBundles = offlineBundles;
         this.offlineWebCache = offlineWebCache;
         this.apiClient = apiClient;
         this.sessionService = sessionService;
         this.notifier = notifier;
-
-        Vehicles = new ObservableCollection<VehicleItem>();
-        Drivers = new ObservableCollection<DriverItem>();
-        Orders = new ObservableCollection<TransportOrderItem>();
-        Trips = new ObservableCollection<TripItem>();
-        RouteHighlights = new ObservableCollection<string>();
-        RouteManeuvers = new ObservableCollection<RouteManeuver>();
-        QuickLinks =
-        [
-            new DashboardLink("Navigacija", "Planiranje rute za kamion i vođenje po manevrima", AppNavigation.Navigation),
-            new DashboardLink("Podešavanja", "Prikaz, nalog i upravljanje offline mapama", AppNavigation.Settings),
-            new DashboardLink("Dispečing", "Dodela naloga i upravljanje flotom", null),
-            new DashboardLink("Praćenje", "Telemetrija uživo i status vozila", null),
-            new DashboardLink("Ture", "Status i napredak izvršenja tura", null),
-            new DashboardLink("Nalozi", "Aktivni i nalozi na čekanju", null),
-            new DashboardLink("Vozila", "Dostupnost i stanje vozila", null),
-            new DashboardLink("Vozači", "Spisak vozača i usklađenost", null),
-            new DashboardLink("Upozorenja", "Operativna upozorenja i incidenti", null)
-        ];
+        this.portalStore = portalStore;
+        this.telemetry = telemetry;
 
         RefreshCommand = new Command(async () =>
         {
             await LoadAsync();
             IsPullRefreshing = false;
         }, () => !IsBusy);
-        OpenLinkCommand = new Command<DashboardLink>(async link => await OpenLinkAsync(link));
+        SignInCommand = new Command(async () => await AppNavigation.GoToAsync(AppNavigation.Login));
+        NavigateToNextStopCommand = new Command(NavigateToNextStop, () => NextStop?.Latitude is not null && NextStop.Longitude is not null);
+        CallDispatchCommand = new Command(CallDispatch);
+
+        telemetry.StatusChanged += (_, _) => RaisePropertyChanged(nameof(GpsStatusText));
     }
 
-    public ObservableCollection<VehicleItem> Vehicles { get; }
+    public ICommand RefreshCommand { get; }
 
-    public ObservableCollection<DriverItem> Drivers { get; }
+    public ICommand SignInCommand { get; }
 
-    public ObservableCollection<TransportOrderItem> Orders { get; }
+    public ICommand NavigateToNextStopCommand { get; }
 
-    public ObservableCollection<TripItem> Trips { get; }
-
-    public ObservableCollection<string> RouteHighlights { get; }
-
-    public ObservableCollection<RouteManeuver> RouteManeuvers { get; }
-
-    public IReadOnlyList<DashboardLink> QuickLinks { get; }
+    public ICommand CallDispatchCommand { get; }
 
     /// <summary>Places the driver routed to, newest first (TomTom-style recents).</summary>
     public ObservableCollection<RecentDestination> Recents { get; } = new();
+
+    public ObservableCollection<TripStopItem> Stops { get; } = new();
 
     public bool HasRecents => Recents.Count > 0;
 
@@ -86,52 +93,11 @@ public sealed class DashboardViewModel : ViewModelBase
     // (RoutingController: 40 t, 4.0 m high, 2.55 m wide, 16.5 m long).
     public string TruckProfileText => "40 t · 4,0 m · 2,55 m · 16,5 m";
 
-    public string FleetSummary => $"{Vehicles.Count} vozila · {Orders.Count} naloga · {Trips.Count} tura";
+    // ---- Header ----
 
-    // "Zabrane" card: informational, routing does not use the bans yet.
-    public string TruckBansSummary => truckBans.Summary;
-
-    public string TruckBansBadge => truckBans.Badge;
-
-    public bool TruckBanActiveNow => truckBans.ActiveNow;
-
-    public string TruckBansDetails => truckBans.Details;
-
-    private void ApplyTruckBans(TruckBanCalendar? calendar)
-    {
-        truckBans = TruckBanSummary.Build(calendar, DateTimeOffset.Now);
-        RaisePropertyChanged(nameof(TruckBansSummary));
-        RaisePropertyChanged(nameof(TruckBansBadge));
-        RaisePropertyChanged(nameof(TruckBanActiveNow));
-        RaisePropertyChanged(nameof(TruckBansDetails));
-    }
-
-    private async Task LoadTruckBansAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            if (await apiClient.GetTruckBansAsync(cancellationToken).ConfigureAwait(false) is { } calendar)
-            {
-                TruckBanSummary.Save(calendar);
-                await MainThread.InvokeOnMainThreadAsync(() => ApplyTruckBans(calendar));
-            }
-        }
-        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or System.Text.Json.JsonException)
-        {
-            // Keep the saved calendar; it is re-evaluated against the clock below.
-            await MainThread.InvokeOnMainThreadAsync(() => ApplyTruckBans(TruckBanSummary.LoadSaved()));
-        }
-    }
-
-    public void ReloadRecents()
-    {
-        ReplaceItems(Recents, RecentDestinations.Load());
-        RaisePropertyChanged(nameof(HasRecents));
-    }
-
-    public ICommand RefreshCommand { get; }
-
-    public ICommand OpenLinkCommand { get; }
+    public string WelcomeText => sessionService.CurrentSession?.User.DisplayName is { Length: > 0 } displayName
+        ? $"Zdravo, {displayName.Split(' ')[0]}"
+        : "Dobrodošli";
 
     public string StatusText
     {
@@ -139,51 +105,140 @@ public sealed class DashboardViewModel : ViewModelBase
         private set => SetProperty(ref statusText, value);
     }
 
-    public string RouteSummary
+    public bool IsOffline
     {
-        get => routeSummary;
-        private set => SetProperty(ref routeSummary, value);
+        get => isOffline;
+        private set
+        {
+            if (SetProperty(ref isOffline, value))
+            {
+                RaisePropertyChanged(nameof(ConnectionText));
+            }
+        }
     }
 
-    public string RouteEngine
+    public string ConnectionText => IsOffline ? "Bez veze" : "Na mreži";
+
+    // ---- Trip card ----
+
+    public bool IsSignedIn => sessionService.IsSignedIn;
+
+    public bool ShowSignIn => !sessionService.IsSignedIn;
+
+    public bool ShowNotDriver => sessionService.IsSignedIn && isNotDriver;
+
+    public bool HasTrip => sessionService.IsSignedIn && portal?.Trip is not null;
+
+    public bool ShowNoTrip => sessionService.IsSignedIn && !isNotDriver && portal is not null && portal.Trip is null;
+
+    private DriverPortalTrip? Trip => portal?.Trip;
+
+    public string TripTitle => Trip is { } trip ? $"Tura {trip.TripNumber}" : string.Empty;
+
+    public string TripRoute => Trip?.Route is { Length: > 0 } route ? route : "Ruta nije određena";
+
+    public string TripStatusText => Trip is null ? string.Empty : Trip.Status switch
     {
-        get => routeEngine;
-        private set => SetProperty(ref routeEngine, value);
+        "Planned" => "Planirana",
+        "Active" => DescribeState(Trip.State),
+        "Paused" => "Pauza",
+        "Completed" => "Završena",
+        "Cancelled" => "Otkazana",
+        _ => Trip.Status,
+    };
+
+    public bool IsTripActive => Trip?.Status == "Active";
+
+    public bool IsTripPaused => Trip?.Status == "Paused";
+
+    public bool IsTripPlanned => Trip?.Status == "Planned";
+
+    public bool CanPause => IsTripActive || IsTripPaused;
+
+    public string PauseButtonText => IsTripPaused ? "Nastavi vožnju" : "Pauza";
+
+    public double TripProgress => Math.Clamp((Trip?.RouteProgressPercent ?? 0) / 100, 0, 1);
+
+    public string TripProgressText
+    {
+        get
+        {
+            var stops = portal?.Stops ?? [];
+            var done = stops.Count(stop => stop.Status is "Completed" or "Skipped");
+            return stops.Count == 0 ? $"{Math.Round(TripProgress * 100)}%" : $"{done} od {stops.Count} stanica";
+        }
     }
 
-    public string RouteSafety
+    public string TripDetailText
     {
-        get => routeSafety;
-        private set => SetProperty(ref routeSafety, value);
+        get
+        {
+            var parts = new List<string>();
+            if (Trip?.Vehicle is { Length: > 0 } vehicle) parts.Add(vehicle);
+            if (Trip?.PlannedArrivalAt is { } eta) parts.Add($"dolazak {eta.ToLocalTime():dd.MM. HH:mm}");
+            return string.Join(" · ", parts);
+        }
     }
 
-    public string RouteDiagnosticsSummary
+    /// <summary>When the trip was loaded; says so when it is the saved copy (no signal).</summary>
+    public string PortalUpdatedText => portalSavedAt is not { } at
+        ? string.Empty
+        : IsOffline
+            ? $"Sačuvano {at.ToLocalTime():dd.MM. HH:mm} · bez veze"
+            : $"Osveženo {at.ToLocalTime():HH:mm}";
+
+    private DriverPortalStop? NextStop => portal?.Stops?.FirstOrDefault(stop => stop.Id == portal.NextStopId);
+
+    public bool HasNextStop => HasTrip && NextStop is not null;
+
+    public string NextStopTitle => NextStop is { } stop ? StopTitle(stop) : string.Empty;
+
+    public string NextStopDetail => NextStop is { } stop ? StopDetail(stop) : string.Empty;
+
+    public string NextStopActionText => NextStop?.Status is "Arrived" or "InService" ? "Završi stanicu" : "Stigao sam";
+
+    public bool CanNavigateToNextStop => NextStop?.Latitude is not null && NextStop.Longitude is not null;
+
+    public bool HasPendingRoute => portal?.PendingRoute is not null;
+
+    public string PendingRouteText => portal?.PendingRoute is { } pending
+        ? $"Dispečer je poslao rutu {(pending.SentAt ?? pending.CreatedAt).ToLocalTime():dd.MM. HH:mm}. Prihvatate li je?"
+        : string.Empty;
+
+    public bool HasDispatchPhone => !string.IsNullOrWhiteSpace(portal?.DispatchPhone);
+
+    public string GpsStatusText => telemetry.StatusText;
+
+    public bool IsActionRunning
     {
-        get => routeDiagnosticsSummary;
-        private set => SetProperty(ref routeDiagnosticsSummary, value);
+        get => isActionRunning;
+        private set => SetProperty(ref isActionRunning, value);
     }
 
-    public string RouteStartSnap
+    // ---- Other cards ----
+
+    /// <summary>Fleet numbers for dispatchers and administrators (a driver sees the trip instead).</summary>
+    public string FleetSummary
     {
-        get => routeStartSnap;
-        private set => SetProperty(ref routeStartSnap, value);
+        get => fleetSummary;
+        private set
+        {
+            if (SetProperty(ref fleetSummary, value))
+            {
+                RaisePropertyChanged(nameof(HasFleetSummary));
+            }
+        }
     }
 
-    public string RouteEndSnap
-    {
-        get => routeEndSnap;
-        private set => SetProperty(ref routeEndSnap, value);
-    }
+    public bool HasFleetSummary => !string.IsNullOrEmpty(FleetSummary);
 
-    public string RouteFailureReason
-    {
-        get => routeFailureReason;
-        private set => SetProperty(ref routeFailureReason, value);
-    }
+    public string TruckBansSummary => truckBans.Summary;
 
-    public string WelcomeText => sessionService.CurrentSession?.User.DisplayName is { Length: > 0 } displayName
-        ? $"Dobrodošli, {displayName}"
-        : "Dobrodošli";
+    public string TruckBansBadge => truckBans.Badge;
+
+    public bool TruckBanActiveNow => truckBans.ActiveNow;
+
+    public string TruckBansDetails => truckBans.Details;
 
     // Only pull-to-refresh shows the RefreshView spinner: while a RefreshView is
     // refreshing, Android blocks every tap on the page, so the automatic load on
@@ -208,6 +263,12 @@ public sealed class DashboardViewModel : ViewModelBase
         }
     }
 
+    public void ReloadRecents()
+    {
+        ReplaceItems(Recents, RecentDestinations.Load());
+        RaisePropertyChanged(nameof(HasRecents));
+    }
+
     public async Task LoadAsync()
     {
         // A newer load (page shown again) replaces this one; the replaced load
@@ -219,55 +280,52 @@ public sealed class DashboardViewModel : ViewModelBase
         try
         {
             await SetBusyAsync(true).ConfigureAwait(false);
-            StatusText = "Učitavanje operativnih podataka…";
-
             var cancellationToken = loadCts.Token;
+            await sessionService.RestoreAsync(cancellationToken).ConfigureAwait(false);
 
-            // The saved ban calendar first (no signal): what is in force depends on the clock.
-            await MainThread.InvokeOnMainThreadAsync(() => ApplyTruckBans(TruckBanSummary.LoadSaved()));
+            // What is on the phone first: the saved trip and ban calendar (no signal needed).
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                StatusText = "Učitavanje…";
+                ApplyTruckBans(TruckBanSummary.LoadSaved());
+                if (portal is null && sessionService.CurrentSession?.User.Id is { } userId && portalStore.Load(userId) is { } saved)
+                {
+                    ApplyPortal(saved.Portal, saved.SavedAt);
+                }
+
+                RaiseSessionProperties();
+            });
 
             // Without signal every request would hang until its timeout (and keep
             // threads busy); check once, quickly, and skip the sync when there is no server.
             if (!await apiClient.IsServerReachableAsync(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(false))
             {
                 offlineWebCache.MarkOffline();
-                await MainThread.InvokeOnMainThreadAsync(() => StatusText = "Bez veze sa serverom · podaci će se osvežiti kad se veza vrati");
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    IsOffline = true;
+                    RaisePropertyChanged(nameof(PortalUpdatedText));
+                    StatusText = "Bez veze sa serverom · prikazani su sačuvani podaci";
+                });
                 return;
             }
 
-            var vehiclesTask = apiClient.GetVehiclesAsync(cancellationToken);
-            var driversTask = apiClient.GetDriversAsync(cancellationToken);
-            var ordersTask = apiClient.GetOrdersAsync(cancellationToken);
-            var tripsTask = apiClient.GetTripsAsync(cancellationToken);
-            var routeTask = apiClient.GetRouteAsync(
-                new RouteRequest(
-                    new GeoPoint(44.8176, 20.4633),
-                    new GeoPoint(45.2671, 19.8335)),
-                cancellationToken);
+            await MainThread.InvokeOnMainThreadAsync(() => IsOffline = false);
 
-            await Task.WhenAll(vehiclesTask, driversTask, ordersTask, tripsTask, routeTask).ConfigureAwait(false);
+            if (sessionService.IsSignedIn)
+            {
+                await LoadPortalAsync(cancellationToken).ConfigureAwait(false);
+            }
 
-            var vehicles = await vehiclesTask.ConfigureAwait(false);
-            var drivers = await driversTask.ConfigureAwait(false);
-            var orders = await ordersTask.ConfigureAwait(false);
-            var trips = await tripsTask.ConfigureAwait(false);
-            var route = await routeTask.ConfigureAwait(false);
+            await LoadTruckBansAsync(cancellationToken).ConfigureAwait(false);
 
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
-                ReplaceItems(Vehicles, vehicles);
-                ReplaceItems(Drivers, drivers);
-                ReplaceItems(Orders, orders);
-                ReplaceItems(Trips, trips);
-                RaisePropertyChanged(nameof(FleetSummary));
-                ApplyRoute(route);
-                RaisePropertyChanged(nameof(WelcomeText));
-                StatusText = $"Sinhronizovano {DateTime.Now:HH:mm} · {sessionService.LastStatus}";
+                RaiseSessionProperties();
+                StatusText = sessionService.IsSignedIn
+                    ? $"Sinhronizovano u {DateTime.Now:HH:mm}"
+                    : "Niste prijavljeni · navigacija i mape rade i bez naloga";
             });
-
-            await notifier.ShowSuccessAsync("Podaci su sinhronizovani.").ConfigureAwait(false);
-
-            await LoadTruckBansAsync(cancellationToken).ConfigureAwait(false);
 
             // The offline routing package is rebuilt on the server after a map update;
             // remind once per version to download it while there is a connection.
@@ -275,39 +333,16 @@ public sealed class DashboardViewModel : ViewModelBase
                 newer.Version != announcedBundleVersion)
             {
                 announcedBundleVersion = newer.Version;
-                await MainThread.InvokeOnMainThreadAsync(() => StatusText += " · nova verzija offline paketa");
-                await notifier.ShowInfoAsync($"Dostupna je nova verzija offline paketa „{newer.DisplayName}“ (Offline mape → Paketi za rutiranje).").ConfigureAwait(false);
+                await notifier.ShowInfoAsync($"Nova verzija offline paketa „{newer.DisplayName}“ (Offline mape → Paketi za rutiranje).").ConfigureAwait(false);
             }
         }
         catch (OperationCanceledException) when (loadCts.IsCancellationRequested)
         {
             // Superseded by a newer load: nothing to report.
         }
-        catch (OperationCanceledException)
-        {
-            // HttpClient timeout (not our cancellation): the server did not answer.
-            await MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                StatusText = $"Server ne odgovara · {sessionService.LastStatus}";
-            });
-        }
-        catch (HttpRequestException ex)
-        {
-            await MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                StatusText = $"Sinhronizacija nije uspela: {ex.Message} · {sessionService.LastStatus}";
-            });
-
-            // No toast: without signal it would pop up on every visit; the status line says it.
-        }
         catch (Exception ex)
         {
-            await MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                StatusText = $"Sinhronizacija nije uspela: {ex.Message}";
-            });
-
-            await notifier.ShowWarningAsync("Sinhronizacija nije uspela zbog neočekivane greške.").ConfigureAwait(false);
+            await MainThread.InvokeOnMainThreadAsync(() => StatusText = $"Sinhronizacija nije uspela: {ApiClient.DescribeError(ex)}");
         }
         finally
         {
@@ -321,97 +356,281 @@ public sealed class DashboardViewModel : ViewModelBase
         }
     }
 
+    private async Task LoadPortalAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var loaded = await apiClient.GetDriverPortalAsync(cancellationToken).ConfigureAwait(false);
+            if (loaded is not null && sessionService.CurrentSession?.User.Id is { } userId)
+            {
+                portalStore.Save(loaded, userId);
+            }
+
+            isNotDriver = false;
+            await MainThread.InvokeOnMainThreadAsync(() => ApplyPortal(loaded, DateTimeOffset.Now));
+            await ApplyTrackingAsync().ConfigureAwait(false);
+            await MainThread.InvokeOnMainThreadAsync(() => FleetSummary = string.Empty);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Forbidden)
+        {
+            // Dispatcher or administrator: no trip of their own, the fleet in one line instead.
+            isNotDriver = true;
+            await telemetry.SetTripAsync(null, null, running: false).ConfigureAwait(false);
+            await MainThread.InvokeOnMainThreadAsync(() => ApplyPortal(null, null));
+            await LoadFleetSummaryAsync(cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private async Task LoadFleetSummaryAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var vehicles = apiClient.GetVehiclesAsync(cancellationToken);
+            var orders = apiClient.GetOrdersAsync(cancellationToken);
+            var trips = apiClient.GetTripsAsync(cancellationToken);
+            await Task.WhenAll(vehicles, orders, trips).ConfigureAwait(false);
+            var summary = $"{vehicles.Result.Count} vozila · {orders.Result.Count} naloga · {trips.Result.Count} tura";
+            await MainThread.InvokeOnMainThreadAsync(() => FleetSummary = summary);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException && !cancellationToken.IsCancellationRequested)
+        {
+            // Optional line: left out when the lists cannot be read.
+        }
+    }
+
+    // A running trip keeps the GPS on and sends the truck's position to dispatch.
+    private Task ApplyTrackingAsync()
+    {
+        var trip = portal?.Trip;
+        var vehicleId = trip?.VehicleId ?? portal?.Driver?.CurrentVehicleId;
+        var running = trip?.Status is "Active" or "Paused";
+        return telemetry.SetTripAsync(trip is null ? null : vehicleId, trip?.Id, running);
+    }
+
+    private void ApplyPortal(DriverPortal? value, DateTimeOffset? savedAt)
+    {
+        portal = value;
+        portalSavedAt = savedAt;
+
+        var stops = value?.Stops ?? [];
+        ReplaceItems(Stops, stops.Select((stop, index) => new TripStopItem(
+            stop.Id,
+            stop.Sequence,
+            StopTitle(stop),
+            StopDetail(stop),
+            StopStatus(stop),
+            stop.Status is "Completed" or "Skipped",
+            stop.Id == value?.NextStopId,
+            index == stops.Count - 1)));
+
+        (NavigateToNextStopCommand as Command)?.ChangeCanExecute();
+        foreach (var name in new[]
+                 {
+                     nameof(HasTrip), nameof(ShowNoTrip), nameof(ShowNotDriver), nameof(TripTitle), nameof(TripRoute),
+                     nameof(TripStatusText), nameof(IsTripActive), nameof(IsTripPaused), nameof(IsTripPlanned),
+                     nameof(CanPause), nameof(PauseButtonText), nameof(TripProgress), nameof(TripProgressText),
+                     nameof(TripDetailText), nameof(PortalUpdatedText), nameof(HasNextStop), nameof(NextStopTitle),
+                     nameof(NextStopDetail), nameof(NextStopActionText), nameof(CanNavigateToNextStop),
+                     nameof(HasPendingRoute), nameof(PendingRouteText), nameof(HasDispatchPhone), nameof(GpsStatusText),
+                 })
+        {
+            RaisePropertyChanged(name);
+        }
+    }
+
+    private void RaiseSessionProperties()
+    {
+        RaisePropertyChanged(nameof(WelcomeText));
+        RaisePropertyChanged(nameof(IsSignedIn));
+        RaisePropertyChanged(nameof(ShowSignIn));
+        RaisePropertyChanged(nameof(ShowNotDriver));
+        RaisePropertyChanged(nameof(ShowNoTrip));
+        RaisePropertyChanged(nameof(HasTrip));
+        RaisePropertyChanged(nameof(GpsStatusText));
+    }
+
+    // ---- Driver actions (need the server; the page asks for confirmation first) ----
+
+    public Task NextStopActionAsync()
+    {
+        if (NextStop is not { } stop)
+        {
+            return Task.CompletedTask;
+        }
+
+        return stop.Status is "Arrived" or "InService"
+            ? RunActionAsync(ct => apiClient.CompleteStopAsync(stop.Id, ct), $"Stanica „{StopTitle(stop)}“ je završena.")
+            : RunActionAsync(ct => apiClient.ArriveAtStopAsync(stop.Id, ct), $"Dolazak na „{StopTitle(stop)}“ je evidentiran.");
+    }
+
+    public Task StartTripAsync()
+        => Trip is { } trip
+            ? RunActionAsync(ct => apiClient.StartTripAsync(trip.Id, ct), "Tura je započeta. Srećan put!")
+            : Task.CompletedTask;
+
+    public Task TogglePauseAsync()
+        => RunActionAsync(ct => apiClient.TogglePauseAsync(ct), IsTripPaused ? "Pauza je završena." : "Pauza je započeta.");
+
+    public Task AcceptRouteAsync()
+        => portal?.PendingRoute is { } pending
+            ? RunActionAsync(ct => apiClient.AcceptRouteAsync(pending.Id, ct), "Ruta je prihvaćena.")
+            : Task.CompletedTask;
+
+    public Task RejectRouteAsync(string? reason)
+        => portal?.PendingRoute is { } pending
+            ? RunActionAsync(ct => apiClient.RejectRouteAsync(pending.Id, reason, ct), "Ruta je odbijena. Dispečer je obavešten.")
+            : Task.CompletedTask;
+
+    public Task ReportIncidentAsync(string message, bool critical)
+        => RunActionAsync(ct => apiClient.ReportIncidentAsync(message, critical ? "Critical" : "Warning", ct), "Incident je prijavljen dispečeru.");
+
+    public string NextStopConfirmText => NextStop is { } stop
+        ? $"{NextStopActionText}: {StopTitle(stop)}?"
+        : string.Empty;
+
+    private async Task RunActionAsync(Func<CancellationToken, Task> action, string successMessage)
+    {
+        if (IsActionRunning)
+        {
+            return;
+        }
+
+        if (IsOffline)
+        {
+            await notifier.ShowWarningAsync("Nema veze sa serverom. Pokušajte kad se veza vrati.").ConfigureAwait(false);
+            return;
+        }
+
+        try
+        {
+            await MainThread.InvokeOnMainThreadAsync(() => IsActionRunning = true);
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+            await action(timeout.Token).ConfigureAwait(false);
+            await notifier.ShowSuccessAsync(successMessage).ConfigureAwait(false);
+            await LoadPortalAsync(CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            await notifier.ShowErrorAsync(ApiClient.DescribeError(ex)).ConfigureAwait(false);
+        }
+        finally
+        {
+            await MainThread.InvokeOnMainThreadAsync(() => IsActionRunning = false);
+        }
+    }
+
+    private void NavigateToNextStop()
+    {
+        if (NextStop is not { Latitude: { } lat, Longitude: { } lon } stop)
+        {
+            return;
+        }
+
+        NavigationRequests.RouteTo(new RecentDestination(StopTitle(stop), lat, lon, DateTimeOffset.Now));
+        SafeUi.Run(() => AppNavigation.GoToAsync(AppNavigation.Navigation));
+    }
+
+    private void CallDispatch()
+    {
+        if (portal?.DispatchPhone is not { Length: > 0 } phone)
+        {
+            SafeUi.Run(() => notifier.ShowInfoAsync("Broj dispečera nije unet u podešavanjima firme."));
+            return;
+        }
+
+        try
+        {
+            if (PhoneDialer.Default.IsSupported)
+            {
+                PhoneDialer.Default.Open(phone);
+            }
+        }
+        catch (Exception)
+        {
+            SafeUi.Run(() => notifier.ShowInfoAsync($"Dispečer: {phone}"));
+        }
+    }
+
+    // ---- Truck bans ----
+
+    private void ApplyTruckBans(TruckBanCalendar? calendar)
+    {
+        truckBans = TruckBanSummary.Build(calendar, DateTimeOffset.Now);
+        RaisePropertyChanged(nameof(TruckBansSummary));
+        RaisePropertyChanged(nameof(TruckBansBadge));
+        RaisePropertyChanged(nameof(TruckBanActiveNow));
+        RaisePropertyChanged(nameof(TruckBansDetails));
+    }
+
+    private async Task LoadTruckBansAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (await apiClient.GetTruckBansAsync(cancellationToken).ConfigureAwait(false) is { } calendar)
+            {
+                TruckBanSummary.Save(calendar);
+                await MainThread.InvokeOnMainThreadAsync(() => ApplyTruckBans(calendar));
+            }
+        }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or System.Text.Json.JsonException)
+        {
+            // Keep the saved calendar; it is re-evaluated against the clock.
+            await MainThread.InvokeOnMainThreadAsync(() => ApplyTruckBans(TruckBanSummary.LoadSaved()));
+        }
+    }
+
+    // ---- Texts ----
+
+    private static string StopTitle(DriverPortalStop stop)
+        => !string.IsNullOrWhiteSpace(stop.Name) ? stop.Name : stop.City ?? $"Stanica {stop.Sequence}";
+
+    private static string StopDetail(DriverPortalStop stop)
+    {
+        var parts = new List<string> { StopType(stop.Type) };
+        if (!string.IsNullOrWhiteSpace(stop.City) && !string.Equals(stop.City, stop.Name, StringComparison.OrdinalIgnoreCase))
+        {
+            parts.Add(stop.CountryCode is { Length: > 0 } country ? $"{stop.City}, {country}" : stop.City);
+        }
+
+        if (stop.CompletedAt is { } completed) parts.Add($"završeno {completed.ToLocalTime():HH:mm}");
+        else if (stop.ArrivedAt is { } arrived) parts.Add($"stigao {arrived.ToLocalTime():HH:mm}");
+        else if (stop.PlannedAt is { } planned) parts.Add($"plan {planned.ToLocalTime():dd.MM. HH:mm}");
+        return string.Join(" · ", parts);
+    }
+
+    private static string StopType(string type) => type switch
+    {
+        "Loading" => "Utovar",
+        "Unloading" => "Istovar",
+        "LoadingAndUnloading" => "Utovar i istovar",
+        "Border" => "Granica",
+        "Rest" => "Odmor",
+        "Fuel" => "Gorivo",
+        _ => "Stanica",
+    };
+
+    private static string StopStatus(DriverPortalStop stop) => stop.Status switch
+    {
+        "Arrived" => "Na stanici",
+        "InService" => "U toku",
+        "Completed" => "Završeno",
+        "Skipped" => "Preskočeno",
+        _ => "Planirano",
+    };
+
+    private static string DescribeState(string? state) => state switch
+    {
+        "Loading" => "Utovar",
+        "Loaded" => "Utovareno",
+        "Unloading" => "Istovar",
+        "ApproachingStop" => "Prilazi stanici",
+        "AtStop" => "Na stanici",
+        "Waiting" => "Čeka",
+        "BorderCrossing" => "Granični prelaz",
+        _ => "U vožnji",
+    };
+
     private Task SetBusyAsync(bool value) => MainThread.InvokeOnMainThreadAsync(() => IsBusy = value);
-
-    private void ApplyRoute(RouteResponse? route)
-    {
-        var selectedRoute = route?.Routes.Count > 0
-            ? route.Routes[Math.Clamp(route.SelectedRouteIndex, 0, route.Routes.Count - 1)]
-            : null;
-        var debug = selectedRoute?.Analysis?.Debug;
-        var diagnostics = route?.Diagnostics;
-        var highlights = debug?.Highlights?.Count > 0
-            ? debug.Highlights
-            : diagnostics?.Highlights ?? [];
-        var violations = selectedRoute?.Analysis?.Violations?.Count > 0
-            ? selectedRoute.Analysis.Violations
-            : route?.Violations ?? [];
-        var distanceMeters = selectedRoute?.Distance ?? route?.Summary?.DistanceMeters ?? 0;
-        var durationSeconds = selectedRoute?.Duration ?? route?.Summary?.DurationSeconds ?? 0;
-
-        RouteSummary = selectedRoute is null
-            ? "Servis za rute radi, ali nijedna ruta nije izabrana."
-            : $"Belgrade → Novi Sad · {distanceMeters / 1000:0.#} km · {durationSeconds / 60:0} min";
-
-        RouteEngine = diagnostics is null
-            ? "Ruter: —"
-            : diagnostics.UsedFallback
-                ? $"Ruter: {diagnostics.Engine} · REZERVNI"
-                : $"Ruter: {diagnostics.Engine}";
-
-        RouteSafety = route is null
-            ? "Provera za kamion u toku"
-            : route.IsTruckSafe
-                ? "Bezbedna za kamion"
-                : violations.Count > 0
-                    ? $"Upozorenja o ograničenjima: {violations.Count}"
-                    : "Rutu treba proveriti";
-
-        var diagnosticParts = new List<string>();
-        if (diagnostics is not null && diagnostics.ExpandedStates > 0)
-        {
-            diagnosticParts.Add($"{diagnostics.ExpandedStates} states");
-        }
-
-        var traversalCount = debug?.TraversalCount > 0 ? debug.TraversalCount : diagnostics?.TraversalCount ?? 0;
-        if (traversalCount > 0)
-        {
-            diagnosticParts.Add($"{traversalCount} traversals");
-        }
-
-        if (diagnostics?.GraphVersion is not null)
-        {
-            diagnosticParts.Add($"graph {diagnostics.GraphVersion}");
-        }
-
-        if (diagnostics?.UsedFallback == true)
-        {
-            diagnosticParts.Add("fallback active");
-        }
-
-        RouteDiagnosticsSummary = diagnosticParts.Count > 0
-            ? string.Join(" · ", diagnosticParts)
-            : debug?.Summary ?? "Nema dijagnostike.";
-
-        RouteStartSnap = debug?.StartSnap ?? diagnostics?.StartSnap ?? "—";
-        RouteEndSnap = debug?.EndSnap ?? diagnostics?.EndSnap ?? "—";
-        RouteFailureReason = diagnostics?.FailureReason ?? "—";
-
-        ReplaceItems(RouteHighlights, highlights);
-        // Dashboard preview only: a long route can have hundreds of maneuvers, and
-        // rendering them all in a BindableLayout froze the UI thread (ANR).
-        ReplaceItems(RouteManeuvers, (route?.Maneuvers ?? []).Take(DashboardManeuverPreviewCount).ToList());
-    }
-
-    private async Task OpenLinkAsync(DashboardLink? link)
-    {
-        if (link is null)
-        {
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(link.ShellRoute))
-        {
-            StatusText = $"{link.Title} je trenutno dostupno na web portalu. Mobilni ekran stiže uskoro.";
-            await notifier.ShowInfoAsync(StatusText).ConfigureAwait(false);
-            return;
-        }
-
-        if (!await AppNavigation.GoToAsync(link.ShellRoute))
-        {
-            await notifier.ShowWarningAsync($"{link.Title} trenutno nije moguće otvoriti.").ConfigureAwait(false);
-        }
-    }
 
     private static void ReplaceItems<T>(ObservableCollection<T> target, IEnumerable<T> source)
     {
@@ -421,6 +640,4 @@ public sealed class DashboardViewModel : ViewModelBase
             target.Add(item);
         }
     }
-
-    public sealed record DashboardLink(string Title, string Description, string? ShellRoute);
 }

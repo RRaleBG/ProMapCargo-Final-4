@@ -39,6 +39,13 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<TokenStore>();
         builder.Services.AddSingleton<MobileServerEndpointService>();
+        // Sign-in and token refresh without ApiAuthHandler (the handler refreshes through it).
+        builder.Services.AddHttpClient<AuthApiClient>((services, client) =>
+        {
+            var options = services.GetRequiredService<IOptions<MobileAppOptions>>().Value;
+            client.BaseAddress = new Uri(options.ApiBaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
         // DelegatingHandlers used with AddHttpMessageHandler must be transient: HttpClientFactory
         // builds a new handler chain on every rotation and a reused instance throws.
         builder.Services.AddTransient<ApiAuthHandler>();
@@ -70,6 +77,9 @@ public static class MauiProgram
         builder.Services.AddSingleton<OfflineWebCache>();
         builder.Services.AddSingleton<SavedRouteStore>();
         builder.Services.AddSingleton<OfflineRoutingEngine>();
+        builder.Services.AddSingleton<DriverPortalStore>();
+        builder.Services.AddSingleton<GpsTracker>();
+        builder.Services.AddSingleton<GpsTelemetryUploader>();
 
 #if ANDROID
         // Navigation WebView requests go through the offline cache (map from the
@@ -85,7 +95,7 @@ public static class MauiProgram
 #endif
 
         builder.Services.AddSingleton<AppShell>();
-        builder.Services.AddTransient<StartupPage>();
+        builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<DashboardViewModel>();
         builder.Services.AddTransient<NavigationViewModel>();

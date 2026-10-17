@@ -24,6 +24,12 @@ public sealed record MapPackageCatalogItem(
     [JsonIgnore]
     public string InstallState { get; init; } = PackageInstallState.Install;
 
+    [JsonIgnore]
+    public bool IsInstalled => InstallState == PackageInstallState.Installed;
+
+    [JsonIgnore]
+    public string SizeText => ByteSize.Format(SizeBytes);
+
     // The server file is newer than the installed copy -> update.
     public MapPackageCatalogItem WithInstallState(IEnumerable<InstalledMapPackage> installed)
     {
@@ -46,6 +52,18 @@ public sealed record InstalledMapPackage(
     long SizeBytes,
     DateTime InstalledAtUtc,
     DateTime SourceLastModifiedUtc);
+
+/// <summary>Sizes for the screens ("1,2 GB", "340 MB").</summary>
+public static class ByteSize
+{
+    public static string Format(long bytes) => bytes switch
+    {
+        >= 1L << 30 => $"{bytes / (double)(1L << 30):0.0} GB",
+        >= 1L << 20 => $"{bytes / (double)(1L << 20):0} MB",
+        > 0 => $"{Math.Max(1, bytes / 1024)} KB",
+        _ => "—",
+    };
+}
 
 public sealed record InstalledMapManifest(
     DateTime UpdatedAtUtc,

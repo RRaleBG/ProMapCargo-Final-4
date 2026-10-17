@@ -1,5 +1,3 @@
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls;
 using ProMapCargo.Mobile.Services;
 using ProMapCargo.Mobile.ViewModels;
 
@@ -14,11 +12,13 @@ public partial class LoginPage : ContentPage
         InitializeComponent();
         BindingContext = viewModel;
         this.viewModel = viewModel;
+        EmailEntry.Completed += (_, _) => PasswordEntry.Focus();
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
+        viewModel.Refresh();
         viewModel.LoginSucceeded += HandleLoginSucceeded;
     }
 
@@ -28,6 +28,6 @@ public partial class LoginPage : ContentPage
         base.OnDisappearing();
     }
 
-    private async void HandleLoginSucceeded(object? sender, EventArgs e)
-        => await AppNavigation.GoToAsync(AppNavigation.Dashboard);
+    private void HandleLoginSucceeded(object? sender, EventArgs e)
+        => SafeUi.Run(() => AppNavigation.GoToAsync(AppNavigation.Dashboard));
 }

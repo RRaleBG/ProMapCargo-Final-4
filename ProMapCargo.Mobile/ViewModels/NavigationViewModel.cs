@@ -14,14 +14,15 @@ public class NavigationViewModel : ViewModelBase
     private const string MyLocationLabel = "Moja lokacija";
     // A maneuver counts as passed once the truck is this far beyond it along the route.
     private const double ManeuverPassedToleranceMeters = 10;
-    private static readonly TimeSpan GpsPollInterval = TimeSpan.FromSeconds(1);
+    private const string GpsHolder = "navigation";
     private static readonly TimeSpan AutoRerouteCooldown = TimeSpan.FromSeconds(20);
     private readonly ApiClient apiClient;
     private readonly OfflineRoutingBundleService offlineRoutingBundleService;
     private readonly IMobileNotifier notifier;
     private readonly SavedRouteStore savedRouteStore;
     private readonly OfflineRoutingEngine offlineEngine;
-    private CancellationTokenSource? gpsTrackingCts;
+    private readonly GpsTracker gpsTracker;
+    private bool gpsHeld;
     private DateTimeOffset lastAutoRerouteAt = DateTimeOffset.MinValue;
     // Auto-reroute only after the truck has been on the route once: a route planned
     // from somewhere else (start typed in) must not be replaced from the GPS position.
@@ -35,7 +36,7 @@ public class NavigationViewModel : ViewModelBase
     private bool isBusy;
     private bool isRouteInputVisible;
     private bool autoRerouteEnabled = true;
-    private bool voiceGuidanceEnabled = true;
+    private bool voiceGuidanceEnabled = AppSettings.VoiceGuidance;
     private bool showRouteLayer = true;
     private bool showRestrictionsLayer = true;
     private bool showFleetLayer = true;
@@ -95,9 +96,10 @@ public class NavigationViewModel : ViewModelBase
     private string currentSpeedText = "0";
     private bool hasRoute;
 
-    public NavigationViewModel(ApiClient apiClient, OfflineRoutingBundleService offlineRoutingBundleService, IMobileNotifier notifier, SavedRouteStore savedRouteStore, OfflineRoutingEngine offlineEngine)
+    public NavigationViewModel(ApiClient apiClient, OfflineRoutingBundleService offlineRoutingBundleService, IMobileNotifier notifier, SavedRouteStore savedRouteStore, OfflineRoutingEngine offlineEngine, GpsTracker gpsTracker)
     {
         this.offlineEngine = offlineEngine;
+        this.gpsTracker = gpsTracker;
         this.apiClient = apiClient;
         this.offlineRoutingBundleService = offlineRoutingBundleService;
         this.notifier = notifier;
@@ -895,14 +897,12 @@ public class NavigationViewModel : ViewModelBase
         simulationCts = null;
         RaiseSimulationChanged();
 
-        gpsTrackingCts?.Cancel();
-        gpsTrackingCts = null;
-
-        if (isGpsListening)
+        if (gpsHeld)
         {
-            Geolocation.Default.LocationChanged -= OnGpsLocationChanged;
-            Geolocation.Default.StopListeningForeground();
-            isGpsListening = false;
+            gpsHeld = false;
+            gpsTracker.LocationUpdated -= OnGpsLocationChanged;
+            // The trip may still hold the GPS (position for dispatch); it stops when nobody does.
+            _ = gpsTracker.ReleaseAsync(GpsHolder);
         }
     }
 
@@ -986,94 +986,40 @@ public class NavigationViewModel : ViewModelBase
         return CurrentLocation is not null;
     }
 
+    // The shared GpsTracker: navigation and the running trip use the same listener, and its
+    // foreground service keeps guidance going with the screen off.
     private async Task StartGpsTrackingAsync()
     {
-        if (gpsTrackingCts is not null)
+        if (gpsHeld)
         {
             return;
         }
 
-        var permissionStatus = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-        if (permissionStatus != PermissionStatus.Granted)
+        gpsHeld = true;
+        gpsTracker.LocationUpdated += OnGpsLocationChanged;
+        if (!await gpsTracker.AcquireAsync(GpsHolder).ConfigureAwait(false))
         {
-            permissionStatus = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-        }
-
-        if (permissionStatus != PermissionStatus.Granted)
-        {
-            OffRouteStatusText = "Pristup lokaciji je odbijen. Praćenje skretanja sa rute je isključeno.";
+            gpsHeld = false;
+            gpsTracker.LocationUpdated -= OnGpsLocationChanged;
+            OffRouteStatusText = gpsTracker.Problem ?? "Pristup lokaciji je odbijen. Praćenje skretanja sa rute je isključeno.";
             await notifier.ShowWarningAsync(OffRouteStatusText).ConfigureAwait(false);
             return;
         }
 
-        gpsTrackingCts = new CancellationTokenSource();
-
-        // Continuous updates (~1 s) keep the truck moving smoothly; polling every
-        // few seconds made it jump. Polling stays as the fallback.
-        try
+        if (gpsTracker.LastLocation is { } last && CurrentLocation is null)
         {
-            Geolocation.Default.LocationChanged += OnGpsLocationChanged;
-            isGpsListening = await Geolocation.Default.StartListeningForegroundAsync(
-                new GeolocationListeningRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(1)));
-        }
-        catch (Exception)
-        {
-            isGpsListening = false;
-        }
-
-        if (!isGpsListening)
-        {
-            Geolocation.Default.LocationChanged -= OnGpsLocationChanged;
-            _ = TrackGpsLoopAsync(gpsTrackingCts.Token);
+            MainThread.BeginInvokeOnMainThread(() => UpdateCurrentLocation(last.Latitude, last.Longitude, last.Speed));
         }
     }
 
-    private bool isGpsListening;
-
-    private void OnGpsLocationChanged(object? sender, GeolocationLocationChangedEventArgs e)
+    private void OnGpsLocationChanged(object? sender, Location location)
     {
-        var location = e.Location;
         if (IsSimulating)
         {
             return;
         }
 
         MainThread.BeginInvokeOnMainThread(() => UpdateCurrentLocation(location.Latitude, location.Longitude, location.Speed));
-    }
-
-    private async Task TrackGpsLoopAsync(CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            try
-            {
-                var location = await Geolocation.Default.GetLocationAsync(
-                    new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(10)),
-                    cancellationToken);
-
-                if (location is not null && !IsSimulating)
-                {
-                    await MainThread.InvokeOnMainThreadAsync(() => UpdateCurrentLocation(location.Latitude, location.Longitude, location.Speed));
-                }
-            }
-            catch (FeatureNotEnabledException)
-            {
-                await MainThread.InvokeOnMainThreadAsync(() => OffRouteStatusText = "Uključite lokaciju na uređaju za navođenje uživo.");
-            }
-            catch (Exception)
-            {
-                await MainThread.InvokeOnMainThreadAsync(() => OffRouteStatusText = "GPS lokacija trenutno nije dostupna.");
-            }
-
-            try
-            {
-                await Task.Delay(GpsPollInterval, cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-        }
     }
 
     /// <summary>

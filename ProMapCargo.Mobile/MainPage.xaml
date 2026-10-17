@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
-  Welcome screen: the web UI's brand mark and colours, two large actions for the driver
-  (touch targets >= 52 px) and tiles to the other sections, as on the home screen.
+  The one start-up screen (the system splash before it is only the background colour).
+  Same scene as the web home page: a dashed route Beograd → Novi Sad and the emerald
+  truck tile driving along it. The truck follows the 0-100 % of the real start-up
+  steps (MainPage.xaml.cs), so it reaches Novi Sad when the app is ready.
+  Route geometry: the web path (viewBox 610 × 480) at half size.
 -->
 <ContentPage
     x:Class="ProMapCargo.Mobile.MainPage"
@@ -10,202 +13,242 @@
     BackgroundColor="{StaticResource SurfaceBase}"
     Shell.NavBarIsVisible="False">
 
-    <ContentPage.Resources>
-        <Style x:Key="WelcomeTapTarget" TargetType="Button">
-            <Setter Property="BackgroundColor" Value="Transparent" />
-            <Setter Property="BorderWidth" Value="0" />
-            <Setter Property="CornerRadius" Value="0" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="Text" Value="" />
-        </Style>
-        <Style x:Key="WelcomeTile" TargetType="Border">
-            <Setter Property="BackgroundColor" Value="{StaticResource SurfaceOverlay}" />
-            <Setter Property="Stroke" Value="{StaticResource StrokeSubtle}" />
-            <Setter Property="StrokeThickness" Value="1" />
-            <Setter Property="StrokeShape" Value="RoundRectangle 16" />
-            <Setter Property="Padding" Value="14,12" />
-            <Setter Property="HeightRequest" Value="84" />
-        </Style>
-        <Style x:Key="WelcomeTileIcon" TargetType="Border">
-            <Setter Property="BackgroundColor" Value="{StaticResource SurfaceInset}" />
-            <Setter Property="StrokeThickness" Value="0" />
-            <Setter Property="StrokeShape" Value="RoundRectangle 10" />
-            <Setter Property="HeightRequest" Value="32" />
-            <Setter Property="WidthRequest" Value="32" />
-            <Setter Property="HorizontalOptions" Value="Start" />
-        </Style>
-        <Style x:Key="WelcomeTileLabel" TargetType="Label">
-            <Setter Property="FontFamily" Value="OpenSansSemibold" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
-            <Setter Property="VerticalOptions" Value="End" />
-        </Style>
-    </ContentPage.Resources>
-
-    <Grid>
+    <Grid RowDefinitions="*,Auto,Auto,Auto">
         <Grid.Background>
-            <RadialGradientBrush Center="0.5,0.18" Radius="1">
+            <RadialGradientBrush Center="0.5,0.38" Radius="0.95">
                 <GradientStop Offset="0" Color="#0A2A23" />
-                <GradientStop Offset="0.5" Color="#031712" />
+                <GradientStop Offset="0.55" Color="#031712" />
                 <GradientStop Offset="1" Color="#010D0B" />
             </RadialGradientBrush>
         </Grid.Background>
 
-        <ScrollView>
-            <VerticalStackLayout Padding="22,40,22,28" Spacing="22">
+        <!--  Route card (as "Truck Route Intelligence" on the web)  -->
+        <Border
+            Grid.Row="0"
+            Padding="0"
+            HeightRequest="276"
+            HorizontalOptions="Center"
+            Stroke="{StaticResource StrokeSubtle}"
+            StrokeShape="RoundRectangle 28"
+            StrokeThickness="1"
+            VerticalOptions="Center"
+            WidthRequest="328">
+            <Border.Background>
+                <LinearGradientBrush EndPoint="1,1">
+                    <GradientStop Offset="0" Color="#0B2D26" />
+                    <GradientStop Offset="1" Color="#05201A" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Shadow>
+                <Shadow Brush="#10B981" Opacity="0.18" Radius="40" Offset="0,0" />
+            </Border.Shadow>
 
-                <!--  Brand: same mark as the web sidebar and the start-up screen  -->
-                <VerticalStackLayout HorizontalOptions="Center" Spacing="16">
-                    <Border
-                        HeightRequest="84"
-                        HorizontalOptions="Center"
-                        SemanticProperties.Description="ProMap Cargo"
-                        StrokeThickness="1.5"
-                        WidthRequest="84">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="24" />
-                        </Border.StrokeShape>
-                        <Border.Stroke>
-                            <LinearGradientBrush EndPoint="1,1">
-                                <GradientStop Offset="0" Color="#8C6EE7B7" />
-                                <GradientStop Offset="1" Color="#2E2DD4BF" />
-                            </LinearGradientBrush>
-                        </Border.Stroke>
-                        <Border.Background>
-                            <LinearGradientBrush EndPoint="1,1">
-                                <GradientStop Offset="0" Color="#9E10B981" />
-                                <GradientStop Offset="1" Color="#33059669" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Border.Shadow>
-                            <Shadow Brush="#10B981" Opacity="0.3" Radius="26" Offset="0,0" />
-                        </Border.Shadow>
-                        <Grid>
-                            <Rectangle
-                                HeightRequest="32"
-                                HorizontalOptions="Center"
-                                RadiusX="9"
-                                RadiusY="9"
-                                Rotation="45"
-                                Stroke="#6EE7B7"
-                                StrokeThickness="3.5"
-                                VerticalOptions="Center"
-                                WidthRequest="32" />
-                            <Ellipse
-                                Fill="#2DD4BF"
-                                HeightRequest="10"
-                                HorizontalOptions="Center"
-                                VerticalOptions="Center"
-                                WidthRequest="10" />
-                        </Grid>
-                    </Border>
-
-                    <VerticalStackLayout Spacing="6">
-                        <Label
-                            FontFamily="OpenSansSemibold"
-                            FontSize="28"
-                            HorizontalTextAlignment="Center"
-                            SemanticProperties.HeadingLevel="Level1">
-                            <Label.FormattedText>
-                                <FormattedString>
-                                    <Span Text="ProMap " TextColor="#F0FDF8" />
-                                    <Span Text="Cargo" TextColor="#34D399" />
-                                </FormattedString>
-                            </Label.FormattedText>
-                        </Label>
-                        <Label
-                            HorizontalTextAlignment="Center"
-                            Style="{StaticResource PmMutedLabel}"
-                            Text="Navigacija za kamione, ture i dispečing na jednom mestu." />
-                    </VerticalStackLayout>
-                </VerticalStackLayout>
-
-                <!--  What the app does, at a glance  -->
-                <Border Style="{StaticResource PmCardBorder}">
-                    <VerticalStackLayout Spacing="12">
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <Border Style="{StaticResource WelcomeTileIcon}">
-                                <Image HeightRequest="18" Source="ic_tab_navigation.svg" WidthRequest="18" />
-                            </Border>
-                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                <Label Style="{StaticResource PmBodyLabel}" Text="Rute za kamione" />
-                                <Label Style="{StaticResource PmCaptionLabel}" Text="Visina, masa, osovine i zabrane vožnje" />
-                            </VerticalStackLayout>
-                        </Grid>
-                        <BoxView Style="{StaticResource PmDivider}" />
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <Border Style="{StaticResource WelcomeTileIcon}">
-                                <Image HeightRequest="18" Source="ic_map.svg" WidthRequest="18" />
-                            </Border>
-                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                <Label Style="{StaticResource PmBodyLabel}" Text="Radi i bez signala" />
-                                <Label Style="{StaticResource PmCaptionLabel}" Text="Offline mape i rute izračunate na telefonu" />
-                            </VerticalStackLayout>
-                        </Grid>
-                        <BoxView Style="{StaticResource PmDivider}" />
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <Border Style="{StaticResource WelcomeTileIcon}">
-                                <Image HeightRequest="18" Source="ic_tab_operations.svg" WidthRequest="18" />
-                            </Border>
-                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                <Label Style="{StaticResource PmBodyLabel}" Text="Veza sa dispečerom" />
-                                <Label Style="{StaticResource PmCaptionLabel}" Text="Ture, stanice i upozorenja u realnom vremenu" />
-                            </VerticalStackLayout>
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-
-                <!--  Main actions  -->
-                <VerticalStackLayout Spacing="10">
-                    <Button
-                        Clicked="OnOpenNavigationClicked"
-                        SemanticProperties.Hint="Otvara navigaciju"
-                        Style="{StaticResource PmPrimaryButton}"
-                        Text="Kreni u navigaciju" />
-                    <Button
-                        Clicked="OnOpenOperationsClicked"
-                        SemanticProperties.Hint="Otvara početni ekran sa turama i upozorenjima"
-                        Style="{StaticResource PmSecondaryButton}"
-                        Text="Operacije" />
-                </VerticalStackLayout>
-
-                <!--  Other sections  -->
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                    <Border Style="{StaticResource WelcomeTile}">
-                        <Grid RowDefinitions="*,Auto">
-                            <Border Style="{StaticResource WelcomeTileIcon}">
-                                <Image HeightRequest="18" Source="ic_map.svg" WidthRequest="18" />
-                            </Border>
-                            <Label Grid.Row="1" Style="{StaticResource WelcomeTileLabel}" Text="Offline mape" />
-                            <Button
-                                Grid.RowSpan="2"
-                                Margin="-14,-12"
-                                Clicked="OnOpenMapsClicked"
-                                SemanticProperties.Description="Offline mape"
-                                Style="{StaticResource WelcomeTapTarget}" />
-                        </Grid>
-                    </Border>
-                    <Border Grid.Column="1" Style="{StaticResource WelcomeTile}">
-                        <Grid RowDefinitions="*,Auto">
-                            <Border Style="{StaticResource WelcomeTileIcon}">
-                                <Image HeightRequest="18" Source="ic_settings.svg" WidthRequest="18" />
-                            </Border>
-                            <Label Grid.Row="1" Style="{StaticResource WelcomeTileLabel}" Text="Podešavanja" />
-                            <Button
-                                Grid.RowSpan="2"
-                                Margin="-14,-12"
-                                Clicked="OnOpenSettingsClicked"
-                                SemanticProperties.Description="Podešavanja"
-                                Style="{StaticResource WelcomeTapTarget}" />
-                        </Grid>
-                    </Border>
+            <Grid>
+                <!--  Header of the card  -->
+                <Grid
+                    Margin="18,14,18,0"
+                    ColumnDefinitions="Auto,*,Auto"
+                    ColumnSpacing="8"
+                    VerticalOptions="Start">
+                    <Ellipse
+                        x:Name="LiveDot"
+                        Fill="{StaticResource StatusSuccess}"
+                        HeightRequest="8"
+                        VerticalOptions="Center"
+                        WidthRequest="8" />
+                    <Label
+                        Grid.Column="1"
+                        Style="{StaticResource PmCaptionLabel}"
+                        Text="Ruta za kamion"
+                        VerticalOptions="Center" />
+                    <Label
+                        x:Name="DistanceLabel"
+                        Grid.Column="2"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="12"
+                        Text="94 km"
+                        TextColor="{StaticResource TextAccent}"
+                        VerticalOptions="Center" />
                 </Grid>
 
+                <!--  Scene: 305 × 240 in route coordinates  -->
+                <AbsoluteLayout
+                    x:Name="Scene"
+                    Margin="0,26,0,0"
+                    HeightRequest="240"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    WidthRequest="305">
+
+                    <!--  Faint map: river and side roads  -->
+                    <Path
+                        AbsoluteLayout.LayoutBounds="0,0,305,240"
+                        Aspect="None"
+                        Data="M0 92 C60 70 96 120 150 104 C204 88 236 40 305 52"
+                        Stroke="#1A38BDF8"
+                        StrokeLineCap="Round"
+                        StrokeThickness="10" />
+                    <Path
+                        AbsoluteLayout.LayoutBounds="0,0,305,240"
+                        Aspect="None"
+                        Data="M20 228 L120 40 M150 236 L300 120 M0 150 L190 210 M200 10 L290 200"
+                        Stroke="#0FECFDF5"
+                        StrokeLineCap="Round"
+                        StrokeThickness="5" />
+
+                    <!--  Route glow and the dashed route (web: .pm-route-shadow, .pm-route-line)  -->
+                    <Path
+                        AbsoluteLayout.LayoutBounds="0,0,305,240"
+                        Aspect="None"
+                        Data="M36 183 C72.5 175 77 159 108 157.5 C140 156 140 124 166.5 116 C192 108.5 194.5 86.5 218.5 72.5 C237 62 256.5 50 276 35.5"
+                        Stroke="#2410B981"
+                        StrokeLineCap="Round"
+                        StrokeLineJoin="Round"
+                        StrokeThickness="9" />
+                    <Path
+                        x:Name="RouteLine"
+                        AbsoluteLayout.LayoutBounds="0,0,305,240"
+                        Aspect="None"
+                        Data="M36 183 C72.5 175 77 159 108 157.5 C140 156 140 124 166.5 116 C192 108.5 194.5 86.5 218.5 72.5 C237 62 256.5 50 276 35.5"
+                        StrokeDashArray="2,2.5"
+                        StrokeLineCap="Round"
+                        StrokeLineJoin="Round"
+                        StrokeThickness="3">
+                        <Path.Stroke>
+                            <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                                <GradientStop Offset="0" Color="#10B981" />
+                                <GradientStop Offset="0.55" Color="#2DD4BF" />
+                                <GradientStop Offset="1" Color="#22D3EE" />
+                            </LinearGradientBrush>
+                        </Path.Stroke>
+                    </Path>
+
+                    <!--  Waypoints  -->
+                    <Ellipse AbsoluteLayout.LayoutBounds="29,176,14,14" Fill="{StaticResource SurfaceBase}" Stroke="#6EE7B7" StrokeThickness="2" />
+                    <Ellipse AbsoluteLayout.LayoutBounds="103,152.5,10,10" Fill="{StaticResource SurfaceBase}" Stroke="#6EE7B7" StrokeThickness="2" />
+                    <Ellipse AbsoluteLayout.LayoutBounds="161.5,111,10,10" Fill="{StaticResource SurfaceBase}" Stroke="#6EE7B7" StrokeThickness="2" />
+                    <Ellipse AbsoluteLayout.LayoutBounds="213.5,67.5,10,10" Fill="{StaticResource SurfaceBase}" Stroke="#6EE7B7" StrokeThickness="2" />
+                    <Ellipse AbsoluteLayout.LayoutBounds="269,28.5,14,14" Fill="#22D3EE" Stroke="#CFFAFE" StrokeThickness="2" />
+
+                    <!--  City labels  -->
+                    <Label
+                        AbsoluteLayout.LayoutBounds="14,198,120,16"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="11"
+                        CharacterSpacing="1.5"
+                        Text="BEOGRAD"
+                        TextColor="{StaticResource TextSecondary}" />
+                    <Label
+                        AbsoluteLayout.LayoutBounds="196,2,96,16"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="11"
+                        CharacterSpacing="1.5"
+                        HorizontalTextAlignment="End"
+                        Text="NOVI SAD"
+                        TextColor="{StaticResource TextSecondary}" />
+
+                    <!--  Truck (web: .pm-truck), moved along the route by MainPage.xaml.cs  -->
+                    <Grid
+                        x:Name="Truck"
+                        AbsoluteLayout.LayoutBounds="0,0,46,46"
+                        SemanticProperties.Description="Kamion na ruti">
+                        <Border
+                            x:Name="TruckPulse"
+                            Margin="-11"
+                            BackgroundColor="Transparent"
+                            Stroke="#3334D399"
+                            StrokeShape="RoundRectangle 18"
+                            StrokeThickness="1.5" />
+                        <Border
+                            BackgroundColor="#34D399"
+                            Stroke="#5C6EE7B7"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="1">
+                            <Border.Shadow>
+                                <Shadow Brush="#10B981" Opacity="0.55" Radius="22" Offset="0,0" />
+                            </Border.Shadow>
+                            <Path
+                                Aspect="Uniform"
+                                Data="M3 6 H14 V16 H3 Z M14 10 H18 L21 13 V16 H14 M5 18 A2 2 0 1 0 9 18 A2 2 0 1 0 5 18 Z M16 18 A2 2 0 1 0 20 18 A2 2 0 1 0 16 18 Z"
+                                HeightRequest="20"
+                                HorizontalOptions="Center"
+                                Stroke="#021512"
+                                StrokeLineCap="Round"
+                                StrokeLineJoin="Round"
+                                StrokeThickness="1.9"
+                                VerticalOptions="Center"
+                                WidthRequest="25" />
+                        </Border>
+                    </Grid>
+                </AbsoluteLayout>
+            </Grid>
+        </Border>
+
+        <!--  Brand  -->
+        <VerticalStackLayout
+            Grid.Row="1"
+            Margin="0,0,0,34"
+            HorizontalOptions="Center"
+            Spacing="6">
+            <Label
+                FontFamily="OpenSansSemibold"
+                FontSize="30"
+                HorizontalTextAlignment="Center"
+                SemanticProperties.HeadingLevel="Level1">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="ProMap " TextColor="#F0FDF8" />
+                        <Span Text="Cargo" TextColor="#34D399" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            <Label
+                FontSize="13"
+                HorizontalTextAlignment="Center"
+                Text="Navigacija i flota za kamione"
+                TextColor="{StaticResource TextSecondary}" />
+        </VerticalStackLayout>
+
+        <!--  0-100 % progress  -->
+        <VerticalStackLayout Grid.Row="2" Padding="40,0,40,18" Spacing="10">
+            <Grid ColumnDefinitions="*,Auto">
                 <Label
-                    HorizontalTextAlignment="Center"
-                    Style="{StaticResource PmCaptionLabel}"
-                    Text="Sopstvene mape · PMTiles · bez spoljnih servisa" />
-            </VerticalStackLayout>
-        </ScrollView>
+                    x:Name="StatusLabel"
+                    FontSize="12"
+                    LineBreakMode="TailTruncation"
+                    Text="Pokretanje aplikacije…"
+                    TextColor="{StaticResource TextSecondary}" />
+                <Label
+                    x:Name="PercentLabel"
+                    Grid.Column="1"
+                    FontFamily="OpenSansSemibold"
+                    FontSize="12"
+                    Text="0%"
+                    TextColor="#6EE7B7" />
+            </Grid>
+            <Border Style="{StaticResource PmProgressTrack}">
+                <Border
+                    x:Name="ProgressFill"
+                    AnchorX="0"
+                    ScaleX="0"
+                    StrokeShape="RoundRectangle 3"
+                    StrokeThickness="0">
+                    <Border.Background>
+                        <LinearGradientBrush EndPoint="1,0">
+                            <GradientStop Offset="0" Color="#10B981" />
+                            <GradientStop Offset="1" Color="#2DD4BF" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+            </Border>
+        </VerticalStackLayout>
+
+        <Label
+            x:Name="VersionLabel"
+            Grid.Row="3"
+            Margin="0,0,0,28"
+            FontSize="12"
+            HorizontalTextAlignment="Center"
+            TextColor="{StaticResource TextTertiary}" />
     </Grid>
 </ContentPage>

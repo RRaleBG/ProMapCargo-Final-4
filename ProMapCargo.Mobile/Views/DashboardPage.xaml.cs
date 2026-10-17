@@ -1,5 +1,4 @@
 using ProMapCargo.Mobile.Services;
-using Microsoft.Maui.Controls;
 using ProMapCargo.Mobile.ViewModels;
 
 namespace ProMapCargo.Mobile.Views;
@@ -26,21 +25,18 @@ public partial class DashboardPage : ContentPage
         }
     }
 
-    private async void OnOpenSettingsClicked(object? sender, EventArgs e)
-        => await AppNavigation.GoToAsync(AppNavigation.Settings);
-
-    private async void OnOpenNavigationClicked(object? sender, EventArgs e)
-        => await AppNavigation.GoToAsync(AppNavigation.Navigation);
+    private void OnOpenSettingsClicked(object? sender, EventArgs e)
+        => SafeUi.Run(() => AppNavigation.GoToAsync(AppNavigation.Settings));
 
     // "Kuda idemo?": open navigation with the route planner already showing.
-    private async void OnSearchClicked(object? sender, EventArgs e)
+    private void OnSearchClicked(object? sender, EventArgs e)
     {
         NavigationRequests.OpenPlanner();
-        await AppNavigation.GoToAsync(AppNavigation.Navigation);
+        SafeUi.Run(() => AppNavigation.GoToAsync(AppNavigation.Navigation));
     }
 
     // A recent destination: route there from the current position right away.
-    private async void OnRecentClicked(object? sender, EventArgs e)
+    private void OnRecentClicked(object? sender, EventArgs e)
     {
         if ((sender as BindableObject)?.BindingContext is not RecentDestination destination)
         {
@@ -48,28 +44,75 @@ public partial class DashboardPage : ContentPage
         }
 
         NavigationRequests.RouteTo(destination);
-        await AppNavigation.GoToAsync(AppNavigation.Navigation);
+        SafeUi.Run(() => AppNavigation.GoToAsync(AppNavigation.Navigation));
     }
 
-    private async void OnTileNavigationClicked(object? sender, EventArgs e)
-        => await AppNavigation.GoToAsync(AppNavigation.Navigation);
+    private void OnTileNavigationClicked(object? sender, EventArgs e)
+        => SafeUi.Run(() => AppNavigation.GoToAsync(AppNavigation.Navigation));
 
-    private async void OnTileMapsClicked(object? sender, EventArgs e)
-        => await AppNavigation.GoToAsync(AppNavigation.InstallMaps);
+    private void OnTileMapsClicked(object? sender, EventArgs e)
+        => SafeUi.Run(() => AppNavigation.GoToAsync(AppNavigation.InstallMaps));
 
     private void OnTruckBansClicked(object? sender, EventArgs e)
         => SafeUi.Run(() => DisplayAlertAsync("Zabrane vožnje kamiona", viewModel.TruckBansDetails, "U redu"));
 
-    private async void OnTileSettingsClicked(object? sender, EventArgs e)
-        => await AppNavigation.GoToAsync(AppNavigation.Settings);
+    // ---- Trip actions: confirmed first, a tap by mistake while driving must not count ----
 
-    // Dispatch has no mobile screen yet; the view model tells the driver it is on the web portal.
-    private void OnTileDispatchClicked(object? sender, EventArgs e)
+    private void OnNextStopActionClicked(object? sender, EventArgs e) => SafeUi.Run(async () =>
     {
-        var link = viewModel.QuickLinks.FirstOrDefault(item => item.Title == "Dispečing");
-        if (link is not null && viewModel.OpenLinkCommand.CanExecute(link))
+        if (await DisplayAlertAsync("Stanica", viewModel.NextStopConfirmText, viewModel.NextStopActionText, "Otkaži"))
         {
-            viewModel.OpenLinkCommand.Execute(link);
+            await viewModel.NextStopActionAsync();
         }
-    }
+    });
+
+    private void OnStartTripClicked(object? sender, EventArgs e) => SafeUi.Run(async () =>
+    {
+        if (await DisplayAlertAsync("Započni turu", $"{viewModel.TripTitle}: {viewModel.TripRoute}", "Započni", "Otkaži"))
+        {
+            await viewModel.StartTripAsync();
+        }
+    });
+
+    private void OnPauseClicked(object? sender, EventArgs e) => SafeUi.Run(async () =>
+    {
+        var title = viewModel.IsTripPaused ? "Nastaviti vožnju?" : "Započeti pauzu?";
+        if (await DisplayAlertAsync(title, "Dispečer vidi promenu odmah.", viewModel.PauseButtonText, "Otkaži"))
+        {
+            await viewModel.TogglePauseAsync();
+        }
+    });
+
+    private void OnIncidentClicked(object? sender, EventArgs e) => SafeUi.Run(async () =>
+    {
+        const string critical = "Hitno (kvar, nezgoda)";
+        const string warning = "Upozorenje (kašnjenje, gužva)";
+        var kind = await DisplayActionSheetAsync("Prijava incidenta", "Otkaži", null, critical, warning);
+        if (kind is not (critical or warning))
+        {
+            return;
+        }
+
+        var message = await DisplayPromptAsync("Prijava incidenta", "Kratko opišite šta se desilo.", "Pošalji", "Otkaži", maxLength: 500);
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return;
+        }
+
+        await viewModel.ReportIncidentAsync(message.Trim(), kind == critical);
+    });
+
+    private void OnAcceptRouteClicked(object? sender, EventArgs e)
+        => SafeUi.Run(() => viewModel.AcceptRouteAsync());
+
+    private void OnRejectRouteClicked(object? sender, EventArgs e) => SafeUi.Run(async () =>
+    {
+        var reason = await DisplayPromptAsync("Odbijanje rute", "Razlog (nije obavezno):", "Odbij rutu", "Otkaži", maxLength: 300);
+        if (reason is null)
+        {
+            return; // cancelled
+        }
+
+        await viewModel.RejectRouteAsync(string.IsNullOrWhiteSpace(reason) ? null : reason.Trim());
+    });
 }

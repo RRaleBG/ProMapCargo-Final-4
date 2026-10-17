@@ -27,6 +27,24 @@ public sealed class OfflineRoutingEngine(OfflineRoutingBundleService bundles)
     /// <summary>How long reading the last package took on this phone (diagnostics).</summary>
     public long LastLoadMilliseconds { get; private set; }
 
+    /// <summary>Forgets the loaded graph (after a package was deleted or replaced).</summary>
+    public async Task UnloadAsync()
+    {
+        await gate.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            router = null;
+            loadedKey = null;
+            headers.Clear();
+            placeIndexes.Clear();
+            LoadProblem = null;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
     private sealed record Candidate(InstalledOfflineRoutingBundle Bundle, GraphBundle.Header Header, string Key);
 
     private async Task<List<Candidate>> InstalledAsync(CancellationToken cancellationToken)

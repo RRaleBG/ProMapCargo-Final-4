@@ -18,27 +18,13 @@ public partial class MapInstallPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        viewModel.ContinueRequested += HandleContinueRequested;
         SafeUi.Run(() => viewModel.LoadAsync(CancellationToken.None));
     }
 
-    protected override void OnDisappearing()
-    {
-        viewModel.ContinueRequested -= HandleContinueRequested;
-        base.OnDisappearing();
-    }
-
-    private async void HandleContinueRequested(object? sender, EventArgs e)
-        => await AppNavigation.GoToAsync(AppNavigation.Dashboard);
-
     private void OnInstallClicked(object? sender, EventArgs e)
     {
-        if (sender is not Button { CommandParameter: MapPackageCatalogItem package })
-        {
-            return;
-        }
-
-        if (viewModel.InstallCommand.CanExecute(package))
+        if (sender is Button { CommandParameter: MapPackageCatalogItem package } &&
+            viewModel.InstallCommand.CanExecute(package))
         {
             viewModel.InstallCommand.Execute(package);
         }
@@ -46,14 +32,28 @@ public partial class MapInstallPage : ContentPage
 
     private void OnInstallBundleClicked(object? sender, EventArgs e)
     {
-        if (sender is not Button { CommandParameter: OfflineRoutingBundleCatalogItem bundle })
+        if (sender is Button { CommandParameter: OfflineRoutingBundleCatalogItem bundle } &&
+            viewModel.InstallBundleCommand.CanExecute(bundle))
+        {
+            viewModel.InstallBundleCommand.Execute(bundle);
+        }
+    }
+
+    // Deleting a region means downloading it again later: confirmed first.
+    private void OnDeleteClicked(object? sender, EventArgs e)
+    {
+        if ((sender as BindableObject)?.BindingContext is not InstalledOfflineItem item)
         {
             return;
         }
 
-        if (viewModel.InstallBundleCommand.CanExecute(bundle))
+        SafeUi.Run(async () =>
         {
-            viewModel.InstallBundleCommand.Execute(bundle);
-        }
+            var what = item.IsRoutingPackage ? "Rute bez signala" : "Mapa bez signala";
+            if (await DisplayAlertAsync($"Obrisati „{item.Title}“?", $"{what} za ovaj region više neće raditi dok se ponovo ne preuzme.", "Obriši", "Otkaži"))
+            {
+                await viewModel.DeleteAsync(item);
+            }
+        });
     }
 }

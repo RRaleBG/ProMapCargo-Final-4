@@ -121,6 +121,26 @@ public sealed class OfflineRoutingBundleService(HttpClient httpClient, MobileSer
         return installed;
     }
 
+    /// <summary>Removes an installed routing package (its folder and manifest entry).</summary>
+    public async Task DeleteAsync(string bundleId, CancellationToken cancellationToken)
+    {
+        var existing = await GetInstalledManifestAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var bundleDir = Path.Combine(bundlesRootPath, bundleId);
+            if (Directory.Exists(bundleDir))
+            {
+                Directory.Delete(bundleDir, recursive: true);
+            }
+        }
+        catch (Exception)
+        {
+            // A file still open: the manifest entry goes anyway, the folder with the next install.
+        }
+
+        await WriteManifestAsync(existing.Bundles.Where(item => !string.Equals(item.Id, bundleId, StringComparison.OrdinalIgnoreCase)), cancellationToken).ConfigureAwait(false);
+    }
+
     private async Task DownloadToFileAsync(string relativeUrl, string targetPath, string? sha256, IProgress<double>? progress, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(relativeUrl))
@@ -136,13 +156,18 @@ public sealed class OfflineRoutingBundleService(HttpClient httpClient, MobileSer
     {
         var existing = await GetInstalledManifestAsync(cancellationToken).ConfigureAwait(false);
 
-        var updatedBundles = existing.Bundles
-            .Where(item => !string.Equals(item.Id, bundle.Id, StringComparison.OrdinalIgnoreCase))
-            .Append(bundle)
-            .OrderBy(item => item.DisplayName, StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        await WriteManifestAsync(
+            existing.Bundles
+                .Where(item => !string.Equals(item.Id, bundle.Id, StringComparison.OrdinalIgnoreCase))
+                .Append(bundle),
+            cancellationToken).ConfigureAwait(false);
+    }
 
-        var updated = new InstalledOfflineRoutingManifest(DateTime.UtcNow, updatedBundles);
+    private async Task WriteManifestAsync(IEnumerable<InstalledOfflineRoutingBundle> bundles, CancellationToken cancellationToken)
+    {
+        var updated = new InstalledOfflineRoutingManifest(
+            DateTime.UtcNow,
+            bundles.OrderBy(item => item.DisplayName, StringComparer.OrdinalIgnoreCase).ToArray());
 
         Directory.CreateDirectory(bundlesRootPath);
         await using var stream = File.Create(manifestPath);

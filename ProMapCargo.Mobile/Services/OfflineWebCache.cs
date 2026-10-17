@@ -190,6 +190,103 @@ public sealed class OfflineWebCache
         }).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Stores the navigation page and the scripts, styles and map style it links to while
+    /// there is a connection, so navigation opens without signal even when the driver has
+    /// not opened it online before (until now the copy was made only by opening it).
+    /// </summary>
+    public async Task WarmUpNavigationAsync()
+    {
+        await Task.Run(() =>
+        {
+            if (IsOffline)
+            {
+                return;
+            }
+
+            var pageUrl = new Uri(endpoints.NavigationUrl);
+            if (FetchAndStore(pageUrl, pageUrl.AbsolutePath.TrimEnd('/').ToLowerInvariant()) is not { StatusCode: 200 } page)
+            {
+                return;
+            }
+
+            string html;
+            using (var reader = new StreamReader(page.Body, Encoding.UTF8))
+            {
+                html = reader.ReadToEnd();
+            }
+
+            var assets = System.Text.RegularExpressions.Regex.Matches(html, "(?:src|href)=\"([^\"#]+)\"")
+                .Select(match => match.Groups[1].Value)
+                .Where(link => !link.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+                .Select(link => Uri.TryCreate(pageUrl, System.Net.WebUtility.HtmlDecode(link), out var url) ? url : null)
+                .Where(url => url is not null && IsServerUrl(url) && CacheableExtensions.Contains(Path.GetExtension(url.AbsolutePath)))
+                .Cast<Uri>()
+                .DistinctBy(url => url.PathAndQuery);
+
+            foreach (var asset in assets)
+            {
+                if (IsOffline)
+                {
+                    return;
+                }
+
+                var key = asset.PathAndQuery;
+                // Versioned files never change: keep the stored copy.
+                if (asset.Query.Contains("v=", StringComparison.Ordinal) && File.Exists(BodyPath(key)))
+                {
+                    continue;
+                }
+
+                if (FetchAndStore(asset, key) is { StatusCode: 200 } script &&
+                    asset.AbsolutePath.EndsWith(".js", StringComparison.OrdinalIgnoreCase))
+                {
+                    // The map style is loaded by the script (navigation.js), not linked in the page.
+                    using var reader = new StreamReader(script.Body, Encoding.UTF8);
+                    foreach (var style in System.Text.RegularExpressions.Regex.Matches(reader.ReadToEnd(), "\"(/styles/[^\"]+\\.json[^\"]*)\"")
+                                 .Select(match => new Uri(pageUrl, match.Groups[1].Value))
+                                 .DistinctBy(url => url.PathAndQuery))
+                    {
+                        FetchAndStore(style, style.PathAndQuery);
+                    }
+                }
+            }
+        }).ConfigureAwait(false);
+
+        await PrefetchGlyphsAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>Size of the stored page copy and map fonts (Podešavanja).</summary>
+    public long CacheSizeBytes()
+    {
+        try
+        {
+            return Directory.Exists(cacheRoot)
+                ? new DirectoryInfo(cacheRoot).EnumerateFiles().Sum(file => file.Length)
+                : 0;
+        }
+        catch (Exception)
+        {
+            return 0;
+        }
+    }
+
+    /// <summary>Deletes the stored copy; it is made again the next time the server answers.</summary>
+    public void ClearCache()
+    {
+        try
+        {
+            if (Directory.Exists(cacheRoot))
+            {
+                Directory.Delete(cacheRoot, recursive: true);
+            }
+        }
+        catch (Exception)
+        {
+            // A file in use stays; it is replaced on the next download.
+        }
+    }
+
     private bool IsServerUrl(Uri url)
     {
         var server = new Uri(endpoints.CurrentApiBaseUrl);

@@ -675,6 +675,154 @@
         <Setter Property="StrokeShape" Value="RoundRectangle 10" />
     </Style>
 
+    <!--  ===== Shared screen parts (home, maps, settings) =====  -->
+
+    <!--
+        Transparent button over a card: a tap gesture on a Border inside
+        RefreshView/ScrollView does not fire on Android devices, a Button does.
+    -->
+    <Style x:Key="PmTapTarget" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Text" Value="" />
+        <Setter Property="MinimumHeightRequest" Value="0" />
+        <Setter Property="MinimumWidthRequest" Value="0" />
+    </Style>
+
+    <!--  Section caption above a card  -->
+    <Style
+        x:Key="PmSectionCaption"
+        BasedOn="{StaticResource PmCaptionLabel}"
+        TargetType="Label">
+        <Setter Property="Margin" Value="4,0,0,0" />
+    </Style>
+
+    <!--  Menu tile: icon over label  -->
+    <Style x:Key="PmTile" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceOverlay}" />
+        <Setter Property="Stroke" Value="{StaticResource StrokeSubtle}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="Padding" Value="14,12" />
+        <Setter Property="HeightRequest" Value="78" />
+    </Style>
+
+    <Style x:Key="PmTileIcon" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceInset}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="HeightRequest" Value="32" />
+        <Setter Property="WidthRequest" Value="32" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+    </Style>
+
+    <Style x:Key="PmTileLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="LineBreakMode" Value="TailTruncation" />
+        <Setter Property="VerticalOptions" Value="End" />
+    </Style>
+
+    <!--  40 px icon box at the start of a card row  -->
+    <Style x:Key="PmRowIcon" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceInset}" />
+        <Setter Property="HeightRequest" Value="40" />
+        <Setter Property="WidthRequest" Value="40" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style x:Key="PmRowTitleLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="LineBreakMode" Value="TailTruncation" />
+    </Style>
+
+    <Style x:Key="PmRowDetailLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="LineBreakMode" Value="TailTruncation" />
+        <Setter Property="MaxLines" Value="2" />
+    </Style>
+
+    <Style x:Key="PmChevronLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="Text" Value="›" />
+        <Setter Property="TextColor" Value="{StaticResource TextTertiary}" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style
+        x:Key="PmChipDanger"
+        BasedOn="{StaticResource PmChip}"
+        TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource StatusDangerBg}" />
+    </Style>
+
+    <Style
+        x:Key="PmChipDangerLabel"
+        BasedOn="{StaticResource PmChipLabel}"
+        TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource StatusDanger}" />
+    </Style>
+
+    <!--  Neutral chip (status that is neither good nor bad)  -->
+    <Style
+        x:Key="PmChipNeutral"
+        BasedOn="{StaticResource PmChip}"
+        TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceInset}" />
+    </Style>
+
+    <Style
+        x:Key="PmChipNeutralLabel"
+        BasedOn="{StaticResource PmChipLabel}"
+        TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+    </Style>
+
+    <Style x:Key="PmDangerButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource StatusDangerBg}" />
+        <Setter Property="TextColor" Value="{StaticResource StatusDanger}" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="Padding" Value="14,0" />
+    </Style>
+
+    <!--  Compact secondary action inside a card (44 px touch target)  -->
+    <Style
+        x:Key="PmCardActionButton"
+        BasedOn="{StaticResource PmSecondaryButton}"
+        TargetType="Button">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="12,0" />
+    </Style>
+
+    <!--  Thin progress track (trip progress, storage)  -->
+    <Style x:Key="PmProgressTrack" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceGlass}" />
+        <Setter Property="HeightRequest" Value="6" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 3" />
+    </Style>
+
+    <!--  Banner shown while the server cannot be reached  -->
+    <Style x:Key="PmOfflineBanner" TargetType="Border">
+        <Setter Property="Padding" Value="14,10" />
+        <Setter Property="BackgroundColor" Value="{StaticResource StatusWarningBg}" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+    </Style>
+
     <!--
     <Style TargetType="TitleBar">
         <Setter Property="MinimumHeightRequest" Value="32"/>

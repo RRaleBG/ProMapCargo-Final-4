@@ -16,11 +16,11 @@
 
             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                 <ImageButton
-                    Clicked="OnBackClicked"
+                    BackgroundColor="{StaticResource SurfaceOverlay}"
+                    Command="{Binding BackCommand}"
                     SemanticProperties.Description="Nazad"
                     Source="ic_back.svg"
-                    Style="{StaticResource PmMapFloatingButton}"
-                    BackgroundColor="{StaticResource SurfaceOverlay}" />
+                    Style="{StaticResource PmMapFloatingButton}" />
                 <Label
                     Grid.Column="1"
                     Style="{StaticResource PmPageTitleLabel}"
@@ -28,74 +28,161 @@
                     VerticalOptions="Center" />
             </Grid>
 
-            <VerticalStackLayout Spacing="10">
-                <Label Style="{StaticResource PmCaptionLabel}" Text="Navigacija" />
-                <Border Padding="16,6" Style="{StaticResource PmCardBorder}">
-                    <VerticalStackLayout>
-                        <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                            <VerticalStackLayout Spacing="2">
-                                <Label FontFamily="OpenSansSemibold" Style="{StaticResource PmBodyLabel}" Text="Kompaktan prikaz navigacije" />
-                                <Label Style="{StaticResource PmMutedLabel}" Text="Manji paneli, više prostora za mapu." />
+            <!--  Account  -->
+            <VerticalStackLayout Spacing="8">
+                <Label Style="{StaticResource PmSectionCaption}" Text="Nalog" />
+                <Border Style="{StaticResource PmCardBorder}">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="48,*" ColumnSpacing="14">
+                            <Border
+                                BackgroundColor="{StaticResource BrandSoft}"
+                                HeightRequest="48"
+                                StrokeShape="Ellipse"
+                                StrokeThickness="0"
+                                WidthRequest="48">
+                                <Label
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="17"
+                                    HorizontalOptions="Center"
+                                    Text="{Binding AccountInitials}"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout
+                                Grid.Column="1"
+                                Spacing="1"
+                                VerticalOptions="Center">
+                                <Label Style="{StaticResource PmRowTitleLabel}" Text="{Binding AccountName}" />
+                                <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding AccountDetail}" />
                             </VerticalStackLayout>
-                            <Switch Grid.Column="1" IsToggled="{Binding CompactNavigationLayout}" SemanticProperties.Description="Kompaktan prikaz navigacije" />
+                        </Grid>
+                        <Button
+                            Clicked="OnLogoutClicked"
+                            IsVisible="{Binding IsSignedIn}"
+                            Style="{StaticResource PmDangerButton}"
+                            Text="Odjavi se" />
+                        <Button
+                            Command="{Binding SignInCommand}"
+                            IsVisible="{Binding IsSignedOut}"
+                            Style="{StaticResource PmPrimaryButton}"
+                            Text="Prijavi se" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!--  Position and navigation  -->
+            <VerticalStackLayout Spacing="8">
+                <Label Style="{StaticResource PmSectionCaption}" Text="Lokacija i navigacija" />
+                <Border Padding="16,4" Style="{StaticResource PmCardBorder}">
+                    <VerticalStackLayout>
+                        <Grid
+                            Padding="0,12"
+                            ColumnDefinitions="*,Auto"
+                            ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Style="{StaticResource PmRowTitleLabel}" Text="Šalji lokaciju dispečeru" />
+                                <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding LocationStatusText}" />
+                            </VerticalStackLayout>
+                            <Switch
+                                Grid.Column="1"
+                                IsToggled="{Binding ShareLocation}"
+                                SemanticProperties.Description="Šalji lokaciju dispečeru"
+                                VerticalOptions="Center" />
                         </Grid>
                         <BoxView Style="{StaticResource PmDivider}" />
-                        <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <Grid
+                            Padding="0,12"
+                            ColumnDefinitions="*,Auto"
+                            ColumnSpacing="12">
                             <VerticalStackLayout Spacing="2">
-                                <Label FontFamily="OpenSansSemibold" Style="{StaticResource PmBodyLabel}" Text="Offline rutiranje" />
-                                <Label Style="{StaticResource PmMutedLabel}" Text="Koristi preuzete mape i pakete bez interneta." />
+                                <Label Style="{StaticResource PmRowTitleLabel}" Text="Glasovno navođenje" />
+                                <Label Style="{StaticResource PmRowDetailLabel}" Text="Izgovara manevre na srpskom tokom vožnje." />
                             </VerticalStackLayout>
-                            <Switch Grid.Column="1" IsToggled="{Binding EnableOfflineRoutingFeatures}" SemanticProperties.Description="Offline rutiranje" />
+                            <Switch
+                                Grid.Column="1"
+                                IsToggled="{Binding VoiceGuidance}"
+                                SemanticProperties.Description="Glasovno navođenje"
+                                VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Style="{StaticResource PmDivider}" />
+                        <Grid
+                            Padding="0,12"
+                            ColumnDefinitions="*,Auto"
+                            ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Style="{StaticResource PmRowTitleLabel}" Text="Ekran uvek uključen" />
+                                <Label Style="{StaticResource PmRowDetailLabel}" Text="Na ekranu navigacije ekran se ne gasi." />
+                            </VerticalStackLayout>
+                            <Switch
+                                Grid.Column="1"
+                                IsToggled="{Binding KeepScreenOn}"
+                                SemanticProperties.Description="Ekran uvek uključen"
+                                VerticalOptions="Center" />
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
             </VerticalStackLayout>
 
-            <VerticalStackLayout Spacing="10">
-                <Label Style="{StaticResource PmCaptionLabel}" Text="Veza sa serverom" />
+            <!--  Server  -->
+            <VerticalStackLayout Spacing="8">
+                <Label Style="{StaticResource PmSectionCaption}" Text="Veza sa serverom" />
                 <Border Style="{StaticResource PmCardBorder}">
                     <VerticalStackLayout Spacing="12">
-                        <Label Style="{StaticResource PmMutedLabel}" Text="Za fizički telefon unesite LAN adresu računara, na primer http://192.168.1.10:8080/. Telefon i računar moraju biti na istoj Wi‑Fi mreži." />
-                        <Border Padding="0" Style="{StaticResource PmFieldBorder}">
+                        <Label Style="{StaticResource PmRowDetailLabel}" Text="Za telefon unesite LAN adresu računara, npr. http://192.168.1.10:8080/ (10.0.2.2 radi samo u emulatoru)." />
+                        <Border Padding="14,0" Style="{StaticResource PmFieldBorder}">
                             <Entry
                                 Keyboard="Url"
                                 Placeholder="http://192.168.1.10:8080/"
+                                ReturnCommand="{Binding SaveServerBaseUrlCommand}"
+                                SemanticProperties.Description="Adresa servera"
                                 Style="{StaticResource PmEntry}"
                                 Text="{Binding ServerBaseUrl}" />
                         </Border>
-                        <Button
-                            Command="{Binding SaveServerBaseUrlCommand}"
-                            Style="{StaticResource PmSecondaryButton}"
-                            Text="Sačuvaj adresu servera" />
-                        <Label Style="{StaticResource PmMutedLabel}" Text="{Binding ServerStatusText}" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button
+                                Command="{Binding TestServerCommand}"
+                                Style="{StaticResource PmCardActionButton}"
+                                Text="Proveri vezu" />
+                            <Button
+                                Grid.Column="1"
+                                Command="{Binding SaveServerBaseUrlCommand}"
+                                HeightRequest="44"
+                                Style="{StaticResource PmPrimaryButton}"
+                                Text="Sačuvaj" />
+                        </Grid>
+                        <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding ServerStatusText}" />
                     </VerticalStackLayout>
                 </Border>
             </VerticalStackLayout>
 
-            <VerticalStackLayout Spacing="10">
-                <Label Style="{StaticResource PmCaptionLabel}" Text="Mape i paketi" />
+            <!--  Offline data  -->
+            <VerticalStackLayout Spacing="8">
+                <Label Style="{StaticResource PmSectionCaption}" Text="Rad bez interneta" />
                 <Border Style="{StaticResource PmCardBorder}">
                     <VerticalStackLayout Spacing="12">
-                        <Label Style="{StaticResource PmMutedLabel}" Text="Preuzmite ili obrišite offline mape i pakete za rutiranje." />
                         <Button
                             Command="{Binding OpenMapManagementCommand}"
                             Style="{StaticResource PmSecondaryButton}"
-                            Text="Upravljanje mapama" />
+                            Text="Offline mape i paketi" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <Label
+                                Style="{StaticResource PmRowDetailLabel}"
+                                Text="{Binding CacheText}"
+                                VerticalOptions="Center" />
+                            <Button
+                                Grid.Column="1"
+                                Command="{Binding ClearCacheCommand}"
+                                Style="{StaticResource PmGhostButton}"
+                                Text="Obriši" />
+                        </Grid>
                     </VerticalStackLayout>
-                </Border>
-            </VerticalStackLayout>
-
-            <VerticalStackLayout Spacing="10">
-                <Label Style="{StaticResource PmCaptionLabel}" Text="Nalog" />
-                <Border Style="{StaticResource PmCardBorder}">
-                    <Label Style="{StaticResource PmMutedLabel}" Text="{Binding AccountStatusText}" />
                 </Border>
             </VerticalStackLayout>
 
             <Label
                 HorizontalTextAlignment="Center"
-                Style="{StaticResource PmMutedLabel}"
-                Text="Tema: tamna (podrazumevano, prilagođena vožnji)" />
+                Style="{StaticResource PmRowDetailLabel}"
+                Text="{Binding VersionText}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

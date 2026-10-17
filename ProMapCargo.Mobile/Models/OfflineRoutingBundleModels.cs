@@ -21,6 +21,12 @@ public sealed record OfflineRoutingBundleCatalogItem(
     [JsonIgnore]
     public string InstallState { get; init; } = PackageInstallState.Install;
 
+    [JsonIgnore]
+    public bool IsInstalled => InstallState == PackageInstallState.Installed;
+
+    [JsonIgnore]
+    public string SizeText => ByteSize.Format(GraphSizeBytes + PlacesSizeBytes);
+
     public OfflineRoutingBundleCatalogItem WithInstallState(IEnumerable<InstalledOfflineRoutingBundle> installed)
     {
         var current = installed.FirstOrDefault(b => string.Equals(b.Id, Id, StringComparison.OrdinalIgnoreCase));
