@@ -35,7 +35,18 @@ public sealed record DriverPortalTrip(
     [property: JsonPropertyName("plannedArrivalAt")] DateTimeOffset? PlannedArrivalAt,
     [property: JsonPropertyName("route")] string? Route,
     [property: JsonPropertyName("vehicle")] string? Vehicle,
-    [property: JsonPropertyName("vehicleId")] Guid? VehicleId);
+    [property: JsonPropertyName("vehicleId")] Guid? VehicleId,
+    [property: JsonPropertyName("truckProfile")] DriverTruckProfile? TruckProfile = null);
+
+/// <summary>Dimensions of the trip's vehicle (fleet record).</summary>
+public sealed record DriverTruckProfile(
+    [property: JsonPropertyName("grossWeightTons")] decimal GrossWeightTons,
+    [property: JsonPropertyName("heightMeters")] decimal HeightMeters,
+    [property: JsonPropertyName("widthMeters")] decimal WidthMeters,
+    [property: JsonPropertyName("lengthMeters")] decimal LengthMeters,
+    [property: JsonPropertyName("axleLoadTons")] decimal? AxleLoadTons,
+    [property: JsonPropertyName("axles")] int Axles,
+    [property: JsonPropertyName("maxSpeedKmh")] decimal? MaxSpeedKmh = null);
 
 public sealed record DriverPortalStop(
     [property: JsonPropertyName("id")] Guid Id,
@@ -150,7 +161,8 @@ public sealed record DriverExpenseDraft(
     string? Notes,
     byte[]? ReceiptBytes,
     string? ReceiptFileName,
-    string? ReceiptContentType);
+    string? ReceiptContentType,
+    string Currency = "EUR");
 
 public sealed record DriverRejectRouteRequest(
     [property: JsonPropertyName("reason")] string? Reason);

@@ -1,0 +1,45 @@
+@page "/messages"
+@model ProMapCargo.Api.Pages.Messages.IndexModel
+@{
+    ViewData["Title"] = "Poruke · ProMap Cargo";
+}
+
+<div class="pm-page pm-page--messages" data-module="messages">
+
+    <header class="pm-header pm-page-header">
+        <div class="pm-heading">
+            <div class="pm-page-kicker">Dispečing</div>
+            <p class="pm-page-subtitle">Razgovor sa vozačima. Poruke stižu i odlaze uživo, vozač ih vidi u aplikaciji (Poruke).</p>
+        </div>
+    </header>
+
+    <div class="pm-chat">
+        <section class="pm-card pm-chat-threads" aria-label="Vozači">
+            <header class="pm-card-header">
+                <div>
+                    <h2 class="pm-card-title">Vozači</h2>
+                    <p class="pm-card-subtitle" id="chatThreadsSummary">Učitavanje…</p>
+                </div>
+            </header>
+            <div class="pm-chat-thread-list" id="chatThreads" role="list"></div>
+        </section>
+
+        <section class="pm-card pm-chat-conversation" aria-label="Razgovor">
+            <header class="pm-card-header">
+                <div>
+                    <h2 class="pm-card-title" id="chatTitle">Izaberite vozača</h2>
+                    <p class="pm-card-subtitle" id="chatSubtitle">Poruke se prikazuju ovde.</p>
+                </div>
+            </header>
+            <div class="pm-chat-messages" id="chatMessages" aria-live="polite"></div>
+            <form class="pm-chat-compose" id="chatForm" autocomplete="off">
+                <input class="pm-input" id="chatText" type="text" maxlength="2000" placeholder="Napišite poruku vozaču…" disabled />
+                <button class="pm-btn pm-btn-primary" type="submit" id="chatSend" disabled>Pošalji</button>
+            </form>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/messages-index.js" asp-append-version="true" defer></script>
+}

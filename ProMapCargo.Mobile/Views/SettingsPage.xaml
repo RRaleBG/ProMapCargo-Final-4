@@ -179,6 +179,11 @@
                 </Border>
             </VerticalStackLayout>
 
+            <Button
+                Clicked="OnReportProblemClicked"
+                Style="{StaticResource PmSecondaryButton}"
+                Text="Prijavi problem" />
+
             <Label
                 HorizontalTextAlignment="Center"
                 Style="{StaticResource PmRowDetailLabel}"

@@ -3,7 +3,7 @@
 Kept up to date after every review. Each item: what is wrong, where, and the proposed fix.
 Nothing here is done without the developer's go-ahead.
 
-Last review: 2026-10-17 (previous: 2026-10-15). Mobile pass done the same day.
+Last review: 2026-10-17 evening, full web + mobile pass (previous: 2026-10-15).
 
 ## Mobile: done 2026-10-17 (not committed), tested on the emulator (Pixel 7, API 36)
 
@@ -16,13 +16,17 @@ Last review: 2026-10-17 (previous: 2026-10-15). Mobile pass done the same day.
 - [x] Settings that work (location for dispatch, voice, screen on), server connection test, cache clear, version.
 - [x] Manifest: `allowBackup=false`, `POST_NOTIFICATIONS`, dialer query. App icon and web favicon: the truck tile from the web home page.
 - [x] Server (needed by the phone): `CookieOrBearer` scheme in `Program.cs`, extra fields in `/api/driver/portal`.
-- [ ] Test on the real phone (Galaxy SM-S928B) with the Release build; the installed app there is signed with another key (one uninstall, then download the maps again).
+- [x] Installed on the real phone (Galaxy SM-S928B, Debug build): sign-in, trip and tracking service work. Release build still to do (nothing to lose now: the app was not installed).
 - [ ] `ViewModels/NavigationViewModel.cs` (about 2100 lines): split into route guidance, voice and offline routing (GPS already moved to `GpsTracker`).
 - [ ] Driver actions (arrive, complete) need a connection; queueing them offline would need a server-side timestamp field (API change).
 
 ## P1: security and correctness
 
-1. **Privilege escalation in user admin.** `Pages/Account/Admin/Index.cshtml.cs:39-63`: `[Authorize(Policy=...)]` on handlers is ignored (build warning MVC1001); only `users.read` applies. Fix: check the policy in each handler through `IAuthorizationService`.
+0. **User admin (`Services/AccountAdminService.cs`), new 2026-10-17:**
+   - `GetDashboardAsync` lists the users of **every company** (no `CompanyId` filter); `ToggleActiveAsync`, `ToggleLockAsync`, `SetRoleAsync` load the target user without the company check, so an administrator of one firm can lock or change users of another.
+   - `CreateUserAsync` / `UpdateUserAsync` assign `RoleNames` with only `users.manage`: a user manager can still make someone (or himself) Administrator. Role changes there must need `roles.manage`, and Administrator only from an Administrator.
+   - Role permissions are global (roles are shared), so `permissions.manage` in one company changes every company.
+1. ~~Handlers without permission checks~~: fixed, each handler now checks its permission.
 2. **Pages and APIs without sign-in.** 14 pages (Alerts, Audit, Compliance, Dispatch, Driver, Drivers, Finance, Moderation, Monitoring, Orders, Reports, Trips, Trips/new, Vehicles) and the controllers Alerts, Business, TruckBans have no `[Authorize]`. Fix: global `FallbackPolicy` (authenticated user), `[AllowAnonymous]` on Login/Register/ForgotPassword/ResetPassword/Lockout/AccessDenied, public files, map packages, offline bundles and mobile-auth. The developer asked on 2026-10-13 to leave `[Authorize]` off for now: ask before changing.
 3. **`POST /api/routing/route` is anonymous and can run up to 300 s.** Fix: ASP.NET rate limiter on routing (and geocoding).
 4. **docker-compose is a dev setup:** `ASPNETCORE_ENVIRONMENT=Development`, `MobileAuth__SigningKey` and `POSTGRES_PASSWORD` in git, `Seed__Enabled=true` (admin@admin.com / Admin123!). Fix: `docker-compose.prod.yml` with secrets from `.env`, no seed.
@@ -31,7 +35,19 @@ Last review: 2026-10-17 (previous: 2026-10-15). Mobile pass done the same day.
 ## P2: mobile
 
 6. `usesCleartextTraffic="true"` stays: the server is on the company LAN over HTTP at an address the driver types in. With HTTPS on the server it can go.
-7. Remaining `async void`: only `SafeUi.Run` itself and navigation page handlers that already catch.
+7. Remaining `async void`: `SafeUi.Run`, `NavigationPage.OnOpenServerSettingsClicked`, `TripDetailsViewModel.OpenReceipt`.
+8. **Voice guidance talks every few seconds:** `NavigationViewModel.SpeakNextPromptAsync` runs on every GPS fix and speaks whenever the distance bucket changes (every 50 m below 1 km, every 250 m above): at 50 km/h that is every 3-4 s. Fix: speak at fixed points (2 km, 1 km, 400 m, 150 m, at the turn) once per maneuver; the voice button becomes on/off (mute), stored in `AppSettings.VoiceGuidance`.
+9. **Expense receipt from the camera never works:** `MediaPicker.CapturePhotoAsync` needs `android.permission.CAMERA` and the `IMAGE_CAPTURE` query in the manifest; the exception is swallowed, so the expense goes without a receipt. "Galerija/PDF" only offers images (`FilePickerFileType.Images`). Amount is always EUR. The 7 dialogs in a row should be one form page; expenses could queue offline (they carry their own `IncurredAt`).
+10. **Receipt opens in the system browser** (`TripDetailsViewModel.OpenReceipt`): `api/files/{id}` needs the app's token, the browser gets 401. Fix: download with `ApiClient` and open the local file (`Launcher.OpenAsync`).
+11. Requested 2026-10-17, not done yet: arrival at a stop automatic at 200 m; `splash.svg` with a 0-100 % bar; one icon set across web and mobile; voice on/off (item 8); all proposals from the 2026-10-17 list (truck profile from the trip vehicle, bans in routing, route through all stops, proof of delivery, push for new routes, driving-time rules, speed limits, night map, error log, update check, HTTPS, battery saving).
+
+## P2: web (browser pass 2026-10-17, admin, 1600 px and 390 px)
+
+- All 30 pages load, no script errors, no text under 12 px.
+- `/` (public home) is wider than a phone (429 px at 390 px): the decorative `.pm-bg-glow`, `.pm-routing-orbit`, `.pm-route-river` stick out. Fix: `overflow-x: clip` on the page wrapper.
+- Role names in English in user admin ("Dodaj Dispatcher", "Driver", "Moderator") and "Status"/"Loading" labels on Trips, Orders, Vehicles/New, Drivers/New, Compliance.
+- `/driver` for a non-driver account logs a 404 in the console (the page handles it; the API could answer 200 with `isDriver:false`).
+- Build is broken repeatedly by a second API started from `bin\Debug` (`dotnet run` on :8090 by Copilot): run it with `-c Release`.
 
 ## P3: maintenance
 

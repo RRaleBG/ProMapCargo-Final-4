@@ -88,6 +88,18 @@ public sealed class DriverPortalQueries(ProMapCargoDbContext db, ICurrentUserCon
                 Route = stops.Count == 0 ? "" : (stops[0].City ?? stops[0].Name) + " → " + (stops[^1].City ?? stops[^1].Name),
                 Vehicle = vehicle?.Registration,
                 trip.VehicleId,
+                // The phone plans routes for this truck (bridges, weight limits).
+                TruckProfile = vehicle is null ? null : new
+                {
+                    vehicle.GrossWeightTons,
+                    vehicle.HeightMeters,
+                    vehicle.WidthMeters,
+                    vehicle.LengthMeters,
+                    vehicle.AxleLoadTons,
+                    vehicle.Axles,
+                    // The speed shown on the navigation screen turns red above it.
+                    vehicle.MaxSpeedKmh,
+                },
             },
             Stops = stops.Select(x => new
             {

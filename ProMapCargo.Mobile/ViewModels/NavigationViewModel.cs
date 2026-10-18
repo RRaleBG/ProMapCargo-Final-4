@@ -22,6 +22,7 @@ public class NavigationViewModel : ViewModelBase
     private readonly SavedRouteStore savedRouteStore;
     private readonly OfflineRoutingEngine offlineEngine;
     private readonly GpsTracker gpsTracker;
+    private readonly TruckProfileProvider truckProfiles;
     private bool gpsHeld;
     private DateTimeOffset lastAutoRerouteAt = DateTimeOffset.MinValue;
     // Auto-reroute only after the truck has been on the route once: a route planned
@@ -47,8 +48,13 @@ public class NavigationViewModel : ViewModelBase
     private int nextManeuverIndex;
     private double nextManeuverProgress;
     private double maneuverInitialDistanceMeters = 1;
-    private int? lastSpokenManeuverIndex;
-    private int lastSpokenDistanceBucket = -1;
+    // Spoken guidance: once per maneuver at each of these distances (metres), like a car
+    // navigator; the last one is "now". Between them the voice is silent.
+    private static readonly double[] PromptDistances = [2000, 1000, 400, 150, 30];
+    private int lastSpokenStage = -1;
+    private int lastSpokenManeuverIndex = -1;
+    private double nextManeuverDistanceMeters = double.MaxValue;
+    private CancellationTokenSource? speechCts;
     private Locale? serbianLocale;
     private string statusText = "Spremno za izračunavanje rute";
     private string? errorMessage;
@@ -96,10 +102,11 @@ public class NavigationViewModel : ViewModelBase
     private string currentSpeedText = "0";
     private bool hasRoute;
 
-    public NavigationViewModel(ApiClient apiClient, OfflineRoutingBundleService offlineRoutingBundleService, IMobileNotifier notifier, SavedRouteStore savedRouteStore, OfflineRoutingEngine offlineEngine, GpsTracker gpsTracker)
+    public NavigationViewModel(ApiClient apiClient, OfflineRoutingBundleService offlineRoutingBundleService, IMobileNotifier notifier, SavedRouteStore savedRouteStore, OfflineRoutingEngine offlineEngine, GpsTracker gpsTracker, TruckProfileProvider truckProfiles)
     {
         this.offlineEngine = offlineEngine;
         this.gpsTracker = gpsTracker;
+        this.truckProfiles = truckProfiles;
         this.apiClient = apiClient;
         this.offlineRoutingBundleService = offlineRoutingBundleService;
         this.notifier = notifier;
@@ -115,6 +122,7 @@ public class NavigationViewModel : ViewModelBase
         ToggleRouteInputCommand = new Command(ToggleRouteInput);
         RerouteCommand = new Command(async () => await RerouteFromCurrentLocationAsync(), () => !IsBusy);
         SpeakNextPromptCommand = new Command(async () => await SpeakNextPromptAsync(force: true));
+        ToggleVoiceCommand = new Command(ToggleVoice);
         ToggleSimulationCommand = new Command(ToggleSimulation);
 
         RoutingModes = ["Auto", "Online", "Offline"];
@@ -139,6 +147,16 @@ public class NavigationViewModel : ViewModelBase
     {
         get => hasRoute;
         private set => SetProperty(ref hasRoute, value);
+    }
+
+    private bool isOverSpeedLimit;
+    // Read once when navigation opens (the fleet record does not change while driving).
+    private double maxSpeedKmh = TruckProfileProvider.DefaultMaxSpeedKmh;
+
+    public bool IsOverSpeedLimit
+    {
+        get => isOverSpeedLimit;
+        private set => SetProperty(ref isOverSpeedLimit, value);
     }
 
     public string CurrentSpeedText
@@ -289,6 +307,26 @@ public class NavigationViewModel : ViewModelBase
     public ICommand RerouteCommand { get; }
 
     public ICommand SpeakNextPromptCommand { get; }
+
+    /// <summary>The voice button on the map: guidance on / off (kept in Podešavanja too).</summary>
+    public ICommand ToggleVoiceCommand { get; }
+
+    public string VoiceButtonIcon => VoiceGuidanceEnabled ? "nav_voice.svg" : "nav_voice_off.svg";
+
+    public string VoiceButtonText => VoiceGuidanceEnabled ? "Isključi glasovno navođenje" : "Uključi glasovno navođenje";
+
+    private void ToggleVoice()
+    {
+        VoiceGuidanceEnabled = !VoiceGuidanceEnabled;
+        SafeUi.Run(async () =>
+        {
+            await notifier.ShowInfoAsync(VoiceGuidanceEnabled ? "Glasovno navođenje je uključeno." : "Glasovno navođenje je isključeno.");
+            if (VoiceGuidanceEnabled)
+            {
+                await SpeakNextPromptAsync(force: true);
+            }
+        });
+    }
 
     public ICommand ToggleSimulationCommand { get; }
 
@@ -564,7 +602,22 @@ public class NavigationViewModel : ViewModelBase
     public bool VoiceGuidanceEnabled
     {
         get => voiceGuidanceEnabled;
-        set => SetProperty(ref voiceGuidanceEnabled, value);
+        set
+        {
+            if (!SetProperty(ref voiceGuidanceEnabled, value))
+            {
+                return;
+            }
+
+            AppSettings.VoiceGuidance = value;
+            if (!value)
+            {
+                speechCts?.Cancel(); // stop the sentence being spoken
+            }
+
+            RaisePropertyChanged(nameof(VoiceButtonIcon));
+            RaisePropertyChanged(nameof(VoiceButtonText));
+        }
     }
 
     public bool ShowRouteLayer
@@ -867,6 +920,8 @@ public class NavigationViewModel : ViewModelBase
 
     public async Task LoadInitialRouteAsync()
     {
+        maxSpeedKmh = truckProfiles.Get().MaxSpeedKmh;
+
         // Load the offline package in the background, so the first search or route
         // without signal does not wait for it (reading it takes a few seconds).
         _ = Task.Run(() => offlineEngine.EnsureLoadedAsync(CurrentLocation));
@@ -1161,7 +1216,7 @@ public class NavigationViewModel : ViewModelBase
                 // a route. Use an installed offline region that covers both ends instead.
                 if (!ReachesEnds(online, request))
                 {
-                    if (await offlineEngine.RouteAsync(request.Start, request.Destination).ConfigureAwait(false) is { } covering)
+                    if (await offlineEngine.RouteAsync(request.Start, request.Destination, CancellationToken.None, truckProfiles.Get().Dimensions).ConfigureAwait(false) is { } covering)
                     {
                         await MainThread.InvokeOnMainThreadAsync(() => ActiveRoutingModeText = "Režim rutiranja: telefon (offline region)");
                         return covering;
@@ -1169,7 +1224,7 @@ public class NavigationViewModel : ViewModelBase
 
                     throw new InvalidOperationException(
                         "Ruta izlazi iz oblasti koju server pokriva. Preuzmite region koji obuhvata celu rutu " +
-                        "(Offline mape → Paketi za rutiranje, npr. Zapadni Balkan).");
+                        "(Offline mape → Regioni, npr. Zapadni Balkan).");
                 }
 
                 return online;
@@ -1184,13 +1239,13 @@ public class NavigationViewModel : ViewModelBase
             }
         }
 
-        var offline = await offlineEngine.RouteAsync(request.Start, request.Destination).ConfigureAwait(false);
+        var offline = await offlineEngine.RouteAsync(request.Start, request.Destination, CancellationToken.None, truckProfiles.Get().Dimensions).ConfigureAwait(false);
         if (offline is null)
         {
             throw new InvalidOperationException(offlineEngine.LoadProblem
                 ?? (await offlineEngine.EnsureLoadedAsync(request.Start).ConfigureAwait(false)
                     ? "Offline ruta nije pronađena (tačka je predaleko od puta za kamione ili su delovi rute povezani samo trajektom koji nije u paketu)."
-                    : "Offline paket za rutiranje nije instaliran (Offline mape → Paketi za rutiranje)."));
+                    : "Offline paket za rutiranje nije instaliran (Offline mape → Regioni)."));
         }
 
         await MainThread.InvokeOnMainThreadAsync(() => ActiveRoutingModeText = "Režim rutiranja: telefon (offline)");
@@ -1312,7 +1367,9 @@ public class NavigationViewModel : ViewModelBase
                     requestStart,
                     new GeoPoint(destinationLat, destinationLon),
                     Profile.Trim(),
-                    AvoidRestricted)).ConfigureAwait(false);
+                    AvoidRestricted,
+                    // The trip's vehicle (or the default truck): server and phone route for it.
+                    truckProfiles.Get().Request)).ConfigureAwait(false);
 
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
@@ -1646,6 +1703,8 @@ public class NavigationViewModel : ViewModelBase
             : rawKph == 0 ? smoothedSpeedKph * 0.5 : smoothedSpeedKph * 0.7 + rawKph * 0.3;
         if (smoothedSpeedKph < 1) smoothedSpeedKph = 0;
         CurrentSpeedText = smoothedSpeedKph.ToString("0", CultureInfo.InvariantCulture);
+        // Above the truck's maximum speed (fleet record) the speed bubble turns red.
+        IsOverSpeedLimit = smoothedSpeedKph > maxSpeedKmh + 2;
         var latest = new GeoPoint(latitude, longitude);
         CurrentLocation = latest;
         CurrentLocationText = $"GPS: {latitude:0.00000}, {longitude:0.00000}";
@@ -1752,9 +1811,10 @@ public class NavigationViewModel : ViewModelBase
         if (maneuverChanged)
         {
             maneuverInitialDistanceMeters = Math.Max(nextDistance, 1);
-            lastSpokenDistanceBucket = -1;
+            lastSpokenStage = -1;
         }
 
+        nextManeuverDistanceMeters = nextDistance;
         NextManeuverInstruction = nextManeuver.Instruction;
         NextManeuverDistanceText = nextDistance < 1000
             ? $"Za {nextDistance:0} m"
@@ -1889,6 +1949,11 @@ public class NavigationViewModel : ViewModelBase
         ReplaceItems(LaneRibbon, lanes);
     }
 
+    /// <summary>
+    /// Speaks the next maneuver when the truck passes one of <see cref="PromptDistances"/>
+    /// (once each), or right away with <paramref name="force"/> (voice switched on). Called
+    /// on every GPS fix, so it must stay silent between those points.
+    /// </summary>
     private async Task SpeakNextPromptAsync(bool force = false)
     {
         if (!VoiceGuidanceEnabled || IsSpeakingPrompt || RouteManeuvers.Count == 0 || NextManeuverIndex == 0)
@@ -1897,62 +1962,56 @@ public class NavigationViewModel : ViewModelBase
         }
 
         var currentIndex = Math.Clamp(NextManeuverIndex - 1, 0, RouteManeuvers.Count - 1);
-        var bucket = ParseDistanceBucket(NextManeuverDistanceText);
+        var distance = nextManeuverDistanceMeters;
+        // Stage = how many prompt distances the truck has already passed for this maneuver.
+        var stage = PromptDistances.Count(threshold => distance <= threshold);
+        var newManeuver = currentIndex != lastSpokenManeuverIndex;
 
-        var shouldSpeak = force || lastSpokenManeuverIndex != currentIndex || (bucket >= 0 && bucket != lastSpokenDistanceBucket);
-        if (!shouldSpeak)
+        if (!force)
         {
-            return;
+            if (!newManeuver && stage <= lastSpokenStage)
+            {
+                return;
+            }
+
+            // A new maneuver far ahead: no prompt yet, the first one comes at 2 km.
+            if (stage == 0)
+            {
+                lastSpokenManeuverIndex = currentIndex;
+                lastSpokenStage = 0;
+                return;
+            }
         }
 
-        var prompt = bucket switch
+        var prompt = stage switch
         {
-            >= 1000 => $"Za {bucket / 1000:0.#} kilometara, {NextManeuverInstruction}",
-            > 0 => $"Za {bucket} metara, {NextManeuverInstruction}",
-            _ => NextManeuverInstruction
+            >= 5 => NextManeuverInstruction,
+            0 => $"Za {distance / 1000:0} kilometara, {NextManeuverInstruction}",
+            1 => $"Za 2 kilometra, {NextManeuverInstruction}",
+            2 => $"Za 1 kilometar, {NextManeuverInstruction}",
+            _ => $"Za {PromptDistances[stage - 1]:0} metara, {NextManeuverInstruction}",
         };
 
+        lastSpokenManeuverIndex = currentIndex;
+        lastSpokenStage = stage;
+
+        speechCts?.Cancel();
+        speechCts = new CancellationTokenSource();
         try
         {
             IsSpeakingPrompt = true;
             serbianLocale ??= (await TextToSpeech.Default.GetLocalesAsync())
                 .FirstOrDefault(locale => locale.Language.StartsWith("sr", StringComparison.OrdinalIgnoreCase));
-            await TextToSpeech.Default.SpeakAsync(prompt, new SpeechOptions { Locale = serbianLocale });
-            lastSpokenManeuverIndex = currentIndex;
-            if (bucket >= 0)
-            {
-                lastSpokenDistanceBucket = bucket;
-            }
+            await TextToSpeech.Default.SpeakAsync(prompt, new SpeechOptions { Locale = serbianLocale }, speechCts.Token);
         }
         catch
         {
-            // Ignore speech device/transient errors and keep navigation running.
+            // Muted meanwhile, or no speech engine: navigation goes on without voice.
         }
         finally
         {
             IsSpeakingPrompt = false;
         }
-    }
-
-    private static int ParseDistanceBucket(string distanceText)
-    {
-        if (distanceText.StartsWith("Za ", StringComparison.OrdinalIgnoreCase))
-        {
-            var text = distanceText[3..].Trim();
-            if (text.EndsWith(" m", StringComparison.OrdinalIgnoreCase) &&
-                double.TryParse(text[..^2], NumberStyles.Float, CultureInfo.InvariantCulture, out var meters))
-            {
-                return (int)Math.Round(meters / 50d) * 50;
-            }
-
-            if (text.EndsWith(" km", StringComparison.OrdinalIgnoreCase) &&
-                double.TryParse(text[..^3], NumberStyles.Float, CultureInfo.InvariantCulture, out var kilometers))
-            {
-                return (int)Math.Round(kilometers * 1000 / 250d) * 250;
-            }
-        }
-
-        return -1;
     }
 
     private static string ToManeuverLabel(string? maneuverType)

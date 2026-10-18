@@ -82,6 +82,10 @@ public sealed class SettingsViewModel : ViewModelBase
     public async Task LogoutAsync()
     {
         await telemetry.StopAsync(clearQueue: true).ConfigureAwait(false);
+        if (ChatClientAccessor.Current is { } chatClient)
+        {
+            await chatClient.StopAsync().ConfigureAwait(false);
+        }
         portalStore.Clear();
         await sessionService.LogoutAsync().ConfigureAwait(false);
         await notifier.ShowInfoAsync("Odjavljeni ste.").ConfigureAwait(false);
@@ -189,6 +193,22 @@ public sealed class SettingsViewModel : ViewModelBase
         offlineWebCache.ClearCache();
         RaisePropertyChanged(nameof(CacheText));
         SafeUi.Run(() => notifier.ShowInfoAsync("Kopija je obrisana. Ponovo se čuva čim server odgovori."));
+    }
+
+    // ---- Problem report ----
+
+    public async Task ReportProblemAsync(string description)
+    {
+        var reporter = ErrorReporter.Current;
+        if (reporter is null)
+        {
+            return;
+        }
+
+        await reporter.ReportProblemAsync(description).ConfigureAwait(false);
+        await notifier.ShowSuccessAsync(reporter.PendingCount == 0
+            ? "Izveštaj je poslat administratoru."
+            : "Izveštaj je sačuvan i biće poslat kad se veza vrati.").ConfigureAwait(false);
     }
 
     // ---- About ----

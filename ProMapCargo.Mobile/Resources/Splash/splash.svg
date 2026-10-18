@@ -1,10 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  System splash: intentionally empty. Android 12+ always shows a system splash before
-  the app draws; with a transparent icon it is only the app background (#031712, set in
-  the .csproj), so the one visible start-up screen is MainPage (truck on the route and
-  the 0-100 % bar). A mark here looked like a second, different splash screen.
+  System splash: the truck tile of the app icon and the loading bar at its start. Android
+  draws this picture still (no animation) and keeps it inside a circle of about 2/3 of the
+  canvas, so everything stays within 150 px of the centre. The same bar then fills
+  0-100 % on the start-up screen (MainPage), so the two read as one loading screen.
+  Background: #031712 (MauiSplashScreen Color in the .csproj). No text and no filters:
+  the build-time renderer draws gradients reliably, text not.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="456" height="456" viewBox="0 0 456 456">
-  <rect width="456" height="456" fill="#031712" fill-opacity="0"/>
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#34D399" stop-opacity="0.30"/>
+      <stop offset="60%" stop-color="#10B981" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4ADE9F"/>
+      <stop offset="100%" stop-color="#22C08A"/>
+    </linearGradient>
+    <linearGradient id="fill" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#2DD4BF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- glow behind the tile -->
+  <circle cx="228" cy="196" r="110" fill="url(#glow)"/>
+
+  <!-- pulse ring and truck tile (as the app icon, smaller) -->
+  <rect x="150" y="118" width="156" height="156" rx="46" fill="none" stroke="#34D399" stroke-opacity="0.26" stroke-width="3"/>
+  <rect x="166" y="134" width="124" height="124" rx="36" fill="url(#tile)"/>
+  <rect x="167" y="135" width="122" height="122" rx="35" fill="none" stroke="#A7F3D0" stroke-opacity="0.55" stroke-width="2"/>
+  <g transform="translate(174 136.5) scale(4.5)" fill="none" stroke="#021512" stroke-width="1.9"
+     stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 6h11v10H3z"/>
+    <path d="M14 10h4l3 3v3h-7"/>
+    <circle cx="7" cy="18" r="2" fill="url(#tile)"/>
+    <circle cx="18" cy="18" r="2" fill="url(#tile)"/>
+  </g>
+
+  <!-- loading bar: track and the first part filled -->
+  <rect x="140" y="306" width="176" height="8" rx="4" fill="#14332D"/>
+  <rect x="140" y="306" width="22" height="8" rx="4" fill="url(#fill)"/>
 </svg>

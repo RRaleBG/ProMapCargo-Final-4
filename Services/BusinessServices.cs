@@ -6,7 +6,7 @@ using ProMapCargo.Api.Models;
 
 namespace ProMapCargo.Api.Services;
 
-public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext current, IHubContext<NavigationHub> hub, AuditWriter audit)
+public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext current, AuditWriter audit)
 {
     private Guid GetRequiredCompanyId() => current.CompanyId ?? throw new UnauthorizedAccessException("Company context is required.");
 

@@ -5,15 +5,31 @@ using ProMapCargo.Mobile.Services;
 
 namespace ProMapCargo.Mobile.ViewModels;
 
-/// <summary>An installed map or routing package (the "Na telefonu" list).</summary>
-public sealed record InstalledOfflineItem(string Id, bool IsRoutingPackage, string Title, string Detail);
+/// <summary>
+/// One offline region as the driver sees it: the map (tiles) and the routing package
+/// together, installed, updated and deleted as one, so a region never has a map without
+/// routes or routes without a map.
+/// </summary>
+public sealed record RegionPackage(
+    string Key,
+    string Title,
+    string Detail,
+    string ActionText,
+    bool IsInstalled,
+    bool CanInstall,
+    MapPackageCatalogItem? Map,
+    OfflineRoutingBundleCatalogItem? Bundle);
+
+/// <summary>A region on the phone (map and/or routing).</summary>
+public sealed record InstalledRegion(string Key, string Title, string Detail, string? MapId, string? BundleId);
 
 /// <summary>
-/// "Offline mape": what is on the phone first (also without signal), then the server's
-/// catalog to install or update maps and routing packages, and deleting to free space.
+/// "Offline mape": regions on the phone first (also without signal), then the server's
+/// regions to install or update (map + routing in one step), and deleting to free space.
 /// </summary>
 public sealed class MapInstallViewModel : ViewModelBase
 {
+    private const string MapSuffix = "-nav";
     private readonly OfflineMapService offlineMapService;
     private readonly OfflineRoutingBundleService offlineRoutingBundleService;
     private readonly OfflineRoutingEngine offlineEngine;
@@ -27,8 +43,13 @@ public sealed class MapInstallViewModel : ViewModelBase
     private bool isOffline;
     private bool offlineBundleReady;
     private bool offlineMapReady;
+    private bool isPullRefreshing;
     private double downloadProgress;
     private CancellationTokenSource? downloadCts;
+    private IReadOnlyList<MapPackageCatalogItem> mapCatalog = [];
+    private IReadOnlyList<OfflineRoutingBundleCatalogItem> bundleCatalog = [];
+    private InstalledMapManifest installedMaps = InstalledMapManifest.Empty;
+    private InstalledOfflineRoutingManifest installedBundles = InstalledOfflineRoutingManifest.Empty;
 
     public MapInstallViewModel(
         OfflineMapService offlineMapService,
@@ -48,23 +69,15 @@ public sealed class MapInstallViewModel : ViewModelBase
             await LoadAsync(CancellationToken.None);
             IsPullRefreshing = false;
         });
-        InstallCommand = new Command<MapPackageCatalogItem>(async package => await InstallAsync(package));
-        InstallBundleCommand = new Command<OfflineRoutingBundleCatalogItem>(async bundle => await InstallBundleAsync(bundle));
         CancelDownloadCommand = new Command(() => downloadCts?.Cancel());
         BackCommand = new Command(async () => await AppNavigation.GoToAsync(AppNavigation.Dashboard));
     }
 
-    public ObservableCollection<MapPackageCatalogItem> AvailablePackages { get; } = new();
+    public ObservableCollection<RegionPackage> Regions { get; } = new();
 
-    public ObservableCollection<OfflineRoutingBundleCatalogItem> AvailableBundles { get; } = new();
-
-    public ObservableCollection<InstalledOfflineItem> InstalledItems { get; } = new();
+    public ObservableCollection<InstalledRegion> InstalledItems { get; } = new();
 
     public ICommand RefreshCommand { get; }
-
-    public ICommand InstallCommand { get; }
-
-    public ICommand InstallBundleCommand { get; }
 
     public ICommand CancelDownloadCommand { get; }
 
@@ -81,9 +94,6 @@ public sealed class MapInstallViewModel : ViewModelBase
         get => storageText;
         private set => SetProperty(ref storageText, value);
     }
-
-    // Pull-to-refresh only (see DashboardViewModel.IsPullRefreshing).
-    private bool isPullRefreshing;
 
     public bool IsPullRefreshing
     {
@@ -121,21 +131,17 @@ public sealed class MapInstallViewModel : ViewModelBase
         private set => SetProperty(ref bundleStatusText, value);
     }
 
-    /// <summary>Routing works without signal (a routing package is installed).</summary>
     public bool OfflineBundleReady
     {
         get => offlineBundleReady;
         private set => SetProperty(ref offlineBundleReady, value);
     }
 
-    /// <summary>The map shows without signal (a navigation map is installed).</summary>
     public bool OfflineMapReady
     {
         get => offlineMapReady;
         private set => SetProperty(ref offlineMapReady, value);
     }
-
-    public bool OfflineReady => OfflineBundleReady && OfflineMapReady;
 
     public async Task LoadAsync(CancellationToken cancellationToken)
     {
@@ -149,30 +155,26 @@ public sealed class MapInstallViewModel : ViewModelBase
             await SetBusyAsync(true);
 
             // The phone first: shown at once and without signal.
-            var installedMaps = await offlineMapService.GetInstalledManifestAsync(cancellationToken).ConfigureAwait(false);
-            var installedBundles = await offlineRoutingBundleService.GetInstalledManifestAsync(cancellationToken).ConfigureAwait(false);
-            await MainThread.InvokeOnMainThreadAsync(() => ApplyInstalled(installedMaps, installedBundles));
+            installedMaps = await offlineMapService.GetInstalledManifestAsync(cancellationToken).ConfigureAwait(false);
+            installedBundles = await offlineRoutingBundleService.GetInstalledManifestAsync(cancellationToken).ConfigureAwait(false);
+            await MainThread.InvokeOnMainThreadAsync(ApplyState);
 
-            await MainThread.InvokeOnMainThreadAsync(() => StatusText = "Učitavanje kataloga sa servera…");
+            await MainThread.InvokeOnMainThreadAsync(() => StatusText = "Učitavanje regiona sa servera…");
             try
             {
                 using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 timeout.CancelAfter(TimeSpan.FromSeconds(12));
-                var catalog = await offlineMapService.GetCatalogAsync(timeout.Token).ConfigureAwait(false);
-                var bundleCatalog = await offlineRoutingBundleService.GetCatalogAsync(timeout.Token).ConfigureAwait(false);
+                mapCatalog = await offlineMapService.GetCatalogAsync(timeout.Token).ConfigureAwait(false);
+                bundleCatalog = await offlineRoutingBundleService.GetCatalogAsync(timeout.Token).ConfigureAwait(false);
 
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     IsOffline = false;
-                    Replace(AvailablePackages, catalog.Select(item => item.WithInstallState(installedMaps.Packages)).ToList());
-                    Replace(AvailableBundles, bundleCatalog.Select(item => item.WithInstallState(installedBundles.Bundles)).ToList());
-                    var updates = AvailablePackages.Count(item => item.InstallState == PackageInstallState.Update) +
-                                  AvailableBundles.Count(item => item.InstallState == PackageInstallState.Update);
+                    ApplyState();
+                    var updates = Regions.Count(region => region.ActionText == PackageInstallState.Update);
                     StatusText = updates > 0
                         ? $"Dostupno ažuriranja: {updates}"
-                        : catalog.Count + bundleCatalog.Count == 0
-                            ? "Na serveru trenutno nema paketa."
-                            : "Sve instalirano je ažurno.";
+                        : Regions.Count == 0 ? "Na serveru trenutno nema regiona." : "Sve instalirano je ažurno.";
                 });
             }
             catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or System.Text.Json.JsonException && !cancellationToken.IsCancellationRequested)
@@ -181,7 +183,7 @@ public sealed class MapInstallViewModel : ViewModelBase
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     IsOffline = true;
-                    StatusText = "Bez veze sa serverom. Instalirane mape i paketi rade i bez interneta.";
+                    StatusText = "Bez veze sa serverom. Instalirani regioni rade i bez interneta.";
                 });
             }
         }
@@ -195,91 +197,100 @@ public sealed class MapInstallViewModel : ViewModelBase
         }
     }
 
-    private void ApplyInstalled(InstalledMapManifest maps, InstalledOfflineRoutingManifest bundles)
+    // Region key: the routing package id; maps carry the same name with "-nav".
+    private static string KeyOf(string mapId) => mapId.EndsWith(MapSuffix, StringComparison.OrdinalIgnoreCase) ? mapId[..^MapSuffix.Length] : mapId;
+
+    private void ApplyState()
     {
-        var items = new List<InstalledOfflineItem>();
+        // ---- On the phone, by region ----
+        var mapsOnPhone = installedMaps.Packages.Where(map => File.Exists(map.LocalPath)).ToList();
+        var bundlesOnPhone = installedBundles.Bundles.Where(bundle => File.Exists(bundle.GraphLocalPath)).ToList();
         long total = 0;
-
-        foreach (var map in maps.Packages.Where(map => File.Exists(map.LocalPath)))
+        var installed = new List<InstalledRegion>();
+        foreach (var key in mapsOnPhone.Select(map => KeyOf(map.Id)).Concat(bundlesOnPhone.Select(bundle => bundle.Id)).Distinct(StringComparer.OrdinalIgnoreCase))
         {
-            var size = FileSize(map.LocalPath);
+            var map = mapsOnPhone.FirstOrDefault(item => string.Equals(KeyOf(item.Id), key, StringComparison.OrdinalIgnoreCase));
+            var bundle = bundlesOnPhone.FirstOrDefault(item => string.Equals(item.Id, key, StringComparison.OrdinalIgnoreCase));
+            var size = (map is null ? 0 : FileSize(map.LocalPath)) +
+                       (bundle is null ? 0 : FileSize(bundle.GraphLocalPath) + FileSize(bundle.PlacesLocalPath));
             total += size;
-            items.Add(new InstalledOfflineItem(map.Id, false, map.DisplayName, $"Mapa · {ByteSize.Format(size)} · {map.InstalledAtUtc.ToLocalTime():dd.MM.yyyy.}"));
+            var parts = (map, bundle) switch
+            {
+                ({ }, { }) => "mapa i rute",
+                ({ }, null) => "samo mapa · rute nisu preuzete",
+                _ => "samo rute · mapa nije preuzeta",
+            };
+            installed.Add(new InstalledRegion(key, bundle?.DisplayName ?? map!.DisplayName, $"{parts} · {ByteSize.Format(size)}", map?.Id, bundle?.Id));
         }
 
-        foreach (var bundle in bundles.Bundles.Where(bundle => File.Exists(bundle.GraphLocalPath)))
+        Replace(InstalledItems, installed.OrderBy(item => item.Title).ToList());
+
+        // ---- Regions on the server: map + routing as one package ----
+        var regions = new List<RegionPackage>();
+        foreach (var key in mapCatalog.Select(map => KeyOf(map.Id)).Concat(bundleCatalog.Select(bundle => bundle.Id)).Distinct(StringComparer.OrdinalIgnoreCase))
         {
-            var size = FileSize(bundle.GraphLocalPath) + FileSize(bundle.PlacesLocalPath);
-            total += size;
-            items.Add(new InstalledOfflineItem(bundle.Id, true, bundle.DisplayName, $"Rutiranje · {ByteSize.Format(size)} · verzija {bundle.Version}"));
+            var map = mapCatalog.FirstOrDefault(item => string.Equals(KeyOf(item.Id), key, StringComparison.OrdinalIgnoreCase))?.WithInstallState(installedMaps.Packages);
+            var bundle = bundleCatalog.FirstOrDefault(item => string.Equals(item.Id, key, StringComparison.OrdinalIgnoreCase))?.WithInstallState(installedBundles.Bundles);
+            var states = new[] { map?.InstallState, bundle?.InstallState }.Where(state => state is not null).ToList();
+            var action = states.All(state => state == PackageInstallState.Installed)
+                ? PackageInstallState.Installed
+                : states.Any(state => state == PackageInstallState.Update) || states.Contains(PackageInstallState.Installed)
+                    ? PackageInstallState.Update
+                    : PackageInstallState.Install;
+            var size = (map?.SizeBytes ?? 0) + (bundle is null ? 0 : bundle.GraphSizeBytes + bundle.PlacesSizeBytes);
+            var detail = bundle is null
+                ? $"{ByteSize.Format(size)} · samo mapa, bez rutiranja"
+                : $"{ByteSize.Format(size)} · mapa i rute za kamion";
+            regions.Add(new RegionPackage(key, bundle?.DisplayName ?? map!.DisplayName, detail, action, action == PackageInstallState.Installed, action != PackageInstallState.Installed, map, bundle));
         }
 
-        Replace(InstalledItems, items);
-        // Buttons in the catalog follow the phone right away (the catalog reload takes a moment).
-        Replace(AvailablePackages, AvailablePackages.Select(item => item.WithInstallState(maps.Packages)).ToList());
-        Replace(AvailableBundles, AvailableBundles.Select(item => item.WithInstallState(bundles.Bundles)).ToList());
+        Replace(Regions, regions.OrderBy(region => region.Bundle is null).ThenBy(region => region.Title).ToList());
 
-        OfflineMapReady = maps.Packages.Any(map => File.Exists(map.LocalPath));
-        OfflineBundleReady = bundles.Bundles.Any(bundle => File.Exists(bundle.GraphLocalPath) && File.Exists(bundle.PlacesLocalPath));
-        RaisePropertyChanged(nameof(OfflineReady));
+        OfflineMapReady = mapsOnPhone.Count > 0;
+        OfflineBundleReady = bundlesOnPhone.Any(bundle => File.Exists(bundle.PlacesLocalPath));
         BundleStatusText = (OfflineMapReady, OfflineBundleReady) switch
         {
             (true, true) => "Spremno za rad bez interneta: mapa i rute na telefonu.",
-            (true, false) => "Mapa radi bez interneta. Za rute bez signala instalirajte paket za rutiranje.",
-            (false, true) => "Rute rade bez interneta. Za prikaz mape bez signala instalirajte mapu.",
-            _ => "Za rad bez interneta instalirajte mapu i paket za rutiranje svog regiona.",
+            (true, false) or (false, true) => "Region nije potpun: dopunite ga ispod (mapa i rute idu zajedno).",
+            _ => "Za rad bez interneta instalirajte region kojim vozite.",
         };
 
         var free = FreeSpace();
-        var used = total > 0 ? $"Na telefonu: {ByteSize.Format(total)}" : "Na telefonu nema mapa";
+        var used = total > 0 ? $"Na telefonu: {ByteSize.Format(total)}" : "Na telefonu nema regiona";
         StorageText = free > 0 ? $"{used} · slobodno {ByteSize.Format(free)}" : used;
     }
 
-    private async Task InstallAsync(MapPackageCatalogItem? package)
+    /// <summary>Installs or updates the region: whichever part is missing or older, map first.</summary>
+    public async Task InstallAsync(RegionPackage region)
     {
-        if (package is null || await IsBusyNotifiedAsync())
+        if (await IsBusyNotifiedAsync() || !region.CanInstall)
         {
             return;
         }
 
-        if (package.InstallState == PackageInstallState.Installed)
+        var map = region.Map is { InstallState: not PackageInstallState.Installed } m ? m : null;
+        var bundle = region.Bundle is { InstallState: not PackageInstallState.Installed } b ? b : null;
+        long mapBytes = map?.SizeBytes ?? 0;
+        long bundleBytes = bundle is null ? 0 : bundle.GraphSizeBytes + bundle.PlacesSizeBytes;
+        if (!await HasSpaceForAsync(mapBytes + bundleBytes))
         {
             return;
         }
 
-        if (!await HasSpaceForAsync(package.SizeBytes))
+        var totalBytes = (double)Math.Max(mapBytes + bundleBytes, 1);
+        await RunDownloadAsync(region.Title, async (progress, ct) =>
         {
-            return;
-        }
+            if (map is not null)
+            {
+                await offlineMapService.DownloadPackageAsync(map, new Progress<double>(v => progress.Report(v * mapBytes / totalBytes)), ct).ConfigureAwait(false);
+                offlineWebCache.InvalidateLocalMap();
+            }
 
-        await RunDownloadAsync(package.DisplayName, async (progress, ct) =>
-        {
-            await offlineMapService.DownloadPackageAsync(package, progress, ct).ConfigureAwait(false);
-            offlineWebCache.InvalidateLocalMap();
-        });
-    }
-
-    private async Task InstallBundleAsync(OfflineRoutingBundleCatalogItem? bundle)
-    {
-        if (bundle is null || await IsBusyNotifiedAsync())
-        {
-            return;
-        }
-
-        if (bundle.InstallState == PackageInstallState.Installed)
-        {
-            return;
-        }
-
-        if (!await HasSpaceForAsync(bundle.GraphSizeBytes + bundle.PlacesSizeBytes))
-        {
-            return;
-        }
-
-        await RunDownloadAsync(bundle.DisplayName, async (progress, ct) =>
-        {
-            await offlineRoutingBundleService.DownloadAndInstallAsync(bundle, progress, ct).ConfigureAwait(false);
-            await offlineEngine.UnloadAsync().ConfigureAwait(false);
+            if (bundle is not null)
+            {
+                await offlineRoutingBundleService.DownloadAndInstallAsync(bundle, new Progress<double>(v => progress.Report((mapBytes + v * bundleBytes) / totalBytes)), ct).ConfigureAwait(false);
+                await offlineEngine.UnloadAsync().ConfigureAwait(false);
+            }
         });
     }
 
@@ -295,14 +306,13 @@ public sealed class MapInstallViewModel : ViewModelBase
             var progress = new Progress<double>(value => MainThread.BeginInvokeOnMainThread(() =>
             {
                 DownloadProgress = value;
-                // At 100% the file is checked against the server's SHA-256 (a few seconds).
-                StatusText = value >= 1
+                StatusText = value >= 0.999
                     ? $"Provera: {name}…"
                     : $"Preuzimanje: {name} · {Math.Round(value * 100)}%";
             }));
 
             await download(progress, downloadCts.Token).ConfigureAwait(false);
-            await notifier.ShowSuccessAsync($"Instalirano: {name}.").ConfigureAwait(false);
+            await notifier.ShowSuccessAsync($"Region „{name}“ je spreman za rad bez interneta.").ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (downloadCts.IsCancellationRequested)
         {
@@ -322,8 +332,8 @@ public sealed class MapInstallViewModel : ViewModelBase
         await LoadAsync(CancellationToken.None);
     }
 
-    /// <summary>Deletes an installed map or routing package (the page confirms first).</summary>
-    public async Task DeleteAsync(InstalledOfflineItem item)
+    /// <summary>Deletes the region from the phone: map and routing together (the page confirms).</summary>
+    public async Task DeleteAsync(InstalledRegion region)
     {
         if (await IsBusyNotifiedAsync())
         {
@@ -332,18 +342,19 @@ public sealed class MapInstallViewModel : ViewModelBase
 
         try
         {
-            if (item.IsRoutingPackage)
+            if (region.BundleId is { } bundleId)
             {
                 await offlineEngine.UnloadAsync().ConfigureAwait(false);
-                await offlineRoutingBundleService.DeleteAsync(item.Id, CancellationToken.None).ConfigureAwait(false);
+                await offlineRoutingBundleService.DeleteAsync(bundleId, CancellationToken.None).ConfigureAwait(false);
             }
-            else
+
+            if (region.MapId is { } mapId)
             {
-                await offlineMapService.DeleteAsync(item.Id, CancellationToken.None).ConfigureAwait(false);
+                await offlineMapService.DeleteAsync(mapId, CancellationToken.None).ConfigureAwait(false);
                 offlineWebCache.InvalidateLocalMap();
             }
 
-            await notifier.ShowSuccessAsync($"Obrisano: {item.Title}.").ConfigureAwait(false);
+            await notifier.ShowSuccessAsync($"Obrisano: {region.Title}.").ConfigureAwait(false);
         }
         catch (Exception ex)
         {

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Poruke (tab): live chat with dispatch (mine on the right, dispatch on the left) and the
+  alerts on the driver's trips as cards, newest at the bottom; the reply box stays above
+  the tab bar.
+-->
+<ContentPage
+    x:Class="ProMapCargo.Mobile.Views.MessagesPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ProMapCargo.Mobile.ViewModels"
+    x:DataType="vm:MessagesViewModel"
+    Title="Poruke"
+    BackgroundColor="{StaticResource SurfaceBase}"
+    Shell.NavBarIsVisible="False">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!--  Header  -->
+        <VerticalStackLayout Padding="16,14,16,8" Spacing="0">
+            <Label Style="{StaticResource PmPageTitleLabel}" Text="Poruke" />
+            <Label Style="{StaticResource PmRowDetailLabel}">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="{Binding Subtitle}" />
+                        <Span Text="  " />
+                        <Span Text="{Binding StatusText}" TextColor="{StaticResource TextTertiary}" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+        </VerticalStackLayout>
+
+        <!--  Conversation and alerts  -->
+        <RefreshView
+            Grid.Row="1"
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsPullRefreshing}"
+            RefreshColor="{StaticResource Brand}">
+            <CollectionView
+                x:Name="MessageList"
+                Margin="16,0"
+                ItemTemplate="{StaticResource MessageTemplates}"
+                ItemsSource="{Binding Messages}"
+                ItemsUpdatingScrollMode="KeepLastItemInView">
+                <CollectionView.Header>
+                    <VerticalStackLayout Padding="0,0,0,8" Spacing="10">
+                        <Border IsVisible="{Binding ShowSignIn}" Style="{StaticResource PmHeroBorder}">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Style="{StaticResource PmSectionTitleLabel}" Text="Prijavite se kao vozač" />
+                                <Label Style="{StaticResource PmMutedLabel}" Text="Ovde razgovarate sa dispečerom i stižu upozorenja za vaše ture." />
+                                <Button
+                                    Command="{Binding SignInCommand}"
+                                    Style="{StaticResource PmPrimaryButton}"
+                                    Text="Prijavi se" />
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border IsVisible="{Binding ShowNotDriver}" Style="{StaticResource PmCardBorder}">
+                            <Label Style="{StaticResource PmMutedLabel}" Text="Nalog nije povezan sa vozačem. Razgovor sa vozačima je na web portalu (Poruke)." />
+                        </Border>
+                        <Border IsVisible="{Binding IsEmpty}" Style="{StaticResource PmCardBorder}">
+                            <Label Style="{StaticResource PmMutedLabel}" Text="Još nema poruka. Napišite dispečeru ispod." />
+                        </Border>
+                    </VerticalStackLayout>
+                </CollectionView.Header>
+            </CollectionView>
+        </RefreshView>
+
+        <!--  Reply box  -->
+        <Border
+            Grid.Row="2"
+            Padding="12,8"
+            BackgroundColor="{StaticResource SurfaceElevated}"
+            IsVisible="{Binding CanWrite}"
+            Stroke="{StaticResource StrokeSubtle}"
+            StrokeThickness="1">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Border Padding="14,0" Style="{StaticResource PmFieldBorder}">
+                    <Entry
+                        x:Name="DraftEntry"
+                        MaxLength="2000"
+                        Placeholder="Poruka dispečeru…"
+                        ReturnCommand="{Binding SendCommand}"
+                        ReturnType="Send"
+                        SemanticProperties.Description="Poruka dispečeru"
+                        Style="{StaticResource PmEntry}"
+                        Text="{Binding Draft}" />
+                </Border>
+                <Button
+                    Grid.Column="1"
+                    Command="{Binding SendCommand}"
+                    HeightRequest="48"
+                    Style="{StaticResource PmPrimaryButton}"
+                    Text="Pošalji" />
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>

@@ -7,8 +7,7 @@
     x:DataType="vm:TripDetailsViewModel"
     Title="Detalji ture"
     BackgroundColor="{StaticResource SurfaceBase}"
-    Shell.NavBarIsVisible="False"
-    Shell.TabBarIsVisible="False">
+    Shell.NavBarIsVisible="False">
     <Grid RowDefinitions="*,Auto">
         <RefreshView
             Command="{Binding RefreshCommand}"
@@ -36,7 +35,19 @@
                         </VerticalStackLayout>
                     </Grid>
 
-                    <Border Style="{StaticResource PmHeroBorder}">
+                    <Border IsVisible="{Binding HasNoTrip}" Style="{StaticResource PmCardBorder}">
+                        <Grid ColumnDefinitions="40,*" ColumnSpacing="12">
+                            <Border Style="{StaticResource PmRowIcon}">
+                                <Image HeightRequest="20" Source="ic_tab_trip.svg" WidthRequest="20" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Style="{StaticResource PmRowTitleLabel}" Text="Nema ture za prikaz" />
+                                <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding StatusMessage}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+
+                    <Border IsVisible="{Binding HasTrip}" Style="{StaticResource PmHeroBorder}">
                         <VerticalStackLayout Spacing="10">
                             <Label Style="{StaticResource PmHeroCaptionLabel}" Text="Ruta i status" />
                             <Label Style="{StaticResource PmSectionTitleLabel}" Text="{Binding RouteText}" />
@@ -46,7 +57,7 @@
                         </VerticalStackLayout>
                     </Border>
 
-                    <Border Style="{StaticResource PmCardBorder}">
+                    <Border IsVisible="{Binding HasTrip}" Style="{StaticResource PmCardBorder}">
                         <VerticalStackLayout Spacing="10">
                             <Label Style="{StaticResource PmSectionCaption}" Text="Sledeća radnja" />
                             <Label Style="{StaticResource PmBodyLabel}" Text="{Binding NextStopTitle}" />
@@ -66,14 +77,14 @@
                         </VerticalStackLayout>
                     </Border>
 
-                    <Border Style="{StaticResource PmCardBorder}">
+                    <Border IsVisible="{Binding HasTrip}" Style="{StaticResource PmCardBorder}">
                         <VerticalStackLayout Spacing="10">
                             <Label Style="{StaticResource PmSectionCaption}" Text="Napomene" />
                             <Label Style="{StaticResource PmBodyLabel}" Text="{Binding NotesText}" />
                         </VerticalStackLayout>
                     </Border>
 
-                    <Border Style="{StaticResource PmCardBorder}">
+                    <Border IsVisible="{Binding HasTrip}" Style="{StaticResource PmCardBorder}">
                         <VerticalStackLayout Spacing="10">
                             <Label Style="{StaticResource PmSectionCaption}" Text="Finansije" />
                             <Label Style="{StaticResource PmBodyLabel}" Text="{Binding FinancialSummary}" />
@@ -81,7 +92,7 @@
                         </VerticalStackLayout>
                     </Border>
 
-                    <Border Style="{StaticResource PmCardBorder}">
+                    <Border IsVisible="{Binding HasTrip}" Style="{StaticResource PmCardBorder}">
                         <VerticalStackLayout Spacing="10">
                             <Label Style="{StaticResource PmSectionCaption}" Text="Stanice" />
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding Stops}" Spacing="10">
@@ -111,7 +122,7 @@
                         </VerticalStackLayout>
                     </Border>
 
-                    <Border Style="{StaticResource PmCardBorder}">
+                    <Border IsVisible="{Binding HasTrip}" Style="{StaticResource PmCardBorder}">
                         <VerticalStackLayout Spacing="10">
                             <Label Style="{StaticResource PmSectionCaption}" Text="Troškovi ture" />
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding Costs}" Spacing="10">
@@ -144,14 +155,14 @@
                         </VerticalStackLayout>
                     </Border>
 
-                    <Border Style="{StaticResource PmCardBorder}">
+                    <Border IsVisible="{Binding HasTrip}" Style="{StaticResource PmCardBorder}">
                         <VerticalStackLayout Spacing="10">
                             <Label Style="{StaticResource PmSectionCaption}" Text="Istorija vozača" />
                             <Label Style="{StaticResource PmBodyLabel}" Text="{Binding DriverHistorySummary}" />
                         </VerticalStackLayout>
                     </Border>
 
-                    <Border Style="{StaticResource PmCardBorder}">
+                    <Border IsVisible="{Binding HasTrip}" Style="{StaticResource PmCardBorder}">
                         <VerticalStackLayout Spacing="10">
                             <Label Style="{StaticResource PmSectionCaption}" Text="Istorija vozila" />
                             <Label Style="{StaticResource PmBodyLabel}" Text="{Binding VehicleHistorySummary}" />

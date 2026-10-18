@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Profil: the driver, documents with expiry, vehicle, trips done, account (tab).  -->
+<ContentPage
+    x:Class="ProMapCargo.Mobile.Views.ProfilePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ProMapCargo.Mobile.ViewModels"
+    x:DataType="vm:ProfileViewModel"
+    Title="Profil"
+    BackgroundColor="{StaticResource SurfaceBase}"
+    Shell.NavBarIsVisible="False">
+    <RefreshView
+        Command="{Binding RefreshCommand}"
+        IsRefreshing="{Binding IsPullRefreshing}"
+        RefreshColor="{StaticResource Brand}">
+        <ScrollView>
+            <VerticalStackLayout
+                Padding="16,14,16,24"
+                MaximumWidthRequest="720"
+                Spacing="16">
+
+                <!--  Who  -->
+                <Border Style="{StaticResource PmHeroBorder}">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="64,*" ColumnSpacing="14">
+                            <Border
+                                BackgroundColor="{StaticResource Brand}"
+                                HeightRequest="64"
+                                StrokeShape="Ellipse"
+                                StrokeThickness="0"
+                                WidthRequest="64">
+                                <Label
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="22"
+                                    HorizontalOptions="Center"
+                                    Text="{Binding Initials}"
+                                    TextColor="{StaticResource BrandOn}"
+                                    VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout
+                                Grid.Column="1"
+                                Spacing="2"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="20"
+                                    LineBreakMode="TailTruncation"
+                                    SemanticProperties.HeadingLevel="Level1"
+                                    Text="{Binding Name}"
+                                    TextColor="{StaticResource TextPrimary}" />
+                                <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding Subtitle}" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Button
+                            Command="{Binding SignInCommand}"
+                            IsVisible="{Binding ShowSignIn}"
+                            Style="{StaticResource PmPrimaryButton}"
+                            Text="Prijavi se" />
+
+                        <!--  Trips done  -->
+                        <Grid
+                            ColumnDefinitions="*,*"
+                            ColumnSpacing="10"
+                            IsVisible="{Binding HasProfile}">
+                            <Border Padding="12,10" Style="{StaticResource PmCardInnerBorder}">
+                                <VerticalStackLayout Spacing="0">
+                                    <Label Style="{StaticResource PmValueLabel}" Text="{Binding CompletedThisMonthText}" />
+                                    <Label Style="{StaticResource PmCaptionLabel}" Text="Tura ovog meseca" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border
+                                Grid.Column="1"
+                                Padding="12,10"
+                                Style="{StaticResource PmCardInnerBorder}">
+                                <VerticalStackLayout Spacing="0">
+                                    <Label Style="{StaticResource PmValueLabel}" Text="{Binding CompletedTripsText}" />
+                                    <Label Style="{StaticResource PmCaptionLabel}" Text="Ukupno tura" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border IsVisible="{Binding ShowNotDriver}" Style="{StaticResource PmCardBorder}">
+                    <Label Style="{StaticResource PmMutedLabel}" Text="Nalog nije povezan sa vozačem, pa nema dokumenata ni vozila." />
+                </Border>
+
+                <!--  Documents  -->
+                <VerticalStackLayout IsVisible="{Binding HasProfile}" Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Style="{StaticResource PmSectionCaption}" Text="Dokumenti" />
+                        <Border
+                            Grid.Column="1"
+                            Padding="8,3"
+                            Style="{StaticResource PmChip}">
+                            <Border.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding HasDocumentProblem}"
+                                    TargetType="Border"
+                                    Value="True">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource StatusWarningBg}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Label Style="{StaticResource PmChipLabel}" Text="{Binding DocumentWarningsText}">
+                                <Label.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding HasDocumentProblem}"
+                                        TargetType="Label"
+                                        Value="True">
+                                        <Setter Property="TextColor" Value="{StaticResource StatusWarning}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Border>
+                    </Grid>
+                    <Border Padding="14,2" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Documents}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:DocumentItem">
+                                    <Grid
+                                        Padding="0,10"
+                                        ColumnDefinitions="*,Auto"
+                                        ColumnSpacing="12">
+                                        <VerticalStackLayout Spacing="1">
+                                            <Label Style="{StaticResource PmRowTitleLabel}" Text="{Binding Title}" />
+                                            <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding Detail}" />
+                                        </VerticalStackLayout>
+                                        <Label
+                                            Grid.Column="1"
+                                            FontFamily="OpenSansSemibold"
+                                            FontSize="13"
+                                            Text="{Binding StatusText}"
+                                            TextColor="{StaticResource StatusSuccess}"
+                                            VerticalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding IsExpiringSoon}"
+                                                    TargetType="Label"
+                                                    Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource StatusWarning}" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding IsExpired}"
+                                                    TargetType="Label"
+                                                    Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource StatusDanger}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Vehicle  -->
+                <VerticalStackLayout IsVisible="{Binding HasVehicle}" Spacing="8">
+                    <Label Style="{StaticResource PmSectionCaption}" Text="Vozilo" />
+                    <Border Padding="14,12" Style="{StaticResource PmCardBorder}">
+                        <Grid ColumnDefinitions="40,*" ColumnSpacing="12">
+                            <Border Style="{StaticResource PmRowIcon}">
+                                <Image HeightRequest="22" Source="ic_truck.svg" WidthRequest="22" />
+                            </Border>
+                            <VerticalStackLayout
+                                Grid.Column="1"
+                                Spacing="1"
+                                VerticalOptions="Center">
+                                <Label Style="{StaticResource PmRowTitleLabel}" Text="{Binding VehicleTitle}" />
+                                <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding VehicleDetail}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Account  -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource PmSectionCaption}" Text="Aplikacija" />
+                    <Border Padding="14,2" Style="{StaticResource PmCardBorder}">
+                        <VerticalStackLayout>
+                            <Grid
+                                Padding="0,12"
+                                ColumnDefinitions="32,*,Auto"
+                                ColumnSpacing="12">
+                                <Border Style="{StaticResource PmTileIcon}" VerticalOptions="Center">
+                                    <Image HeightRequest="18" HorizontalOptions="Center" Source="ic_settings.svg" VerticalOptions="Center" WidthRequest="18" />
+                                </Border>
+                                <Label
+                                    Grid.Column="1"
+                                    Style="{StaticResource PmRowTitleLabel}"
+                                    Text="Podešavanja"
+                                    VerticalOptions="Center" />
+                                <Label Grid.Column="2" Style="{StaticResource PmChevronLabel}" />
+                                <Button
+                                    Grid.ColumnSpan="3"
+                                    Margin="0,-12"
+                                    Command="{Binding OpenSettingsCommand}"
+                                    SemanticProperties.Description="Podešavanja"
+                                    Style="{StaticResource PmTapTarget}" />
+                            </Grid>
+                            <BoxView Style="{StaticResource PmDivider}" />
+                            <Grid
+                                Padding="0,12"
+                                ColumnDefinitions="32,*,Auto"
+                                ColumnSpacing="12">
+                                <Border Style="{StaticResource PmTileIcon}" VerticalOptions="Center">
+                                    <Image HeightRequest="18" HorizontalOptions="Center" Source="ic_map.svg" VerticalOptions="Center" WidthRequest="18" />
+                                </Border>
+                                <Label
+                                    Grid.Column="1"
+                                    Style="{StaticResource PmRowTitleLabel}"
+                                    Text="Offline mape"
+                                    VerticalOptions="Center" />
+                                <Label Grid.Column="2" Style="{StaticResource PmChevronLabel}" />
+                                <Button
+                                    Grid.ColumnSpan="3"
+                                    Margin="0,-12"
+                                    Command="{Binding OpenMapsCommand}"
+                                    SemanticProperties.Description="Offline mape"
+                                    Style="{StaticResource PmTapTarget}" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+                    <Button
+                        Clicked="OnLogoutClicked"
+                        IsVisible="{Binding IsSignedIn}"
+                        Style="{StaticResource PmDangerButton}"
+                        Text="Odjavi se" />
+                    <Label
+                        HorizontalTextAlignment="Center"
+                        Style="{StaticResource PmRowDetailLabel}"
+                        Text="{Binding StatusText}" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

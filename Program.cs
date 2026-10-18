@@ -32,7 +32,7 @@ builder.Services.AddSignalR();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    options.KnownNetworks.Clear();
+    options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
 });
 
@@ -151,7 +151,8 @@ builder.Services
     .AddPolicyScheme(CookieOrBearerScheme, "Identity cookie or mobile bearer token", options =>
     {
         options.ForwardDefaultSelector = context =>
-            context.Request.Headers.Authorization.ToString().StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+            context.Request.Headers.Authorization.ToString().StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) ||
+            (context.Request.Path.StartsWithSegments("/hubs") && context.Request.Query.ContainsKey("access_token"))
                 ? JwtBearerDefaults.AuthenticationScheme
                 : IdentityConstants.ApplicationScheme;
     })
@@ -167,6 +168,21 @@ builder.Services
             IssuerSigningKey = signingKey,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromMinutes(2)
+        };
+        // SignalR from the phone: WebSockets cannot always carry a header, the client
+        // then sends the token as ?access_token= (only accepted on the hub).
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var token = context.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(token) && context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+                {
+                    context.Token = token;
+                }
+
+                return Task.CompletedTask;
+            },
         };
     });
 
@@ -232,6 +248,7 @@ builder.Services.AddScoped<ReportQueries>();
 builder.Services.AddScoped<AlertQueries>();
 builder.Services.AddScoped<AuditQueries>();
 builder.Services.AddScoped<DriverPortalQueries>();
+builder.Services.AddScoped<DriverChatService>();
 builder.Services.AddScoped<AuditWriter>();
 builder.Services.AddScoped<FileStorageService>();
 builder.Services.AddScoped<MobileTokenService>();
@@ -489,6 +506,11 @@ static async Task InitializeDatabaseAsync(WebApplication app)
     // Columns and tables behind the web forms (idempotent, adds only).
     await db.Database.ExecuteSqlRawAsync(
         await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Sql", "08-business-forms.sql")).ConfigureAwait(false))
+        .ConfigureAwait(false);
+
+    // Chat between drivers and dispatch (idempotent, adds only).
+    await db.Database.ExecuteSqlRawAsync(
+        await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Sql", "09-driver-chat.sql")).ConfigureAwait(false))
         .ConfigureAwait(false);
 }
 

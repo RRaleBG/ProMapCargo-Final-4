@@ -32,20 +32,21 @@ public sealed record TripCostDetailItem(
 public sealed class TripDetailsViewModel : ViewModelBase, IQueryAttributable
 {
     private readonly MobileSessionService sessionService;
-    private readonly MobileServerEndpointService serverEndpointService;
+    private readonly ApiClient apiClient;
     private readonly DriverPortalStore portalStore;
     private readonly IMobileNotifier notifier;
     private DriverPortalTripSummary? selectedTrip;
     private DriverPortal? portal;
     private Guid tripId;
+    private Guid requestedTripId;
     private bool isBusy;
     private bool isPullRefreshing;
     private string statusMessage = "Učitavanje detalja ture…";
 
-    public TripDetailsViewModel(MobileSessionService sessionService, MobileServerEndpointService serverEndpointService, DriverPortalStore portalStore, IMobileNotifier notifier)
+    public TripDetailsViewModel(MobileSessionService sessionService, ApiClient apiClient, DriverPortalStore portalStore, IMobileNotifier notifier)
     {
         this.sessionService = sessionService;
-        this.serverEndpointService = serverEndpointService;
+        this.apiClient = apiClient;
         this.portalStore = portalStore;
         this.notifier = notifier;
 
@@ -73,7 +74,9 @@ public sealed class TripDetailsViewModel : ViewModelBase, IQueryAttributable
 
     public string TripTitle => selectedTrip?.TripNumber is { Length: > 0 } number ? $"Tura {number}" : "Detalji ture";
 
-    public string TripStatusText => string.IsNullOrWhiteSpace(selectedTrip?.Status)
+    public string TripStatusText => selectedTrip is null
+        ? string.Empty
+        : string.IsNullOrWhiteSpace(selectedTrip.Status)
         ? "Status nije poznat"
         : selectedTrip.Status switch
         {
@@ -140,6 +143,11 @@ public sealed class TripDetailsViewModel : ViewModelBase, IQueryAttributable
 
     public bool HasDispatchPhone => !string.IsNullOrWhiteSpace(portal?.DispatchPhone);
 
+    /// <summary>A trip is shown (the cards); without one the page shows one message.</summary>
+    public bool HasTrip => selectedTrip is not null;
+
+    public bool HasNoTrip => selectedTrip is null;
+
     public string NotesText => string.IsNullOrWhiteSpace(portal?.Notes) ? "Nema posebnih napomena za ovu turu." : portal.Notes!;
 
     public string FinancialSummary
@@ -201,23 +209,54 @@ public sealed class TripDetailsViewModel : ViewModelBase, IQueryAttributable
     {
         if (query.TryGetValue("tripId", out var raw) && TryParseGuid(raw, out var parsed))
         {
-            tripId = parsed;
+            requestedTripId = parsed;
         }
     }
 
     public async Task LoadAsync()
     {
-        if (tripId == Guid.Empty)
-        {
-            StatusMessage = "Tura nije izabrana.";
-            return;
-        }
-
         try
         {
             IsBusy = true;
             await sessionService.RestoreAsync(CancellationToken.None).ConfigureAwait(false);
-            portal = sessionService.CurrentSession?.User.Id is { } userId ? portalStore.Load(userId)?.Portal : null;
+            var userId = sessionService.CurrentSession?.User.Id;
+
+            // Fresh from the server when there is a connection (costs approved meanwhile,
+            // stops completed on the web), else the copy saved on the phone.
+            var online = false;
+            try
+            {
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                if (userId is { } id && await apiClient.GetDriverPortalAsync(timeout.Token).ConfigureAwait(false) is { } fresh)
+                {
+                    portalStore.Save(fresh, id);
+                    online = true;
+                }
+            }
+            catch (Exception)
+            {
+                // No signal or not a driver: the saved copy below.
+            }
+
+            portal = userId is { } user ? portalStore.Load(user)?.Portal : null;
+            tripId = requestedTripId != Guid.Empty
+                ? requestedTripId
+                : portal?.Trip?.Id ?? portal?.Trips?.FirstOrDefault()?.Id ?? Guid.Empty;
+            if (tripId == Guid.Empty)
+            {
+                selectedTrip = null;
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    Stops.Clear();
+                    Costs.Clear();
+                    RaiseAll();
+                    StatusMessage = sessionService.IsSignedIn
+                        ? "Trenutno nemate dodeljenu turu."
+                        : "Prijavite se kao vozač da vidite svoju turu.";
+                });
+                return;
+            }
+
             selectedTrip = portal?.Trips?.FirstOrDefault(item => item.Id == tripId)
                 ?? (portal?.Trip?.Id == tripId ? MapActiveTrip(portal.Trip, portal.Financial) : null);
 
@@ -238,9 +277,8 @@ public sealed class TripDetailsViewModel : ViewModelBase, IQueryAttributable
                 ReplaceItems(Stops, BuildStops());
                 ReplaceItems(Costs, BuildCosts());
                 RaiseAll();
-                StatusMessage = tripId == portal?.Trip?.Id
-                    ? "Prikazana je aktivna tura vozača."
-                    : "Prikazana je sačuvana istorija ture sa telefona.";
+                StatusMessage = (tripId == portal?.Trip?.Id ? "Aktivna tura" : "Istorija ture") +
+                                (online ? $" · osveženo {DateTime.Now:HH:mm}" : " · sačuvana kopija, bez veze");
             });
         }
         finally
@@ -331,18 +369,30 @@ public sealed class TripDetailsViewModel : ViewModelBase, IQueryAttributable
         }
     }
 
-    private async void OpenReceipt(Guid receiptFileId)
+    // Downloaded with the driver's token and opened from the phone (PDF viewer, gallery).
+    private void OpenReceipt(Guid receiptFileId) => SafeUi.Run(async () =>
     {
         try
         {
-            var url = serverEndpointService.CreateUri($"api/files/{receiptFileId}");
-            await Browser.Default.OpenAsync(url, BrowserLaunchMode.SystemPreferred);
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+            var (bytes, contentType, fileName) = await apiClient.DownloadFileAsync(receiptFileId, timeout.Token).ConfigureAwait(false);
+            var extension = contentType switch
+            {
+                "application/pdf" => ".pdf",
+                "image/png" => ".png",
+                "image/jpeg" => ".jpg",
+                _ => Path.GetExtension(fileName ?? string.Empty),
+            };
+            var path = Path.Combine(FileSystem.CacheDirectory, $"racun-{receiptFileId:N}{extension}");
+            await File.WriteAllBytesAsync(path, bytes).ConfigureAwait(false);
+            await MainThread.InvokeOnMainThreadAsync(() =>
+                Launcher.Default.OpenAsync(new OpenFileRequest("Račun", new ReadOnlyFile(path, contentType))));
         }
         catch (Exception ex)
         {
-            await notifier.ShowErrorAsync(ApiClient.DescribeError(ex)).ConfigureAwait(false);
+            await notifier.ShowErrorAsync($"Račun nije otvoren: {ApiClient.DescribeError(ex)}").ConfigureAwait(false);
         }
-    }
+    });
 
     private static DriverPortalTripSummary MapActiveTrip(DriverPortalTrip trip, DriverPortalFinancial? financial)
         => new(
@@ -376,7 +426,8 @@ public sealed class TripDetailsViewModel : ViewModelBase, IQueryAttributable
                  {
                      nameof(TripTitle), nameof(TripStatusText), nameof(RouteText), nameof(SummaryText), nameof(ProgressValue), nameof(ProgressText),
                      nameof(NextStopTitle), nameof(NextStopDetail), nameof(CanOpenNavigation), nameof(HasDispatchPhone), nameof(NotesText),
-                     nameof(FinancialSummary), nameof(EarningsSummary), nameof(DriverHistorySummary), nameof(VehicleHistorySummary)
+                     nameof(FinancialSummary), nameof(EarningsSummary), nameof(DriverHistorySummary), nameof(VehicleHistorySummary),
+                     nameof(HasTrip), nameof(HasNoTrip)
                  })
         {
             RaisePropertyChanged(propertyName);

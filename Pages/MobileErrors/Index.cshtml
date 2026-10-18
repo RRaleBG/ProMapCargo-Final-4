@@ -1,0 +1,150 @@
+@page "/mobile-errors"
+@model ProMapCargo.Api.Pages.MobileErrors.IndexModel
+@{
+    ViewData["Title"] = "Greške sa telefona · ProMap Cargo";
+}
+
+<div class="pm-page pm-page--audit">
+
+    <header class="pm-header pm-page-header">
+        <div class="pm-heading">
+            <div class="pm-page-kicker">Mobilna aplikacija</div>
+            <p class="pm-page-subtitle">Koji telefon je prijavio grešku i šta se desilo (poslednjih 30 dana).</p>
+        </div>
+    </header>
+
+    <section class="moderation-kpi-grid pm-kpi-grid pm-kpi-grid--3" aria-label="Greške sa telefona">
+        <article class="compliance-kpi compliance-kpi-total pm-kpi">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Ukupno</span>
+                <i data-lucide="bug" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value">@Model.Rows.Count</strong>
+            <span class="compliance-kpi-meta">prikazanih prijava</span>
+        </article>
+        <article class="compliance-kpi compliance-kpi-warning pm-kpi">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Poslednja 24 h</span>
+                <i data-lucide="clock-alert" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value">@Model.Last24Hours</strong>
+            <span class="compliance-kpi-meta">nove greške</span>
+        </article>
+        <article class="compliance-kpi compliance-kpi-info pm-kpi">
+            <div class="compliance-kpi-top">
+                <span class="compliance-kpi-label">Telefona</span>
+                <i data-lucide="smartphone" class="compliance-kpi-icon" aria-hidden="true"></i>
+            </div>
+            <strong class="compliance-kpi-value">@Model.Devices.Count</strong>
+            <span class="compliance-kpi-meta">sa greškama u 7 dana</span>
+        </article>
+    </section>
+
+    @if (Model.Devices.Count > 0)
+    {
+        <section class="pm-card">
+            <header class="pm-card-header">
+                <div>
+                    <h2 class="pm-card-title">Telefoni</h2>
+                    <p class="pm-card-subtitle">Broj grešaka po telefonu u poslednjih 7 dana. Klik prikazuje samo taj telefon.</p>
+                </div>
+            </header>
+            <div class="pm-table-wrap">
+                <table class="pm-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Telefon</th>
+                            <th scope="col">Korisnik</th>
+                            <th scope="col">Greške</th>
+                            <th scope="col">Poslednja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var device in Model.Devices)
+                        {
+                            <tr>
+                                <td><a asp-page="./Index" asp-route-Device="@device.DeviceId">@device.Device</a></td>
+                                <td>@(device.User ?? "nije prijavljen")</td>
+                                <td>@device.Count</td>
+                                <td>@device.Last.ToLocalTime().ToString("dd.MM. HH:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    }
+
+    <section class="pm-card">
+        <header class="pm-card-header">
+            <div>
+                <h2 class="pm-card-title">Prijave</h2>
+                <p class="pm-card-subtitle">
+                    @if (!string.IsNullOrWhiteSpace(Model.Device))
+                    {
+                        <span>Samo jedan telefon · <a asp-page="./Index">prikaži sve</a></span>
+                    }
+                    else
+                    {
+                        <span>Najnovije prvo. Detalji sadrže tehnički opis za programera.</span>
+                    }
+                </p>
+            </div>
+            <div class="pm-header-actions">
+                <a class="pm-btn pm-btn-ghost" asp-page="./Index" asp-route-Device="@Model.Device">Sve</a>
+                <a class="pm-btn pm-btn-ghost" asp-page="./Index" asp-route-Device="@Model.Device" asp-route-Kind="crash">Padovi</a>
+                <a class="pm-btn pm-btn-ghost" asp-page="./Index" asp-route-Device="@Model.Device" asp-route-Kind="report">Izveštaji vozača</a>
+            </div>
+        </header>
+        <div class="pm-table-wrap">
+            <table class="pm-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Vreme</th>
+                        <th scope="col">Telefon</th>
+                        <th scope="col">Korisnik</th>
+                        <th scope="col">Verzija</th>
+                        <th scope="col">Vrsta</th>
+                        <th scope="col">Greška</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Rows.Count == 0)
+                    {
+                        <tr><td colspan="6">Nema prijavljenih grešaka.</td></tr>
+                    }
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            <td>@row.At.ToLocalTime().ToString("dd.MM.yyyy. HH:mm")</td>
+                            <td>
+                                @row.Device
+                                @if (!string.IsNullOrWhiteSpace(row.OsVersion))
+                                {
+                                    <div class="pm-text-muted">Android @row.OsVersion</div>
+                                }
+                            </td>
+                            <td>@(row.User ?? "nije prijavljen")</td>
+                            <td>@(row.AppVersion ?? "—")</td>
+                            <td><span class="pm-badge">@IndexModel.KindLabel(row.Kind)</span></td>
+                            <td>
+                                <strong>@row.Message</strong>
+                                @if (!string.IsNullOrWhiteSpace(row.Screen))
+                                {
+                                    <div class="pm-text-muted">Ekran: @row.Screen</div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(row.Details))
+                                {
+                                    <details>
+                                        <summary>Detalji</summary>
+                                        <pre style="white-space: pre-wrap; max-height: 320px; overflow: auto;">@row.Details</pre>
+                                    </details>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

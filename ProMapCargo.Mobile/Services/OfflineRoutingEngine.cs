@@ -65,7 +65,7 @@ public sealed class OfflineRoutingEngine(OfflineRoutingBundleService bundles)
                 catch (Exception ex) when (ex is InvalidDataException or EndOfStreamException or IOException)
                 {
                     header = null;
-                    LoadProblem = $"Offline paket „{bundle.DisplayName}“ treba ažurirati (Offline mape → Paketi za rutiranje).";
+                    LoadProblem = $"Offline paket „{bundle.DisplayName}“ treba ažurirati (Offline mape → Regioni).";
                 }
 
                 headers[key] = header;
@@ -128,7 +128,7 @@ public sealed class OfflineRoutingEngine(OfflineRoutingBundleService bundles)
                 {
                     // Older package format or a broken download: route online only and
                     // tell the driver to update the package instead of failing later.
-                    LoadProblem = $"Offline paket „{candidate.Bundle.DisplayName}“ treba ažurirati (Offline mape → Paketi za rutiranje): {ex.Message}";
+                    LoadProblem = $"Offline paket „{candidate.Bundle.DisplayName}“ treba ažurirati (Offline mape → Regioni): {ex.Message}";
                     return false;
                 }
 
@@ -144,7 +144,7 @@ public sealed class OfflineRoutingEngine(OfflineRoutingBundleService bundles)
         }
     }
 
-    public async Task<RouteResponse?> RouteAsync(GeoPoint start, GeoPoint destination, CancellationToken cancellationToken = default)
+    public async Task<RouteResponse?> RouteAsync(GeoPoint start, GeoPoint destination, CancellationToken cancellationToken = default, TruckDimensions? truck = null)
     {
         LoadProblem = null;
         var installed = await InstalledAsync(cancellationToken).ConfigureAwait(false);
@@ -161,7 +161,7 @@ public sealed class OfflineRoutingEngine(OfflineRoutingBundleService bundles)
         if (covering.Count == 0)
         {
             LoadProblem = "Nijedan instalirani offline paket ne pokriva i polazak i odredište. " +
-                "Preuzmite region koji obuhvata celu rutu (Offline mape → Paketi za rutiranje).";
+                "Preuzmite region koji obuhvata celu rutu (Offline mape → Regioni).";
             return null;
         }
 
@@ -176,7 +176,7 @@ public sealed class OfflineRoutingEngine(OfflineRoutingBundleService bundles)
             try
             {
                 var current = router!;
-                var route = await Task.Run(() => current.Route(start.Lat, start.Lon, destination.Lat, destination.Lon, DefaultTruck), cancellationToken).ConfigureAwait(false);
+                var route = await Task.Run(() => current.Route(start.Lat, start.Lon, destination.Lat, destination.Lon, truck ?? DefaultTruck), cancellationToken).ConfigureAwait(false);
                 if (route is not null)
                 {
                     return ToResponse(route, current.Graph.GraphVersion, candidate.Header.Name);

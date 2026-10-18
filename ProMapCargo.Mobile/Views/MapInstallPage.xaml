@@ -107,7 +107,7 @@
                             TextColor="{StaticResource StatusWarning}" />
                     </Border>
 
-                    <!--  On the phone  -->
+                    <!--  On the phone: one row per region (map and routes together)  -->
                     <VerticalStackLayout Spacing="8">
                         <Label Style="{StaticResource PmSectionCaption}" Text="Na telefonu" />
                         <Border Padding="16,2" Style="{StaticResource PmCardBorder}">
@@ -119,7 +119,7 @@
                                         Text="Još ništa nije instalirano na telefonu." />
                                 </BindableLayout.EmptyView>
                                 <BindableLayout.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:InstalledOfflineItem">
+                                    <DataTemplate x:DataType="vm:InstalledRegion">
                                         <Grid
                                             Padding="0,10"
                                             ColumnDefinitions="*,Auto"
@@ -131,7 +131,7 @@
                                             <Button
                                                 Grid.Column="1"
                                                 Clicked="OnDeleteClicked"
-                                                SemanticProperties.Description="Obriši sa telefona"
+                                                SemanticProperties.Description="Obriši region sa telefona"
                                                 Style="{StaticResource PmDangerButton}"
                                                 Text="Obriši"
                                                 VerticalOptions="Center" />
@@ -142,78 +142,33 @@
                         </Border>
                     </VerticalStackLayout>
 
-                    <!--  Maps on the server  -->
+                    <!--  Regions on the server: map + routing as one package  -->
                     <VerticalStackLayout IsVisible="{Binding IsOffline, Converter={StaticResource InvertedBoolConverter}}" Spacing="8">
-                        <Label Style="{StaticResource PmSectionCaption}" Text="Mape" />
+                        <Label Style="{StaticResource PmSectionCaption}" Text="Regioni" />
                         <Border Padding="16,2" Style="{StaticResource PmCardBorder}">
-                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding AvailablePackages}">
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Regions}">
                                 <BindableLayout.EmptyView>
                                     <Label
                                         Padding="0,14"
                                         Style="{StaticResource PmRowDetailLabel}"
-                                        Text="Nema mapa na serveru." />
+                                        Text="Nema regiona na serveru." />
                                 </BindableLayout.EmptyView>
                                 <BindableLayout.ItemTemplate>
-                                    <DataTemplate x:DataType="models:MapPackageCatalogItem">
+                                    <DataTemplate x:DataType="vm:RegionPackage">
                                         <Grid
                                             Padding="0,10"
                                             ColumnDefinitions="*,Auto"
                                             ColumnSpacing="12">
                                             <VerticalStackLayout Spacing="1" VerticalOptions="Center">
-                                                <Label Style="{StaticResource PmRowTitleLabel}" Text="{Binding DisplayName}" />
-                                                <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding SizeText}" />
+                                                <Label Style="{StaticResource PmRowTitleLabel}" Text="{Binding Title}" />
+                                                <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding Detail}" />
                                             </VerticalStackLayout>
                                             <Button
                                                 Grid.Column="1"
-                                                Clicked="OnInstallClicked"
-                                                CommandParameter="{Binding .}"
-                                                IsEnabled="{Binding IsInstalled, Converter={StaticResource InvertedBoolConverter}}"
+                                                Clicked="OnRegionClicked"
+                                                IsEnabled="{Binding CanInstall}"
                                                 Style="{StaticResource PmTonalButton}"
-                                                Text="{Binding InstallState}"
-                                                VerticalOptions="Center" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </VerticalStackLayout>
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <!--  Routing packages on the server  -->
-                    <VerticalStackLayout IsVisible="{Binding IsOffline, Converter={StaticResource InvertedBoolConverter}}" Spacing="8">
-                        <Label Style="{StaticResource PmSectionCaption}" Text="Paketi za rutiranje" />
-                        <Border Padding="16,2" Style="{StaticResource PmCardBorder}">
-                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding AvailableBundles}">
-                                <BindableLayout.EmptyView>
-                                    <Label
-                                        Padding="0,14"
-                                        Style="{StaticResource PmRowDetailLabel}"
-                                        Text="Nema paketa na serveru." />
-                                </BindableLayout.EmptyView>
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate x:DataType="models:OfflineRoutingBundleCatalogItem">
-                                        <Grid
-                                            Padding="0,10"
-                                            ColumnDefinitions="*,Auto"
-                                            ColumnSpacing="12">
-                                            <VerticalStackLayout Spacing="1" VerticalOptions="Center">
-                                                <Label Style="{StaticResource PmRowTitleLabel}" Text="{Binding DisplayName}" />
-                                                <Label Style="{StaticResource PmRowDetailLabel}">
-                                                    <Label.FormattedText>
-                                                        <FormattedString>
-                                                            <Span Text="{Binding SizeText}" />
-                                                            <Span Text=" · verzija " />
-                                                            <Span Text="{Binding Version}" />
-                                                        </FormattedString>
-                                                    </Label.FormattedText>
-                                                </Label>
-                                            </VerticalStackLayout>
-                                            <Button
-                                                Grid.Column="1"
-                                                Clicked="OnInstallBundleClicked"
-                                                CommandParameter="{Binding .}"
-                                                IsEnabled="{Binding IsInstalled, Converter={StaticResource InvertedBoolConverter}}"
-                                                Style="{StaticResource PmTonalButton}"
-                                                Text="{Binding InstallState}"
+                                                Text="{Binding ActionText}"
                                                 VerticalOptions="Center" />
                                         </Grid>
                                     </DataTemplate>

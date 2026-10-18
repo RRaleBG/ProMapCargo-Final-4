@@ -25,7 +25,8 @@ public sealed class IndexModel(IAccountAdminService accountAdminService) : PageM
     public string Role { get; set; } = "all";
 
     [BindProperty(SupportsGet = true)]
-    public int Page { get; set; } = 1;
+    // Page number of the user list (hides PageModel.Page(), which this page does not use).
+    public new int Page { get; set; } = 1;
 
     [BindProperty(SupportsGet = true)]
     public int PageSize { get; set; } = 20;

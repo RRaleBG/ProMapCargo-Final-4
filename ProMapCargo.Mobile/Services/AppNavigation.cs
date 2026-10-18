@@ -13,6 +13,8 @@ public static class AppNavigation
     public const string InstallMaps = "//install-maps";
     public const string Login = "//login";
     public const string TripDetails = "trip-details";
+    public const string Expense = "expense";
+    public const string Expenses = "expenses";
 
     public static string GetTripDetailsRoute(Guid tripId)
         => $"{TripDetails}?tripId={tripId:D}";

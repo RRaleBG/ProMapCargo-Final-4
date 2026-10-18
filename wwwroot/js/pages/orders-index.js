@@ -16,11 +16,11 @@
     };
 
     const GROUP_BADGE = {
-        "planned": ["neutral", "Planned"],
-        "loading": ["blue", "Loading"],
-        "in-transit": ["green", "In Transit"],
-        "delivered": ["green", "Delivered"],
-        "delayed": ["red", "Delayed"],
+        "planned": ["neutral", "Planirano"],
+        "loading": ["blue", "Utovar"],
+        "in-transit": ["green", "U transportu"],
+        "delivered": ["green", "Isporučeno"],
+        "delayed": ["red", "Kasni"],
         "cancelled": ["neutral", "Cancelled"]
     };
 

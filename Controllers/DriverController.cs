@@ -134,6 +134,128 @@ public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContex
     private Task<Trip?> ActiveTripAsync(Guid c, Guid driverId, CancellationToken ct, bool tracked = false)
         => portalQueries.ActiveTripAsync(c, driverId, ct, tracked);
 
+    // ---- Mobile app: messages and profile of the signed-in driver ----
+
+    /// <summary>
+    /// What concerns this driver, newest first (last 30 days): alerts on the driver, the
+    /// driver's trips or vehicle, routes dispatch sent, incidents the driver reported.
+    /// Unlike /api/alerts it never shows other drivers' alerts.
+    /// </summary>
+    [HttpGet("messages")]
+    public async Task<ActionResult<object>> Messages(CancellationToken ct)
+    {
+        if (current.CompanyId is not Guid c) return Unauthorized();
+        var driver = await db.Drivers.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == c && x.UserId == current.UserId, ct);
+        if (driver is null) return NotFound(new { code = "NoDriver", message = "Nalog nije povezan sa vozačem." });
+
+        var since = DateTimeOffset.UtcNow.AddDays(-30);
+        var tripIds = await db.Trips.AsNoTracking()
+            .Where(x => x.CompanyId == c && x.DriverId == driver.Id)
+            .Select(x => x.Id)
+            .ToListAsync(ct);
+
+        var alerts = await db.OperationalAlerts.AsNoTracking()
+            .Where(x => x.CompanyId == c && x.CreatedAt >= since &&
+                        (x.DriverId == driver.Id || (x.TripId != null && tripIds.Contains(x.TripId.Value)) ||
+                         (driver.CurrentVehicleId != null && x.VehicleId == driver.CurrentVehicleId)))
+            .OrderByDescending(x => x.CreatedAt)
+            .Take(100)
+            .Select(x => new
+            {
+                x.Id,
+                Kind = x.Source == "Driver" ? "incident" : "alert",
+                x.Type,
+                x.Severity,
+                x.Status,
+                x.Message,
+                x.CreatedAt,
+                x.ResolvedAt,
+                x.TripId,
+            })
+            .ToListAsync(ct);
+
+        var tripNumbers = await db.Trips.AsNoTracking()
+            .Where(x => x.CompanyId == c && tripIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, x => x.TripNumber, ct);
+
+        var routes = await db.RouteDispatches.AsNoTracking()
+            .Where(x => x.CompanyId == c && x.DriverId == driver.Id && x.CreatedAt >= since)
+            .OrderByDescending(x => x.CreatedAt)
+            .Take(50)
+            .Select(x => new { x.Id, x.TripId, Status = x.Status.ToString(), x.CreatedAt, x.SentAt, x.AcceptedAt, x.RejectedAt, x.RejectionReason })
+            .ToListAsync(ct);
+
+        var messages = alerts.Select(x => new DriverMessage(
+                x.Id, x.Kind, x.Type, x.Severity, x.Status, x.Message, x.CreatedAt,
+                x.TripId, x.TripId is { } t && tripNumbers.TryGetValue(t, out var n) ? n : null))
+            .Concat(routes.Select(x => new DriverMessage(
+                x.Id, "route", "Route", x.Status == "Rejected" ? "Warning" : "Info", x.Status,
+                x.Status switch
+                {
+                    "Accepted" => "Ruta je prihvaćena.",
+                    "Rejected" => string.IsNullOrWhiteSpace(x.RejectionReason) ? "Ruta je odbijena." : $"Ruta je odbijena: {x.RejectionReason}",
+                    "Started" => "Vožnja po ruti je počela.",
+                    "Superseded" => "Dispečer je poslao noviju rutu.",
+                    "Cancelled" => "Dispečer je otkazao rutu.",
+                    "Expired" => "Ruta je istekla bez odgovora.",
+                    _ => "Dispečer je poslao novu rutu. Odgovorite na početnom ekranu.",
+                },
+                x.SentAt ?? x.CreatedAt, x.TripId, tripNumbers.TryGetValue(x.TripId, out var n) ? n : null)))
+            .OrderByDescending(x => x.CreatedAt)
+            .ToList();
+
+        return Ok(messages);
+    }
+
+    /// <summary>The driver's own record for the app: documents with expiry, vehicle, trips done.</summary>
+    [HttpGet("profile")]
+    public async Task<ActionResult<object>> Profile(CancellationToken ct)
+    {
+        if (current.CompanyId is not Guid c) return Unauthorized();
+        var driver = await db.Drivers.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == c && x.UserId == current.UserId, ct);
+        if (driver is null) return NotFound(new { code = "NoDriver", message = "Nalog nije povezan sa vozačem." });
+
+        var vehicle = driver.CurrentVehicleId is { } vehicleId
+            ? await db.Vehicles.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == c && x.Id == vehicleId, ct)
+            : null;
+        var monthStart = new DateTimeOffset(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, TimeSpan.Zero);
+        var completed = await db.Trips.AsNoTracking().CountAsync(x => x.CompanyId == c && x.DriverId == driver.Id && x.Status == TripStatus.Completed, ct);
+        var completedThisMonth = await db.Trips.AsNoTracking().CountAsync(x => x.CompanyId == c && x.DriverId == driver.Id && x.Status == TripStatus.Completed && x.CompletedAt >= monthStart, ct);
+
+        return Ok(new
+        {
+            driver.Id,
+            driver.FullName,
+            driver.EmployeeNumber,
+            Status = driver.Status.ToString(),
+            driver.Phone,
+            driver.Email,
+            driver.LicenseNumber,
+            driver.LicenseCategories,
+            driver.LicenseExpiry,
+            driver.Code95Expiry,
+            driver.AdrExpiry,
+            driver.TachographCardNumber,
+            driver.TachographCardExpiry,
+            driver.MedicalExpiry,
+            driver.HireDate,
+            Vehicle = vehicle is null ? null : new
+            {
+                vehicle.Id,
+                vehicle.Registration,
+                vehicle.Make,
+                vehicle.Model,
+                vehicle.GrossWeightTons,
+                vehicle.HeightMeters,
+                vehicle.WidthMeters,
+                vehicle.LengthMeters,
+                vehicle.Axles,
+            },
+            CompletedTrips = completed,
+            CompletedTripsThisMonth = completedThisMonth,
+        });
+    }
+
     [HttpGet("dashboard")]
     public async Task<ActionResult<object>> Dashboard(CancellationToken ct)
     {
@@ -210,3 +332,15 @@ public sealed class DriverController(ProMapCargoDbContext db, ICurrentUserContex
 public sealed record RejectRequest(string? Reason);
 
 public sealed record IncidentRequest(string? Message, string? Severity);
+
+/// <summary>One entry of the driver's message list (mobile "Poruke").</summary>
+public sealed record DriverMessage(
+    Guid Id,
+    string Kind,
+    string Type,
+    string Severity,
+    string Status,
+    string Text,
+    DateTimeOffset CreatedAt,
+    Guid? TripId,
+    string? TripNumber);

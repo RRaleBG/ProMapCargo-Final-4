@@ -102,6 +102,10 @@
 
                     <div class="pm-nav-section">
                         <div class="pm-nav-section-title">KONTROLA</div>
+                        <a asp-page="/Messages/Index"
+                           class="pm-nav-item @(currentPage == "/Messages/Index" ? "active" : "")">
+                            <i class="pm-nav-icon" data-lucide="message-square" aria-hidden="true"></i><span class="pm-nav-label">Poruke</span>
+                        </a>
                         <a asp-page="/Alerts/Index"
                            class="pm-nav-item @(currentPage == "/Alerts/Index" ? "active" : "")">
                             <i class="pm-nav-icon" data-lucide="triangle-alert" aria-hidden="true"></i><span class="pm-nav-label">Upozorenja</span><span class="pm-nav-count danger" data-alert-count
@@ -154,6 +158,11 @@
                                    class="pm-nav-item @((currentPage == "/Account/Admin/Index" || currentPage == "/Account/Admin") ? "active" : "")">
                                     <i class="pm-nav-icon" data-lucide="settings-2" aria-hidden="true"></i>
                                     <span class="pm-nav-label">Administracija</span>
+                                </a>
+                                <a asp-page="/MobileErrors/Index"
+                                   class="pm-nav-item @(currentPage == "/MobileErrors/Index" ? "active" : "")">
+                                    <i class="pm-nav-icon" data-lucide="bug" aria-hidden="true"></i>
+                                    <span class="pm-nav-label">Greške sa telefona</span>
                                 </a>
                             }
 

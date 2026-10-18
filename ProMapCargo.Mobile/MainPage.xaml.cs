@@ -33,6 +33,8 @@ public partial class MainPage : ContentPage
     private readonly ApiClient apiClient;
     private readonly OfflineWebCache webCache;
     private readonly GpsTelemetryUploader telemetry;
+    private readonly ExpenseQueue expenses;
+    private readonly ErrorReporter errors;
     private bool started;
     private double shown;
 
@@ -45,7 +47,9 @@ public partial class MainPage : ContentPage
         OfflineRoutingBundleService offlineRouting,
         ApiClient apiClient,
         OfflineWebCache webCache,
-        GpsTelemetryUploader telemetry)
+        GpsTelemetryUploader telemetry,
+        ExpenseQueue expenses,
+        ErrorReporter errors)
     {
         InitializeComponent();
         this.session = session;
@@ -54,6 +58,21 @@ public partial class MainPage : ContentPage
         this.apiClient = apiClient;
         this.webCache = webCache;
         this.telemetry = telemetry;
+        this.expenses = expenses;
+        this.errors = errors;
+        // A crash is written to the phone before the app closes and sent on the next start.
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            if (e.ExceptionObject is Exception ex)
+            {
+                errors.Report(ex, "Aplikacija", crash: true);
+            }
+        };
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            errors.Report(e.Exception, "Pozadinski zadatak");
+            e.SetObserved();
+        };
         VersionLabel.Text = $"Verzija {AppInfo.Current.VersionString}";
         SetProgress(0);
     }
@@ -98,6 +117,8 @@ public partial class MainPage : ContentPage
             // In the background: the navigation page for dead zones, positions queued offline.
             _ = Task.Run(webCache.WarmUpNavigationAsync);
             _ = Task.Run(telemetry.FlushAsync);
+            _ = Task.Run(expenses.FlushAsync);
+            _ = Task.Run(errors.FlushAsync);
         }
 
         await Task.Delay(260);

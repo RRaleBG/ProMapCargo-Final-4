@@ -20,6 +20,15 @@ public partial class SettingsPage : ContentPage
         viewModel.Refresh();
     }
 
+    private void OnReportProblemClicked(object? sender, EventArgs e) => SafeUi.Run(async () =>
+    {
+        var text = await DisplayPromptAsync("Prijavi problem", "Opišite šta ne radi. Administrator dobija i podatke o telefonu.", "Pošalji", "Otkaži", maxLength: 1000);
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            await viewModel.ReportProblemAsync(text.Trim());
+        }
+    });
+
     // Signing out stops the position for dispatch and removes the saved trip: confirmed first.
     private void OnLogoutClicked(object? sender, EventArgs e) => SafeUi.Run(async () =>
     {

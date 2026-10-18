@@ -50,7 +50,7 @@ public sealed class IpAddressLocationService(HttpClient httpClient, ILogger<IpAd
             await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
             var payload = await JsonSerializer.DeserializeAsync<IpApiResponse>(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            if (!string.Equals(payload?.Status, "success", StringComparison.OrdinalIgnoreCase))
+            if (payload is null || !string.Equals(payload.Status, "success", StringComparison.OrdinalIgnoreCase))
             {
                 return null;
             }

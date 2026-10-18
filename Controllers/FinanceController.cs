@@ -23,6 +23,12 @@ public sealed class FinanceController(ProMapCargoDbContext db, ICurrentUserConte
         return data is null ? Unauthorized() : Ok(data);
     }
 
+    private static string NormalizeCurrency(string? value)
+    {
+        var code = value?.Trim().ToUpperInvariant();
+        return code is { Length: 3 } && code.All(char.IsAsciiLetterUpper) ? code : "EUR";
+    }
+
     [HttpPost("costs")]
     [RequestSizeLimit(FileStorageService.MaxBytes + 1024 * 1024)]
     public async Task<ActionResult<object>> AddCost([FromForm] CostForm form, CancellationToken ct)
@@ -69,7 +75,8 @@ public sealed class FinanceController(ProMapCargoDbContext db, ICurrentUserConte
             Unit = category == TransportCostCategory.Fuel ? "l" : "kom",
             UnitPrice = form.UnitPrice is > 0 ? form.UnitPrice.Value : form.Amount.Value / quantity,
             Amount = form.Amount.Value,
-            Currency = "EUR",
+            // The phone sends the currency of the country (RSD, HUF, ...); older clients send none.
+            Currency = NormalizeCurrency(form.Currency),
             IsEstimated = false,
             CreatedAt = DateTimeOffset.UtcNow,
             Notes = Clean(form.Notes),
@@ -144,6 +151,8 @@ public sealed class CostForm
     public int? OdometerKm { get; set; }
     public Guid? VehicleId { get; set; }
     public string? Notes { get; set; }
+    /// <summary>ISO 4217 code (EUR, RSD, HUF, ...); EUR when missing or not three letters.</summary>
+    public string? Currency { get; set; }
     public IFormFile? Receipt { get; set; }
 }
 

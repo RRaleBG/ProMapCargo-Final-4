@@ -24,7 +24,8 @@ public static class AppSettings
     /// <summary>Spoken maneuvers when navigation opens.</summary>
     public static bool VoiceGuidance
     {
-        get => Preferences.Default.Get(VoiceGuidanceKey, true);
+        // Off until the driver switches it on (the phone's speech voice sounds like a screen reader).
+        get => Preferences.Default.Get(VoiceGuidanceKey, false);
         set => Preferences.Default.Set(VoiceGuidanceKey, value);
     }
 }

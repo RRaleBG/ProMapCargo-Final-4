@@ -42,6 +42,10 @@ public sealed class DashboardViewModel : ViewModelBase
     private readonly IMobileNotifier notifier;
     private readonly DriverPortalStore portalStore;
     private readonly GpsTelemetryUploader telemetry;
+    private readonly StopArrivalMonitor arrivalMonitor;
+    private readonly TruckProfileProvider truckProfiles;
+    private readonly DocumentReminders documentReminders;
+    private readonly ChatClient chat;
     private string? announcedBundleVersion;
 
     private CancellationTokenSource? loadCancellationTokenSource;
@@ -62,7 +66,11 @@ public sealed class DashboardViewModel : ViewModelBase
         OfflineWebCache offlineWebCache,
         OfflineRoutingBundleService offlineBundles,
         DriverPortalStore portalStore,
-        GpsTelemetryUploader telemetry)
+        GpsTelemetryUploader telemetry,
+        StopArrivalMonitor arrivalMonitor,
+        TruckProfileProvider truckProfiles,
+        DocumentReminders documentReminders,
+        ChatClient chat)
     {
         this.offlineBundles = offlineBundles;
         this.offlineWebCache = offlineWebCache;
@@ -71,6 +79,12 @@ public sealed class DashboardViewModel : ViewModelBase
         this.notifier = notifier;
         this.portalStore = portalStore;
         this.telemetry = telemetry;
+        this.arrivalMonitor = arrivalMonitor;
+        this.truckProfiles = truckProfiles;
+        this.documentReminders = documentReminders;
+        this.chat = chat;
+        // Arrived automatically at 200 m: show the stop as reached.
+        arrivalMonitor.ArrivalRecorded += (_, _) => SafeUi.Run(() => LoadPortalAsync(CancellationToken.None));
 
         RefreshCommand = new Command(async () =>
         {
@@ -108,7 +122,10 @@ public sealed class DashboardViewModel : ViewModelBase
 
     // The app sends no truck profile, so routing uses the server default
     // (RoutingController: 40 t, 4.0 m high, 2.55 m wide, 16.5 m long).
-    public string TruckProfileText => "40 t · 4,0 m · 2,55 m · 16,5 m";
+    // Routes are planned for the trip's vehicle (TruckProfileProvider), else the default truck.
+    public string TruckProfileText => truckProfiles.Get().Text;
+
+    public string TruckProfileBadge => truckProfiles.Get().Badge;
 
     // ---- Header ----
 
@@ -392,6 +409,9 @@ public sealed class DashboardViewModel : ViewModelBase
 
             await LoadTruckBansAsync(cancellationToken).ConfigureAwait(false);
 
+            // Documents running out: a phone notification (once a day at most).
+            _ = Task.Run(documentReminders.CheckAsync);
+
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 RaiseSessionProperties();
@@ -406,7 +426,7 @@ public sealed class DashboardViewModel : ViewModelBase
                 newer.Version != announcedBundleVersion)
             {
                 announcedBundleVersion = newer.Version;
-                await notifier.ShowInfoAsync($"Nova verzija offline paketa „{newer.DisplayName}“ (Offline mape → Paketi za rutiranje).").ConfigureAwait(false);
+                await notifier.ShowInfoAsync($"Nova verzija offline paketa „{newer.DisplayName}“ (Offline mape → Regioni).").ConfigureAwait(false);
             }
         }
         catch (OperationCanceledException) when (loadCts.IsCancellationRequested)
@@ -458,26 +478,37 @@ public sealed class DashboardViewModel : ViewModelBase
     {
         try
         {
-            var vehicles = apiClient.GetVehiclesAsync(cancellationToken);
-            var orders = apiClient.GetOrdersAsync(cancellationToken);
-            var trips = apiClient.GetTripsAsync(cancellationToken);
+            var vehicles = apiClient.CountAsync("api/business/vehicles", cancellationToken);
+            var orders = apiClient.CountAsync("api/business/orders", cancellationToken);
+            var trips = apiClient.CountAsync("api/business/trips", cancellationToken);
             await Task.WhenAll(vehicles, orders, trips).ConfigureAwait(false);
-            var summary = $"{vehicles.Result.Count} vozila · {orders.Result.Count} naloga · {trips.Result.Count} tura";
+            var summary = $"{vehicles.Result} vozila · {orders.Result} naloga · {trips.Result} tura";
             await MainThread.InvokeOnMainThreadAsync(() => FleetSummary = summary);
         }
-        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException && !cancellationToken.IsCancellationRequested)
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or System.Text.Json.JsonException && !cancellationToken.IsCancellationRequested)
         {
-            // Optional line: left out when the lists cannot be read.
+            // Optional line: left out when the lists cannot be read (never fails the whole screen).
         }
     }
 
-    // A running trip keeps the GPS on and sends the truck's position to dispatch.
-    private Task ApplyTrackingAsync()
+    // A running trip keeps the GPS on and sends the truck's position to dispatch; the next
+    // planned stop is watched for the automatic arrival at 200 m.
+    private async Task ApplyTrackingAsync()
     {
         var trip = portal?.Trip;
         var vehicleId = trip?.VehicleId ?? portal?.Driver?.CurrentVehicleId;
         var running = trip?.Status is "Active" or "Paused";
-        return telemetry.SetTripAsync(trip is null ? null : vehicleId, trip?.Id, running);
+        await telemetry.SetTripAsync(trip is null ? null : vehicleId, trip?.Id, running).ConfigureAwait(false);
+
+        // Messages from dispatch arrive live (and as a notification) on every screen.
+        if (portal?.Driver?.Id is { } driverId)
+        {
+            _ = chat.StartAsync(driverId);
+        }
+
+        // Planned: arrival at 200 m; already there: completion when the truck leaves.
+        var stop = running && NextStop is { Status: "Planned" or "Arrived" or "InService" } next ? next : null;
+        await arrivalMonitor.WatchAsync(stop?.Id, stop?.Latitude, stop?.Longitude, stop is null ? null : StopTitle(stop), arrived: stop?.Status is "Arrived" or "InService").ConfigureAwait(false);
     }
 
     private void ApplyPortal(DriverPortal? value, DateTimeOffset? savedAt)
@@ -508,6 +539,7 @@ public sealed class DashboardViewModel : ViewModelBase
                      nameof(TripDetailText), nameof(TripNotesText), nameof(TripFinancialSummary), nameof(TripEarningsSummary), nameof(EuStaySummary), nameof(EuStayDetailText), nameof(CostLedgerSummary), nameof(HasDriverTrips), nameof(VehicleRepairsSummary), nameof(PortalUpdatedText), nameof(HasNextStop), nameof(NextStopTitle),
                      nameof(NextStopDetail), nameof(NextStopActionText), nameof(CanNavigateToNextStop),
                      nameof(HasPendingRoute), nameof(PendingRouteText), nameof(HasDispatchPhone), nameof(GpsStatusText),
+                     nameof(TruckProfileText), nameof(TruckProfileBadge),
                   })
         {
             RaisePropertyChanged(name);

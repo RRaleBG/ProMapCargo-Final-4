@@ -27,8 +27,8 @@ public sealed class OsrmRoutingService(HttpClient http, IConfiguration config) :
         }
 
         var target = request.Target;
-        var startLon = request.Start.Lon.ToString(CultureInfo.InvariantCulture);
-        var startLat = request.Start.Lat.ToString(CultureInfo.InvariantCulture);
+        var startLon = request.ResolvedStart.Lon.ToString(CultureInfo.InvariantCulture);
+        var startLat = request.ResolvedStart.Lat.ToString(CultureInfo.InvariantCulture);
         var endLon = target.Lon.ToString(CultureInfo.InvariantCulture);
         var endLat = target.Lat.ToString(CultureInfo.InvariantCulture);
         var coordinates = $"{startLon},{startLat};{endLon},{endLat}";

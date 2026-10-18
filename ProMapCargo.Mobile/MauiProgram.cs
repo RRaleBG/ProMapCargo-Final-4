@@ -80,6 +80,13 @@ public static class MauiProgram
         builder.Services.AddSingleton<DriverPortalStore>();
         builder.Services.AddSingleton<GpsTracker>();
         builder.Services.AddSingleton<GpsTelemetryUploader>();
+        builder.Services.AddSingleton<StopArrivalMonitor>();
+        builder.Services.AddSingleton<ExpenseQueue>();
+        builder.Services.AddSingleton<TruckProfileProvider>();
+        builder.Services.AddSingleton<DriverDataCache>();
+        builder.Services.AddSingleton<ErrorReporter>();
+        builder.Services.AddSingleton<DocumentReminders>();
+        builder.Services.AddSingleton<ChatClient>();
 
 #if ANDROID
         // Navigation WebView requests go through the offline cache (map from the
@@ -102,12 +109,20 @@ public static class MauiProgram
         builder.Services.AddTransient<MapInstallViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
         builder.Services.AddTransient<TripDetailsViewModel>();
+        builder.Services.AddTransient<ExpenseViewModel>();
+        builder.Services.AddTransient<ExpensesViewModel>();
+        builder.Services.AddTransient<MessagesViewModel>();
+        builder.Services.AddTransient<ProfileViewModel>();
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<DashboardPage>();
         builder.Services.AddTransient<MapInstallPage>();
         builder.Services.AddTransient<MobileNavigationPage>();
         builder.Services.AddTransient<SettingsPage>();
         builder.Services.AddTransient<TripDetailsPage>();
+        builder.Services.AddTransient<ExpensePage>();
+        builder.Services.AddTransient<ExpensesPage>();
+        builder.Services.AddTransient<MessagesPage>();
+        builder.Services.AddTransient<ProfilePage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

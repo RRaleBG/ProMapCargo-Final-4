@@ -558,7 +558,8 @@ public sealed class RoutingController(
         RouteResponse? postGisResult,
         string reason)
     {
-        var start = request.Start;
+        // Start may come as Start or as StartLat/StartLon (ResolvedStart covers both).
+        var start = request.ResolvedStart;
         var target = request.Target;
 
         var distanceMeters = EstimateHaversineMeters(start.Lat, start.Lon, target.Lat, target.Lon);

@@ -52,7 +52,8 @@ public sealed record RouteRequest(
     [property: JsonPropertyName("start")] GeoPoint Start,
     [property: JsonPropertyName("destination")] GeoPoint Destination,
     [property: JsonPropertyName("profile")] string Profile = "truck",
-    [property: JsonPropertyName("avoidRestricted")] bool AvoidRestricted = true);
+    [property: JsonPropertyName("avoidRestricted")] bool AvoidRestricted = true,
+    [property: JsonPropertyName("truck")] ProMapCargo.Mobile.Services.TruckProfileRequest? Truck = null);
 
 public sealed record RouteResponse(
     [property: JsonPropertyName("code")] string Code,

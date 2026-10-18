@@ -23,6 +23,13 @@ public sealed class ApiClient(HttpClient httpClient, MobileServerEndpointService
     public async Task<DashboardSummary?> GetDashboardAsync(CancellationToken cancellationToken)
         => await GetAsync<DashboardSummary>("api/business/dashboard", cancellationToken).ConfigureAwait(false);
 
+    /// <summary>
+    /// Number of items a list endpoint returns. /api/business/* sends the stored entities
+    /// (enums as numbers), which the typed list models do not read; a count needs no model.
+    /// </summary>
+    public async Task<int> CountAsync(string uri, CancellationToken cancellationToken)
+        => (await GetAsync<List<JsonElement>>(uri, cancellationToken).ConfigureAwait(false))?.Count ?? 0;
+
     public async Task<IReadOnlyList<VehicleItem>> GetVehiclesAsync(CancellationToken cancellationToken)
         => await GetAsync<List<VehicleItem>>("api/business/vehicles", cancellationToken).ConfigureAwait(false)
            ?? [];
@@ -91,6 +98,25 @@ public sealed class ApiClient(HttpClient httpClient, MobileServerEndpointService
     public async Task<DriverPortal?> GetDriverPortalAsync(CancellationToken cancellationToken)
         => await GetAsync<DriverPortal>("api/driver/portal", cancellationToken).ConfigureAwait(false);
 
+    /// <summary>
+    /// A stored file (receipt) with the driver's token: the system browser has no token and
+    /// gets 401, so the app downloads it and opens the local copy.
+    /// </summary>
+    public async Task<(byte[] Bytes, string ContentType, string? FileName)> DownloadFileAsync(Guid fileId, CancellationToken cancellationToken)
+        => await ExecuteWithRetryAsync(async token =>
+        {
+            using var response = await httpClient.GetAsync(serverEndpointService.CreateUri($"api/files/{fileId}"), token).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw CreateHttpRequestException(response.StatusCode, await response.Content.ReadAsStringAsync(token).ConfigureAwait(false));
+            }
+
+            var bytes = await response.Content.ReadAsByteArrayAsync(token).ConfigureAwait(false);
+            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
+            var fileName = response.Content.Headers.ContentDisposition?.FileNameStar ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"');
+            return (bytes, contentType, fileName);
+        }, cancellationToken, TimeSpan.FromSeconds(60)).ConfigureAwait(false);
+
     public async Task AddTripCostAsync(DriverExpenseDraft draft, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(draft);
@@ -111,6 +137,7 @@ public sealed class ApiClient(HttpClient httpClient, MobileServerEndpointService
             if (draft.OdometerKm is { } odometerKm) content.Add(new StringContent(odometerKm.ToString(System.Globalization.CultureInfo.InvariantCulture)), "OdometerKm");
             if (draft.VehicleId is { } vehicleId) content.Add(new StringContent(vehicleId.ToString()), "VehicleId");
             if (!string.IsNullOrWhiteSpace(draft.Notes)) content.Add(new StringContent(draft.Notes), "Notes");
+            content.Add(new StringContent(draft.Currency), "Currency");
             if (draft.ReceiptBytes is { Length: > 0 } receiptBytes)
             {
                 var receiptContent = new ByteArrayContent(receiptBytes);
@@ -131,6 +158,29 @@ public sealed class ApiClient(HttpClient httpClient, MobileServerEndpointService
             return true;
         }, cancellationToken, maxAttempts: 1).ConfigureAwait(false);
     }
+
+    // ---- Chat with dispatch (ChatController) ----
+
+    public async Task<ChatConversation?> GetChatAsync(CancellationToken cancellationToken)
+        => await GetAsync<ChatConversation>("api/chat/me", cancellationToken).ConfigureAwait(false);
+
+    public async Task<ChatMessage?> SendChatAsync(string text, CancellationToken cancellationToken)
+        => await PostAsync<object, ChatMessage>("api/chat/me", new { text }, cancellationToken, requireBody: false, maxAttempts: 1).ConfigureAwait(false);
+
+    public Task MarkChatReadAsync(CancellationToken cancellationToken)
+        => SendDriverActionAsync("api/chat/me/read", null, cancellationToken);
+
+    /// <summary>Errors of this phone for the administrator (MobileErrorsController).</summary>
+    public Task SendErrorReportsAsync(IReadOnlyList<ErrorReport> reports, CancellationToken cancellationToken)
+        => SendDriverActionAsync("api/mobile/errors", reports, cancellationToken);
+
+    /// <summary>The driver's messages (alerts, routes from dispatch, own incidents), newest first.</summary>
+    public async Task<IReadOnlyList<DriverMessage>> GetDriverMessagesAsync(CancellationToken cancellationToken)
+        => await GetAsync<List<DriverMessage>>("api/driver/messages", cancellationToken).ConfigureAwait(false) ?? [];
+
+    /// <summary>The driver's record: documents with expiry dates, vehicle, trips done.</summary>
+    public async Task<DriverProfile?> GetDriverProfileAsync(CancellationToken cancellationToken)
+        => await GetAsync<DriverProfile>("api/driver/profile", cancellationToken).ConfigureAwait(false);
 
     public Task ArriveAtStopAsync(Guid stopId, CancellationToken cancellationToken)
         => SendDriverActionAsync($"api/driver/stops/{stopId}/arrive", null, cancellationToken);

@@ -1,5 +1,18 @@
 @page "/Account/Admin/Index"
 @model ProMapCargo.Api.Pages.Account.Admin.IndexModel
+@functions {
+    // Role names are stored in English (Identity); the screen shows them in Serbian.
+    private static string RoleLabel(string? role) => role switch
+    {
+        "Administrator" => "Administrator",
+        "Dispatcher" => "Dispečer",
+        "Driver" => "Vozač",
+        "Moderator" => "Moderator",
+        "Manager" => "Menadžer",
+        "Accountant" => "Knjigovođa",
+        _ => role ?? string.Empty,
+    };
+}
 @{
     ViewData["Title"] = "Account Admin · ProMap Cargo";
 }
@@ -98,7 +111,7 @@
                         {
                             <label class="pm-account-admin-check">
                                 <input type="checkbox" name="CreateUser.RoleNames" value="@role.Name" />
-                                <span>@role.Name</span>
+                                <span>@RoleLabel(role.Name)</span>
                             </label>
                         }
                     </div>
@@ -119,7 +132,7 @@
                     <option value="all" selected="@(Model.Role == "all")">Sve role</option>
                     @foreach (var role in Model.AvailableRoles)
                     {
-                        <option value="@role.Name" selected="@(string.Equals(Model.Role, role.Name, StringComparison.OrdinalIgnoreCase))">@role.Name</option>
+                        <option value="@role.Name" selected="@(string.Equals(Model.Role, role.Name, StringComparison.OrdinalIgnoreCase))">@RoleLabel(role.Name)</option>
                     }
                 </select>
                 <select name="PageSize" class="pm-select">
@@ -172,7 +185,7 @@
                                         {
                                             @foreach (var role in user.Roles)
                                             {
-                                                <span class="pm-badge">@role</span>
+                                                <span class="pm-badge">@RoleLabel(role)</span>
                                             }
                                         }
                                     </div>
@@ -235,7 +248,7 @@
                                                         <input type="hidden" name="roleName" value="@role.Name" />
                                                         <input type="hidden" name="assign" value="@(!assigned)" />
                                                         <button class="pm-btn pm-btn-sm @(assigned ? "pm-btn-secondary" : "pm-btn-ghost")" type="submit">
-                                                            @(assigned ? "Ukloni" : "Dodaj") @role.Name
+                                                            @(assigned ? "Ukloni" : "Dodaj") @RoleLabel(role.Name)
                                                         </button>
                                                     </form>
                                                 }
@@ -265,7 +278,7 @@
                                                             var checkedRole = user.Roles.Contains(role.Name, StringComparer.OrdinalIgnoreCase);
                                                             <label class="pm-account-admin-check">
                                                                 <input type="checkbox" name="EditUser.RoleNames" value="@role.Name" checked="@checkedRole" />
-                                                                <span>@role.Name</span>
+                                                                <span>@RoleLabel(role.Name)</span>
                                                             </label>
                                                         }
                                                     </div>

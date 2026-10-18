@@ -16,7 +16,6 @@
     const SOURCE = "promap-truck-bans";
     const FILL = "promap-truck-bans-fill";
     const LINE = "promap-truck-bans-line";
-    const LINE_REGIONAL = "promap-truck-bans-line-regional";
     const RED = "#7f1d1d";
     const RED_LINE = "#dc2626";
 
@@ -103,27 +102,19 @@
         if (map.getSource(SOURCE)) return;
         map.addSource(SOURCE, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
         const before = firstOverlayLayerId(map);
+        // Every country with a ban in force: only a red dashed border, the map stays readable.
+        // The fill is invisible but still catches the tap that opens the ban details.
         map.addLayer({
             id: FILL,
             type: "fill",
             source: SOURCE,
-            paint: { "fill-color": RED, "fill-opacity": ["case", ["get", "nationwide"], 0.45, 0.18] },
+            paint: { "fill-color": RED, "fill-opacity": 0 },
         }, before);
-        // line-dasharray cannot depend on feature data, so the solid border (nationwide ban)
-        // and the dashed one (some roads only) are two layers split by a filter.
         map.addLayer({
             id: LINE,
             type: "line",
             source: SOURCE,
-            filter: ["==", ["get", "nationwide"], true],
-            paint: { "line-color": RED_LINE, "line-width": 1.6 },
-        }, before);
-        map.addLayer({
-            id: LINE_REGIONAL,
-            type: "line",
-            source: SOURCE,
-            filter: ["!=", ["get", "nationwide"], true],
-            paint: { "line-color": RED_LINE, "line-width": 1.6, "line-dasharray": [3, 2] },
+            paint: { "line-color": RED_LINE, "line-width": 2.2, "line-dasharray": [3, 2] },
         }, before);
 
         map.on("click", FILL, (event) => {

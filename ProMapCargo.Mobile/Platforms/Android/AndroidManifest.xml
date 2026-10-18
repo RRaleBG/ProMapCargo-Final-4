@@ -15,11 +15,19 @@
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 	<!-- Android 13+: the notification of the tracking service. -->
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+	<!-- Short vibration when the arrival at a stop is recorded automatically. -->
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<!-- Photo of a receipt for an expense. -->
+	<uses-permission android:name="android.permission.CAMERA" />
 	<!-- "Pozovi dispečera" opens the dialer. -->
 	<queries>
 		<intent>
 			<action android:name="android.intent.action.DIAL" />
 			<data android:scheme="tel" />
+		</intent>
+		<!-- MediaPicker.CapturePhotoAsync: the camera app (Android 11+ package visibility). -->
+		<intent>
+			<action android:name="android.media.action.IMAGE_CAPTURE" />
 		</intent>
 	</queries>
 </manifest>

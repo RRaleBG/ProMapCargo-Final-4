@@ -195,6 +195,17 @@
                             StrokeThickness="2"
                             VerticalOptions="End"
                             WidthRequest="68">
+                            <!--  Red above the truck's maximum speed (fleet record)  -->
+                            <Border.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding IsOverSpeedLimit}"
+                                    TargetType="Border"
+                                    Value="True">
+                                    <Setter Property="Stroke" Value="{StaticResource StatusDanger}" />
+                                    <Setter Property="BackgroundColor" Value="#E6450A0A" />
+                                    <Setter Property="StrokeThickness" Value="3" />
+                                </DataTrigger>
+                            </Border.Triggers>
                             <VerticalStackLayout
                                 HorizontalOptions="Center"
                                 Spacing="0"
@@ -205,7 +216,16 @@
                                     HorizontalTextAlignment="Center"
                                     LineHeight="1"
                                     Text="{Binding CurrentSpeedText}"
-                                    TextColor="{StaticResource TextPrimary}" />
+                                    TextColor="{StaticResource TextPrimary}">
+                                    <Label.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsOverSpeedLimit}"
+                                            TargetType="Label"
+                                            Value="True">
+                                            <Setter Property="TextColor" Value="{StaticResource StatusDanger}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
                                 <Label
                                     FontSize="10"
                                     HorizontalTextAlignment="Center"
@@ -231,9 +251,9 @@
                             Style="{StaticResource PmMapRailButton}" />
                         <ImageButton
                             x:Name="VoicePromptButton"
-                            Command="{Binding SpeakNextPromptCommand}"
-                            SemanticProperties.Description="Glasovno uputstvo"
-                            Source="nav_voice.svg"
+                            Command="{Binding ToggleVoiceCommand}"
+                            SemanticProperties.Description="{Binding VoiceButtonText}"
+                            Source="{Binding VoiceButtonIcon}"
                             Style="{StaticResource PmMapRailButton}" />
                         <ImageButton
                             Command="{Binding ToggleRouteInputCommand}"

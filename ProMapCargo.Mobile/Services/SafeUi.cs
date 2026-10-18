@@ -18,6 +18,7 @@ public static class SafeUi
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"{caller} failed: {ex}");
+            ErrorReporter.Current?.Report(ex, caller);
             try
             {
                 if (Shell.Current is { } shell)

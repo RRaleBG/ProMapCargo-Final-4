@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Novi trošak: one form (category chips, amount + currency, litres for fuel, payment,
+  odometer, place, note, receipt) with the send button always at the bottom.
+-->
+<ContentPage
+    x:Class="ProMapCargo.Mobile.Views.ExpensePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ProMapCargo.Mobile.ViewModels"
+    x:DataType="vm:ExpenseViewModel"
+    Title="Novi trošak"
+    BackgroundColor="{StaticResource SurfaceBase}"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView>
+            <VerticalStackLayout
+                Padding="20,24,20,24"
+                MaximumWidthRequest="720"
+                Spacing="18">
+
+                <!--  Header  -->
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                    <ImageButton
+                        BackgroundColor="{StaticResource SurfaceOverlay}"
+                        Clicked="OnBackClicked"
+                        SemanticProperties.Description="Nazad"
+                        Source="ic_back.svg"
+                        Style="{StaticResource PmMapFloatingButton}" />
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="0"
+                        VerticalOptions="Center">
+                        <Label Style="{StaticResource PmPageTitleLabel}" Text="Novi trošak" />
+                        <Label Style="{StaticResource PmRowDetailLabel}" Text="{Binding TripText}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Border IsVisible="{Binding HasPending}" Style="{StaticResource PmOfflineBanner}">
+                    <Label
+                        FontSize="13"
+                        Text="{Binding PendingText}"
+                        TextColor="{StaticResource StatusWarning}" />
+                </Border>
+
+                <!--  Category  -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource PmSectionCaption}" Text="Vrsta troška" />
+                    <FlexLayout
+                        AlignContent="Start"
+                        BindableLayout.ItemsSource="{Binding Categories}"
+                        Direction="Row"
+                        Wrap="Wrap">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ExpenseCategoryOption">
+                                <Button
+                                    Margin="0,0,8,8"
+                                    Clicked="OnCategoryClicked"
+                                    Style="{StaticResource PmChipButton}"
+                                    Text="{Binding Title}">
+                                    <Button.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Button"
+                                            Value="True">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource Brand}" />
+                                            <Setter Property="TextColor" Value="{StaticResource BrandOn}" />
+                                            <Setter Property="BorderColor" Value="{StaticResource Brand}" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                </VerticalStackLayout>
+
+                <!--  Amount  -->
+                <Border Style="{StaticResource PmCardBorder}">
+                    <VerticalStackLayout Spacing="14">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="Iznos" />
+                            <Grid ColumnDefinitions="*,110" ColumnSpacing="10">
+                                <Border Style="{StaticResource PmFieldBorder}">
+                                    <Entry
+                                        FontSize="20"
+                                        Keyboard="Numeric"
+                                        Placeholder="0,00"
+                                        SemanticProperties.Description="Iznos"
+                                        Style="{StaticResource PmEntry}"
+                                        Text="{Binding AmountText}" />
+                                </Border>
+                                <Border Grid.Column="1" Style="{StaticResource PmFieldBorder}">
+                                    <Picker
+                                        Title="Valuta"
+                                        FontFamily="OpenSansSemibold"
+                                        ItemsSource="{Binding CurrencyOptions}"
+                                        SelectedItem="{Binding Currency}"
+                                        TextColor="{StaticResource TextPrimary}"
+                                        TitleColor="{StaticResource TextTertiary}" />
+                                </Border>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout IsVisible="{Binding ShowLitres}" Spacing="6">
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="Količina (litara)" />
+                            <Border Style="{StaticResource PmFieldBorder}">
+                                <Entry
+                                    Keyboard="Numeric"
+                                    Placeholder="npr. 420"
+                                    SemanticProperties.Description="Količina u litrima"
+                                    Style="{StaticResource PmEntry}"
+                                    Text="{Binding LitresText}" />
+                            </Border>
+                            <Label
+                                IsVisible="{Binding UnitPriceText, Converter={StaticResource StringNotEmptyConverter}}"
+                                Style="{StaticResource PmAccentLabel}"
+                                Text="{Binding UnitPriceText}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="Plaćanje" />
+                            <Border Style="{StaticResource PmFieldBorder}">
+                                <Picker
+                                    Title="Način plaćanja"
+                                    ItemsSource="{Binding PaymentOptions}"
+                                    SelectedItem="{Binding PaymentMethod}"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    TitleColor="{StaticResource TextTertiary}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout IsVisible="{Binding ShowCardLabel}" Spacing="6">
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="Kartica" />
+                            <Border Style="{StaticResource PmFieldBorder}">
+                                <Entry
+                                    Placeholder="Naziv ili poslednje 4 cifre"
+                                    SemanticProperties.Description="Kartica"
+                                    Style="{StaticResource PmEntry}"
+                                    Text="{Binding CardLabel}" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Where and when  -->
+                <Border Style="{StaticResource PmCardBorder}">
+                    <VerticalStackLayout Spacing="14">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="Mesto" />
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <Border Style="{StaticResource PmFieldBorder}">
+                                    <Entry
+                                        Placeholder="npr. OMV Horgoš"
+                                        SemanticProperties.Description="Mesto troška"
+                                        Style="{StaticResource PmEntry}"
+                                        Text="{Binding Location}" />
+                                </Border>
+                                <Button
+                                    Grid.Column="1"
+                                    Command="{Binding UseMyLocationCommand}"
+                                    Style="{StaticResource PmCardActionButton}"
+                                    Text="GPS" />
+                            </Grid>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="Kilometraža (nije obavezno)" />
+                            <Border Style="{StaticResource PmFieldBorder}">
+                                <Entry
+                                    Keyboard="Numeric"
+                                    Placeholder="km na satu"
+                                    SemanticProperties.Description="Kilometraža"
+                                    Style="{StaticResource PmEntry}"
+                                    Text="{Binding OdometerText}" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Style="{StaticResource PmCaptionLabel}" Text="Napomena" />
+                            <Border Padding="14,6" Style="{StaticResource PmFieldBorder}">
+                                <Editor
+                                    AutoSize="TextChanges"
+                                    BackgroundColor="Transparent"
+                                    FontSize="15"
+                                    MinimumHeightRequest="72"
+                                    Placeholder="Šta treba da zna dispečer"
+                                    PlaceholderColor="{StaticResource TextTertiary}"
+                                    SemanticProperties.Description="Napomena"
+                                    Text="{Binding Notes}"
+                                    TextColor="{StaticResource TextPrimary}" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Receipt  -->
+                <Border Style="{StaticResource PmCardBorder}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource PmCaptionLabel}" Text="Račun" />
+                        <Grid
+                            ColumnDefinitions="*,*,*"
+                            ColumnSpacing="8"
+                            IsVisible="{Binding HasNoReceipt}">
+                            <Button
+                                Clicked="OnCameraClicked"
+                                Style="{StaticResource PmCardActionButton}"
+                                Text="Kamera" />
+                            <Button
+                                Grid.Column="1"
+                                Clicked="OnGalleryClicked"
+                                Style="{StaticResource PmCardActionButton}"
+                                Text="Galerija" />
+                            <Button
+                                Grid.Column="2"
+                                Clicked="OnPdfClicked"
+                                Style="{StaticResource PmCardActionButton}"
+                                Text="PDF" />
+                        </Grid>
+                        <Image
+                            Aspect="AspectFill"
+                            HeightRequest="180"
+                            IsVisible="{Binding HasReceiptPreview}"
+                            SemanticProperties.Description="Fotografija računa"
+                            Source="{Binding ReceiptPreview}" />
+                        <Grid
+                            ColumnDefinitions="*,Auto"
+                            ColumnSpacing="8"
+                            IsVisible="{Binding HasReceipt}">
+                            <Label
+                                LineBreakMode="MiddleTruncation"
+                                Style="{StaticResource PmRowDetailLabel}"
+                                Text="{Binding ReceiptText}"
+                                VerticalOptions="Center" />
+                            <Button
+                                Grid.Column="1"
+                                Command="{Binding RemoveReceiptCommand}"
+                                Style="{StaticResource PmGhostButton}"
+                                Text="Ukloni" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!--  Send: always visible  -->
+        <Border
+            Grid.Row="1"
+            Padding="16,12,16,16"
+            BackgroundColor="{StaticResource SurfaceElevated}"
+            Stroke="{StaticResource StrokeSubtle}"
+            StrokeShape="RoundRectangle 24,24,0,0"
+            StrokeThickness="1">
+            <VerticalStackLayout Spacing="10">
+                <Border
+                    Padding="12,10"
+                    IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                    Style="{StaticResource PmChipDanger}"
+                    HorizontalOptions="Fill">
+                    <Label Style="{StaticResource PmErrorLabel}" Text="{Binding ErrorMessage}" />
+                </Border>
+                <Button
+                    Command="{Binding SubmitCommand}"
+                    Style="{StaticResource PmPrimaryButton}"
+                    Text="{Binding SubmitText}" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

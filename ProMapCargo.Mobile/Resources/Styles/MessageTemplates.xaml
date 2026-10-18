@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Templates of the "Poruke" list (MessagesPage): own chat bubble, dispatch bubble and an
+  alert card, picked by MessageTemplateSelector. Merged in App.xaml like the other styles.
+-->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:ProMapCargo.Mobile.Views"
+    xmlns:vm="clr-namespace:ProMapCargo.Mobile.ViewModels">
+    <DataTemplate x:Key="MineTemplate" x:DataType="vm:MessageItem">
+        <Grid Padding="56,4,0,4">
+            <Border
+                Padding="14,10"
+                BackgroundColor="{StaticResource BrandSoft}"
+                HorizontalOptions="End"
+                StrokeShape="RoundRectangle 16,4,16,16"
+                StrokeThickness="0">
+                <VerticalStackLayout Spacing="3">
+                    <Label
+                        FontSize="15"
+                        LineBreakMode="WordWrap"
+                        Text="{Binding Text}"
+                        TextColor="{StaticResource TextPrimary}" />
+                    <Label
+                        FontSize="12"
+                        HorizontalTextAlignment="End"
+                        Text="{Binding Meta}"
+                        TextColor="{StaticResource TextSecondary}" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="DispatchTemplate" x:DataType="vm:MessageItem">
+        <Grid Padding="0,4,56,4">
+            <Border
+                Padding="14,10"
+                BackgroundColor="{StaticResource SurfaceOverlay}"
+                HorizontalOptions="Start"
+                Stroke="{StaticResource StrokeSubtle}"
+                StrokeShape="RoundRectangle 4,16,16,16"
+                StrokeThickness="1">
+                <VerticalStackLayout Spacing="3">
+                    <Label
+                        FontFamily="OpenSansSemibold"
+                        FontSize="12"
+                        Text="{Binding Title}"
+                        TextColor="{StaticResource TextAccent}" />
+                    <Label
+                        FontSize="15"
+                        LineBreakMode="WordWrap"
+                        Text="{Binding Text}"
+                        TextColor="{StaticResource TextPrimary}" />
+                    <Label
+                        FontSize="12"
+                        Text="{Binding Meta}"
+                        TextColor="{StaticResource TextTertiary}" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="AlertTemplate" x:DataType="vm:MessageItem">
+        <Grid Padding="0,6">
+            <Border Padding="14,12" Style="{StaticResource PmCardBorder}">
+                <Border.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsCritical}"
+                        TargetType="Border"
+                        Value="True">
+                        <Setter Property="Stroke" Value="{StaticResource StatusDanger}" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Grid ColumnDefinitions="40,*" ColumnSpacing="12">
+                    <Border Style="{StaticResource PmRowIcon}" VerticalOptions="Start">
+                        <Border.Triggers>
+                            <DataTrigger
+                                Binding="{Binding IsWarning}"
+                                TargetType="Border"
+                                Value="True">
+                                <Setter Property="BackgroundColor" Value="{StaticResource StatusWarningBg}" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding IsCritical}"
+                                TargetType="Border"
+                                Value="True">
+                                <Setter Property="BackgroundColor" Value="{StaticResource StatusDangerBg}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Image HeightRequest="20" Source="{Binding Icon}" WidthRequest="20" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="3">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Label Style="{StaticResource PmRowTitleLabel}" Text="{Binding Title}" />
+                            <Ellipse
+                                Grid.Column="1"
+                                Fill="{StaticResource Secondary}"
+                                HeightRequest="8"
+                                IsVisible="{Binding IsOpen}"
+                                VerticalOptions="Center"
+                                WidthRequest="8" />
+                        </Grid>
+                        <Label
+                            FontSize="14"
+                            LineBreakMode="WordWrap"
+                            Text="{Binding Text}"
+                            TextColor="{StaticResource TextPrimary}" />
+                        <Label
+                            FontSize="12"
+                            Text="{Binding Meta}"
+                            TextColor="{StaticResource TextTertiary}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+        </Grid>
+    </DataTemplate>
+
+    <views:MessageTemplateSelector
+        x:Key="MessageTemplates"
+        Alert="{StaticResource AlertTemplate}"
+        Dispatch="{StaticResource DispatchTemplate}"
+        Mine="{StaticResource MineTemplate}" />
+</ResourceDictionary>

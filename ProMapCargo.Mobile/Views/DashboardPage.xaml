@@ -542,14 +542,7 @@
                                         ColumnSpacing="12">
                                         <Border Style="{StaticResource PmTileIcon}" VerticalOptions="Center">
                                             <!--  Destination pin  -->
-                                            <Path
-                                                Aspect="Uniform"
-                                                Data="F0 M12 2 C8.1 2 5 5.1 5 9 C5 14.2 12 22 12 22 C12 22 19 14.2 19 9 C19 5.1 15.9 2 12 2 Z M12 6.5 A2.5 2.5 0 1 1 12 11.5 A2.5 2.5 0 1 1 12 6.5 Z"
-                                                Fill="{StaticResource Brand}"
-                                                HeightRequest="18"
-                                                HorizontalOptions="Center"
-                                                VerticalOptions="Center"
-                                                WidthRequest="18" />
+                                            <Image HeightRequest="18" HorizontalOptions="Center" Source="ic_pin.svg" VerticalOptions="Center" WidthRequest="18" />
                                         </Border>
                                         <VerticalStackLayout
                                             Grid.Column="1"
@@ -575,17 +568,7 @@
                 <Border Padding="14,12" Style="{StaticResource PmCardBorder}">
                     <Grid ColumnDefinitions="40,*,Auto" ColumnSpacing="12">
                         <Border Style="{StaticResource PmRowIcon}">
-                            <Path
-                                Aspect="Uniform"
-                                Data="M3 6 H14 V16 H3 Z M14 10 H18 L21 13 V16 H14 M5 18 A2 2 0 1 0 9 18 A2 2 0 1 0 5 18 Z M16 18 A2 2 0 1 0 20 18 A2 2 0 1 0 16 18 Z"
-                                HeightRequest="20"
-                                HorizontalOptions="Center"
-                                Stroke="{StaticResource Brand}"
-                                StrokeLineCap="Round"
-                                StrokeLineJoin="Round"
-                                StrokeThickness="1.8"
-                                VerticalOptions="Center"
-                                WidthRequest="24" />
+                            <Image HeightRequest="22" HorizontalOptions="Center" Source="ic_truck.svg" VerticalOptions="Center" WidthRequest="22" />
                         </Border>
                         <VerticalStackLayout
                             Grid.Column="1"
@@ -599,7 +582,7 @@
                             Padding="8,3"
                             Style="{StaticResource PmChipInfo}"
                             VerticalOptions="Center">
-                            <Label Style="{StaticResource PmChipInfoLabel}" Text="Podrazumevani" />
+                            <Label Style="{StaticResource PmChipInfoLabel}" Text="{Binding TruckProfileBadge}" />
                         </Border>
                     </Grid>
                 </Border>
@@ -609,23 +592,7 @@
                     <Grid ColumnDefinitions="40,*,Auto" ColumnSpacing="12">
                         <Border Style="{StaticResource PmRowIcon}">
                             <!--  Stop sign  -->
-                            <Path
-                                Aspect="Uniform"
-                                Data="M8 2 L16 2 L22 8 L22 16 L16 22 L8 22 L2 16 L2 8 Z M6 11 L18 11 L18 13 L6 13 Z"
-                                Fill="{StaticResource TextSecondary}"
-                                HeightRequest="22"
-                                HorizontalOptions="Center"
-                                VerticalOptions="Center"
-                                WidthRequest="22">
-                                <Path.Triggers>
-                                    <DataTrigger
-                                        Binding="{Binding TruckBanActiveNow}"
-                                        TargetType="Path"
-                                        Value="True">
-                                        <Setter Property="Fill" Value="{StaticResource StatusDanger}" />
-                                    </DataTrigger>
-                                </Path.Triggers>
-                            </Path>
+                            <Image HeightRequest="22" HorizontalOptions="Center" Source="ic_ban.svg" VerticalOptions="Center" WidthRequest="22" />
                         </Border>
                         <VerticalStackLayout
                             Grid.Column="1"
@@ -655,6 +622,29 @@
                             Margin="-14,-12"
                             Clicked="OnTruckBansClicked"
                             SemanticProperties.Description="Zabrane vožnje kamiona"
+                            Style="{StaticResource PmTapTarget}" />
+                    </Grid>
+                </Border>
+
+                <!--  Troškovi: list, scan a receipt, new expense  -->
+                <Border Padding="14,12" Style="{StaticResource PmCardBorder}">
+                    <Grid ColumnDefinitions="40,*,Auto" ColumnSpacing="12">
+                        <Border Style="{StaticResource PmRowIcon}">
+                            <Image HeightRequest="22" Source="ic_receipt.svg" WidthRequest="22" />
+                        </Border>
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            Spacing="0"
+                            VerticalOptions="Center">
+                            <Label Style="{StaticResource PmRowTitleLabel}" Text="Troškovi" />
+                            <Label Style="{StaticResource PmRowDetailLabel}" Text="Gorivo, putarine, računi · slikajte račun" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Style="{StaticResource PmChevronLabel}" />
+                        <Button
+                            Grid.ColumnSpan="3"
+                            Margin="-14,-12"
+                            Clicked="OnExpensesClicked"
+                            SemanticProperties.Description="Troškovi"
                             Style="{StaticResource PmTapTarget}" />
                     </Grid>
                 </Border>
@@ -696,7 +686,7 @@
                     <Border Grid.Row="1" Style="{StaticResource PmTile}">
                         <Grid RowDefinitions="*,Auto">
                             <Border Style="{StaticResource PmTileIcon}">
-                                <Image HeightRequest="18" Source="ic_tab_operations.svg" WidthRequest="18" />
+                                <Image HeightRequest="18" Source="ic_phone.svg" WidthRequest="18" />
                             </Border>
                             <Label Grid.Row="1" Style="{StaticResource PmTileLabel}" Text="Pozovi dispečera" />
                             <Button

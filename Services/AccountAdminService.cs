@@ -62,7 +62,8 @@ public sealed class AccountAdminService(
             PageSize = query.PageSize is < 5 or > 100 ? 20 : query.PageSize
         };
 
-        var users = await userManager.Users
+        // Only the signed-in administrator's company: users of other firms are not listed.
+        var users = await CompanyUsers()
             .OrderBy(x => x.Email)
             .AsNoTracking()
             .ToListAsync(cancellationToken)
@@ -239,7 +240,7 @@ public sealed class AccountAdminService(
 
     public async Task<AccountAdminOperationResult> ToggleActiveAsync(Guid targetUserId, CancellationToken cancellationToken)
     {
-        var user = await userManager.Users.SingleOrDefaultAsync(x => x.Id == targetUserId, cancellationToken).ConfigureAwait(false);
+        var user = await CompanyUsers().SingleOrDefaultAsync(x => x.Id == targetUserId, cancellationToken).ConfigureAwait(false);
         if (user is null)
         {
             return AccountAdminOperationResult.Fail("Korisnik nije pronađen.");
@@ -263,7 +264,7 @@ public sealed class AccountAdminService(
 
     public async Task<AccountAdminOperationResult> ToggleLockAsync(Guid targetUserId, CancellationToken cancellationToken)
     {
-        var user = await userManager.Users.SingleOrDefaultAsync(x => x.Id == targetUserId, cancellationToken).ConfigureAwait(false);
+        var user = await CompanyUsers().SingleOrDefaultAsync(x => x.Id == targetUserId, cancellationToken).ConfigureAwait(false);
         if (user is null)
         {
             return AccountAdminOperationResult.Fail("Korisnik nije pronađen.");
@@ -295,7 +296,7 @@ public sealed class AccountAdminService(
             return AccountAdminOperationResult.Fail("Rola nije validna.");
         }
 
-        var user = await userManager.Users.SingleOrDefaultAsync(x => x.Id == targetUserId, cancellationToken).ConfigureAwait(false);
+        var user = await CompanyUsers().SingleOrDefaultAsync(x => x.Id == targetUserId, cancellationToken).ConfigureAwait(false);
         if (user is null)
         {
             return AccountAdminOperationResult.Fail("Korisnik nije pronađen.");
@@ -304,6 +305,11 @@ public sealed class AccountAdminService(
         if (!await roleManager.RoleExistsAsync(roleName).ConfigureAwait(false))
         {
             return AccountAdminOperationResult.Fail("Rola ne postoji.");
+        }
+
+        if (RoleChangeProblem(assign ? [roleName] : [], assign ? [] : [roleName]) is { } roleProblem)
+        {
+            return AccountAdminOperationResult.Fail(roleProblem);
         }
 
         if (currentUser.UserId == user.Id && string.Equals(roleName, "Administrator", StringComparison.OrdinalIgnoreCase) && !assign)
@@ -336,6 +342,11 @@ public sealed class AccountAdminService(
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(displayName) || string.IsNullOrWhiteSpace(input.Password))
         {
             return AccountAdminOperationResult.Fail("Ime, email i lozinka su obavezni.");
+        }
+
+        if (RoleChangeProblem(NormalizeRoles(input.RoleNames), []) is { } roleProblem)
+        {
+            return AccountAdminOperationResult.Fail(roleProblem);
         }
 
         if (await userManager.FindByEmailAsync(email).ConfigureAwait(false) is not null)
@@ -401,6 +412,21 @@ public sealed class AccountAdminService(
             return AccountAdminOperationResult.Fail("Korisnik nije pronađen.");
         }
 
+        var currentRoles = await userManager.GetRolesAsync(user).ConfigureAwait(false);
+        var desiredRoles = NormalizeRoles(input.RoleNames);
+        if (RoleChangeProblem(
+                desiredRoles.Where(role => !currentRoles.Contains(role, StringComparer.OrdinalIgnoreCase)),
+                currentRoles.Where(role => !desiredRoles.Contains(role, StringComparer.OrdinalIgnoreCase))) is { } roleProblem)
+        {
+            return AccountAdminOperationResult.Fail(roleProblem);
+        }
+
+        if (currentUser.UserId == user.Id && currentRoles.Contains(AdministratorRole, StringComparer.OrdinalIgnoreCase) &&
+            !desiredRoles.Contains(AdministratorRole, StringComparer.OrdinalIgnoreCase))
+        {
+            return AccountAdminOperationResult.Fail("Ne možete ukloniti Administrator rolu sa sopstvenog naloga.");
+        }
+
         var email = input.Email?.Trim();
         var displayName = input.DisplayName?.Trim();
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(displayName))
@@ -455,6 +481,12 @@ public sealed class AccountAdminService(
         if (string.IsNullOrWhiteSpace(permission))
         {
             return AccountAdminOperationResult.Fail("Dozvola nije validna.");
+        }
+
+        // Roles and their permissions are shared by every company: only an Administrator changes them.
+        if (!currentUser.IsAdministrator)
+        {
+            return AccountAdminOperationResult.Fail("Dozvole rola menja samo Administrator.");
         }
 
         var role = await roleManager.Roles.SingleOrDefaultAsync(x => x.Id == roleId, cancellationToken).ConfigureAwait(false);
@@ -543,6 +575,37 @@ public sealed class AccountAdminService(
         targetDriver.Email = user.Email;
         targetDriver.Phone = string.IsNullOrWhiteSpace(user.PhoneNumber) ? targetDriver.Phone : user.PhoneNumber;
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Users of the signed-in administrator's company (none without a company).</summary>
+    private IQueryable<ApplicationUser> CompanyUsers()
+        => userManager.Users.Where(x => x.CompanyId != null && x.CompanyId == currentUser.CompanyId);
+
+    /// <summary>
+    /// Why the signed-in user may not make this role change, or null. Managing users
+    /// (users.manage) only covers the Driver role; other roles need roles.manage, and the
+    /// Administrator role only an Administrator can give or take.
+    /// </summary>
+    private string? RoleChangeProblem(IEnumerable<string> added, IEnumerable<string> removed)
+    {
+        var changed = added.Concat(removed).ToList();
+        if (changed.Count == 0 || currentUser.IsAdministrator)
+        {
+            return null;
+        }
+
+        if (changed.Contains(AdministratorRole, StringComparer.OrdinalIgnoreCase))
+        {
+            return "Administrator rolu dodeljuje i uklanja samo Administrator.";
+        }
+
+        if (!currentUser.HasPermission("roles.manage") &&
+            changed.Any(role => !string.Equals(role, DriverRole, StringComparison.OrdinalIgnoreCase)))
+        {
+            return "Za dodelu rola potrebna je dozvola roles.manage.";
+        }
+
+        return null;
     }
 
     private static IReadOnlyList<string> NormalizeRoles(IEnumerable<string>? roles)

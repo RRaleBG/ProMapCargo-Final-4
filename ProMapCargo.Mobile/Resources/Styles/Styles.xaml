@@ -786,6 +786,19 @@
         <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
     </Style>
 
+    <!--  Selectable chip (expense category); the page sets the selected colours  -->
+    <Style x:Key="PmChipButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceOverlay}" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="BorderColor" Value="{StaticResource StrokeSubtle}" />
+        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="CornerRadius" Value="22" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="Padding" Value="16,0" />
+    </Style>
+
     <Style x:Key="PmDangerButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{StaticResource StatusDangerBg}" />
         <Setter Property="TextColor" Value="{StaticResource StatusDanger}" />

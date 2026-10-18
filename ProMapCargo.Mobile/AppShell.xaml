@@ -19,6 +19,29 @@
             ContentTemplate="{DataTemplate views:MobileNavigationPage}"
             Icon="ic_tab_navigation.svg"
             Route="mobile-navigation" />
+
+        <!--
+            Android shows at most 5 tab icons (more go under "Više"); Offline mape and
+            Podešavanja open from Profil and the home screen tiles.
+            Route "trip": "trip-details" is the pushed details page (AppShell.xaml.cs).
+        -->
+        <ShellContent
+            Title="Tura"
+            ContentTemplate="{DataTemplate views:TripDetailsPage}"
+            Icon="ic_tab_trip.svg"
+            Route="trip" />
+
+        <ShellContent
+            Title="Poruke"
+            ContentTemplate="{DataTemplate views:MessagesPage}"
+            Icon="ic_tab_messages.svg"
+            Route="messages" />
+
+        <ShellContent
+            Title="Profil"
+            ContentTemplate="{DataTemplate views:ProfilePage}"
+            Icon="ic_tab_profile.svg"
+            Route="profile" />
     </TabBar>
 
     <ShellContent
