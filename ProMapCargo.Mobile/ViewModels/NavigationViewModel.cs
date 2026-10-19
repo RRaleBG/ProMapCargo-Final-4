@@ -538,6 +538,7 @@ public class NavigationViewModel : ViewModelBase
     {
         if (request.Destination is { } destination)
         {
+            savedRouteStore.Clear();
             suppressSearch = true;
             DestinationQuery = destination.Title;
             destinationLabel = destination.Title;

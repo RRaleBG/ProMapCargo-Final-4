@@ -41,6 +41,7 @@ public sealed class DashboardViewModel : ViewModelBase
     private readonly MobileSessionService sessionService;
     private readonly IMobileNotifier notifier;
     private readonly DriverPortalStore portalStore;
+    private readonly SavedRouteStore savedRouteStore;
     private readonly GpsTelemetryUploader telemetry;
     private readonly StopArrivalMonitor arrivalMonitor;
     private readonly TruckProfileProvider truckProfiles;
@@ -49,6 +50,7 @@ public sealed class DashboardViewModel : ViewModelBase
     private string? announcedBundleVersion;
 
     private CancellationTokenSource? loadCancellationTokenSource;
+    private readonly SemaphoreSlim loadGate = new(1, 1);
     private bool isBusy;
     private bool isActionRunning;
     private bool isOffline;
@@ -66,6 +68,7 @@ public sealed class DashboardViewModel : ViewModelBase
         OfflineWebCache offlineWebCache,
         OfflineRoutingBundleService offlineBundles,
         DriverPortalStore portalStore,
+        SavedRouteStore savedRouteStore,
         GpsTelemetryUploader telemetry,
         StopArrivalMonitor arrivalMonitor,
         TruckProfileProvider truckProfiles,
@@ -78,6 +81,7 @@ public sealed class DashboardViewModel : ViewModelBase
         this.sessionService = sessionService;
         this.notifier = notifier;
         this.portalStore = portalStore;
+        this.savedRouteStore = savedRouteStore;
         this.telemetry = telemetry;
         this.arrivalMonitor = arrivalMonitor;
         this.truckProfiles = truckProfiles;
@@ -385,64 +389,79 @@ public sealed class DashboardViewModel : ViewModelBase
 
         try
         {
-            await SetBusyAsync(true).ConfigureAwait(false);
-            var cancellationToken = loadCts.Token;
-            await sessionService.RestoreAsync(cancellationToken).ConfigureAwait(false);
-
-            // What is on the phone first: the saved trip and ban calendar (no signal needed).
-            await MainThread.InvokeOnMainThreadAsync(() =>
+            await loadGate.WaitAsync(loadCts.Token).ConfigureAwait(false);
+            try
             {
-                StatusText = "Učitavanje…";
-                ApplyTruckBans(TruckBanSummary.LoadSaved());
-                if (portal is null && sessionService.CurrentSession?.User.Id is { } userId && portalStore.Load(userId) is { } saved)
-                {
-                    ApplyPortal(saved.Portal, saved.SavedAt);
-                }
+                await SetBusyAsync(true).ConfigureAwait(false);
+                var cancellationToken = loadCts.Token;
+                await sessionService.RestoreAsync(cancellationToken).ConfigureAwait(false);
+                var currentUser = sessionService.CurrentSession?.User;
 
-                RaiseSessionProperties();
-            });
-
-            // Without signal every request would hang until its timeout (and keep
-            // threads busy); check once, quickly, and skip the sync when there is no server.
-            if (!await apiClient.IsServerReachableAsync(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(false))
-            {
-                offlineWebCache.MarkOffline();
+                // What is on the phone first: the saved trip and ban calendar (no signal needed).
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    IsOffline = true;
-                    RaisePropertyChanged(nameof(PortalUpdatedText));
-                    StatusText = "Bez veze sa serverom · prikazani su sačuvani podaci";
+                    StatusText = "Učitavanje…";
+                    ApplyTruckBans(TruckBanSummary.LoadSaved());
+                    if (portal is null && currentUser?.Id is { } userId && portalStore.Load(userId) is { } saved)
+                    {
+                        ApplyPortal(saved.Portal, saved.SavedAt);
+                    }
+
+                    RaiseSessionProperties();
                 });
-                return;
+
+                // Without signal every request would hang until its timeout (and keep
+                // threads busy); check once, quickly, and skip the sync when there is no server.
+                if (!await apiClient.IsServerReachableAsync(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(false))
+                {
+                    offlineWebCache.MarkOffline();
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        IsOffline = true;
+                        RaisePropertyChanged(nameof(PortalUpdatedText));
+                        StatusText = "Bez veze sa serverom · prikazani su sačuvani podaci";
+                    });
+                    return;
+                }
+
+                await MainThread.InvokeOnMainThreadAsync(() => IsOffline = false);
+
+                if (currentUser is not null)
+                {
+                    await LoadPortalAsync(cancellationToken).ConfigureAwait(false);
+                }
+
+                await LoadTruckBansAsync(cancellationToken).ConfigureAwait(false);
+
+                // Documents running out: a phone notification (once a day at most).
+                _ = Task.Run(documentReminders.CheckAsync);
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    RaiseSessionProperties();
+                    StatusText = sessionService.IsSignedIn
+                        ? $"Sinhronizovano u {DateTime.Now:HH:mm}"
+                        : "Niste prijavljeni · navigacija i mape rade i bez naloga";
+                });
+
+                // The offline routing package is rebuilt on the server after a map update;
+                // remind once per version to download it while there is a connection.
+                if (await offlineBundles.FindNewerOnServerAsync(cancellationToken).ConfigureAwait(false) is { } newer &&
+                    newer.Version != announcedBundleVersion)
+                {
+                    announcedBundleVersion = newer.Version;
+                    await notifier.ShowInfoAsync($"Nova verzija offline paketa „{newer.DisplayName}“ (Offline mape → Regioni).").ConfigureAwait(false);
+                }
             }
-
-            await MainThread.InvokeOnMainThreadAsync(() => IsOffline = false);
-
-            if (sessionService.IsSignedIn)
+            finally
             {
-                await LoadPortalAsync(cancellationToken).ConfigureAwait(false);
-            }
+                if (ReferenceEquals(loadCancellationTokenSource, loadCts))
+                {
+                    loadCancellationTokenSource = null;
+                    await SetBusyAsync(false).ConfigureAwait(false);
+                }
 
-            await LoadTruckBansAsync(cancellationToken).ConfigureAwait(false);
-
-            // Documents running out: a phone notification (once a day at most).
-            _ = Task.Run(documentReminders.CheckAsync);
-
-            await MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                RaiseSessionProperties();
-                StatusText = sessionService.IsSignedIn
-                    ? $"Sinhronizovano u {DateTime.Now:HH:mm}"
-                    : "Niste prijavljeni · navigacija i mape rade i bez naloga";
-            });
-
-            // The offline routing package is rebuilt on the server after a map update;
-            // remind once per version to download it while there is a connection.
-            if (await offlineBundles.FindNewerOnServerAsync(cancellationToken).ConfigureAwait(false) is { } newer &&
-                newer.Version != announcedBundleVersion)
-            {
-                announcedBundleVersion = newer.Version;
-                await notifier.ShowInfoAsync($"Nova verzija offline paketa „{newer.DisplayName}“ (Offline mape → Regioni).").ConfigureAwait(false);
+                loadGate.Release();
             }
         }
         catch (OperationCanceledException) when (loadCts.IsCancellationRequested)
@@ -455,12 +474,6 @@ public sealed class DashboardViewModel : ViewModelBase
         }
         finally
         {
-            if (ReferenceEquals(loadCancellationTokenSource, loadCts))
-            {
-                loadCancellationTokenSource = null;
-                await SetBusyAsync(false).ConfigureAwait(false);
-            }
-
             loadCts.Dispose();
         }
     }
@@ -590,7 +603,11 @@ public sealed class DashboardViewModel : ViewModelBase
 
     public Task StartTripAsync()
         => Trip is { } trip
-            ? RunActionAsync(ct => apiClient.StartTripAsync(trip.Id, ct), "Tura je započeta. Srećan put!")
+            ? RunActionAsync(async ct =>
+            {
+                await apiClient.StartTripAsync(trip.Id, ct).ConfigureAwait(false);
+                savedRouteStore.Clear();
+            }, "Tura je započeta. Srećan put!")
             : Task.CompletedTask;
 
     public Task TogglePauseAsync()
@@ -680,6 +697,7 @@ public sealed class DashboardViewModel : ViewModelBase
             return;
         }
 
+        savedRouteStore.Clear();
         NavigationRequests.RouteTo(new RecentDestination(StopTitle(stop), lat, lon, DateTimeOffset.Now));
         SafeUi.Run(() => AppNavigation.GoToAsync(AppNavigation.Navigation));
     }

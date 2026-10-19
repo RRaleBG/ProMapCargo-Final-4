@@ -6,6 +6,7 @@ namespace ProMapCargo.Mobile.Views;
 public partial class DashboardPage : ContentPage
 {
     private readonly DashboardViewModel viewModel;
+    private bool isLifecycleHooked;
 
     public DashboardPage(DashboardViewModel viewModel)
     {
@@ -24,12 +25,21 @@ public partial class DashboardPage : ContentPage
             SafeUi.Run(() => viewModel.LoadAsync());
         }
 
-        AppLifecycle.Resumed += OnAppResumed;
+        if (!isLifecycleHooked)
+        {
+            AppLifecycle.Resumed += OnAppResumed;
+            isLifecycleHooked = true;
+        }
     }
 
     protected override void OnDisappearing()
     {
-        AppLifecycle.Resumed -= OnAppResumed;
+        if (isLifecycleHooked)
+        {
+            AppLifecycle.Resumed -= OnAppResumed;
+            isLifecycleHooked = false;
+        }
+
         base.OnDisappearing();
     }
 
