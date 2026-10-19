@@ -36,7 +36,8 @@ public sealed record DriverPortalTrip(
     [property: JsonPropertyName("route")] string? Route,
     [property: JsonPropertyName("vehicle")] string? Vehicle,
     [property: JsonPropertyName("vehicleId")] Guid? VehicleId,
-    [property: JsonPropertyName("truckProfile")] DriverTruckProfile? TruckProfile = null);
+    [property: JsonPropertyName("truckProfile")] DriverTruckProfile? TruckProfile = null,
+    [property: JsonPropertyName("trailer")] string? Trailer = null);
 
 /// <summary>Dimensions of the trip's vehicle (fleet record).</summary>
 public sealed record DriverTruckProfile(
@@ -79,7 +80,11 @@ public sealed record DriverPortalFinancial(
     [property: JsonPropertyName("allowanceAmount")] decimal AllowanceAmount,
     [property: JsonPropertyName("paidOutAmount")] decimal PaidOutAmount,
     [property: JsonPropertyName("pendingAmount")] decimal PendingAmount,
-    [property: JsonPropertyName("costs")] IReadOnlyList<DriverPortalCost>? Costs);
+    [property: JsonPropertyName("costs")] IReadOnlyList<DriverPortalCost>? Costs,
+    [property: JsonPropertyName("advanceAmount")] decimal? AdvanceAmount = null,
+    [property: JsonPropertyName("advanceSpentAmount")] decimal AdvanceSpentAmount = 0,
+    [property: JsonPropertyName("advanceBalance")] decimal? AdvanceBalance = null,
+    [property: JsonPropertyName("driverEarningAmount")] decimal? DriverEarningAmount = null);
 
 public sealed record DriverPortalCost(
     [property: JsonPropertyName("id")] Guid Id,

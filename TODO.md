@@ -20,6 +20,17 @@ Last review: 2026-10-17 evening, full web + mobile pass (previous: 2026-10-15).
 - [ ] `ViewModels/NavigationViewModel.cs` (about 2100 lines): split into route guidance, voice and offline routing (GPS already moved to `GpsTracker`).
 - [ ] Driver actions (arrive, complete) need a connection; queueing them offline would need a server-side timestamp field (API change).
 
+## Driver, vehicle, trip and order logic: done 2026-10-19 (not committed)
+
+- [x] Driver and trailer are put on a vehicle in one place only: /vehicles, "Dodela vozača i prikolice" (`PUT /api/business/vehicles/{id}/assignment`). Removed from Novo vozilo, Novi vozač and the user admin. Open trips and orders of the driver follow him to the new vehicle.
+- [x] A driver profile linked to an account takes name and e-mail from the account (Novi vozač: account picker, `?userId=`); admin edits keep the linked profile in sync.
+- [x] Every order creates its trip (and an older order without one gets it on save); the trip follows the order's driver, vehicle and planned times.
+- [x] Order: transport price, currency, driver's share (%), cash advance (`Sql/10-order-finance.sql`, adds columns only). Trip details show earning and advance settlement (advance minus the driver's own business expenses, cash or own card); the phone shows them too.
+- [x] Click on a trip row opens the details again (`core/modal.js` never added `.open`). A driver sees only his own trips, without price, budget, driver notes or vehicle history.
+- [ ] Data: account vozac@vozac.com was linked to the profile "Stefan Ilić" through the old admin form (audit 2026-10-18 23:36 UTC), Stefan's e-mail was overwritten with vozac@vozac.com. Fix only with the developer's go-ahead: unlink, restore stefan.ilic@promapcargo.rs, create the profile from the account on Novi vozač.
+- [x] Driver view checked as vozac@vozac.com (seed password): only his trip, no price/percent/budget/vehicle history, assignment refused (409).
+- [ ] "Dodaj trošak" from the trip details (Finance expense form preset to the trip) not done.
+
 ## P1: security and correctness
 
 0. **User admin (`Services/AccountAdminService.cs`), new 2026-10-17:**

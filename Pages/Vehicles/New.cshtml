@@ -402,16 +402,6 @@
                         </div>
 
                         <div class="vehicle-field">
-                            <label for="assignedDriver">
-                                Trenutni vozač
-                            </label>
-
-                            <select id="assignedDriver" name="assignedDriver">
-                                <option value="">Nije dodeljen</option>
-                            </select>
-                        </div>
-
-                        <div class="vehicle-field">
                             <label for="fuelCard">
                                 Primarna fuel kartica
                             </label>
@@ -433,16 +423,16 @@
                 </section>
 
 
-                <!-- TRAILER RELACIJA -->
+                <!-- DODELA: vozač i prikolica se vezuju na strani Vozila -->
                 <section class="vehicle-card pm-panel">
 
                     <div class="vehicle-card-header pm-panel-heading">
                         <div>
-                            <div class="vehicle-card-eyebrow">TRAILER / PRIKOLICA</div>
-                            <h2>Veza sa prikolicom</h2>
+                            <div class="vehicle-card-eyebrow">VOZAČ I PRIKOLICA</div>
+                            <h2>Dodela posle čuvanja</h2>
                             <p>
-                                Vozilo može biti povezano sa konkretnom prikolicom ili poluprikolicom.
-                                Veza se kasnije može menjati iz Fleet/Compliance modula.
+                                Vozač i prikolica se vezuju za vozilo samo na jednom mestu: strana Vozila,
+                                odeljak „Dodela vozača i prikolice". Tamo se mogu menjati u svakom trenutku.
                             </p>
                         </div>
 
@@ -451,26 +441,7 @@
                         </div>
                     </div>
 
-                    <div class="vehicle-trailer-box">
-
-                        <div class="vehicle-trailer-status">
-                            <span class="vehicle-trailer-dot"></span>
-                            <div>
-                                <strong>Prikolica nije povezana</strong>
-                                <small>
-                                    Vozilo trenutno nema aktivnu vezu sa prikolicom.
-                                </small>
-                            </div>
-                        </div>
-
-                        <select id="assignedTrailer" name="assignedTrailer">
-                            <option value="">Bez prikolice</option>
-                        </select>
-
-                    </div>
-
                 </section>
-
 
                 <!-- DOKUMENTACIJA -->
                 <section class="vehicle-card pm-panel">
@@ -1006,45 +977,13 @@
                 maxSpeedKmh: numberOrNull("maxSpeed"),
                 status: fieldValue("vehicleStatus") || null,
                 department: fieldValue("department") || null,
-                driverId: fieldValue("assignedDriver") || null,
                 fuelCard: fieldValue("fuelCard") || null,
                 notes: fieldValue("vehicleNotes") || null,
-                trailerId: fieldValue("assignedTrailer") || null,
                 technicalInspectionExpiry: fieldValue("technicalInspection") || null,
                 tirExpiry: fieldValue("tirExpiry") || null,
                 euroConfirmationExpiry: fieldValue("euroConfirmation") || null,
                 tachographCalibrationExpiry: fieldValue("tachographCalibration") || null
             };
-        }
-
-
-        // Drivers and trailers of the company for the two selects.
-        function loadOptions() {
-            const get = function (url) {
-                return fetch(url, { headers: { "Accept": "application/json" }, credentials: "same-origin" })
-                    .then(function (response) { return response.ok ? response.json() : []; })
-                    .catch(function () { return []; });
-            };
-
-            Promise.all([get("/api/business/drivers"), get("/api/business/vehicles")]).then(function (results) {
-                const drivers = results[0] || [];
-                const vehicles = results[1] || [];
-                const driverSelect = document.getElementById("assignedDriver");
-                const trailerSelect = document.getElementById("assignedTrailer");
-
-                drivers
-                    .filter(function (driver) { return driver.status !== 3; })
-                    .forEach(function (driver) {
-                        driverSelect.add(new Option(driver.fullName + (driver.employeeNumber ? " · " + driver.employeeNumber : ""), driver.id));
-                    });
-
-                const taken = vehicles.map(function (vehicle) { return vehicle.trailerId; }).filter(Boolean);
-                vehicles
-                    .filter(function (vehicle) { return vehicle.type === 2 && taken.indexOf(vehicle.id) < 0; })
-                    .forEach(function (trailer) {
-                        trailerSelect.add(new Option(trailer.registration + " · " + [trailer.make, trailer.model].filter(Boolean).join(" "), trailer.id));
-                    });
-            });
         }
 
 
@@ -1144,7 +1083,6 @@
 
         updatePreview();
         updateChecklist();
-        loadOptions();
 
     })();
 

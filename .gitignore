@@ -283,3 +283,6 @@ App_Data/
 
 # Playwright MCP browser checks (snapshots, screenshots, console logs)
 .playwright-mcp/
+
+# Published Android app offered to the phones (Tools/release/build-release.ps1 -Publish)
+/app-releases/

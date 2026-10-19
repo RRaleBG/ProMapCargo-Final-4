@@ -19,6 +19,8 @@
 	<uses-permission android:name="android.permission.VIBRATE" />
 	<!-- Photo of a receipt for an expense. -->
 	<uses-permission android:name="android.permission.CAMERA" />
+	<!-- Update from the company server: opens the Android installer for the downloaded APK (AppUpdateService). -->
+	<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 	<!-- "Pozovi dispečera" opens the dialer. -->
 	<queries>
 		<intent>

@@ -5,6 +5,8 @@
 #   pwsh Tools/release/build-release.ps1 -Install           # also install via adb
 #   pwsh Tools/release/build-release.ps1 -Version 1.1 -Build 2
 #   pwsh Tools/release/build-release.ps1 -Aab               # .aab for Google Play
+#   pwsh Tools/release/build-release.ps1 -Version 1.1 -Build 2 -Publish -Notes "Šta je novo"
+#                                                           # the server offers it to the phones
 #
 # The password is asked for and only passed to this build through an environment
 # variable; it is not stored anywhere.
@@ -14,7 +16,11 @@ param(
     [int]$Build,
     [switch]$Install,
     [switch]$Aab,
-    [string]$Device
+    [string]$Device,
+    # Copies the APK to app-releases/ on this server: the phones see the new version
+    # (api/mobile/app/latest) and offer the update. -Build must be higher than the installed one.
+    [switch]$Publish,
+    [string]$Notes
 )
 
 $ErrorActionPreference = "Stop"
@@ -49,6 +55,22 @@ finally {
 
 $apk = Get-ChildItem $output -Filter "*-Signed.$(if ($Aab) { 'aab' } else { 'apk' })" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 Write-Host "Potpisan paket: $($apk.FullName)" -ForegroundColor Green
+
+if ($Publish -and -not $Aab) {
+    [xml]$csproj = Get-Content $project
+    $versionName = if ($Version) { $Version } else { @($csproj.Project.PropertyGroup.ApplicationDisplayVersion | Where-Object { $_ })[0] }
+    $versionCode = if ($Build) { $Build } else { [int]@($csproj.Project.PropertyGroup.ApplicationVersion | Where-Object { $_ })[0] }
+    $releases = Join-Path $repo "app-releases"
+    New-Item -ItemType Directory -Force $releases | Out-Null
+    Copy-Item $apk.FullName (Join-Path $releases "promap-cargo.apk") -Force
+    [ordered]@{
+        versionCode = $versionCode
+        versionName = $versionName
+        notes = $Notes
+        publishedAt = (Get-Date).ToUniversalTime().ToString("o")
+    } | ConvertTo-Json | Set-Content (Join-Path $releases "version.json") -Encoding utf8
+    Write-Host "Objavljeno na serveru: verzija $versionName (build $versionCode) u $releases" -ForegroundColor Green
+}
 
 if ($Install -and -not $Aab) {
     $adb = "C:/Program Files (x86)/Android/android-sdk/platform-tools/adb.exe"

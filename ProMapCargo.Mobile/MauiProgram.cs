@@ -24,6 +24,13 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+            })
+            .ConfigureMauiHandlers(handlers =>
+            {
+#if ANDROID
+                // Number badge on the Poruke tab (TabBadges).
+                handlers.AddHandler(typeof(Shell), typeof(BadgeShellRenderer));
+#endif
             });
 
         builder.Services.Configure<MobileAppOptions>(options =>
@@ -87,6 +94,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<ErrorReporter>();
         builder.Services.AddSingleton<DocumentReminders>();
         builder.Services.AddSingleton<ChatClient>();
+        builder.Services.AddSingleton<AppUpdateService>();
+        builder.Services.AddSingleton<GpsSetup>();
 
 #if ANDROID
         // Navigation WebView requests go through the offline cache (map from the

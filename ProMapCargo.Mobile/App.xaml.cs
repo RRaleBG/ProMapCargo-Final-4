@@ -59,6 +59,49 @@ public partial class App : Application
         initialNavigationApplied = true;
 
         window.Page = appShell;
-        SafeUi.Run(() => AppNavigation.GoToAsync(signedIn ? AppNavigation.Dashboard : AppNavigation.Login));
+        SafeUi.Run(async () =>
+        {
+            await AppNavigation.GoToAsync(StartRoute(signedIn));
+            // GPS ready from the first start (permissions, location on), then a newer app version.
+            await services.GetRequiredService<GpsSetup>().EnsureReadyAsync();
+            await services.GetRequiredService<AppUpdateService>().CheckAsync();
+        });
+    }
+
+    protected override void OnSleep()
+    {
+        AppLifecycle.Sleep();
+        base.OnSleep();
+    }
+
+    protected override void OnResume()
+    {
+        base.OnResume();
+        AppLifecycle.Resume();
+        if (!initialNavigationApplied)
+        {
+            return;
+        }
+
+        // Messages that came while the app was in the background, and a newer version.
+        SafeUi.Run(async () =>
+        {
+            await services.GetRequiredService<ChatClient>().RefreshUnreadAsync(CancellationToken.None);
+            await services.GetRequiredService<AppUpdateService>().CheckAsync();
+        });
+    }
+
+    // The system closed the app while the driver was navigating: open navigation again
+    // (it brings back the saved route) instead of the home screen.
+    private string StartRoute(bool signedIn)
+    {
+        var wasNavigating = AppShell.LastRoute?.Contains("mobile-navigation", StringComparison.OrdinalIgnoreCase) == true
+                            && services.GetRequiredService<SavedRouteStore>().Load() is not null;
+        if (wasNavigating)
+        {
+            return AppNavigation.Navigation;
+        }
+
+        return signedIn ? AppNavigation.Dashboard : AppNavigation.Login;
     }
 }

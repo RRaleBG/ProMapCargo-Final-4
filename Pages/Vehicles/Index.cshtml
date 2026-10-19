@@ -340,6 +340,38 @@
 
                 </div>
 
+                <div class="pm-vehicle-detail-section" id="vehicleAssignment">
+
+                    <h3 class="pm-vehicle-detail-heading">
+                        Dodela vozača i prikolice
+                    </h3>
+
+                    <p class="pm-vehicle-assignment-note" id="vehicleAssignmentNote">
+                        Jedino mesto gde se vozač i prikolica vezuju za vozilo. Zamena je moguća u svakom trenutku:
+                        vozač prelazi sa prethodnog vozila, a njegove nezavršene ture idu na ovo vozilo.
+                    </p>
+
+                    <form class="pm-vehicle-assignment-form" id="vehicleAssignmentForm" novalidate>
+                        <label class="pm-field">
+                            <span>Vozač</span>
+                            <select id="assignmentDriver" class="pm-select">
+                                <option value="">Bez vozača</option>
+                            </select>
+                        </label>
+                        <label class="pm-field">
+                            <span>Prikolica</span>
+                            <select id="assignmentTrailer" class="pm-select">
+                                <option value="">Bez prikolice</option>
+                            </select>
+                        </label>
+                        <div class="pm-vehicle-assignment-actions">
+                            <span class="pm-help" id="assignmentStatus" role="status"></span>
+                            <button type="submit" class="pm-btn pm-btn-primary pm-btn-sm" id="assignmentSave">Sačuvaj dodelu</button>
+                        </div>
+                    </form>
+
+                </div>
+
                 <div class="pm-vehicle-detail-section">
 
                     <h3 class="pm-vehicle-detail-heading">

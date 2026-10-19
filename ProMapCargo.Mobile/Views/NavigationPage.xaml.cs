@@ -16,6 +16,8 @@ public partial class MobileNavigationPage : ContentPage
     private bool pageActive;
     private int mapLoadAttempt;
     private bool webViewReady;
+    // The address the map was loaded from (null until it loaded); kept across tab switches.
+    private string? loadedMapUrl;
     private bool routePopupOpen;
     private bool panelAnimating;
     private readonly NavigationMapState mapState = new();
@@ -58,17 +60,31 @@ public partial class MobileNavigationPage : ContentPage
         base.OnAppearing();
 
         pageActive = true;
-        webViewReady = false;
         // While guiding, the screen does not go dark (Podešavanja → Ekran uvek uključen).
         DeviceDisplay.Current.KeepScreenOn = AppSettings.KeepScreenOn;
         mapState.ResetLocation();
-        ShowMapLoading();
 
-        // Several regional maps: serve the one covering the truck (or the planned route).
-        var where = viewModel.CurrentLocation ?? viewModel.RouteStartPoint;
-        offlineWebCache.PreferredPoint = where is null ? null : (where.Lat, where.Lon);
-        offlineWebCache.InvalidateLocalMap();
-        NavigationWebView.Source = NavigationUrl;
+        // Back from another tab: the map is still loaded, keep it (route, zoom, position)
+        // instead of loading it again from the start.
+        var keepMap = loadedMapUrl == NavigationUrl;
+        if (keepMap)
+        {
+            webViewReady = true;
+            mapState.ForceRouteResend();
+            LoadingOverlay.IsVisible = false;
+        }
+        else
+        {
+            webViewReady = false;
+            ShowMapLoading();
+
+            // Several regional maps: serve the one covering the truck (or the planned route).
+            var where = viewModel.CurrentLocation ?? viewModel.RouteStartPoint;
+            offlineWebCache.PreferredPoint = where is null ? null : (where.Lat, where.Lon);
+            offlineWebCache.InvalidateLocalMap();
+            NavigationWebView.Source = NavigationUrl;
+        }
+
         StartThenFillAnimation();
 
         SafeUi.Run(async () =>
@@ -118,6 +134,7 @@ public partial class MobileNavigationPage : ContentPage
     {
         webViewReady = e.Result == WebNavigationResult.Success;
         mapState.ForceRouteResend();
+        loadedMapUrl = webViewReady ? NavigationUrl : null;
 
         if (webViewReady)
         {
@@ -175,6 +192,7 @@ public partial class MobileNavigationPage : ContentPage
     private void OnRetryMapClicked(object? sender, EventArgs e)
     {
         webViewReady = false;
+        loadedMapUrl = null;
         ShowMapLoading();
         // A new URL forces a real reload even when the address did not change.
         NavigationWebView.Source = $"{NavigationUrl}&t={DateTime.UtcNow.Ticks}";
@@ -321,6 +339,18 @@ public partial class MobileNavigationPage : ContentPage
 
             await Task.Delay(150);
         }
+    }
+
+    // "Nazad" closes the route planner first; the shell handles it otherwise.
+    protected override bool OnBackButtonPressed()
+    {
+        if (viewModel.IsRouteInputVisible && viewModel.ToggleRouteInputCommand.CanExecute(null))
+        {
+            viewModel.ToggleRouteInputCommand.Execute(null);
+            return true;
+        }
+
+        return false;
     }
 
     private async Task ToggleRoutePopupAsync(bool open)

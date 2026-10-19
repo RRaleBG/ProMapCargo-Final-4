@@ -8,6 +8,8 @@
         if (!modal) return;
         lastFocus = document.activeElement;
         modal.hidden = false;
+        // .compliance-modal stays display:none without .open.
+        modal.classList.add("open");
         modal.setAttribute("aria-hidden", "false");
         document.body.classList.add("has-modal");
         active = modal;
@@ -17,6 +19,7 @@
         const modal = typeof target === "string" ? document.querySelector(target) : target;
         if (!modal) return;
         modal.hidden = true;
+        modal.classList.remove("open");
         modal.setAttribute("aria-hidden", "true");
         document.body.classList.remove("has-modal");
         active = null;

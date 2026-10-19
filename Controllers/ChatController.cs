@@ -41,6 +41,22 @@ public sealed class ChatController(ProMapCargoDbContext db, ICurrentUserContext 
         return Ok();
     }
 
+    // ---- Unread count (badge on "Poruke": web menu, phone tab) ----
+
+    [HttpGet("unread")]
+    public async Task<ActionResult<object>> Unread(CancellationToken ct)
+    {
+        if (current.CompanyId is not Guid c) return Ok(new { count = 0, dispatch = false });
+        if (IsDispatch())
+        {
+            return Ok(new { count = await chat.UnreadCountAsync(c, driverId: null, ct), dispatch = true });
+        }
+
+        return await OwnDriverAsync(ct) is { } me
+            ? Ok(new { count = await chat.UnreadCountAsync(c, me.DriverId, ct), dispatch = false })
+            : Ok(new { count = 0, dispatch = false });
+    }
+
     // ---- Dispatch ----
 
     [HttpGet("threads")]

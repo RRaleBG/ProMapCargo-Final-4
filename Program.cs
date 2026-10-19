@@ -512,6 +512,11 @@ static async Task InitializeDatabaseAsync(WebApplication app)
     await db.Database.ExecuteSqlRawAsync(
         await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Sql", "09-driver-chat.sql")).ConfigureAwait(false))
         .ConfigureAwait(false);
+
+    // Order price, driver's share and cash advance (idempotent, adds only).
+    await db.Database.ExecuteSqlRawAsync(
+        await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Sql", "10-order-finance.sql")).ConfigureAwait(false))
+        .ConfigureAwait(false);
 }
 
 static async Task<bool> SchemaExistsAsync(ProMapCargoDbContext db)

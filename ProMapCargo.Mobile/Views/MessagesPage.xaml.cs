@@ -28,12 +28,18 @@ public partial class MessagesPage : ContentPage
         base.OnAppearing();
         // While the screen is open a message from dispatch shows here, not as a notification.
         chat.IsChatVisible = true;
+        AppLifecycle.Resumed += OnAppResumed;
         SafeUi.Run(() => viewModel.LoadAsync());
     }
 
     protected override void OnDisappearing()
     {
         chat.IsChatVisible = false;
+        AppLifecycle.Resumed -= OnAppResumed;
         base.OnDisappearing();
     }
+
+    // Back in the app on this screen: what came meanwhile shows and counts as read.
+    private void OnAppResumed(object? sender, EventArgs e)
+        => SafeUi.Run(() => viewModel.LoadAsync());
 }

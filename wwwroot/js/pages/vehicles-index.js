@@ -664,8 +664,97 @@
         elements.showVehicleTrip.disabled =
             !vehicle.currentTripId;
 
+        fillAssignment(vehicle);
         renderTable();
     }
+
+    // ---- Dodela: the only place where a driver and a trailer are put on a vehicle ----
+
+    function vehicleLabel(item) {
+        return [item.registration, [item.make, item.model].filter(Boolean).join(" ")].filter(Boolean).join(" · ");
+    }
+
+    function fillAssignment(vehicle) {
+        var form = document.getElementById("vehicleAssignmentForm");
+        var driverSelect = document.getElementById("assignmentDriver");
+        var trailerSelect = document.getElementById("assignmentTrailer");
+        var note = document.getElementById("vehicleAssignmentNote");
+        var status = document.getElementById("assignmentStatus");
+        if (!form || !driverSelect || !trailerSelect) return;
+
+        var isTrailer = vehicleType(vehicle) === "Prikolica" || String(vehicle.type).toLowerCase() === "trailer" || vehicle.type === 2;
+        form.hidden = isTrailer;
+        if (status) status.textContent = "";
+        if (isTrailer) {
+            var towing = state.vehicles.filter(function (item) { return normalizeId(item.trailerId) === normalizeId(vehicle.id); })[0];
+            if (note) note.textContent = towing
+                ? "Prikolica je trenutno na vozilu " + towing.registration + ". Menja se na tom vozilu."
+                : "Prikolica nije zakačena ni za jedno vozilo. Dodeljuje se na kamionu.";
+            return;
+        }
+
+        if (note) note.textContent = "Jedino mesto gde se vozač i prikolica vezuju za vozilo. Zamena je moguća u svakom trenutku: vozač prelazi sa prethodnog vozila, a njegove nezavršene ture idu na ovo vozilo.";
+
+        driverSelect.innerHTML = '<option value="">Bez vozača</option>' + state.drivers.map(function (driver) {
+            var on = driver.currentVehicleId && normalizeId(driver.currentVehicleId) !== normalizeId(vehicle.id)
+                ? findVehicle(driver.currentVehicleId)
+                : null;
+            return '<option value="' + escapeHtml(driver.id) + '">' +
+                escapeHtml(driver.fullName + (on ? " (sada na " + on.registration + ")" : "")) +
+                '</option>';
+        }).join("");
+        driverSelect.value = vehicle.currentDriverId || "";
+
+        var trailers = state.vehicles.filter(function (item) {
+            return String(item.type).toLowerCase() === "trailer" || item.type === 2;
+        });
+        trailerSelect.innerHTML = '<option value="">Bez prikolice</option>' + trailers.map(function (trailer) {
+            var on = state.vehicles.filter(function (item) {
+                return normalizeId(item.trailerId) === normalizeId(trailer.id) && normalizeId(item.id) !== normalizeId(vehicle.id);
+            })[0];
+            return '<option value="' + escapeHtml(trailer.id) + '">' +
+                escapeHtml(vehicleLabel(trailer) + (on ? " (sada na " + on.registration + ")" : "")) +
+                '</option>';
+        }).join("");
+        trailerSelect.value = vehicle.trailerId || "";
+    }
+
+    async function saveAssignment(event) {
+        event.preventDefault();
+        var vehicle = findVehicle(state.selectedVehicleId);
+        var button = document.getElementById("assignmentSave");
+        var status = document.getElementById("assignmentStatus");
+        if (!vehicle || !button) return;
+
+        button.disabled = true;
+        if (status) status.textContent = "Čuvanje…";
+        try {
+            var response = await fetch("/api/business/vehicles/" + encodeURIComponent(vehicle.id) + "/assignment", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({
+                    driverId: document.getElementById("assignmentDriver").value || null,
+                    trailerId: document.getElementById("assignmentTrailer").value || null
+                })
+            });
+            var data = await response.json().catch(function () { return null; });
+            if (!response.ok) {
+                throw new Error((data && (data.message || data.title)) || "Dodelu nije moguće sačuvati.");
+            }
+
+            ProMapCargo.toast && ProMapCargo.toast.success && ProMapCargo.toast.success("Dodela vozila " + vehicle.registration + " je sačuvana.");
+            await loadVehicles();
+        } catch (error) {
+            if (status) status.textContent = error.message;
+            ProMapCargo.toast && ProMapCargo.toast.error && ProMapCargo.toast.error(error.message);
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    var assignmentForm = document.getElementById("vehicleAssignmentForm");
+    if (assignmentForm) assignmentForm.addEventListener("submit", saveAssignment);
 
     function renderError(message) {
         elements.tableBody.innerHTML =

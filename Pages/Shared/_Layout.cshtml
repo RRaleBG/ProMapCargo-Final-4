@@ -104,7 +104,7 @@
                         <div class="pm-nav-section-title">KONTROLA</div>
                         <a asp-page="/Messages/Index"
                            class="pm-nav-item @(currentPage == "/Messages/Index" ? "active" : "")">
-                            <i class="pm-nav-icon" data-lucide="message-square" aria-hidden="true"></i><span class="pm-nav-label">Poruke</span>
+                            <i class="pm-nav-icon" data-lucide="message-square" aria-hidden="true"></i><span class="pm-nav-label">Poruke</span><span class="pm-nav-count info" data-message-count hidden>0</span>
                         </a>
                         <a asp-page="/Alerts/Index"
                            class="pm-nav-item @(currentPage == "/Alerts/Index" ? "active" : "")">
@@ -278,6 +278,7 @@
 <script src="~/js/core/modal.js" asp-append-version="true" defer></script>
 <script src="~/js/core/icons.js" asp-append-version="true" defer></script>
 <script src="~/js/services/alerts.js" asp-append-version="true" defer></script>
+<script src="~/js/services/messages.js" asp-append-version="true" defer></script>
 <script src="~/js/app.js" asp-append-version="true" defer></script>
 <script src="~/lib/leaflet/leaflet.js" asp-append-version="true" defer></script>
 @if (includePageJs)

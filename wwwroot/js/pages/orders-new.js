@@ -87,6 +87,22 @@
             valid = false;
         }
 
+        [
+            [$("transportPrice"), "Cena ne može biti negativna.", 0, Infinity],
+            [$("driverEarningPercent"), "Zarada vozača mora biti između 0 i 100 %.", 0, 100],
+            [$("advanceAmount"), "Akontacija ne može biti negativna.", 0, Infinity]
+        ].forEach(([input, message, min, max]) => {
+            if (!input?.value.trim()) {
+                return;
+            }
+
+            const value = Number(input.value);
+            if (!Number.isFinite(value) || value < min || value > max) {
+                setFieldError(input, message);
+                valid = false;
+            }
+        });
+
         if (!valid && showToast) {
             setActiveTab("basic");
             toast("warning", "Popunite obavezna polja u osnovnim podacima.");
@@ -420,6 +436,17 @@
         $("reviewPallets").value = $("pallets")?.value || "—";
         $("reviewHazmat").value = $("hazmat")?.checked ? "Da" : "Ne";
 
+        const driverSelect = $("driverId");
+        $("reviewDriver").value = driverSelect?.value ? driverSelect.options[driverSelect.selectedIndex].text : "Bez vozača";
+        const currency = $("currency")?.value || "EUR";
+        const price = nullableNumber("transportPrice");
+        const earning = driverEarning();
+        $("reviewPrice").value = price === null
+            ? "—"
+            : `${formatMoney(price, currency)}${earning === null ? "" : ` · vozač ${formatMoney(earning, currency)}`}`;
+        const advance = nullableNumber("advanceAmount");
+        $("reviewAdvance").value = advance === null ? "—" : formatMoney(advance, currency);
+
         const reviewStops = $("reviewStops");
         if (!reviewStops) return;
 
@@ -461,8 +488,73 @@
             cargoVolumeM3: nullableNumber("cargoVolumeM3"),
             pallets: nullableInteger("pallets"),
             hazmat: $("hazmat")?.checked === true,
+            driverId: $("driverId")?.value || null,
+            transportPrice: nullableNumber("transportPrice"),
+            driverEarningPercent: nullableNumber("driverEarningPercent"),
+            advanceAmount: nullableNumber("advanceAmount"),
+            currency: $("currency")?.value || "EUR",
             stops: collectStops()
         };
+    }
+
+    function formatMoney(amount, currency) {
+        return `${new Intl.NumberFormat("sr-Latn-RS", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)} ${currency}`;
+    }
+
+    // Same rounding as the server: price × percent / 100, two decimals.
+    function driverEarning() {
+        const price = nullableNumber("transportPrice");
+        const percent = nullableNumber("driverEarningPercent");
+        if (price === null || percent === null || !Number.isFinite(price) || !Number.isFinite(percent)) return null;
+        return Math.round(price * percent) / 100;
+    }
+
+    function updateEarningHint() {
+        const hint = $("driverEarningAmount");
+        if (!hint) return;
+        const earning = driverEarning();
+        hint.textContent = earning === null ? "Zarada: —" : `Zarada: ${formatMoney(earning, $("currency")?.value || "EUR")}`;
+    }
+
+    function updateDriverHint() {
+        const hint = $("driverVehicleHint");
+        const select = $("driverId");
+        if (!hint || !select) return;
+        const option = select.options[select.selectedIndex];
+        hint.textContent = select.value
+            ? (option?.dataset.vehicle ? `Vozi ${option.dataset.vehicle}` : "Vozaču nije dodeljeno vozilo (strana Vozila).")
+            : "Kamion i prikolica idu uz vozača (dodela na strani Vozila).";
+    }
+
+    // Drivers with the vehicle each one drives now; the order takes that vehicle.
+    async function loadDrivers(selectedId) {
+        const select = $("driverId");
+        if (!select) return;
+
+        try {
+            const [drivers, vehicles] = await Promise.all([
+                fetch("/api/business/drivers", { headers: { "Accept": "application/json" }, credentials: "same-origin" }).then(r => r.ok ? r.json() : []),
+                fetch("/api/business/vehicles", { headers: { "Accept": "application/json" }, credentials: "same-origin" }).then(r => r.ok ? r.json() : [])
+            ]);
+            const registrations = new Map((Array.isArray(vehicles) ? vehicles : []).map(v => [String(v.id).toLowerCase(), v.registration]));
+            const keep = selectedId ?? select.value;
+
+            select.querySelectorAll("option:not([value=''])").forEach(option => option.remove());
+            (Array.isArray(drivers) ? drivers : []).forEach(driver => {
+                const option = document.createElement("option");
+                option.value = driver.id;
+                const registration = driver.currentVehicleId ? registrations.get(String(driver.currentVehicleId).toLowerCase()) : null;
+                option.textContent = registration ? `${driver.fullName} · ${registration}` : driver.fullName;
+                if (registration) option.dataset.vehicle = registration;
+                select.appendChild(option);
+            });
+            if (keep) select.value = keep;
+        } catch (error) {
+            console.error("[Orders New] Drivers failed:", error);
+        }
+
+        updateDriverHint();
+        updateReview();
     }
 
     function valueOf(id) {
@@ -583,11 +675,22 @@
             "cargoWeightTons",
             "cargoVolumeM3",
             "pallets",
-            "hazmat"
+            "hazmat",
+            "driverId",
+            "transportPrice",
+            "currency",
+            "driverEarningPercent",
+            "advanceAmount"
         ].forEach(id => {
             $(id)?.addEventListener("input", updateReview);
             $(id)?.addEventListener("change", updateReview);
         });
+
+        ["transportPrice", "driverEarningPercent", "currency"].forEach(id => {
+            $(id)?.addEventListener("input", updateEarningHint);
+            $(id)?.addEventListener("change", updateEarningHint);
+        });
+        $("driverId")?.addEventListener("change", updateDriverHint);
 
         form.addEventListener("input", event => {
             if (event.target.matches("input, select, textarea")) {
@@ -601,6 +704,7 @@
         } else {
             createStop({ type: "Loading" });
             createStop({ type: "Unloading" });
+            loadDrivers(null);
         }
 
         updateReview();
@@ -639,15 +743,22 @@
             $("cargoVolumeM3").value = order.cargoVolumeM3 ?? "";
             $("pallets").value = order.pallets ?? "";
             $("hazmat").checked = order.hazmat === true;
+            $("transportPrice").value = order.transportPrice ?? "";
+            $("driverEarningPercent").value = order.driverEarningPercent ?? "";
+            $("advanceAmount").value = order.advanceAmount ?? "";
+            $("currency").value = order.currency || "EUR";
+            updateEarningHint();
 
             $("stops")?.replaceChildren();
             state.stopIndex = 0;
             stops.forEach(stop => createStop({ ...stop, type: state.stopTypes[stop.type]?.[0] || "Other" }));
+            await loadDrivers(order.driverId || null);
             updateReview();
         } catch (error) {
             toast("error", error.message);
             createStop({ type: "Loading" });
             createStop({ type: "Unloading" });
+            loadDrivers(null);
         }
     }
 

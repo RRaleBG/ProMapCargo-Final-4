@@ -227,7 +227,6 @@ public sealed class AccountAdminService(
                 })
                 .ToList(),
             RecentAuditLogs = auditLogs,
-            DriverOptions = drivers.Select(x => new AccountAdminDriverOption(x.Id, x.FullName, x.EmployeeNumber, x.UserId)).ToList(),
             Pager = new AccountAdminPager
             {
                 Page = page,
@@ -394,8 +393,7 @@ public sealed class AccountAdminService(
             }
         }
 
-        await LinkDriverAsync(user, input.DriverId, cancellationToken).ConfigureAwait(false);
-        await WriteAuditAsync("User.Create", nameof(ApplicationUser), user.Id.ToString(), new { user.Email, user.DisplayName, input.DriverId }, cancellationToken).ConfigureAwait(false);
+        await WriteAuditAsync("User.Create", nameof(ApplicationUser), user.Id.ToString(), new { user.Email, user.DisplayName }, cancellationToken).ConfigureAwait(false);
         return AccountAdminOperationResult.Ok("Korisnik je kreiran.");
     }
 
@@ -471,8 +469,8 @@ public sealed class AccountAdminService(
         }
 
         await SyncRolesAsync(user, input.RoleNames, cancellationToken).ConfigureAwait(false);
-        await LinkDriverAsync(user, input.DriverId, cancellationToken).ConfigureAwait(false);
-        await WriteAuditAsync("User.Update", nameof(ApplicationUser), user.Id.ToString(), new { user.Email, user.DisplayName, input.DriverId }, cancellationToken).ConfigureAwait(false);
+        await SyncLinkedDriverAsync(user, cancellationToken).ConfigureAwait(false);
+        await WriteAuditAsync("User.Update", nameof(ApplicationUser), user.Id.ToString(), new { user.Email, user.DisplayName }, cancellationToken).ConfigureAwait(false);
         return AccountAdminOperationResult.Ok("Korisnik je ažuriran.");
     }
 
@@ -540,40 +538,25 @@ public sealed class AccountAdminService(
         }
     }
 
-    private async Task LinkDriverAsync(ApplicationUser user, Guid? driverId, CancellationToken cancellationToken)
+    /// <summary>
+    /// The account is the source of the driver's name and e-mail: the linked driver profile
+    /// follows it. Profiles are created from an account on /drivers/new, not linked here.
+    /// </summary>
+    private async Task SyncLinkedDriverAsync(ApplicationUser user, CancellationToken cancellationToken)
     {
         if (user.CompanyId is not Guid companyId)
         {
             return;
         }
 
-        var currentlyLinked = await db.Drivers.Where(x => x.CompanyId == companyId && x.UserId == user.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
-        foreach (var linkedDriver in currentlyLinked.Where(x => x.Id != driverId))
+        var linked = await db.Drivers.Where(x => x.CompanyId == companyId && x.UserId == user.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
+        foreach (var driver in linked)
         {
-            linkedDriver.UserId = null;
+            driver.FullName = user.DisplayName;
+            driver.Email = user.Email?.ToLowerInvariant();
+            driver.Phone = string.IsNullOrWhiteSpace(user.PhoneNumber) ? driver.Phone : user.PhoneNumber;
         }
 
-        if (driverId is not Guid targetDriverId)
-        {
-            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            return;
-        }
-
-        var targetDriver = await db.Drivers.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == targetDriverId, cancellationToken).ConfigureAwait(false);
-        if (targetDriver is null)
-        {
-            throw new InvalidOperationException("Izabrani vozač nije pronađen.");
-        }
-
-        var duplicateLink = await db.Drivers.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id != targetDriverId && x.UserId == user.Id, cancellationToken).ConfigureAwait(false);
-        if (duplicateLink is not null)
-        {
-            duplicateLink.UserId = null;
-        }
-
-        targetDriver.UserId = user.Id;
-        targetDriver.Email = user.Email;
-        targetDriver.Phone = string.IsNullOrWhiteSpace(user.PhoneNumber) ? targetDriver.Phone : user.PhoneNumber;
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
@@ -677,7 +660,6 @@ public sealed class AccountAdminDashboard
     public IReadOnlyList<AccountAdminRoleRow> AvailableRoles { get; set; } = [];
     public IReadOnlyList<AccountAdminRolePermissionRow> RolePermissions { get; set; } = [];
     public IReadOnlyList<AuditLog> RecentAuditLogs { get; set; } = [];
-    public IReadOnlyList<AccountAdminDriverOption> DriverOptions { get; set; } = [];
     public AccountAdminPager Pager { get; set; } = new();
 }
 
@@ -709,14 +691,11 @@ public sealed class AccountAdminUserRow
     public List<string> Roles { get; set; } = [];
 }
 
-public sealed record AccountAdminDriverOption(Guid Id, string FullName, string? EmployeeNumber, Guid? UserId);
-
 public sealed record AccountAdminCreateUserInput(
     string? DisplayName,
     string? Email,
     string? Password,
     string? PhoneNumber,
-    Guid? DriverId,
     IReadOnlyList<string>? RoleNames,
     IFormFile? ProfileImage);
 
@@ -726,7 +705,6 @@ public sealed record AccountAdminUpdateUserInput(
     string? Email,
     string? Password,
     string? PhoneNumber,
-    Guid? DriverId,
     IReadOnlyList<string>? RoleNames,
     IFormFile? ProfileImage);
 

@@ -24,6 +24,7 @@ public sealed class DriverPortalQueries(ProMapCargoDbContext db, ICurrentUserCon
             .ToListAsync(ct);
         var next = stops.FirstOrDefault(x => x.Status is TransportStopStatus.Planned or TransportStopStatus.Arrived or TransportStopStatus.InService);
         var vehicle = trip?.VehicleId is { } vehicleId ? await db.Vehicles.AsNoTracking().SingleOrDefaultAsync(x => x.Id == vehicleId, ct) : null;
+        var trailer = vehicle?.TrailerId is { } trailerId ? await db.Vehicles.AsNoTracking().Where(x => x.Id == trailerId).Select(x => x.Registration).FirstOrDefaultAsync(ct) : null;
         var phone = await db.Companies.AsNoTracking().Where(x => x.Id == c).Select(x => x.DispatchPhone).FirstOrDefaultAsync(ct);
         var costs = trip is null
             ? []
@@ -73,6 +74,8 @@ public sealed class DriverPortalQueries(ProMapCargoDbContext db, ICurrentUserCon
         var driverPaid = costs.Where(x => x.Status != TransportCostStatus.Rejected && x.PaymentMethod is "cash" or "driver-card").Sum(x => x.Amount);
         var allowances = costs.Where(x => x.Status != TransportCostStatus.Rejected && x.Category == TransportCostCategory.Allowance).Sum(x => x.Amount);
         var paidOut = costs.Where(x => x.Status != TransportCostStatus.Rejected && x.Category == TransportCostCategory.Payment).Sum(x => x.Amount);
+        var tripOrder = trip is null ? null : await db.TransportOrders.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == c && x.Id == trip.TransportOrderId, ct);
+        var advance = BusinessService.AdvanceSettlement(tripOrder, costs);
 
         return new DriverPortal(new
         {
@@ -87,6 +90,8 @@ public sealed class DriverPortalQueries(ProMapCargoDbContext db, ICurrentUserCon
                 trip.PlannedArrivalAt,
                 Route = stops.Count == 0 ? "" : (stops[0].City ?? stops[0].Name) + " → " + (stops[^1].City ?? stops[^1].Name),
                 Vehicle = vehicle?.Registration,
+                // Trailer currently on the truck (assigned on /vehicles).
+                Trailer = trailer,
                 trip.VehicleId,
                 // The phone plans routes for this truck (bridges, weight limits).
                 TruckProfile = vehicle is null ? null : new
@@ -120,7 +125,12 @@ public sealed class DriverPortalQueries(ProMapCargoDbContext db, ICurrentUserCon
                 AllowanceAmount = allowances,
                 PaidOutAmount = paidOut,
                 PendingAmount = costs.Where(x => x.Status == TransportCostStatus.Pending).Sum(x => x.Amount),
-                Costs = costs.Select(x => new { x.Id, Category = x.Category.ToString(), Status = x.Status.ToString(), x.Amount, x.Currency, x.PaymentMethod, x.CardLabel, x.Location, x.CountryCode, At = x.IncurredAt ?? x.CreatedAt, x.Notes })
+                Costs = costs.Select(x => new { x.Id, Category = x.Category.ToString(), Status = x.Status.ToString(), x.Amount, x.Currency, x.PaymentMethod, x.CardLabel, x.Location, x.CountryCode, At = x.IncurredAt ?? x.CreatedAt, x.Notes }),
+                // Cash advance for the trip and how much of it the driver's business expenses cover.
+                AdvanceAmount = advance.Amount,
+                AdvanceSpentAmount = advance.Spent,
+                AdvanceBalance = advance.Balance,
+                DriverEarningAmount = tripOrder is null ? null : BusinessService.DriverEarning(tripOrder),
             },
             EuStay = rolling,
             DriverHistory = historyTrips.Where(x => x.DriverId == driver.Id).Select(x => new

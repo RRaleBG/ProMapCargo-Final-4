@@ -164,6 +164,13 @@ public sealed class TransportOrder
     public Guid?
         VehicleId
     { get; set; }
+
+    // Price agreed with the customer, the driver's share of it (percent) and the cash
+    // advance handed to the driver for business expenses on the road.
+    public decimal? TransportPrice { get; set; }
+    public decimal? DriverEarningPercent { get; set; }
+    public decimal? AdvanceAmount { get; set; }
+    public string Currency { get; set; } = "EUR";
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

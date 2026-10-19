@@ -36,7 +36,6 @@ public sealed class IndexModel(IAccountAdminService accountAdminService) : PageM
     public IReadOnlyList<AccountAdminRoleRow> AvailableRoles { get; private set; } = [];
     public IReadOnlyList<AccountAdminRolePermissionRow> RolePermissions { get; private set; } = [];
     public IReadOnlyList<AuditLog> RecentAuditLogs { get; private set; } = [];
-    public IReadOnlyList<AccountAdminDriverOption> DriverOptions { get; private set; } = [];
     public AccountAdminPager Pager { get; private set; } = new();
 
     [BindProperty]
@@ -105,7 +104,6 @@ public sealed class IndexModel(IAccountAdminService accountAdminService) : PageM
             CreateUser.Email,
             CreateUser.Password,
             CreateUser.PhoneNumber,
-            CreateUser.DriverId,
             CreateUser.RoleNames,
             CreateUser.ProfileImage), cancellationToken).ConfigureAwait(false);
         TempData[result.Success ? "Toast.Success" : "Toast.Error"] = result.Message;
@@ -124,7 +122,6 @@ public sealed class IndexModel(IAccountAdminService accountAdminService) : PageM
             EditUser.Email,
             EditUser.Password,
             EditUser.PhoneNumber,
-            EditUser.DriverId,
             EditUser.RoleNames,
             EditUser.ProfileImage), cancellationToken).ConfigureAwait(false);
         TempData[result.Success ? "Toast.Success" : "Toast.Error"] = result.Message;
@@ -142,7 +139,6 @@ public sealed class IndexModel(IAccountAdminService accountAdminService) : PageM
         AvailableRoles = dashboard.AvailableRoles;
         RolePermissions = dashboard.RolePermissions;
         RecentAuditLogs = dashboard.RecentAuditLogs;
-        DriverOptions = dashboard.DriverOptions;
         Pager = dashboard.Pager;
 
         Page = Pager.Page;
@@ -184,7 +180,6 @@ public class CreateUserInput
     public string? Email { get; set; }
     public string? Password { get; set; }
     public string? PhoneNumber { get; set; }
-    public Guid? DriverId { get; set; }
     public List<string> RoleNames { get; set; } = [];
     public IFormFile? ProfileImage { get; set; }
 }

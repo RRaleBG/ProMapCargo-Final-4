@@ -282,7 +282,54 @@
         setText("tripDetailAllowances", `Dnevnice ${formatMoney(financial.allowanceAmount, financial.currency)}`);
         setText("tripDetailPaidOut", formatMoney(financial.paidOutAmount, financial.currency));
         setText("tripDetailRemaining", `Budžet saldo ${formatMoney(trip.remainingBudget, trip.currency)}`);
+        fillEarningAndAdvance(financial);
         renderCosts(financial.costs, financial.currency);
+        applyViewer(details, order);
+    }
+
+    // Price, driver's share and the cash advance against the business expenses he paid himself.
+    function fillEarningAndAdvance(financial) {
+        const currency = financial.currency || "EUR";
+        const hasNumber = (raw) => raw !== null && raw !== undefined && Number.isFinite(Number(raw));
+
+        setText("tripDetailPrice", hasNumber(financial.transportPrice) ? formatMoney(financial.transportPrice, currency) : "Nije uneta");
+        setText("tripDetailEarning", hasNumber(financial.driverEarningAmount) ? formatMoney(financial.driverEarningAmount, currency) : "Nije obračunata");
+        setText("tripDetailEarningNote", hasNumber(financial.driverEarningPercent)
+            ? `${new Intl.NumberFormat("sr-Latn-RS", { maximumFractionDigits: 2 }).format(financial.driverEarningPercent)} % od cene prevoza`
+            : "od cene prevoza");
+
+        if (!hasNumber(financial.advanceAmount)) {
+            setText("tripDetailAdvance", "Nije data");
+            setText("tripDetailAdvanceSpent", `Poslovni troškovi vozača ${formatMoney(financial.advanceSpentAmount ?? 0, currency)}`);
+            setText("tripDetailAdvanceBalance", "—");
+            setText("tripDetailAdvanceBalanceNote", "bez akontacije");
+            return;
+        }
+
+        const balance = Number(financial.advanceBalance);
+        setText("tripDetailAdvance", formatMoney(financial.advanceAmount, currency));
+        setText("tripDetailAdvanceSpent", `Opravdano troškovima ${formatMoney(financial.advanceSpentAmount ?? 0, currency)}`);
+        setText("tripDetailAdvanceBalance", formatMoney(Math.abs(balance), currency));
+        setText("tripDetailAdvanceBalanceNote", balance > 0
+            ? "vozač vraća firmi"
+            : balance < 0 ? "firma duguje vozaču" : "izmireno");
+    }
+
+    // A driver sees his own trip without the price, budget and dispatch notes.
+    function applyViewer(details, order) {
+        const driverView = details?.driverView === true;
+        detailModal.querySelectorAll("[data-dispatch-only]").forEach((element) => {
+            element.hidden = driverView;
+        });
+        setText("tripDetailFinanceHint", driverView
+            ? "Vaša zarada, akontacija i troškovi koje opravdavate."
+            : "Cena prevoza, zarada vozača, akontacija i svi troškovi ture.");
+
+        const editOrder = document.getElementById("tripDetailEditOrder");
+        if (editOrder) {
+            editOrder.hidden = driverView || !order?.id;
+            if (order?.id) editOrder.href = `/orders/new?id=${encodeURIComponent(order.id)}`;
+        }
     }
 
     async function openTripDetails(tripId) {

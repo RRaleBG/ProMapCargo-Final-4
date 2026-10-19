@@ -149,6 +149,7 @@
                         <p id="tripDetailsSubtitle">Kompletan pregled ture, naloga, vozača i troškova.</p>
                     </div>
                     <div class="compliance-modal-actions">
+                        <a id="tripDetailEditOrder" class="compliance-btn compliance-btn-secondary" href="/orders" data-dispatch-only hidden>Izmeni nalog</a>
                         <button type="button" class="compliance-btn compliance-btn-secondary" data-modal-close>Zatvori</button>
                     </div>
                 </header>
@@ -166,7 +167,7 @@
                             <article class="pm-trip-detail-card"><span>Status</span><strong id="tripDetailStatus">—</strong><small id="tripDetailExecution">—</small></article>
                             <article class="pm-trip-detail-card"><span>Ruta</span><strong id="tripDetailRoute">—</strong><small id="tripDetailSchedule">—</small></article>
                             <article class="pm-trip-detail-card"><span>Napredak</span><strong id="tripDetailProgress">—</strong><small id="tripDetailDistance">—</small></article>
-                            <article class="pm-trip-detail-card"><span>Budžet</span><strong id="tripDetailBudget">—</strong><small id="tripDetailSpent">—</small></article>
+                            <article class="pm-trip-detail-card" data-dispatch-only><span>Budžet</span><strong id="tripDetailBudget">—</strong><small id="tripDetailSpent">—</small></article>
                         </div>
                     </section>
 
@@ -184,7 +185,7 @@
                                     <div><span>Ime</span><strong id="tripDetailDriverName">—</strong></div>
                                     <div><span>Kontakt</span><strong id="tripDetailDriverContact">—</strong></div>
                                     <div><span>Dokumenta</span><strong id="tripDetailDriverLicense">—</strong></div>
-                                    <div><span>Napomena</span><strong id="tripDetailDriverNotes">—</strong></div>
+                                    <div data-dispatch-only><span>Napomena</span><strong id="tripDetailDriverNotes">—</strong></div>
                                 </div>
                                 <div>
                                     <h5>Istorija vozača</h5>
@@ -199,7 +200,7 @@
                                     <div><span>Kapacitet</span><strong id="tripDetailVehicleCapacity">—</strong></div>
                                     <div><span>Gorivo / kartica</span><strong id="tripDetailVehicleFuel">—</strong></div>
                                 </div>
-                                <div>
+                                <div data-dispatch-only>
                                     <h5>Istorija vozila</h5>
                                     <div id="tripDetailVehicleHistory" class="timeline"></div>
                                 </div>
@@ -238,13 +239,19 @@
                         <div class="detail-section-header">
                             <div>
                                 <h3>Troškovi i zarada</h3>
-                                <p>Svi troškovi ture, način plaćanja i iznosi za povraćaj.</p>
+                                <p id="tripDetailFinanceHint">Cena prevoza, zarada vozača, akontacija i svi troškovi ture.</p>
                             </div>
+                        </div>
+                        <div class="pm-trip-detail-grid pm-trip-detail-grid--finance">
+                            <article class="pm-trip-detail-card" data-dispatch-only><span>Cena prevoza</span><strong id="tripDetailPrice">—</strong><small id="tripDetailPriceNote">iz transportnog naloga</small></article>
+                            <article class="pm-trip-detail-card"><span>Zarada vozača</span><strong id="tripDetailEarning">—</strong><small id="tripDetailEarningNote">—</small></article>
+                            <article class="pm-trip-detail-card"><span>Akontacija</span><strong id="tripDetailAdvance">—</strong><small id="tripDetailAdvanceSpent">—</small></article>
+                            <article class="pm-trip-detail-card"><span>Saldo akontacije</span><strong id="tripDetailAdvanceBalance">—</strong><small id="tripDetailAdvanceBalanceNote">—</small></article>
                         </div>
                         <div class="pm-trip-detail-grid pm-trip-detail-grid--finance">
                             <article class="pm-trip-detail-card"><span>Ukupno troškovi</span><strong id="tripDetailCostsTotal">—</strong><small id="tripDetailCostsPending">—</small></article>
                             <article class="pm-trip-detail-card"><span>Vozač platio</span><strong id="tripDetailDriverPaid">—</strong><small id="tripDetailAllowances">—</small></article>
-                            <article class="pm-trip-detail-card"><span>Isplaćeno</span><strong id="tripDetailPaidOut">—</strong><small id="tripDetailRemaining">—</small></article>
+                            <article class="pm-trip-detail-card" data-dispatch-only><span>Isplaćeno</span><strong id="tripDetailPaidOut">—</strong><small id="tripDetailRemaining">—</small></article>
                         </div>
                         <div class="pm-trip-cost-table-wrap">
                             <table class="pm-trip-cost-table">

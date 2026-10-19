@@ -23,6 +23,23 @@ public partial class DashboardPage : ContentPage
         {
             SafeUi.Run(() => viewModel.LoadAsync());
         }
+
+        AppLifecycle.Resumed += OnAppResumed;
+    }
+
+    protected override void OnDisappearing()
+    {
+        AppLifecycle.Resumed -= OnAppResumed;
+        base.OnDisappearing();
+    }
+
+    // Back in the app: the trip may have changed meanwhile (new route, stop, message).
+    private void OnAppResumed(object? sender, EventArgs e)
+    {
+        if (!viewModel.IsBusy)
+        {
+            SafeUi.Run(() => viewModel.LoadAsync());
+        }
     }
 
     private void OnOpenSettingsClicked(object? sender, EventArgs e)

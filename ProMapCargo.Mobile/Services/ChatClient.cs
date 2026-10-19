@@ -104,6 +104,39 @@ public sealed class ChatClient
     public Task<ChatMessage?> SendAsync(string text, CancellationToken cancellationToken)
         => apiClient.SendChatAsync(text, cancellationToken);
 
+    /// <summary>
+    /// Unread messages from dispatch as the server has them (also those that came while the
+    /// app was closed); shown on the Poruke tab.
+    /// </summary>
+    public async Task RefreshUnreadAsync(CancellationToken cancellationToken)
+    {
+        if (!session.IsSignedIn || (IsChatVisible && AppLifecycle.InForeground))
+        {
+            return;
+        }
+
+        try
+        {
+            var conversation = await apiClient.GetChatAsync(cancellationToken).ConfigureAwait(false);
+            SetUnread(conversation?.Messages.Count(x => !x.FromDriver && x.ReadAt is null) ?? 0);
+        }
+        catch (Exception)
+        {
+            // No signal or no driver profile: keep the last count.
+        }
+    }
+
+    private void SetUnread(int count)
+    {
+        if (UnreadCount == count)
+        {
+            return;
+        }
+
+        UnreadCount = count;
+        UnreadChanged?.Invoke(this, EventArgs.Empty);
+    }
+
     /// <summary>The driver read the conversation (dispatch sees "pročitano").</summary>
     public async Task MarkReadAsync()
     {
@@ -122,7 +155,8 @@ public sealed class ChatClient
     private void OnMessage(ChatMessage message)
     {
         MessageReceived?.Invoke(this, message);
-        if (message.FromDriver || IsChatVisible)
+        // The Poruke screen left open in the background is not "seen": count and notify.
+        if (message.FromDriver || (IsChatVisible && AppLifecycle.InForeground))
         {
             return;
         }

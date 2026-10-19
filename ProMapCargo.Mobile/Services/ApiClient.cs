@@ -117,6 +117,47 @@ public sealed class ApiClient(HttpClient httpClient, MobileServerEndpointService
             return (bytes, contentType, fileName);
         }, cancellationToken, TimeSpan.FromSeconds(60)).ConfigureAwait(false);
 
+    /// <summary>The newest app the server offers, or null when it has none published.</summary>
+    public async Task<AppReleaseInfo?> GetLatestAppAsync(CancellationToken cancellationToken)
+    {
+        using var response = await httpClient.GetAsync(serverEndpointService.CreateUri("api/mobile/app/latest"), cancellationToken).ConfigureAwait(false);
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<AppReleaseInfo>(SerializerOptions, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Downloads the app package to <paramref name="targetPath"/>, reporting 0..1.</summary>
+    public async Task DownloadAppAsync(string downloadPath, string targetPath, IProgress<double>? progress, CancellationToken cancellationToken)
+    {
+        using var response = await httpClient.GetAsync(serverEndpointService.CreateUri(downloadPath), HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+
+        var total = response.Content.Headers.ContentLength ?? 0;
+        var tempPath = targetPath + ".part";
+        await using (var source = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
+        await using (var target = File.Create(tempPath))
+        {
+            var buffer = new byte[81920];
+            long done = 0;
+            int read;
+            while ((read = await source.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)) > 0)
+            {
+                await target.WriteAsync(buffer.AsMemory(0, read), cancellationToken).ConfigureAwait(false);
+                done += read;
+                if (total > 0)
+                {
+                    progress?.Report((double)done / total);
+                }
+            }
+        }
+
+        File.Move(tempPath, targetPath, overwrite: true);
+    }
+
     public async Task AddTripCostAsync(DriverExpenseDraft draft, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(draft);

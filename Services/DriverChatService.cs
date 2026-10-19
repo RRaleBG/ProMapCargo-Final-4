@@ -68,6 +68,15 @@ public sealed class DriverChatService(ProMapCargoDbContext db, ICurrentUserConte
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.ReadAt, now), ct);
     }
 
+    /// <summary>
+    /// Unread messages: for dispatch (<paramref name="driverId"/> null) those from all drivers,
+    /// for a driver those from dispatch.
+    /// </summary>
+    public Task<int> UnreadCountAsync(Guid companyId, Guid? driverId, CancellationToken ct)
+        => driverId is Guid id
+            ? db.DriverChatMessages.CountAsync(x => x.CompanyId == companyId && x.DriverId == id && !x.FromDriver && x.ReadAt == null, ct)
+            : db.DriverChatMessages.CountAsync(x => x.CompanyId == companyId && x.FromDriver && x.ReadAt == null, ct);
+
     public async Task<IReadOnlyList<ChatThreadDto>> ThreadsAsync(Guid companyId, CancellationToken ct)
     {
         var drivers = await db.Drivers.AsNoTracking()

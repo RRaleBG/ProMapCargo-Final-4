@@ -184,6 +184,11 @@
                 Style="{StaticResource PmSecondaryButton}"
                 Text="Prijavi problem" />
 
+            <Button
+                Command="{Binding CheckUpdateCommand}"
+                Style="{StaticResource PmGhostButton}"
+                Text="Proveri ažuriranje" />
+
             <Label
                 HorizontalTextAlignment="Center"
                 Style="{StaticResource PmRowDetailLabel}"

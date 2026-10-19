@@ -57,6 +57,14 @@
                     <div class="vehicle-form-grid">
 
                         <div class="vehicle-field vehicle-field-wide">
+                            <label for="userAccount">Nalog vozača (prijava na telefonu)</label>
+                            <select id="userAccount">
+                                <option value="">Bez naloga</option>
+                            </select>
+                            <small id="userAccountHint">Nalozi sa rolom Vozač koji još nemaju profil. Ime i e-mail se tada uzimaju iz naloga i ne mogu se menjati ovde.</small>
+                        </div>
+
+                        <div class="vehicle-field vehicle-field-wide">
                             <label for="fullName">
                                 Ime i prezime
                                 <span>*</span>
@@ -80,7 +88,7 @@
                         <div class="vehicle-field">
                             <label for="email">E-mail</label>
                             <input id="email" type="email" placeholder="vozac@firma.rs" autocomplete="off" />
-                            <small>Ako postoji nalog sa ovim e-mailom, vozač se povezuje sa njim (portal vozača i aplikacija).</small>
+                            <small>Ako postoji nalog sa ovim e-mailom, profil se vezuje za njega i preuzima ime iz naloga.</small>
                         </div>
 
                         <div class="vehicle-field">
@@ -170,8 +178,8 @@
                     <div class="vehicle-card-header pm-panel-heading">
                         <div>
                             <div class="vehicle-card-eyebrow">OPERATIVNO</div>
-                            <h2>Status i vozilo</h2>
-                            <p>Trenutni status vozača i vozilo kojim upravlja.</p>
+                            <h2>Status</h2>
+                            <p>Trenutni status vozača. Vozilo se dodeljuje na strani Vozila.</p>
                         </div>
 
                         <div class="vehicle-card-icon">
@@ -192,10 +200,8 @@
                         </div>
 
                         <div class="vehicle-field">
-                            <label for="assignedVehicle">Vozilo</label>
-                            <select id="assignedVehicle">
-                                <option value="">Nije dodeljeno</option>
-                            </select>
+                            <label>Vozilo</label>
+                            <small>Kamion i prikolica se vezuju za vozača samo na strani <a href="/vehicles">Vozila</a> (odeljak „Dodela vozača i prikolice").</small>
                         </div>
 
                         <div class="vehicle-field vehicle-field-wide">
@@ -259,7 +265,7 @@
                             <strong id="previewPhone">—</strong>
                         </div>
                         <div>
-                            <span>VOZILO</span>
+                            <span>NALOG</span>
                             <strong id="previewVehicle">—</strong>
                         </div>
                     </div>
@@ -330,7 +336,7 @@
 
             const required = ["fullName", "phone", "licenseNumber", "licenseExpiry"].map(function (id) { return document.getElementById(id); });
             const saveButtons = [document.getElementById("saveDriver"), document.getElementById("saveDriverTop")];
-            const vehicleSelect = document.getElementById("assignedVehicle");
+            const accountSelect = document.getElementById("userAccount");
 
 
             function value(id) {
@@ -353,7 +359,7 @@
                 document.getElementById("previewLicense").textContent = formatDate(value("licenseExpiry"));
                 document.getElementById("previewPhone").textContent = value("phone") || "—";
                 document.getElementById("previewVehicle").textContent =
-                    vehicleSelect.value ? vehicleSelect.options[vehicleSelect.selectedIndex].text.split(" · ")[0] : "—";
+                    accountSelect.value ? accountSelect.options[accountSelect.selectedIndex].dataset.email || "Povezan" : "Bez naloga";
 
                 document.getElementById("checkName").classList.toggle("complete", value("fullName").length > 0);
                 document.getElementById("checkPhone").classList.toggle("complete", value("phone").length > 0);
@@ -427,7 +433,7 @@
                         tachographCardNumber: value("tachographCardNumber") || null,
                         tachographCardExpiry: value("tachographCardExpiry") || null,
                         status: value("driverStatus") || null,
-                        vehicleId: vehicleSelect.value || null,
+                        userId: accountSelect.value || null,
                         notes: value("driverNotes") || null
                     })
                 })
@@ -453,17 +459,44 @@
             }
 
 
-            // Vehicles without a driver (trailers have none).
-            fetch("/api/business/vehicles", { headers: { "Accept": "application/json" }, credentials: "same-origin" })
+            // A profile made from an account takes the account's name and e-mail (locked here).
+            function applyAccount() {
+                const option = accountSelect.options[accountSelect.selectedIndex];
+                const linked = Boolean(accountSelect.value);
+                const fullName = document.getElementById("fullName");
+                const email = document.getElementById("email");
+                const phone = document.getElementById("phone");
+
+                fullName.readOnly = linked;
+                email.readOnly = linked;
+                if (linked) {
+                    fullName.value = option.dataset.name || "";
+                    email.value = option.dataset.email || "";
+                    if (!phone.value.trim() && option.dataset.phone) phone.value = option.dataset.phone;
+                }
+                updatePreview();
+            }
+
+            fetch("/api/business/drivers/accounts", { headers: { "Accept": "application/json" }, credentials: "same-origin" })
                 .then(function (response) { return response.ok ? response.json() : []; })
-                .then(function (vehicles) {
-                    vehicles
-                        .filter(function (vehicle) { return vehicle.type !== 2 && !vehicle.currentDriverId; })
-                        .forEach(function (vehicle) {
-                            vehicleSelect.add(new Option(vehicle.registration + " · " + [vehicle.make, vehicle.model].filter(Boolean).join(" "), vehicle.id));
-                        });
+                .then(function (accounts) {
+                    (Array.isArray(accounts) ? accounts : []).forEach(function (account) {
+                        const option = new Option(account.displayName + (account.email ? " · " + account.email : ""), account.id);
+                        option.dataset.name = account.displayName || "";
+                        option.dataset.email = account.email || "";
+                        option.dataset.phone = account.phoneNumber || "";
+                        accountSelect.add(option);
+                    });
+
+                    const requested = new URLSearchParams(window.location.search).get("userId");
+                    if (requested) {
+                        accountSelect.value = requested;
+                        applyAccount();
+                    }
                 })
                 .catch(function () { });
+
+            accountSelect.addEventListener("change", applyAccount);
 
             form.addEventListener("submit", function (event) {
                 event.preventDefault();

@@ -111,6 +111,45 @@
                                 <option value="Critical">Kritičan</option>
                             </select>
                         </div>
+
+                        <div class="pm-field">
+                            <label class="pm-label" for="driverId">Vozač</label>
+                            <select id="driverId" class="pm-select">
+                                <option value="">Bez vozača (dodeliti kasnije)</option>
+                            </select>
+                            <div class="pm-help" id="driverVehicleHint">Kamion i prikolica idu uz vozača (dodela na strani Vozila).</div>
+                        </div>
+                    </div>
+
+                    <h3 class="pm-card-title pm-order-finance-title">Cena i akontacija</h3>
+                    <div class="pm-form-grid pm-form-grid-4 pm-order-finance-grid">
+                        <div class="pm-field">
+                            <label class="pm-label" for="transportPrice">Cena transporta</label>
+                            <input id="transportPrice" class="pm-input" type="number" min="0" step="0.01" inputmode="decimal" />
+                            <div id="transportPrice-error" class="pm-error" hidden></div>
+                        </div>
+
+                        <div class="pm-field">
+                            <label class="pm-label" for="currency">Valuta</label>
+                            <select id="currency" class="pm-select">
+                                <option value="EUR" selected>EUR</option>
+                                <option value="RSD">RSD</option>
+                            </select>
+                        </div>
+
+                        <div class="pm-field">
+                            <label class="pm-label" for="driverEarningPercent">Zarada vozača (%)</label>
+                            <input id="driverEarningPercent" class="pm-input" type="number" min="0" max="100" step="0.1" inputmode="decimal" />
+                            <div id="driverEarningPercent-error" class="pm-error" hidden></div>
+                            <div class="pm-help" id="driverEarningAmount">Zarada: —</div>
+                        </div>
+
+                        <div class="pm-field">
+                            <label class="pm-label" for="advanceAmount">Akontacija vozaču</label>
+                            <input id="advanceAmount" class="pm-input" type="number" min="0" step="0.01" inputmode="decimal" />
+                            <div id="advanceAmount-error" class="pm-error" hidden></div>
+                            <div class="pm-help">Za putne troškove; vozač je opravdava poslovnim troškovima u aplikaciji.</div>
+                        </div>
                     </div>
                 </div>
 
@@ -273,6 +312,21 @@
                         <div class="pm-field">
                             <label class="pm-label" for="reviewHazmat">ADR</label>
                             <input id="reviewHazmat" class="pm-input" readonly />
+                        </div>
+
+                        <div class="pm-field">
+                            <label class="pm-label" for="reviewDriver">Vozač / vozilo</label>
+                            <input id="reviewDriver" class="pm-input" readonly />
+                        </div>
+
+                        <div class="pm-field">
+                            <label class="pm-label" for="reviewPrice">Cena / zarada vozača</label>
+                            <input id="reviewPrice" class="pm-input" readonly />
+                        </div>
+
+                        <div class="pm-field">
+                            <label class="pm-label" for="reviewAdvance">Akontacija</label>
+                            <input id="reviewAdvance" class="pm-input" readonly />
                         </div>
                     </div>
 

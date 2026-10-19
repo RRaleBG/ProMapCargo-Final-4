@@ -208,9 +208,9 @@ public sealed class DashboardViewModel : ViewModelBase
         get
         {
             var parts = new List<string>();
-            if (Trip?.Vehicle is { Length: > 0 } vehicle) parts.Add(vehicle);
+            if (Trip?.Vehicle is { Length: > 0 } vehicle) parts.Add(Trip.Trailer is { Length: > 0 } trailer ? $"{vehicle} + {trailer}" : vehicle);
             if (Trip?.PlannedArrivalAt is { } eta) parts.Add($"dolazak {eta.ToLocalTime():dd.MM. HH:mm}");
-            if (portal?.Financial?.BudgetAmount is { } budget) parts.Add($"budžet {FormatMoney(budget, portal.Financial.Currency)}");
+            // The trip budget is for dispatch (hidden from drivers on the web too); the driver sees his earning and advance.
             return string.Join(" · ", parts);
         }
     }
@@ -241,8 +241,24 @@ public sealed class DashboardViewModel : ViewModelBase
                 return "Zarada nije dostupna.";
             }
 
-            return $"Dnevnice {FormatMoney(financial.AllowanceAmount, financial.Currency)} · isplaćeno {FormatMoney(financial.PaidOutAmount, financial.Currency)} · na čekanju {FormatMoney(financial.PendingAmount, financial.Currency)}";
+            var earning = financial.DriverEarningAmount is decimal amount ? $"Zarada {FormatMoney(amount, financial.Currency)} · " : "";
+            return $"{earning}Dnevnice {FormatMoney(financial.AllowanceAmount, financial.Currency)} · isplaćeno {FormatMoney(financial.PaidOutAmount, financial.Currency)} · na čekanju {FormatMoney(financial.PendingAmount, financial.Currency)}{Environment.NewLine}{AdvanceText(financial)}";
         }
+    }
+
+    // The advance against the business expenses the driver paid himself.
+    private static string AdvanceText(DriverPortalFinancial financial)
+    {
+        if (financial.AdvanceAmount is not decimal advance)
+        {
+            return $"Bez akontacije · vaši poslovni troškovi {FormatMoney(financial.AdvanceSpentAmount, financial.Currency)}";
+        }
+
+        var balance = financial.AdvanceBalance ?? 0;
+        var settlement = balance > 0
+            ? $"vraćate {FormatMoney(balance, financial.Currency)}"
+            : balance < 0 ? $"firma vam duguje {FormatMoney(-balance, financial.Currency)}" : "izmireno";
+        return $"Akontacija {FormatMoney(advance, financial.Currency)} · opravdano {FormatMoney(financial.AdvanceSpentAmount, financial.Currency)} · {settlement}";
     }
 
     public string EuStaySummary => portal?.EuStay?.StatusText ?? "EU 90/180 pregled nije dostupan.";
@@ -504,6 +520,7 @@ public sealed class DashboardViewModel : ViewModelBase
         if (portal?.Driver?.Id is { } driverId)
         {
             _ = chat.StartAsync(driverId);
+            _ = chat.RefreshUnreadAsync(CancellationToken.None);
         }
 
         // Planned: arrival at 200 m; already there: completion when the truck leaves.

@@ -29,7 +29,8 @@ public sealed class SettingsViewModel : ViewModelBase
         ApiClient apiClient,
         OfflineWebCache offlineWebCache,
         DriverPortalStore portalStore,
-        IMobileNotifier notifier)
+        IMobileNotifier notifier,
+        AppUpdateService updates)
     {
         this.serverEndpointService = serverEndpointService;
         this.sessionService = sessionService;
@@ -47,6 +48,7 @@ public sealed class SettingsViewModel : ViewModelBase
         TestServerCommand = new Command(async () => await TestServerAsync(), () => !isTestingServer);
         ClearCacheCommand = new Command(ClearCache);
         BackCommand = new Command(async () => await AppNavigation.GoToAsync(AppNavigation.Dashboard));
+        CheckUpdateCommand = new Command(async () => await updates.CheckAsync(userAsked: true));
 
         telemetry.StatusChanged += (_, _) => RaisePropertyChanged(nameof(LocationStatusText));
     }
@@ -62,6 +64,9 @@ public sealed class SettingsViewModel : ViewModelBase
     public ICommand ClearCacheCommand { get; }
 
     public ICommand BackCommand { get; }
+
+    /// <summary>Asks the server for a newer app now (otherwise checked at start-up).</summary>
+    public ICommand CheckUpdateCommand { get; }
 
     // ---- Account ----
 

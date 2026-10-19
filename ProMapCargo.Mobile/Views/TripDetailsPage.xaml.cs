@@ -16,8 +16,19 @@ public partial class TripDetailsPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
+        AppLifecycle.Resumed += OnAppResumed;
         SafeUi.Run(() => viewModel.LoadAsync());
     }
+
+    protected override void OnDisappearing()
+    {
+        AppLifecycle.Resumed -= OnAppResumed;
+        base.OnDisappearing();
+    }
+
+    // Back in the app: costs, stops and the advance may have changed meanwhile.
+    private void OnAppResumed(object? sender, EventArgs e)
+        => SafeUi.Run(() => viewModel.LoadAsync());
 
     private void OnBackClicked(object? sender, EventArgs e)
         => SafeUi.Run(() => AppNavigation.GoToAsync(AppNavigation.Dashboard));

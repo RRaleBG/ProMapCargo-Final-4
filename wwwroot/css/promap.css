@@ -677,6 +677,13 @@ svg {
   border: 1px solid rgba(251, 113, 133, 0.15);
 }
 
+/* Unread messages next to "Poruke" (services/messages.js). */
+.pm-nav-count.info {
+  background: rgba(45, 212, 191, 0.16);
+  color: #7af6df;
+  border: 1px solid rgba(45, 212, 191, 0.35);
+}
+
 .pm-sidebar-footer {
   margin: 4px 5px 4px;
   padding: 10px;
@@ -4128,6 +4135,114 @@ textarea:valid {
 .pm-account-admin-toolbar .pm-select {
   min-height: 38px;
   width: 100%;
+}
+
+.pm-account-admin-user-forms {
+  padding: 0 14px 14px;
+}
+
+.pm-account-admin-form-card {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--pm-border-soft);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pm-account-admin-form-card .pm-card-title {
+  margin: 0;
+  font-size: var(--pm-font-sm);
+}
+
+.pm-form-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pm-account-admin-create-user-field > span {
+  color: var(--pm-text-muted);
+  font-size: var(--pm-font-2xs);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.pm-account-admin-create-user-field .pm-input,
+.pm-account-admin-create-user-field .pm-select {
+  width: 100%;
+  min-height: 38px;
+}
+
+.pm-account-admin-role-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.pm-account-admin-role-picks > legend:not(.pm-sr-only) {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 0;
+  color: var(--pm-text-muted);
+  font-size: var(--pm-font-2xs);
+  font-weight: 700;
+}
+
+.pm-account-admin-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--pm-text-soft);
+  font-size: var(--pm-font-xs);
+  cursor: pointer;
+}
+
+.pm-account-admin-check input {
+  accent-color: #2dd4bf;
+}
+
+.pm-account-admin-driver-note {
+  margin: 0;
+  color: var(--pm-text-muted);
+  font-size: var(--pm-font-xs);
+  line-height: 1.45;
+}
+
+.pm-account-admin-driver-note a,
+.pm-account-admin-driver-missing a {
+  color: #7af6df;
+}
+
+.pm-account-admin-driver-missing {
+  color: #fbbf24;
+}
+
+.pm-account-admin-create-user-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pm-account-admin-edit-form {
+  display: grid;
+  gap: 8px;
+  min-width: 260px;
+  margin: 0;
+}
+
+.pm-account-admin-edit-form .pm-input,
+.pm-account-admin-edit-form .pm-select {
+  width: 100%;
+  min-height: 36px;
+}
+
+@media (max-width: 760px) {
+  .pm-form-grid--2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .pm-account-admin-role-list {
@@ -17981,6 +18096,44 @@ select:focus-visible {
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.pm-order-finance-title {
+  margin: 22px 0 12px;
+}
+
+.pm-order-finance-grid > .pm-field {
+  align-content: start;
+}
+
+.pm-vehicle-assignment-note {
+  margin: 0 0 12px;
+  color: var(--pm-text-muted);
+  font-size: var(--pm-font-xs);
+  line-height: 1.45;
+}
+
+.pm-vehicle-assignment-form {
+  display: grid;
+  gap: 10px;
+}
+
+.pm-vehicle-assignment-form .pm-field > span {
+  color: var(--pm-text-muted);
+  font-size: var(--pm-font-2xs);
+  font-weight: 700;
+}
+
+.pm-vehicle-assignment-form .pm-select {
+  width: 100%;
+  min-height: 38px;
+}
+
+.pm-vehicle-assignment-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .pm-vehicle-detail-grid {

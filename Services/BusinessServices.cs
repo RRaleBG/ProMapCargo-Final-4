@@ -62,6 +62,7 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
         }
 
         var now = DateTimeOffset.UtcNow;
+        var driver = await FindOrderDriverAsync(companyId, request.DriverId, ct);
 
         await using var transaction =
             await db.Database.BeginTransactionAsync(ct);
@@ -74,7 +75,7 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
             OrderNumber = orderNumber,
             CustomerName = request.CustomerName.Trim(),
 
-            Status = TransportOrderStatus.Draft,
+            Status = driver is null ? TransportOrderStatus.Draft : TransportOrderStatus.Assigned,
             Priority = request.Priority,
 
             CargoDescription = Clean(request.CargoDescription),
@@ -82,6 +83,13 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
             CargoVolumeM3 = request.CargoVolumeM3,
             Pallets = request.Pallets,
             Hazmat = request.Hazmat,
+
+            DriverId = driver?.Id,
+            VehicleId = driver?.CurrentVehicleId,
+            TransportPrice = request.TransportPrice,
+            DriverEarningPercent = request.DriverEarningPercent,
+            AdvanceAmount = request.AdvanceAmount,
+            Currency = NormalizeCurrency(request.Currency),
 
             CreatedAt = now,
             UpdatedAt = now
@@ -120,7 +128,20 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
         }).ToList();
 
         db.TransportStops.AddRange(stops);
-        audit.Add("Order.Create", nameof(TransportOrder), order.Id, new { order.OrderNumber, order.CustomerName, Stops = stops.Count });
+
+        // Every order is carried out as a trip: it is created with the order and follows it.
+        var trip = new Trip
+        {
+            Id = Guid.NewGuid(),
+            CompanyId = companyId,
+            TransportOrderId = order.Id,
+            TripNumber = order.OrderNumber,
+            CreatedAt = now,
+        };
+        ApplyOrderToTrip(order, stops, trip);
+        db.Trips.Add(trip);
+
+        audit.Add("Order.Create", nameof(TransportOrder), order.Id, new { order.OrderNumber, order.CustomerName, Stops = stops.Count, order.DriverId, TripId = trip.Id });
 
         await db.SaveChangesAsync(ct);
 
@@ -128,6 +149,68 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
 
         return order;
     }
+
+    private async Task<Driver?> FindOrderDriverAsync(Guid companyId, Guid? driverId, CancellationToken ct)
+    {
+        if (driverId is not Guid id)
+        {
+            return null;
+        }
+
+        return await db.Drivers.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == id, ct)
+               ?? throw new ArgumentException("Izabrani vozač ne postoji.");
+    }
+
+    /// <summary>
+    /// Copies what the trip takes from its order: driver, vehicle, currency and the planned
+    /// times of the first and last stop. A finished or cancelled trip is left as it was.
+    /// </summary>
+    private static void ApplyOrderToTrip(TransportOrder order, IReadOnlyList<TransportStop> stops, Trip trip)
+    {
+        if (trip.Status is TripStatus.Completed or TripStatus.Cancelled)
+        {
+            return;
+        }
+
+        trip.DriverId = order.DriverId;
+        trip.VehicleId = order.VehicleId;
+        trip.Currency = order.Currency;
+        trip.TripNumber ??= order.OrderNumber;
+
+        var ordered = stops.OrderBy(x => x.Sequence).ToList();
+        trip.PlannedStartAt = ordered.FirstOrDefault()?.PlannedAt;
+        trip.PlannedArrivalAt = ordered.LastOrDefault()?.PlannedAt;
+
+        if (trip.Status == TripStatus.Planned)
+        {
+            trip.ExecutionState = order.DriverId is null ? TripExecutionState.Planned : TripExecutionState.Assigned;
+        }
+    }
+
+    /// <summary>
+    /// The advance against the business expenses the driver paid himself (cash or his own card;
+    /// not rejected; allowances and payouts are not expenses). Balance above zero: the driver
+    /// returns it; below zero: the company owes the driver.
+    /// </summary>
+    internal static (decimal? Amount, decimal Spent, decimal? Balance) AdvanceSettlement(TransportOrder? order, IEnumerable<TransportCost> tripCosts)
+    {
+        var spent = tripCosts
+            .Where(x => x.Status != TransportCostStatus.Rejected &&
+                        x.Category is not (TransportCostCategory.Allowance or TransportCostCategory.Payment) &&
+                        x.PaymentMethod is "cash" or "driver-card")
+            .Sum(x => x.Amount);
+        var amount = order?.AdvanceAmount;
+        return (amount, spent, amount is decimal given ? given - spent : null);
+    }
+
+    private static string NormalizeCurrency(string? value)
+        => string.IsNullOrWhiteSpace(value) ? "EUR" : value.Trim().ToUpperInvariant();
+
+    /// <summary>The driver's share of the transport price, or null when price or percent is missing.</summary>
+    internal static decimal? DriverEarning(TransportOrder order)
+        => order.TransportPrice is decimal price && order.DriverEarningPercent is decimal percent
+            ? Math.Round(price * percent / 100m, 2, MidpointRounding.AwayFromZero)
+            : null;
 
     public async Task<TransportOrder?> OrderAsync(Guid orderId, CancellationToken ct)
     {
@@ -182,6 +265,26 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
         if (request.Pallets is < 0)
         {
             throw new ArgumentException("Broj paleta ne može biti negativan.");
+        }
+
+        if (request.TransportPrice is < 0)
+        {
+            throw new ArgumentException("Cena transporta ne može biti negativna.");
+        }
+
+        if (request.DriverEarningPercent is < 0 or > 100)
+        {
+            throw new ArgumentException("Zarada vozača mora biti između 0 i 100 %.");
+        }
+
+        if (request.AdvanceAmount is < 0)
+        {
+            throw new ArgumentException("Akontacija ne može biti negativna.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Currency) && request.Currency.Trim().Length != 3)
+        {
+            throw new ArgumentException("Valuta mora imati 3 slova (npr. EUR, RSD).");
         }
 
         if (request.Stops is null || request.Stops.Count < 2)
@@ -263,13 +366,31 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
             : value.Trim().ToUpperInvariant();
     }
 
+    /// <summary>
+    /// A driver (without a dispatch or admin role) sees only his own trips, and in them only
+    /// what concerns him: no transport price, budget or other drivers' history.
+    /// </summary>
+    private bool IsDriverOnly =>
+        current.IsInRole("Driver") && !current.IsAdministrator && !current.IsInRole("Dispatcher") && !current.IsInRole("Manager");
+
+    private async Task<Guid?> CurrentDriverIdAsync(Guid companyId, CancellationToken ct)
+        => current.UserId is Guid userId
+            ? await db.Drivers.AsNoTracking().Where(x => x.CompanyId == companyId && x.UserId == userId).Select(x => (Guid?)x.Id).FirstOrDefaultAsync(ct)
+            : null;
+
     public async Task<List<Trip>> TripsAsync(CancellationToken ct)
     {
         var companyId = GetRequiredCompanyId();
+        var query = db.Trips.Where(x => x.CompanyId == companyId);
 
-        return await db.Trips
-            .Where(x => x.CompanyId == companyId)
-            .OrderByDescending(x => x.Id)
+        if (IsDriverOnly)
+        {
+            var ownDriverId = await CurrentDriverIdAsync(companyId, ct);
+            query = query.Where(x => ownDriverId != null && x.DriverId == ownDriverId);
+        }
+
+        return await query
+            .OrderByDescending(x => x.CreatedAt)
             .Take(500)
             .ToListAsync(ct);
     }
@@ -280,6 +401,12 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
         var trip = await db.Trips.AsNoTracking()
             .SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == tripId, ct);
         if (trip is null)
+        {
+            return null;
+        }
+
+        var driverView = IsDriverOnly;
+        if (driverView && (trip.DriverId is null || trip.DriverId != await CurrentDriverIdAsync(companyId, ct)))
         {
             return null;
         }
@@ -348,8 +475,10 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
         var allowance = costs.Where(x => x.Status != TransportCostStatus.Rejected && x.Category == TransportCostCategory.Allowance).Sum(x => x.Amount);
         var payments = costs.Where(x => x.Status != TransportCostStatus.Rejected && x.Category == TransportCostCategory.Payment).Sum(x => x.Amount);
         var driverPaid = costs.Where(x => x.Status != TransportCostStatus.Rejected && x.PaymentMethod is "cash" or "driver-card").Sum(x => x.Amount);
+        var advance = AdvanceSettlement(order, costs);
 
         return new TripDetails(
+            driverView,
             new TripDetailsSummary(
                 trip.Id,
                 trip.TripNumber,
@@ -370,9 +499,9 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
                 trip.CurrentLongitude,
                 trip.CurrentSpeedKmh,
                 trip.LastGpsAt,
-                trip.BudgetAmount,
+                driverView ? null : trip.BudgetAmount,
                 trip.Currency,
-                trip.BudgetAmount is null ? null : trip.BudgetAmount.Value - spent),
+                driverView || trip.BudgetAmount is null ? null : trip.BudgetAmount.Value - spent),
             order is null ? null : new TripOrderDetails(
                 order.Id,
                 order.OrderNumber,
@@ -397,7 +526,7 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
                 driver.LicenseCategories,
                 driver.CurrentVehicleId,
                 driver.LastGpsAt,
-                driver.Notes,
+                driverView ? null : driver.Notes,
                 [.. historySource.Where(x => x.DriverId == driver.Id).Select(x => MapHistoryTrip(x, historyOrders, historyStops))]),
             vehicle is null ? null : new TripVehicleDetails(
                 vehicle.Id,
@@ -420,17 +549,25 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
                 vehicle.MaxSpeedKmh,
                 vehicle.Hazmat,
                 vehicle.Notes,
-                historySource.Where(x => x.VehicleId == vehicle.Id).Select(x => MapHistoryTrip(x, historyOrders, historyStops)).ToList()),
+                driverView
+                    ? []
+                    : historySource.Where(x => x.VehicleId == vehicle.Id).Select(x => MapHistoryTrip(x, historyOrders, historyStops)).ToList()),
             dispatcher,
             new TripFinancialDetails(
-                trip.Currency,
-                trip.BudgetAmount,
+                order?.Currency ?? trip.Currency,
+                driverView ? null : trip.BudgetAmount,
                 spent,
                 allowance,
                 payments,
                 driverPaid,
                 costs.Where(x => x.Status == TransportCostStatus.Pending).Sum(x => x.Amount),
-                [.. costs.Select(MapCost)]),
+                [.. costs.Select(MapCost)],
+                driverView ? null : order?.TransportPrice,
+                driverView ? null : order?.DriverEarningPercent,
+                order is null ? null : DriverEarning(order),
+                advance.Amount,
+                advance.Spent,
+                advance.Balance),
             new TripComplianceDetails(
                 countrySegments.Select(x => new TripCountrySegmentDetails(x.Sequence, x.CountryCode, x.DistanceMeters, x.DurationSeconds, x.EstimatedEntry, x.EstimatedExit)).ToList(),
                 borderCrossings.Select(x => new TripBorderCrossingDetails(x.Id, x.CountryFrom, x.CountryTo, x.BorderPoint, x.Status.ToString(), x.EnteredAt, x.ClearedAt, x.WaitingMinutes, x.Inspection, x.CostAmount, x.Currency, x.Notes)).ToList(),
@@ -765,7 +902,9 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
             throw new InvalidOperationException($"Transportni nalog sa brojem '{orderNumber}' već postoji.");
         }
 
-        var old = new { order.OrderNumber, order.CustomerName, order.Priority, order.CargoWeightTons };
+        var driver = await FindOrderDriverAsync(companyId, request.DriverId, ct);
+
+        var old = new { order.OrderNumber, order.CustomerName, order.Priority, order.CargoWeightTons, order.DriverId, order.TransportPrice, order.DriverEarningPercent, order.AdvanceAmount };
         order.OrderNumber = orderNumber;
         order.CustomerName = request.CustomerName.Trim();
         order.Priority = request.Priority;
@@ -774,13 +913,27 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
         order.CargoVolumeM3 = request.CargoVolumeM3;
         order.Pallets = request.Pallets;
         order.Hazmat = request.Hazmat;
+        if (order.DriverId != driver?.Id)
+        {
+            // A new driver brings his current vehicle; the same driver keeps the order's vehicle.
+            order.VehicleId = driver?.CurrentVehicleId;
+        }
+        order.DriverId = driver?.Id;
+        if (driver is not null && order.Status == TransportOrderStatus.Draft)
+        {
+            order.Status = TransportOrderStatus.Assigned;
+        }
+        order.TransportPrice = request.TransportPrice;
+        order.DriverEarningPercent = request.DriverEarningPercent;
+        order.AdvanceAmount = request.AdvanceAmount;
+        order.Currency = NormalizeCurrency(request.Currency);
         order.UpdatedAt = DateTimeOffset.UtcNow;
 
         // Stops are replaced by the edited list; progress already recorded on a stop that
         // keeps its place in the sequence is kept.
         var existing = await db.TransportStops.Where(x => x.CompanyId == companyId && x.TransportOrderId == orderId).ToListAsync(ct);
         db.TransportStops.RemoveRange(existing);
-        db.TransportStops.AddRange(request.Stops.Select((requestStop, index) =>
+        var newStops = request.Stops.Select((requestStop, index) =>
         {
             var previous = existing.FirstOrDefault(x => x.Sequence == index + 1);
             return new TransportStop
@@ -804,9 +957,26 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
                 ServiceMinutes = requestStop.ServiceMinutes,
                 Notes = Clean(requestStop.Notes),
             };
-        }));
+        }).ToList();
+        db.TransportStops.AddRange(newStops);
 
-        audit.Add("Order.Update", nameof(TransportOrder), order.Id, new { order.OrderNumber, order.CustomerName, order.Priority, order.CargoWeightTons }, old);
+        var trip = await db.Trips
+            .Where(x => x.CompanyId == companyId && x.TransportOrderId == order.Id)
+            .OrderByDescending(x => x.CreatedAt)
+            .FirstOrDefaultAsync(ct);
+        if (trip is null)
+        {
+            // Orders saved before trips were created with the order get theirs now.
+            trip = new Trip { Id = Guid.NewGuid(), CompanyId = companyId, TransportOrderId = order.Id, CreatedAt = DateTimeOffset.UtcNow };
+            db.Trips.Add(trip);
+        }
+        else if (trip.TripNumber == old.OrderNumber)
+        {
+            trip.TripNumber = order.OrderNumber;
+        }
+        ApplyOrderToTrip(order, newStops, trip);
+
+        audit.Add("Order.Update", nameof(TransportOrder), order.Id, new { order.OrderNumber, order.CustomerName, order.Priority, order.CargoWeightTons, order.DriverId, order.TransportPrice, order.DriverEarningPercent, order.AdvanceAmount }, old);
         await db.SaveChangesAsync(ct);
         return order;
     }
@@ -831,14 +1001,7 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
             throw new InvalidOperationException($"Vozilo sa registracijom '{registration}' već postoji.");
         }
 
-        var driver = input.DriverId is { } driverId
-            ? await db.Drivers.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == driverId, ct) ?? throw new ArgumentException("Izabrani vozač ne postoji.")
-            : null;
-        if (input.TrailerId is { } trailerId && !await db.Vehicles.AnyAsync(x => x.CompanyId == companyId && x.Id == trailerId && x.Type == VehicleType.Trailer, ct))
-        {
-            throw new ArgumentException("Izabrana prikolica ne postoji.");
-        }
-
+        // Driver and trailer are assigned on /vehicles (AssignVehicleAsync), not here.
         var vehicle = new Vehicle
         {
             Id = Guid.NewGuid(),
@@ -869,10 +1032,8 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
             MaxSpeedKmh = input.MaxSpeedKmh ?? 90,
             Status = input.Status ?? VehicleStatus.Active,
             Department = Clean(input.Department),
-            CurrentDriverId = driver?.Id,
             FuelCard = Clean(input.FuelCard),
             Notes = Clean(input.Notes),
-            TrailerId = input.TrailerId,
             TechnicalInspectionExpiry = input.TechnicalInspectionExpiry,
             TirExpiry = input.TirExpiry,
             EuroConfirmationExpiry = input.EuroConfirmationExpiry,
@@ -884,33 +1045,170 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
         };
         db.Vehicles.Add(vehicle);
 
-        if (driver is not null)
+        audit.Add("Vehicle.Create", nameof(Vehicle), vehicle.Id, new { vehicle.Registration, vehicle.Name, vehicle.Type });
+        await db.SaveChangesAsync(ct);
+        return vehicle;
+    }
+
+    // ---- Vehicle assignment: the only place where a driver and a trailer are paired with a vehicle ----
+
+    /// <summary>
+    /// Puts the driver and the trailer on the vehicle (null takes them off). A driver or trailer
+    /// that was on another vehicle is moved; trips not yet finished follow the driver.
+    /// </summary>
+    public async Task<Vehicle> AssignVehicleAsync(Guid vehicleId, VehicleAssignmentInput input, CancellationToken ct)
+    {
+        var companyId = GetRequiredCompanyId();
+        if (IsDriverOnly)
         {
-            driver.CurrentVehicleId = vehicle.Id;
+            throw new InvalidOperationException("Vozač ne može menjati dodelu vozila.");
         }
 
-        if (vehicle.TrailerId is not null)
+        var vehicle = await db.Vehicles.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == vehicleId, ct)
+                      ?? throw new KeyNotFoundException("Vozilo nije pronađeno.");
+        if (vehicle.Type == VehicleType.Trailer)
         {
+            throw new ArgumentException("Prikolici se ne dodeljuje vozač: dodelite je kamionu.");
+        }
+
+        var driver = input.DriverId is Guid driverId
+            ? await db.Drivers.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == driverId, ct) ?? throw new ArgumentException("Izabrani vozač ne postoji.")
+            : null;
+        var trailer = input.TrailerId is Guid trailerId
+            ? await db.Vehicles.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == trailerId && x.Type == VehicleType.Trailer, ct) ?? throw new ArgumentException("Izabrana prikolica ne postoji.")
+            : null;
+
+        var old = new { vehicle.CurrentDriverId, vehicle.TrailerId };
+
+        // Driver: off the vehicle he drove until now, and the vehicle's previous driver loses it.
+        if (vehicle.CurrentDriverId != driver?.Id)
+        {
+            if (vehicle.CurrentDriverId is Guid previousDriverId)
+            {
+                var previousDriver = await db.Drivers.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == previousDriverId, ct);
+                if (previousDriver is not null && previousDriver.CurrentVehicleId == vehicle.Id)
+                {
+                    previousDriver.CurrentVehicleId = null;
+                }
+            }
+
+            if (driver is not null)
+            {
+                var otherVehicles = await db.Vehicles
+                    .Where(x => x.CompanyId == companyId && x.Id != vehicle.Id && x.CurrentDriverId == driver.Id)
+                    .ToListAsync(ct);
+                foreach (var other in otherVehicles)
+                {
+                    other.CurrentDriverId = null;
+                }
+
+                driver.CurrentVehicleId = vehicle.Id;
+            }
+
+            vehicle.CurrentDriverId = driver?.Id;
+        }
+
+        // Trailer: one trailer hangs on one vehicle at a time.
+        if (vehicle.TrailerId != trailer?.Id)
+        {
+            if (trailer is not null)
+            {
+                var towing = await db.Vehicles.Where(x => x.CompanyId == companyId && x.Id != vehicle.Id && x.TrailerId == trailer.Id).ToListAsync(ct);
+                foreach (var other in towing)
+                {
+                    other.TrailerId = null;
+                    db.TrailerAssignments.Add(new TrailerAssignment
+                    {
+                        Id = Guid.NewGuid(), CompanyId = companyId, VehicleId = other.Id, TrailerId = null,
+                        AssignedAt = DateTimeOffset.UtcNow, AssignedByUserId = current.UserId,
+                    });
+                }
+            }
+
+            vehicle.TrailerId = trailer?.Id;
             db.TrailerAssignments.Add(new TrailerAssignment
             {
-                Id = Guid.NewGuid(), CompanyId = companyId, VehicleId = vehicle.Id, TrailerId = vehicle.TrailerId,
+                Id = Guid.NewGuid(), CompanyId = companyId, VehicleId = vehicle.Id, TrailerId = trailer?.Id,
                 AssignedAt = DateTimeOffset.UtcNow, AssignedByUserId = current.UserId,
             });
         }
 
-        audit.Add("Vehicle.Create", nameof(Vehicle), vehicle.Id, new { vehicle.Registration, vehicle.Name, vehicle.Type });
+        // Trips and orders not yet finished move with the driver to the vehicle he now drives.
+        if (driver is not null)
+        {
+            var openTrips = await db.Trips
+                .Where(x => x.CompanyId == companyId && x.DriverId == driver.Id && x.Status != TripStatus.Completed && x.Status != TripStatus.Cancelled)
+                .ToListAsync(ct);
+            var openOrderIds = openTrips.Select(x => x.TransportOrderId).ToList();
+            var openOrders = await db.TransportOrders.Where(x => x.CompanyId == companyId && openOrderIds.Contains(x.Id)).ToListAsync(ct);
+            foreach (var trip in openTrips)
+            {
+                trip.VehicleId = vehicle.Id;
+            }
+
+            foreach (var order in openOrders)
+            {
+                order.VehicleId = vehicle.Id;
+                order.UpdatedAt = DateTimeOffset.UtcNow;
+            }
+        }
+
+        audit.Add("Vehicle.Assign", nameof(Vehicle), vehicle.Id, new { vehicle.Registration, vehicle.CurrentDriverId, vehicle.TrailerId }, old);
         await db.SaveChangesAsync(ct);
         return vehicle;
     }
 
     // ---- Drivers ("Novi vozač") ----
 
+    /// <summary>Accounts of the company with the Driver role that have no driver profile yet.</summary>
+    public async Task<List<DriverAccountOption>> DriverAccountsWithoutProfileAsync(CancellationToken ct)
+    {
+        var companyId = GetRequiredCompanyId();
+
+        var driverRoleIds = db.Roles.Where(x => x.NormalizedName == "DRIVER").Select(x => x.Id);
+        var driverUserIds = db.UserRoles.Where(x => driverRoleIds.Contains(x.RoleId)).Select(x => x.UserId);
+        var linkedUserIds = db.Drivers.Where(x => x.UserId != null).Select(x => x.UserId!.Value);
+
+        return await db.Users.AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.IsActive && driverUserIds.Contains(x.Id) && !linkedUserIds.Contains(x.Id))
+            .OrderBy(x => x.DisplayName)
+            .Select(x => new DriverAccountOption(x.Id, x.DisplayName, x.Email, x.PhoneNumber))
+            .ToListAsync(ct);
+    }
+
     public async Task<Driver> CreateDriverAsync(DriverInput input, CancellationToken ct)
     {
         var companyId = GetRequiredCompanyId();
 
-        if (string.IsNullOrWhiteSpace(input.FullName)) throw new ArgumentException("Ime i prezime vozača je obavezno.");
-        if (string.IsNullOrWhiteSpace(input.Phone)) throw new ArgumentException("Telefon vozača je obavezan.");
+        // The phone and the driver portal find the driver by his account: the chosen account,
+        // or the one with the same e-mail. A linked profile takes name and e-mail from the
+        // account, so an account cannot be given someone else's name.
+        ApplicationUser? user = null;
+        if (input.UserId is Guid accountId)
+        {
+            user = await db.Users.SingleOrDefaultAsync(x => x.Id == accountId && (x.CompanyId == companyId || x.CompanyId == null), ct)
+                   ?? throw new ArgumentException("Izabrani nalog ne postoji.");
+            if (await db.Drivers.AnyAsync(x => x.UserId == user.Id, ct))
+            {
+                throw new InvalidOperationException($"Nalog {user.Email} već ima profil vozača.");
+            }
+        }
+        else if (Clean(input.Email) is { } typedEmail)
+        {
+            var normalized = typedEmail.ToUpperInvariant();
+            user = await db.Users.SingleOrDefaultAsync(x => x.NormalizedEmail == normalized && (x.CompanyId == companyId || x.CompanyId == null), ct);
+            if (user is not null && await db.Drivers.AnyAsync(x => x.UserId == user.Id, ct))
+            {
+                throw new InvalidOperationException($"Nalog {user.Email} već ima profil vozača.");
+            }
+        }
+
+        var fullName = user?.DisplayName ?? input.FullName?.Trim();
+        var email = (user?.Email ?? Clean(input.Email))?.ToLowerInvariant();
+        var phone = Clean(input.Phone) ?? Clean(user?.PhoneNumber);
+
+        if (string.IsNullOrWhiteSpace(fullName)) throw new ArgumentException("Ime i prezime vozača je obavezno.");
+        if (phone is null) throw new ArgumentException("Telefon vozača je obavezan.");
         if (string.IsNullOrWhiteSpace(input.LicenseNumber)) throw new ArgumentException("Broj vozačke dozvole je obavezan.");
         if (input.LicenseExpiry is null) throw new ArgumentException("Datum isteka vozačke dozvole je obavezan.");
 
@@ -920,32 +1218,20 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
             throw new InvalidOperationException($"Vozač sa brojem '{employeeNumber}' već postoji.");
         }
 
-        var vehicle = input.VehicleId is { } vehicleId
-            ? await db.Vehicles.SingleOrDefaultAsync(x => x.CompanyId == companyId && x.Id == vehicleId, ct) ?? throw new ArgumentException("Izabrano vozilo ne postoji.")
-            : null;
-
-        // The driver portal and the phone find the driver by the account with the same e-mail.
-        var email = Clean(input.Email)?.ToLowerInvariant();
-        Guid? userId = null;
-        if (email is not null)
+        if (user is not null)
         {
-            var normalized = email.ToUpperInvariant();
-            var user = await db.Users.SingleOrDefaultAsync(x => x.NormalizedEmail == normalized && (x.CompanyId == companyId || x.CompanyId == null), ct);
-            if (user is not null && !await db.Drivers.AnyAsync(x => x.UserId == user.Id, ct))
-            {
-                userId = user.Id;
-                user.CompanyId ??= companyId;
-            }
+            user.CompanyId ??= companyId;
         }
 
+        // The vehicle is assigned on /vehicles (AssignVehicleAsync), not here.
         var driver = new Driver
         {
             Id = Guid.NewGuid(),
             CompanyId = companyId,
-            UserId = userId,
-            FullName = input.FullName.Trim(),
+            UserId = user?.Id,
+            FullName = fullName,
             EmployeeNumber = employeeNumber,
-            Phone = input.Phone.Trim(),
+            Phone = phone,
             Email = email,
             Address = Clean(input.Address),
             LicenseNumber = input.LicenseNumber.Trim().ToUpperInvariant(),
@@ -958,18 +1244,12 @@ public sealed class BusinessService(ProMapCargoDbContext db, ICurrentUserContext
             MedicalExpiry = input.MedicalExpiry,
             HireDate = input.HireDate,
             Status = input.Status ?? DriverStatus.Active,
-            CurrentVehicleId = vehicle?.Id,
             Notes = Clean(input.Notes),
             CreatedAt = DateTimeOffset.UtcNow,
         };
         db.Drivers.Add(driver);
 
-        if (vehicle is not null)
-        {
-            vehicle.CurrentDriverId = driver.Id;
-        }
-
-        audit.Add("Driver.Create", nameof(Driver), driver.Id, new { driver.FullName, driver.EmployeeNumber, LinkedAccount = userId is not null });
+        audit.Add("Driver.Create", nameof(Driver), driver.Id, new { driver.FullName, driver.EmployeeNumber, LinkedAccount = user is not null });
         await db.SaveChangesAsync(ct);
         return driver;
     }
@@ -1010,6 +1290,13 @@ public sealed record CreateTransportOrderRequest
     public decimal? CargoVolumeM3 { get; init; }
     public int? Pallets { get; init; }
     public bool Hazmat { get; init; }
+
+    // The driver brings the vehicle (and trailer) currently assigned to him on /vehicles.
+    public Guid? DriverId { get; init; }
+    public decimal? TransportPrice { get; init; }
+    public decimal? DriverEarningPercent { get; init; }
+    public decimal? AdvanceAmount { get; init; }
+    public string? Currency { get; init; }
     public List<CreateTransportStopRequest> Stops { get; init; } = [];
 }
 
@@ -1070,10 +1357,8 @@ public sealed record VehicleInput
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public VehicleStatus? Status { get; init; }
     public string? Department { get; init; }
-    public Guid? DriverId { get; init; }
     public string? FuelCard { get; init; }
     public string? Notes { get; init; }
-    public Guid? TrailerId { get; init; }
     public DateOnly? TechnicalInspectionExpiry { get; init; }
     public DateOnly? TirExpiry { get; init; }
     public DateOnly? EuroConfirmationExpiry { get; init; }
@@ -1100,11 +1385,22 @@ public sealed record DriverInput
     public DateOnly? HireDate { get; init; }
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public DriverStatus? Status { get; init; }
-    public Guid? VehicleId { get; init; }
+
+    // Account the profile belongs to; its name and e-mail are used instead of FullName/Email.
+    public Guid? UserId { get; init; }
     public string? Notes { get; init; }
 }
 
+public sealed record VehicleAssignmentInput
+{
+    public Guid? DriverId { get; init; }
+    public Guid? TrailerId { get; init; }
+}
+
+public sealed record DriverAccountOption(Guid Id, string DisplayName, string? Email, string? PhoneNumber);
+
 public sealed record TripDetails(
+    bool DriverView,
     TripDetailsSummary Trip,
     TripOrderDetails? Order,
     TripDriverDetails? Driver,
@@ -1228,7 +1524,13 @@ public sealed record TripFinancialDetails(
     decimal PaidOutAmount,
     decimal DriverPaidAmount,
     decimal PendingAmount,
-    List<TripCostDetails> Costs);
+    List<TripCostDetails> Costs,
+    decimal? TransportPrice,
+    decimal? DriverEarningPercent,
+    decimal? DriverEarningAmount,
+    decimal? AdvanceAmount,
+    decimal AdvanceSpentAmount,
+    decimal? AdvanceBalance);
 
 public sealed record TripCostDetails(
     Guid Id,

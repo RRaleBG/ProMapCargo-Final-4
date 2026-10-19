@@ -30,6 +30,8 @@
     function renderThreads() {
         const unread = state.threads.reduce((sum, t) => sum + t.unread, 0);
         el.summary.textContent = `${state.threads.length} vozača · nepročitano: ${unread}`;
+        // The number next to "Poruke" in the menu (services/messages.js).
+        document.dispatchEvent(new CustomEvent("promap:messages-unread", { detail: { count: unread } }));
         el.threads.replaceChildren(...state.threads.map((thread) => {
             const item = document.createElement("button");
             item.type = "button";

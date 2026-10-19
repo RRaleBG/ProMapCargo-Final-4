@@ -19,7 +19,7 @@ public static class LocalNotifications
 
             if (OperatingSystem.IsAndroidVersionAtLeast(26) && manager.GetNotificationChannel(channel) is null)
             {
-                var name = channel == "promap-messages" ? "Poruke dispečera" : "Obaveštenja";
+                var name = channel switch { "promap-messages" => "Poruke dispečera", "promap-updates" => "Ažuriranja aplikacije", _ => "Obaveštenja" };
                 manager.CreateNotificationChannel(new Android.App.NotificationChannel(channel, name, Android.App.NotificationImportance.Default));
             }
 

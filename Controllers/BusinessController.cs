@@ -169,6 +169,16 @@ public sealed class BusinessController(BusinessService service) : ControllerBase
     public Task<ActionResult> CreateDriver([FromBody] DriverInput input, CancellationToken ct)
         => Run(async () => Ok(await service.CreateDriverAsync(input, ct)));
 
+    // Driver-role accounts without a driver profile ("Novi vozač" builds the profile from one).
+    [HttpGet("drivers/accounts")]
+    public Task<ActionResult> DriverAccounts(CancellationToken ct)
+        => Run(async () => Ok(await service.DriverAccountsWithoutProfileAsync(ct)));
+
+    // The only place where a driver and a trailer are put on a vehicle.
+    [HttpPut("vehicles/{vehicleId:guid}/assignment")]
+    public Task<ActionResult> AssignVehicle(Guid vehicleId, [FromBody] VehicleAssignmentInput input, CancellationToken ct)
+        => Run(async () => Ok(await service.AssignVehicleAsync(vehicleId, input, ct)));
+
     // Same error shape as CreateOrder: 401 without a company, 400 invalid input, 404, 409 duplicate.
     private async Task<ActionResult> Run(Func<Task<ActionResult>> action)
     {

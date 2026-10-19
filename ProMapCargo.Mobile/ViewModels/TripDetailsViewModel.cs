@@ -112,7 +112,7 @@ public sealed class TripDetailsViewModel : ViewModelBase, IQueryAttributable
 
             if (portal?.Trip?.Vehicle is { Length: > 0 } vehicle && tripId == portal.Trip.Id)
             {
-                parts.Add(vehicle);
+                parts.Add(portal.Trip.Trailer is { Length: > 0 } trailer ? $"{vehicle} + {trailer}" : vehicle);
             }
 
             return parts.Count == 0 ? "Nema vremenskih podataka za ovu turu." : string.Join(" · ", parts);
@@ -173,8 +173,24 @@ public sealed class TripDetailsViewModel : ViewModelBase, IQueryAttributable
             }
 
             var financial = portal.Financial;
-            return $"Dnevnice {FormatMoney(financial.AllowanceAmount, financial.Currency)} · isplaćeno {FormatMoney(financial.PaidOutAmount, financial.Currency)} · na čekanju {FormatMoney(financial.PendingAmount, financial.Currency)}";
+            var earning = financial.DriverEarningAmount is decimal amount ? $"Zarada {FormatMoney(amount, financial.Currency)} · " : "";
+            return $"{earning}Dnevnice {FormatMoney(financial.AllowanceAmount, financial.Currency)} · isplaćeno {FormatMoney(financial.PaidOutAmount, financial.Currency)} · na čekanju {FormatMoney(financial.PendingAmount, financial.Currency)}{Environment.NewLine}{AdvanceText(financial)}";
         }
+    }
+
+    // The advance against the business expenses the driver paid himself.
+    private static string AdvanceText(DriverPortalFinancial financial)
+    {
+        if (financial.AdvanceAmount is not decimal advance)
+        {
+            return $"Bez akontacije · vaši poslovni troškovi {FormatMoney(financial.AdvanceSpentAmount, financial.Currency)}";
+        }
+
+        var balance = financial.AdvanceBalance ?? 0;
+        var settlement = balance > 0
+            ? $"vraćate {FormatMoney(balance, financial.Currency)}"
+            : balance < 0 ? $"firma vam duguje {FormatMoney(-balance, financial.Currency)}" : "izmireno";
+        return $"Akontacija {FormatMoney(advance, financial.Currency)} · opravdano {FormatMoney(financial.AdvanceSpentAmount, financial.Currency)} · {settlement}";
     }
 
     public string DriverHistorySummary => SummarizeHistory(portal?.DriverHistory, "vozača");
