@@ -2,7 +2,9 @@
 #   1. downloads the countries' OSM extracts from Geofabrik into osm/geofabrik/
 #      (only when missing or older than -MaxAgeDays),
 #   2. builds <region>.graphbundle + <region>.places into wwwroot/offline-bundles,
-#   3. cuts the navigation map <region>-nav.pmtiles from wwwroot/maps/europe.pmtiles.
+#   3. cuts the navigation map <region>-nav.pmtiles (up to -MaxZoom, default 14).
+#      wwwroot/maps/europe.pmtiles only goes to zoom 12, so for zoom 14 pass a fuller
+#      source: -MapSource https://build.protomaps.com/<yyyyMMdd>.pmtiles (as update-all.ps1 does).
 # The API serves both folders; the app lists the region in "Offline mape".
 #
 #   pwsh Tools/OfflineBundleBuilder/build-region.ps1 -Region zapadni-balkan
@@ -20,7 +22,9 @@ param(
     [string]$BundleDir = "wwwroot/offline-bundles",
     [string]$MapDir = "wwwroot/maps",
     [string]$MapSource = "wwwroot/maps/europe.pmtiles",
-    [int]$MaxZoom = 12
+    # Navigation runs at zoom 16-17: z12 tiles overzoomed that far draw generalized rivers
+    # (merged, far too wide) and roads shifted off the route line. z14 keeps them in place.
+    [int]$MaxZoom = 14
 )
 
 $ErrorActionPreference = "Stop"
