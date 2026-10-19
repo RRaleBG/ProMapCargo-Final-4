@@ -752,17 +752,54 @@ window.ProMap = window.ProMap || {};
         return 2 * earth * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
+    // Off route = farther than OFF_ROUTE_METERS from the route line for
+    // OFF_ROUTE_FIXES fixes in a row (one bad fix between buildings must not reroute).
+    const OFF_ROUTE_METERS = 50;
+    const OFF_ROUTE_FIXES = 3;
+    const REROUTE_COOLDOWN_MS = 10000;
+    // A fix within this distance of the route line is matched onto it for guidance.
+    const ROUTE_MATCH_METERS = 50;
+
+    // Distance from a point to the segment a-b (metres, local equirectangular
+    // projection) and the position along it (0..1).
+    function projectOntoSegment(latitude, longitude, a, b) {
+        const latFactor = 111320;
+        const lonFactor = 111320 * Math.cos(((a[0] + b[0] + latitude) / 3) * Math.PI / 180);
+        const px = longitude * lonFactor;
+        const py = latitude * latFactor;
+        const x1 = a[1] * lonFactor;
+        const y1 = a[0] * latFactor;
+        const dx = b[1] * lonFactor - x1;
+        const dy = b[0] * latFactor - y1;
+        const lengthSquared = dx * dx + dy * dy;
+        const t = lengthSquared > 0
+            ? Math.min(1, Math.max(0, ((px - x1) * dx + (py - y1) * dy) / lengthSquared))
+            : 0;
+        const cx = x1 + t * dx - px;
+        const cy = y1 + t * dy - py;
+
+        return { distance: Math.sqrt(cx * cx + cy * cy), fraction: t };
+    }
+
+    // Distance to the route LINE (its segments). Measuring to the route points only
+    // reported hundreds of metres on long straight segments and rerouted on route.
     function distanceToRouteMeters(latitude, longitude) {
-        if (state.routeCoordinates.length === 0) {
+        const coordinates = state.routeCoordinates;
+
+        if (coordinates.length === 0) {
             return null;
+        }
+
+        if (coordinates.length === 1) {
+            return haversineMeters(latitude, longitude, coordinates[0][0], coordinates[0][1]);
         }
 
         let best = Infinity;
 
-        for (const point of state.routeCoordinates) {
+        for (let i = 0; i < coordinates.length - 1; i++) {
             best = Math.min(
                 best,
-                haversineMeters(latitude, longitude, point[0], point[1]),
+                projectOntoSegment(latitude, longitude, coordinates[i], coordinates[i + 1]).distance,
             );
         }
 
@@ -2662,6 +2699,38 @@ window.ProMap = window.ProMap || {};
         }
     }
 
+    // The first stretch of segments (from fromSegment) within ROUTE_MATCH_METERS of
+    // the fix, and in it the closest segment; null when none is that close.
+    function matchRouteSegment(latitude, longitude, fromSegment) {
+        const coordinates = state.routeCoordinates;
+        let best = -1;
+        let bestDistance = Infinity;
+        let bestFraction = 0;
+        let lastInside = -1;
+
+        for (let i = fromSegment; i < coordinates.length - 1; i++) {
+            const { distance, fraction } = projectOntoSegment(
+                latitude, longitude, coordinates[i], coordinates[i + 1]);
+
+            if (distance <= ROUTE_MATCH_METERS) {
+                lastInside = i;
+
+                if (distance < bestDistance) {
+                    best = i;
+                    bestDistance = distance;
+                    bestFraction = fraction;
+                }
+            } else if (best >= 0 && i > lastInside + 3) {
+                break; // left the first matching stretch of the route
+            }
+        }
+
+        return best >= 0 ? { segment: best, fraction: bestFraction } : null;
+    }
+
+    // Distance travelled along the route: the fix projected onto its segment (not
+    // snapped to the nearest route point), searched forward from the last match so
+    // a route that passes the same place twice is matched on the pass ahead.
     function routeProgressFromPosition(position) {
         if (!position || state.routeCoordinates.length < 2) {
             return null;
@@ -2675,25 +2744,36 @@ window.ProMap = window.ProMap || {};
             return null;
         }
 
-        let bestDistance = Infinity;
-
-        let bestProgress = 0;
-
-        for (let i = 0; i < state.routeCoordinates.length; i++) {
-            const point = state.routeCoordinates[i];
-
-            const distance = haversineMeters(latitude, longitude, point[0], point[1]);
-
-            if (distance < bestDistance) {
-                bestDistance = distance;
-
-                bestProgress = state.routeCumulativeDistances[i] ?? 0;
-            }
+        if (state.routeCumulativeDistances.length !== state.routeCoordinates.length) {
+            buildRouteCumulativeDistances();
+            state.routeProgressSegment = 0;
         }
 
-        state.routeProgressMeters = bestProgress;
+        const from = Math.max(0, (state.routeProgressSegment || 0) - 2);
+        const match =
+            matchRouteSegment(latitude, longitude, from) ??
+            matchRouteSegment(latitude, longitude, 0);
 
-        return bestProgress;
+        if (!match) {
+            return null; // off the route: keep the last progress
+        }
+
+        const cumulative = state.routeCumulativeDistances;
+        const start = cumulative[match.segment] ?? 0;
+        const length = (cumulative[match.segment + 1] ?? start) - start;
+        const progress = start + match.fraction * length;
+
+        if (match.segment < (state.routeProgressSegment || 0) - 2 ||
+            progress < Number(state.routeProgressMeters || 0) - 50) {
+            // Matched further back (route restarted / simulation): let the maneuver
+            // pointer move back too, it only ever advanced before.
+            state.maneuverIndex = 0;
+        }
+
+        state.routeProgressSegment = match.segment;
+        state.routeProgressMeters = progress;
+
+        return progress;
     }
 
     function getNextManeuver(position = getCurrentGpsPosition()) {
@@ -2814,6 +2894,8 @@ window.ProMap = window.ProMap || {};
         }
 
         state.routeProgressMeters = 0;
+        state.routeProgressSegment = 0;
+        state.offRouteFixes = 0;
 
         box.innerHTML = "";
 
@@ -4449,11 +4531,18 @@ window.ProMap = window.ProMap || {};
                 longitude,
             );
 
+        state.offRouteFixes =
+            offRoute != null && offRoute > OFF_ROUTE_METERS
+                ? (state.offRouteFixes || 0) + 1
+                : 0;
+
+        const isOffRoute = state.offRouteFixes >= OFF_ROUTE_FIXES;
+
         setText(
             "liveOffRoute",
             offRoute == null
                 ? "—"
-                : offRoute > 100
+                : isOffRoute
                     ? `DA · ${Math.round(offRoute)} m`
                     : "NE",
         );
@@ -4492,12 +4581,12 @@ window.ProMap = window.ProMap || {};
             !state.mobileMode &&
             state.live &&
             state.routeResponse &&
-            offRoute != null &&
-            offRoute > 100 &&
+            isOffRoute &&
             Date.now() -
             state.lastRerouteAt >
-            30000
+            REROUTE_COOLDOWN_MS
         ) {
+            state.offRouteFixes = 0;
             state.lastRerouteAt =
                 Date.now();
 
