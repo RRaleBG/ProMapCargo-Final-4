@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace ProMapCargo.Mobile.Services;
 
-public sealed record RecentDestination(string Title, double Latitude, double Longitude, DateTimeOffset UsedAt);
+public sealed record RecentDestination(string Title, double Latitude, double Longitude, DateTimeOffset UsedAt, string? Address = null);
 
 /// <summary>
 /// Destinations the driver calculated a route to, newest first (like TomTom's
@@ -28,7 +28,7 @@ public static class RecentDestinations
         }
     }
 
-    public static void Add(string title, double latitude, double longitude)
+    public static void Add(string title, double latitude, double longitude, string? address = null)
     {
         if (string.IsNullOrWhiteSpace(title))
         {
@@ -40,7 +40,7 @@ public static class RecentDestinations
             .Where(item => Math.Abs(item.Latitude - latitude) > 0.001 || Math.Abs(item.Longitude - longitude) > 0.001)
             .ToList();
 
-        items.Insert(0, new RecentDestination(title.Trim(), latitude, longitude, DateTimeOffset.Now));
+        items.Insert(0, new RecentDestination(title.Trim(), latitude, longitude, DateTimeOffset.Now, address));
 
         try
         {

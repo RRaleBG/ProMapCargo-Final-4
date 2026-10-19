@@ -250,6 +250,27 @@
         return true;
     }
 
+    function getStopDisplayTitle(type, index) {
+        const normalized = String(type || "").trim();
+        if (normalized === "Loading" || normalized === "LoadingAndUnloading") {
+            return "UTOVAR";
+        }
+        if (normalized === "Unloading") {
+            return "ISTOVAR";
+        }
+        return `Tačka ${index + 1}`;
+    }
+
+    function updateStopCardTitle(card, index) {
+        const titleNode = card.querySelector("[data-stop-title]");
+        if (!titleNode) {
+            return;
+        }
+
+        const type = card.querySelector('[data-stop-field="type"]')?.value || "Other";
+        titleNode.textContent = getStopDisplayTitle(type, index);
+    }
+
     function createStop(data = {}) {
         const container = $("stops");
         if (!container) return null;
@@ -266,11 +287,10 @@
 
         const title = document.createElement("h3");
         title.className = "pm-card-title";
-        title.textContent = "Transportna tačka ";
 
-        const number = document.createElement("span");
-        number.dataset.stopNumber = "true";
-        title.appendChild(number);
+        const titleText = document.createElement("span");
+        titleText.dataset.stopTitle = "true";
+        title.appendChild(titleText);
 
         const subtitle = document.createElement("p");
         subtitle.className = "pm-card-subtitle";
@@ -303,6 +323,7 @@
             option.textContent = label;
             type.input.appendChild(option);
         });
+        type.input.addEventListener("change", () => updateStopCardTitle(card, index));
 
         const name = createField(index, "name", "Naziv *");
         const city = createField(index, "city", "Grad");
@@ -337,6 +358,7 @@
         card.append(header, body);
 
         setStopValues(card, data);
+        updateStopCardTitle(card, index);
 
         remove.addEventListener("click", () => {
             if (getStopCards().length <= 2) {
@@ -419,8 +441,7 @@
 
     function renumberStops() {
         getStopCards().forEach((card, index) => {
-            const number = card.querySelector("[data-stop-number]");
-            if (number) number.textContent = String(index + 1);
+            updateStopCardTitle(card, index);
         });
     }
 
@@ -461,7 +482,16 @@
 
             const label = document.createElement("div");
             label.className = "pm-label";
-            label.textContent = `Tačka ${index + 1} · ${stop.type}`;
+            const stopTypeLabel = {
+                Loading: "UTOVAR",
+                Unloading: "ISTOVAR",
+                LoadingAndUnloading: "UTOVAR + ISTOVAR",
+                Other: "OSTALO",
+                Border: "GRANICA",
+                Rest: "ODMOR",
+                Fuel: "GORIVO"
+            }[stop.type] || "TAČKA";
+            label.textContent = `${stopTypeLabel} · tačka ${index + 1}`;
 
             const name = document.createElement("strong");
             name.textContent = stop.name || "Bez naziva";
@@ -663,6 +693,13 @@
         $("addStop")?.addEventListener("click", () => {
             createStop({ type: "Other" });
             setActiveTab("stops");
+        });
+
+        document.querySelectorAll("[data-stop-kind]").forEach(button => {
+            button.addEventListener("click", () => {
+                createStop({ type: button.dataset.stopKind || "Other" });
+                setActiveTab("stops");
+            });
         });
 
         form.addEventListener("submit", saveOrder);

@@ -540,10 +540,16 @@ public class NavigationViewModel : ViewModelBase
         {
             savedRouteStore.Clear();
             suppressSearch = true;
-            DestinationQuery = destination.Title;
-            destinationLabel = destination.Title;
-            DestinationLatitude = destination.Latitude.ToString("0.000000", CultureInfo.InvariantCulture);
-            DestinationLongitude = destination.Longitude.ToString("0.000000", CultureInfo.InvariantCulture);
+
+            var destinationAddress = !string.IsNullOrWhiteSpace(destination.Address)
+                ? destination.Address
+                : destination.Title;
+            var hasCoords = Math.Abs(destination.Latitude) > 0.000001 || Math.Abs(destination.Longitude) > 0.000001;
+
+            DestinationQuery = destinationAddress;
+            destinationLabel = destinationAddress;
+            DestinationLatitude = hasCoords ? destination.Latitude.ToString("0.000000", CultureInfo.InvariantCulture) : string.Empty;
+            DestinationLongitude = hasCoords ? destination.Longitude.ToString("0.000000", CultureInfo.InvariantCulture) : string.Empty;
             StartQuery = MyLocationLabel;
             StartLatitude = string.Empty;
             StartLongitude = string.Empty;
@@ -927,8 +933,9 @@ public class NavigationViewModel : ViewModelBase
         // without signal does not wait for it (reading it takes a few seconds).
         _ = Task.Run(() => offlineEngine.EnsureLoadedAsync(CurrentLocation));
 
-        // Guidance survives an app restart without signal: bring back the last route.
-        if (!HasRoute && savedRouteStore.Load() is { } saved)
+        // Guidance survives an app restart without signal, but a brand-new destination
+        // requested from the trip/dashboard must always win over the stale last route.
+        if (!HasRoute && NavigationRequests.Peek() is null && savedRouteStore.Load() is { } saved)
         {
             await MainThread.InvokeOnMainThreadAsync(() => RestoreSavedRoute(saved));
         }

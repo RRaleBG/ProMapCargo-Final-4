@@ -87,15 +87,23 @@ public partial class MobileNavigationPage : ContentPage
 
         StartThenFillAnimation();
 
+        var pendingRequest = NavigationRequests.Take();
+
         SafeUi.Run(async () =>
         {
             await viewModel.LoadInitialRouteAsync();
             await PushStateToWebAsync(force: true);
 
             // "Kuda idemo?" or a recent destination tapped on the home screen.
-            if (NavigationRequests.Take() is { } request)
+            // Keep the fresh request ahead of any stale saved route, so a newly assigned trip
+            // never reuses the previous route from the device.
+            if (pendingRequest is { } request)
             {
                 await viewModel.ApplyRequestAsync(request);
+            }
+            else if (NavigationRequests.Peek() is { } laterRequest)
+            {
+                await viewModel.ApplyRequestAsync(laterRequest);
             }
         });
     }

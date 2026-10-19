@@ -1,15 +1,15 @@
 @page "/orders/new"
 
 @{
-    ViewData["Title"] = "Novi transportni nalog · ProMap Cargo";
+    ViewData["Title"] = "Novi nalog";
 }
 
 <div class="pm-page pm-page--orders/new" data-module="orders/new">
 
     <header class="pm-page-header pm-header">
         <div class="pm-page-heading">
-            <div class="pm-page-kicker">Transportni nalozi · Kreiranje</div>
-            <h1 class="pm-page-title">Novi transportni nalog</h1>
+            <div class="pm-page-kicker">Nalozi · Kreiranje</div>
+            <h1 class="pm-page-title">Novi nalog</h1>
             <p class="pm-page-subtitle">
                 Kreirajte nalog kroz četiri koraka: osnovni podaci, teret, transportna ruta i završna provera.
             </p>
@@ -82,7 +82,7 @@
                 <div class="pm-card-header">
                     <div>
                         <h2 class="pm-card-title">Osnovni podaci</h2>
-                        <p class="pm-card-subtitle">Identifikacija transportnog naloga i kupca.</p>
+                        <p class="pm-card-subtitle">Identifikacija transportnog naloga i firme.</p>
                     </div>
                 </div>
 
@@ -96,7 +96,7 @@
                         </div>
 
                         <div class="pm-field">
-                            <label class="pm-label" for="customerName">Kupac *</label>
+                            <label class="pm-label" for="customerName">Firma *</label>
                             <input id="customerName" class="pm-input"
                                    maxlength="200" autocomplete="organization" required />
                             <div id="customerName-error" class="pm-error" hidden></div>
@@ -241,10 +241,16 @@
                         </p>
                     </div>
 
-                    <div class="pm-card-actions">
+                    <div class="pm-card-actions pm-stop-actions" style="display:flex; gap:.5rem; flex-wrap:wrap; justify-content:flex-end;">
+                        <button type="button" class="pm-btn pm-btn-secondary" data-stop-kind="Unloading">
+                            ISTOVAR
+                        </button>
                         <button id="addStop" type="button" class="pm-btn pm-btn-secondary">
                             <i data-lucide="plus" aria-hidden="true"></i>
-                            Dodaj tačku
+                            + DODAJ TAČKU
+                        </button>
+                        <button type="button" class="pm-btn pm-btn-secondary" data-stop-kind="Loading">
+                            UTOVAR
                         </button>
                     </div>
                 </div>
@@ -277,6 +283,8 @@
                     </div>
                 </div>
 
+
+                <!-- explanation  -->
                 <div class="pm-card-body">
                     <div class="pm-form-grid pm-form-grid-3">
                         <div class="pm-field">

@@ -698,7 +698,12 @@ public sealed class DashboardViewModel : ViewModelBase
         }
 
         savedRouteStore.Clear();
-        NavigationRequests.RouteTo(new RecentDestination(StopTitle(stop), lat, lon, DateTimeOffset.Now));
+        NavigationRequests.RouteTo(new RecentDestination(
+            StopTitle(stop),
+            lat,
+            lon,
+            DateTimeOffset.Now,
+            StopAddress(stop)));
         SafeUi.Run(() => AppNavigation.GoToAsync(AppNavigation.Navigation));
     }
 
@@ -765,6 +770,13 @@ public sealed class DashboardViewModel : ViewModelBase
 
     private static string StopTitle(DriverPortalStop stop)
         => !string.IsNullOrWhiteSpace(stop.Name) ? stop.Name : stop.City ?? $"Stanica {stop.Sequence}";
+
+    private static string StopAddress(DriverPortalStop stop)
+        => !string.IsNullOrWhiteSpace(stop.Address)
+            ? stop.Address!
+            : !string.IsNullOrWhiteSpace(stop.Name)
+                ? stop.Name
+                : stop.City ?? $"Stanica {stop.Sequence}";
 
     private static string StopDetail(DriverPortalStop stop)
     {

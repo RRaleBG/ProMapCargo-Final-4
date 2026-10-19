@@ -14,6 +14,9 @@ public static class NavigationRequests
 
     public static void RouteTo(RecentDestination destination) => pending = new HomeNavigationRequest(false, destination);
 
+    /// <summary>Looks at a pending request without consuming it.</summary>
+    public static HomeNavigationRequest? Peek() => pending;
+
     /// <summary>Returns the pending request once and clears it.</summary>
     public static HomeNavigationRequest? Take()
     {
