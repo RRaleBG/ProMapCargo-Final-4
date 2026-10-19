@@ -9,13 +9,18 @@ namespace ProMapCargo.Mobile.ViewModels;
 
 public class NavigationViewModel : ViewModelBase
 {
-    private const double OffRouteThresholdMeters = 120;
+    // Off route = farther than this from the route line for OffRouteFixesRequired fixes in a
+    // row. 120 m let a truck on a parallel street or under an overpass count as "on route".
+    private const double OffRouteThresholdMeters = 50;
+    private const int OffRouteFixesRequired = 3;
+    // A fix within this distance of the route line is matched onto it for guidance.
+    private const double RouteMatchToleranceMeters = 50;
     private const double ManeuverArrivalThresholdMeters = 35;
     private const string MyLocationLabel = "Moja lokacija";
     // A maneuver counts as passed once the truck is this far beyond it along the route.
     private const double ManeuverPassedToleranceMeters = 10;
     private const string GpsHolder = "navigation";
-    private static readonly TimeSpan AutoRerouteCooldown = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan AutoRerouteCooldown = TimeSpan.FromSeconds(10);
     private readonly ApiClient apiClient;
     private readonly OfflineRoutingBundleService offlineRoutingBundleService;
     private readonly IMobileNotifier notifier;
@@ -28,6 +33,7 @@ public class NavigationViewModel : ViewModelBase
     // Auto-reroute only after the truck has been on the route once: a route planned
     // from somewhere else (start typed in) must not be replaced from the GPS position.
     private bool hasBeenOnRoute;
+    private int offRouteFixCount;
     private string startLatitude = string.Empty;
     private string startLongitude = string.Empty;
     private string destinationLatitude = string.Empty;
@@ -1382,6 +1388,13 @@ public class NavigationViewModel : ViewModelBase
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 ApplyRoute(response, requestStart.Lat, requestStart.Lon, destinationLat, destinationLon);
+                // A route computed from the GPS position starts at the truck: watch it for
+                // deviations right away. Before, ApplyRoute reset this flag and a reroute whose
+                // start snapped more than the threshold away switched auto-reroute off for good.
+                if (overrideStart is not null)
+                {
+                    hasBeenOnRoute = true;
+                }
                 // Like TomTom: once the route is ready the planner gets out of the way.
                 IsRouteInputVisible = false;
             });
@@ -1477,6 +1490,11 @@ public class NavigationViewModel : ViewModelBase
     private void ApplyRoute(RouteResponse? route, double startLat, double startLon, double destinationLat, double destinationLon)
     {
         hasBeenOnRoute = false;
+        offRouteFixCount = 0;
+        // New geometry: rebuild the cumulative distances (they were cached by point count
+        // only, so a new route with the same number of points reused the old distances).
+        routeCumulativeForCount = -1;
+        lastProgressSegment = 0;
         var selectedRoute = route?.Routes.Count > 0
             ? route.Routes[Math.Clamp(route.SelectedRouteIndex, 0, route.Routes.Count - 1)]
             : null;
@@ -1621,10 +1639,14 @@ public class NavigationViewModel : ViewModelBase
 
     private double[] routeCumulativeMeters = [];
     private int routeCumulativeForCount = -1;
+    private int lastProgressSegment;
 
     /// <summary>
-    /// Distance travelled along the route: the cumulative length up to the route
-    /// point nearest the truck. Null when the truck is more than 60 m off the route.
+    /// Distance travelled along the route: the fix is projected onto the route segment it
+    /// lies on (not snapped to the nearest vertex, which was off by up to half a segment and
+    /// lost long straight segments entirely). The search starts at the last matched segment,
+    /// so a route that passes the same place twice is matched on the pass ahead.
+    /// Null when the truck is farther than <see cref="RouteMatchToleranceMeters"/> from the route.
     /// </summary>
     private double? RouteProgressMeters(GeoPoint position)
     {
@@ -1643,21 +1665,52 @@ public class NavigationViewModel : ViewModelBase
                     points[i - 1].Lat, points[i - 1].Lon, points[i].Lat, points[i].Lon, DistanceUnits.Kilometers) * 1000;
             }
             routeCumulativeForCount = points.Count;
+            lastProgressSegment = 0;
         }
 
-        var nearest = 0;
-        var nearestDistance = double.MaxValue;
-        for (var i = 0; i < points.Count; i++)
+        var match = MatchSegment(position, points, Math.Max(0, lastProgressSegment - 2))
+            ?? MatchSegment(position, points, 0); // simulation restart, GPS jump backwards
+        if (match is not { } found)
         {
-            var d = Location.CalculateDistance(position.Lat, position.Lon, points[i].Lat, points[i].Lon, DistanceUnits.Kilometers) * 1000;
-            if (d < nearestDistance)
+            return null;
+        }
+
+        lastProgressSegment = found.Segment;
+        var segmentLength = routeCumulativeMeters[found.Segment + 1] - routeCumulativeMeters[found.Segment];
+        return routeCumulativeMeters[found.Segment] + found.Fraction * segmentLength;
+    }
+
+    /// <summary>
+    /// The first run of route segments (from <paramref name="fromSegment"/>) within the match
+    /// tolerance of the fix, and within it the closest segment.
+    /// </summary>
+    private static (int Segment, double Fraction)? MatchSegment(GeoPoint position, IReadOnlyList<GeoPoint> points, int fromSegment)
+    {
+        var best = -1;
+        var bestDistance = double.MaxValue;
+        var bestFraction = 0d;
+        var lastInside = -1;
+
+        for (var i = fromSegment; i < points.Count - 1; i++)
+        {
+            var (distance, fraction) = ProjectOntoSegment(position, points[i], points[i + 1]);
+            if (distance <= RouteMatchToleranceMeters)
             {
-                nearestDistance = d;
-                nearest = i;
+                lastInside = i;
+                if (distance < bestDistance)
+                {
+                    best = i;
+                    bestDistance = distance;
+                    bestFraction = fraction;
+                }
+            }
+            else if (best >= 0 && i > lastInside + 3)
+            {
+                break; // left the first matching stretch of the route
             }
         }
 
-        return nearestDistance <= 60 ? routeCumulativeMeters[nearest] : null;
+        return best >= 0 ? (best, bestFraction) : null;
     }
 
     private double smoothedSpeedKph;
@@ -1706,9 +1759,13 @@ public class NavigationViewModel : ViewModelBase
         // Exponential smoothing: fixes arriving close together (or late) made the
         // derived speed jump, e.g. 54 -> 122 km/h.
         var rawKph = ResolveSpeedKph(latitude, longitude, speedMps);
+        // The receiver's own speed (Doppler) is accurate and already filtered: follow it
+        // closely. Only speed derived from position deltas needs heavy smoothing. Smoothing
+        // the GPS speed with 0.3 made the display lag ~5-8 km/h while accelerating.
+        var weight = speedMps is > 0 ? 0.8 : 0.3;
         smoothedSpeedKph = rawKph < 0
             ? smoothedSpeedKph
-            : rawKph == 0 ? smoothedSpeedKph * 0.5 : smoothedSpeedKph * 0.7 + rawKph * 0.3;
+            : rawKph == 0 ? smoothedSpeedKph * 0.5 : smoothedSpeedKph * (1 - weight) + rawKph * weight;
         if (smoothedSpeedKph < 1) smoothedSpeedKph = 0;
         CurrentSpeedText = smoothedSpeedKph.ToString("0", CultureInfo.InvariantCulture);
         // Above the truck's maximum speed (fleet record) the speed bubble turns red.
@@ -1849,12 +1906,14 @@ public class NavigationViewModel : ViewModelBase
 
         var distanceMeters = CalculateDistanceToPolylineMeters(CurrentLocation, RoutePolylinePoints);
         OffRouteDistanceMeters = distanceMeters;
-        IsOffRoute = distanceMeters > OffRouteThresholdMeters;
+        // A single bad fix (multipath between buildings) must not reroute; a few in a row do.
+        offRouteFixCount = distanceMeters > OffRouteThresholdMeters ? offRouteFixCount + 1 : 0;
+        IsOffRoute = offRouteFixCount >= OffRouteFixesRequired;
         OffRouteStatusText = IsOffRoute
             ? $"VAN RUTE · {distanceMeters:0} m"
             : $"NA RUTI · odstupanje {distanceMeters:0} m";
 
-        if (!IsOffRoute)
+        if (distanceMeters <= OffRouteThresholdMeters)
         {
             hasBeenOnRoute = true;
         }
@@ -1896,6 +1955,10 @@ public class NavigationViewModel : ViewModelBase
     }
 
     private static double DistancePointToSegmentMeters(GeoPoint point, GeoPoint start, GeoPoint end)
+        => ProjectOntoSegment(point, start, end).Distance;
+
+    /// <summary>Distance from the point to the segment and the position along it (0..1).</summary>
+    private static (double Distance, double Fraction) ProjectOntoSegment(GeoPoint point, GeoPoint start, GeoPoint end)
     {
         var latitudeFactor = 111320d;
         var longitudeFactor = 111320d * Math.Cos(((start.Lat + end.Lat + point.Lat) / 3d) * Math.PI / 180d);
@@ -1912,7 +1975,7 @@ public class NavigationViewModel : ViewModelBase
 
         if (Math.Abs(dx) < double.Epsilon && Math.Abs(dy) < double.Epsilon)
         {
-            return Math.Sqrt((px - x1) * (px - x1) + (py - y1) * (py - y1));
+            return (Math.Sqrt((px - x1) * (px - x1) + (py - y1) * (py - y1)), 0);
         }
 
         var projection = ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy);
@@ -1921,7 +1984,7 @@ public class NavigationViewModel : ViewModelBase
         var closestX = x1 + projection * dx;
         var closestY = y1 + projection * dy;
 
-        return Math.Sqrt((px - closestX) * (px - closestX) + (py - closestY) * (py - closestY));
+        return (Math.Sqrt((px - closestX) * (px - closestX) + (py - closestY) * (py - closestY)), projection);
     }
 
     private void UpdateLaneRibbon(string primarySymbol)
